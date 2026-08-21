@@ -1,0 +1,25 @@
+<section>
+  <h2>Trainingseinheiten</h2>
+
+  <form (ngSubmit)="addSession()">
+    <input type="date" name="date" [(ngModel)]="date" required />
+    <input type="text" name="notes" placeholder="Notizen" [(ngModel)]="notes" />
+    <button type="submit">Hinzufügen</button>
+  </form>
+
+  @if (sessions.length === 0) {
+    <p>Noch keine Trainingseinheiten vorhanden.</p>
+  } @else {
+    <ul>
+      @for (session of sessions; track session.id) {
+        <li>
+          <strong>{{ session.date }}</strong>
+          @if (session.notes) {
+            <span> – {{ session.notes }}</span>
+          }
+          <button type="button" (click)="deleteSession(session.id)">Löschen</button>
+        </li>
+      }
+    </ul>
+  }
+</section>

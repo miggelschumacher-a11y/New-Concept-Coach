@@ -1,0 +1,25 @@
+<section>
+  <h2>Trainingspläne</h2>
+
+  <form (ngSubmit)="addPlan()">
+    <input type="text" name="name" placeholder="Name" [(ngModel)]="name" required />
+    <input type="text" name="description" placeholder="Beschreibung" [(ngModel)]="description" />
+    <button type="submit">Hinzufügen</button>
+  </form>
+
+  @if (plans.length === 0) {
+    <p>Noch keine Trainingspläne vorhanden.</p>
+  } @else {
+    <ul>
+      @for (plan of plans; track plan.id) {
+        <li>
+          <strong>{{ plan.name }}</strong>
+          @if (plan.description) {
+            <span> – {{ plan.description }}</span>
+          }
+          <button type="button" (click)="deletePlan(plan.id)">Löschen</button>
+        </li>
+      }
+    </ul>
+  }
+</section>
