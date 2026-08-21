@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { ExercisesComponent } from './exercises.component';
 
@@ -8,7 +9,8 @@ describe('ExercisesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ExercisesComponent]
+      imports: [ExercisesComponent],
+      providers: [provideNoopAnimations()]
     })
     .compileComponents();
 
