@@ -21,17 +21,49 @@
 @if (sessions.length === 0) {
   <p>Noch keine Trainingseinheiten vorhanden.</p>
 } @else {
-  <mat-list>
-    @for (session of sessions; track session.id) {
-      <mat-list-item>
-        <span matListItemTitle>{{ session.date }}</span>
+  @for (session of sessions; track session.id) {
+    <mat-card class="session-card">
+      <mat-card-header>
+        <mat-card-title>{{ session.date }}</mat-card-title>
         @if (session.notes) {
-          <span matListItemLine>{{ session.notes }}</span>
+          <mat-card-subtitle>{{ session.notes }}</mat-card-subtitle>
         }
+      </mat-card-header>
+
+      <mat-card-content>
+        <form class="exercise-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Übungen</mat-label>
+            <mat-select
+              [ngModel]="session.exerciseIds"
+              name="exerciseIds-{{ session.id }}"
+              multiple
+              (selectionChange)="updateSessionExercises(session, $event.value)"
+            >
+              @for (exercise of exercises; track exercise.id) {
+                <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+              }
+            </mat-select>
+            @if (exercises.length === 0) {
+              <mat-hint>Noch keine Übungen in den Stammdaten angelegt.</mat-hint>
+            }
+          </mat-form-field>
+        </form>
+
+        @if (session.exerciseIds.length > 0) {
+          <div class="exercise-chips">
+            @for (exerciseId of session.exerciseIds; track exerciseId) {
+              <mat-chip>{{ exerciseName(exerciseId) }}</mat-chip>
+            }
+          </div>
+        }
+      </mat-card-content>
+
+      <mat-card-actions align="end">
         <button mat-icon-button color="warn" (click)="deleteSession(session.id)" aria-label="Löschen">
           <mat-icon>delete</mat-icon>
         </button>
-      </mat-list-item>
-    }
-  </mat-list>
+      </mat-card-actions>
+    </mat-card>
+  }
 }
