@@ -1,25 +1,37 @@
-<section>
-  <h2>Trainingspläne</h2>
+<h2>Trainingspläne</h2>
 
-  <form (ngSubmit)="addPlan()">
-    <input type="text" name="name" placeholder="Name" [(ngModel)]="name" required />
-    <input type="text" name="description" placeholder="Beschreibung" [(ngModel)]="description" />
-    <button type="submit">Hinzufügen</button>
-  </form>
+<mat-card>
+  <mat-card-content>
+    <form class="entry-form" (ngSubmit)="addPlan()">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput name="name" [(ngModel)]="name" required />
+      </mat-form-field>
 
-  @if (plans.length === 0) {
-    <p>Noch keine Trainingspläne vorhanden.</p>
-  } @else {
-    <ul>
-      @for (plan of plans; track plan.id) {
-        <li>
-          <strong>{{ plan.name }}</strong>
-          @if (plan.description) {
-            <span> – {{ plan.description }}</span>
-          }
-          <button type="button" (click)="deletePlan(plan.id)">Löschen</button>
-        </li>
-      }
-    </ul>
-  }
-</section>
+      <mat-form-field appearance="outline">
+        <mat-label>Beschreibung</mat-label>
+        <input matInput name="description" [(ngModel)]="description" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit">Hinzufügen</button>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+@if (plans.length === 0) {
+  <p>Noch keine Trainingspläne vorhanden.</p>
+} @else {
+  <mat-list>
+    @for (plan of plans; track plan.id) {
+      <mat-list-item>
+        <span matListItemTitle>{{ plan.name }}</span>
+        @if (plan.description) {
+          <span matListItemLine>{{ plan.description }}</span>
+        }
+        <button mat-icon-button color="warn" (click)="deletePlan(plan.id)" aria-label="Löschen">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-list-item>
+    }
+  </mat-list>
+}

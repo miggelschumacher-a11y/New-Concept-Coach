@@ -1,12 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatCardModule } from '@angular/material/card';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { TrainingPlan } from '../core/models/training-plan.model';
 
 @Component({
   selector: 'app-training-plans',
   standalone: true,
-  imports: [FormsModule],
+  imports: [
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
+    MatCardModule
+  ],
   templateUrl: './training-plans.component.html',
   styleUrl: './training-plans.component.scss'
 })

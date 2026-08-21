@@ -1,25 +1,37 @@
-<section>
-  <h2>Trainingseinheiten</h2>
+<h2>Trainingseinheiten</h2>
 
-  <form (ngSubmit)="addSession()">
-    <input type="date" name="date" [(ngModel)]="date" required />
-    <input type="text" name="notes" placeholder="Notizen" [(ngModel)]="notes" />
-    <button type="submit">Hinzufügen</button>
-  </form>
+<mat-card>
+  <mat-card-content>
+    <form class="entry-form" (ngSubmit)="addSession()">
+      <mat-form-field appearance="outline">
+        <mat-label>Datum</mat-label>
+        <input matInput type="date" name="date" [(ngModel)]="date" required />
+      </mat-form-field>
 
-  @if (sessions.length === 0) {
-    <p>Noch keine Trainingseinheiten vorhanden.</p>
-  } @else {
-    <ul>
-      @for (session of sessions; track session.id) {
-        <li>
-          <strong>{{ session.date }}</strong>
-          @if (session.notes) {
-            <span> – {{ session.notes }}</span>
-          }
-          <button type="button" (click)="deleteSession(session.id)">Löschen</button>
-        </li>
-      }
-    </ul>
-  }
-</section>
+      <mat-form-field appearance="outline">
+        <mat-label>Notizen</mat-label>
+        <input matInput name="notes" [(ngModel)]="notes" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit">Hinzufügen</button>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+@if (sessions.length === 0) {
+  <p>Noch keine Trainingseinheiten vorhanden.</p>
+} @else {
+  <mat-list>
+    @for (session of sessions; track session.id) {
+      <mat-list-item>
+        <span matListItemTitle>{{ session.date }}</span>
+        @if (session.notes) {
+          <span matListItemLine>{{ session.notes }}</span>
+        }
+        <button mat-icon-button color="warn" (click)="deleteSession(session.id)" aria-label="Löschen">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-list-item>
+    }
+  </mat-list>
+}

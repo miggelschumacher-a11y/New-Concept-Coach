@@ -1,25 +1,37 @@
-<section>
-  <h2>Übungen</h2>
+<h2>Übungen</h2>
 
-  <form (ngSubmit)="addExercise()">
-    <input type="text" name="name" placeholder="Name" [(ngModel)]="name" required />
-    <input type="text" name="category" placeholder="Kategorie" [(ngModel)]="category" />
-    <button type="submit">Hinzufügen</button>
-  </form>
+<mat-card>
+  <mat-card-content>
+    <form class="entry-form" (ngSubmit)="addExercise()">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput name="name" [(ngModel)]="name" required />
+      </mat-form-field>
 
-  @if (exercises.length === 0) {
-    <p>Noch keine Übungen vorhanden.</p>
-  } @else {
-    <ul>
-      @for (exercise of exercises; track exercise.id) {
-        <li>
-          <strong>{{ exercise.name }}</strong>
-          @if (exercise.category) {
-            <span> ({{ exercise.category }})</span>
-          }
-          <button type="button" (click)="deleteExercise(exercise.id)">Löschen</button>
-        </li>
-      }
-    </ul>
-  }
-</section>
+      <mat-form-field appearance="outline">
+        <mat-label>Kategorie</mat-label>
+        <input matInput name="category" [(ngModel)]="category" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit">Hinzufügen</button>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+@if (exercises.length === 0) {
+  <p>Noch keine Übungen vorhanden.</p>
+} @else {
+  <mat-list>
+    @for (exercise of exercises; track exercise.id) {
+      <mat-list-item>
+        <span matListItemTitle>{{ exercise.name }}</span>
+        @if (exercise.category) {
+          <span matListItemLine>{{ exercise.category }}</span>
+        }
+        <button mat-icon-button color="warn" (click)="deleteExercise(exercise.id)" aria-label="Löschen">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-list-item>
+    }
+  </mat-list>
+}
