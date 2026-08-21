@@ -10,6 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
+import { SettingsService } from '../core/services/settings.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
 
@@ -50,8 +51,17 @@ export class SessionsComponent implements OnInit {
 
   constructor(
     private readonly sessionsService: SessionsService,
-    private readonly exercisesService: ExercisesService
+    private readonly exercisesService: ExercisesService,
+    private readonly settingsService: SettingsService
   ) {}
+
+  get dateFormat(): string {
+    return `${this.settingsService.getSettings().dateFormat}, HH:mm`;
+  }
+
+  get weightUnitLabel(): string {
+    return this.settingsService.getSettings().weightUnit.toUpperCase();
+  }
 
   async ngOnInit(): Promise<void> {
     await Promise.all([this.load(), this.loadExercises()]);
@@ -116,7 +126,22 @@ export class SessionsComponent implements OnInit {
     await this.sessionsService.update(session);
   }
 
-  async updateSets(session: TrainingSession): Promise<void> {
+  async onRepsChange(session: TrainingSession, set: ExerciseSet): Promise<void> {
+    set.reps = Math.min(Math.max(set.reps, 0), 10000);
+    await this.sessionsService.update(session);
+  }
+
+  onWeightInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d*[.,]?\d{0,2}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async onWeightChange(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    set.weight = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : 0;
     await this.sessionsService.update(session);
   }
 

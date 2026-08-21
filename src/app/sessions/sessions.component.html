@@ -19,7 +19,7 @@
   @for (session of sessions; track session.id) {
     <mat-card class="session-card">
       <mat-card-header>
-        <mat-card-title>{{ session.date | date: 'dd.MM.yyyy, HH:mm' }}</mat-card-title>
+        <mat-card-title>{{ session.date | date: dateFormat }}</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
@@ -95,7 +95,7 @@
                         <div class="set-row set-row-header">
                           <span class="set-index"></span>
                           <span class="set-col-label">WDH.</span>
-                          <span class="set-col-label">KG</span>
+                          <span class="set-col-label">{{ weightUnitLabel }}</span>
                         </div>
                       }
 
@@ -105,19 +105,20 @@
                           <input
                             type="number"
                             min="0"
+                            max="10000"
                             placeholder="Wdh."
                             [(ngModel)]="set.reps"
                             name="reps-{{ set.id }}"
-                            (change)="updateSets(session)"
+                            (change)="onRepsChange(session, set)"
                           />
                           <input
-                            type="number"
-                            min="0"
-                            step="0.5"
-                            placeholder="kg"
-                            [(ngModel)]="set.weight"
+                            type="text"
+                            inputmode="decimal"
+                            [placeholder]="weightUnitLabel"
+                            [value]="set.weight.toFixed(2)"
                             name="weight-{{ set.id }}"
-                            (change)="updateSets(session)"
+                            (input)="onWeightInput($event)"
+                            (change)="onWeightChange(session, set, $any($event.target).value)"
                           />
                           <button
                             mat-icon-button

@@ -1,0 +1,21 @@
+mat-card {
+  margin-bottom: 1.5rem;
+}
+
+.settings-form {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.data-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.status-message {
+  margin-top: 1rem;
+  color: lightgrey;
+}

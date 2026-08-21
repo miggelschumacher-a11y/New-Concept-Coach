@@ -84,6 +84,16 @@ export class IndexedDbService {
     return db.transaction(storeName, mode).objectStore(storeName);
   }
 
+  private async runWriteTransaction(storeName: StoreName, work: (store: IDBObjectStore) => void): Promise<void> {
+    const db = await this.dbPromise;
+    const transaction = db.transaction(storeName, 'readwrite');
+    work(transaction.objectStore(storeName));
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
   async getAll<T>(storeName: StoreName): Promise<T[]> {
     const store = await this.getStore(storeName, 'readonly');
     return toPromise(store.getAll() as IDBRequest<T[]>);
@@ -107,5 +117,33 @@ export class IndexedDbService {
   async delete(storeName: StoreName, id: string): Promise<void> {
     const store = await this.getStore(storeName, 'readwrite');
     await toPromise(store.delete(id));
+  }
+
+  async exportAll(): Promise<Record<StoreName, unknown[]>> {
+    const entries = await Promise.all(
+      Object.values(STORES).map(async (storeName) => [storeName, await this.getAll(storeName)] as const)
+    );
+    return Object.fromEntries(entries) as Record<StoreName, unknown[]>;
+  }
+
+  async importAll(data: Partial<Record<StoreName, unknown[]>>): Promise<void> {
+    for (const storeName of Object.values(STORES)) {
+      const items = data[storeName];
+      if (!items) {
+        continue;
+      }
+      await this.runWriteTransaction(storeName, (store) => {
+        store.clear();
+        for (const item of items) {
+          store.put(item);
+        }
+      });
+    }
+  }
+
+  async clearAll(): Promise<void> {
+    for (const storeName of Object.values(STORES)) {
+      await this.runWriteTransaction(storeName, (store) => store.clear());
+    }
   }
 }
