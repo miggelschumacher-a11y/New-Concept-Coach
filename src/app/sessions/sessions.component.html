@@ -4,13 +4,8 @@
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addSession()">
       <mat-form-field appearance="outline">
-        <mat-label>Datum</mat-label>
-        <input matInput type="date" name="date" [(ngModel)]="date" required />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Notizen</mat-label>
-        <input matInput name="notes" [(ngModel)]="notes" />
+        <mat-label>Datum &amp; Uhrzeit</mat-label>
+        <input matInput type="datetime-local" name="date" [(ngModel)]="date" required />
       </mat-form-field>
 
       <button mat-raised-button color="primary" type="submit">Hinzufügen</button>
@@ -24,13 +19,20 @@
   @for (session of sessions; track session.id) {
     <mat-card class="session-card">
       <mat-card-header>
-        <mat-card-title>{{ session.date }}</mat-card-title>
-        @if (session.notes) {
-          <mat-card-subtitle>{{ session.notes }}</mat-card-subtitle>
-        }
+        <mat-card-title>{{ session.date | date: 'dd.MM.yyyy, HH:mm' }}</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
+        <mat-form-field appearance="outline" class="notes-field">
+          <mat-label>Notizen</mat-label>
+          <input
+            matInput
+            name="notes-{{ session.id }}"
+            [(ngModel)]="session.notes"
+            (blur)="updateSessionNotes(session)"
+          />
+        </mat-form-field>
+
         <form class="exercise-form">
           <mat-form-field appearance="outline">
             <mat-label>Übungen</mat-label>
@@ -38,8 +40,17 @@
               [ngModel]="session.exerciseIds"
               name="exerciseIds-{{ session.id }}"
               multiple
+              panelClass="exercise-select-panel"
               (selectionChange)="updateSessionExercises(session, $event.value)"
             >
+              <mat-select-trigger>
+                @if (session.exerciseIds.length > 0) {
+                  {{ exerciseName(session.exerciseIds[0]) }}
+                  @if (session.exerciseIds.length > 1) {
+                    <span> (+{{ session.exerciseIds.length - 1 }})</span>
+                  }
+                }
+              </mat-select-trigger>
               @for (exercise of exercises; track exercise.id) {
                 <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
               }
@@ -53,7 +64,17 @@
         @if (session.exerciseIds.length > 0) {
           <mat-list class="exercise-list">
             @for (exerciseId of session.exerciseIds; track exerciseId) {
-              <mat-list-item>{{ exerciseName(exerciseId) }}</mat-list-item>
+              <mat-list-item>
+                {{ exerciseName(exerciseId) }}
+                <button
+                  mat-icon-button
+                  matListItemMeta
+                  (click)="removeExerciseFromSession(session, exerciseId)"
+                  aria-label="Übung entfernen"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </mat-list-item>
             }
           </mat-list>
         }

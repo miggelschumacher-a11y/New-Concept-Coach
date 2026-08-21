@@ -15,6 +15,20 @@ mat-card {
   max-width: 400px;
 }
 
+.session-card mat-select {
+  font-size: 1.15rem;
+  color: lightgrey;
+}
+
+::ng-deep .exercise-select-panel .mat-mdc-option {
+  font-size: 1.15rem;
+  color: lightgrey;
+}
+
+::ng-deep .exercise-select-panel .mat-mdc-option.mdc-list-item--selected {
+  color: white;
+}
+
 .exercise-list {
   margin-top: 0.5rem;
 }
