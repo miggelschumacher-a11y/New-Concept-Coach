@@ -6,7 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatListModule } from '@angular/material/list';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { TrainingSession } from '../core/models/session.model';
@@ -23,7 +23,7 @@ import { Exercise } from '../core/models/exercise.model';
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatChipsModule
+    MatListModule
   ],
   templateUrl: './sessions.component.html',
   styleUrl: './sessions.component.scss'

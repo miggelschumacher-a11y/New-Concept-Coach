@@ -51,11 +51,11 @@
         </form>
 
         @if (session.exerciseIds.length > 0) {
-          <div class="exercise-chips">
+          <mat-list class="exercise-list">
             @for (exerciseId of session.exerciseIds; track exerciseId) {
-              <mat-chip>{{ exerciseName(exerciseId) }}</mat-chip>
+              <mat-list-item>{{ exerciseName(exerciseId) }}</mat-list-item>
             }
-          </div>
+          </mat-list>
         }
       </mat-card-content>
 
