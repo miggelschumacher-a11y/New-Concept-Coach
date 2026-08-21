@@ -7,16 +7,22 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
-import { TrainingSession } from '../core/models/session.model';
+import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
 
 function toDateTimeLocalValue(date: Date): string {
   const pad = (value: number) => value.toString().padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+export const SET_TYPES: { value: SetType; label: string }[] = [
+  { value: 'warmup', label: 'Aufwärm-Sätze' },
+  { value: 'working', label: 'Arbeitssätze' },
+  { value: 'cooldown', label: 'Cooldown-Sätze' }
+];
 
 @Component({
   selector: 'app-sessions',
@@ -29,16 +35,18 @@ function toDateTimeLocalValue(date: Date): string {
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatListModule,
+    MatExpansionModule,
     DatePipe
   ],
   templateUrl: './sessions.component.html',
   styleUrl: './sessions.component.scss'
 })
 export class SessionsComponent implements OnInit {
+  readonly setTypes = SET_TYPES;
   sessions: TrainingSession[] = [];
   exercises: Exercise[] = [];
   date = toDateTimeLocalValue(new Date());
+  private readonly selectedExerciseIdsCache = new Map<string, string[]>();
 
   constructor(
     private readonly sessionsService: SessionsService,
@@ -61,21 +69,55 @@ export class SessionsComponent implements OnInit {
     return this.exercises.find((exercise) => exercise.id === id)?.name ?? id;
   }
 
+  selectedExerciseIds(session: TrainingSession): string[] {
+    const currentIds = session.exercises.map((sessionExercise) => sessionExercise.exerciseId);
+    const cached = this.selectedExerciseIdsCache.get(session.id);
+    if (cached && cached.length === currentIds.length && cached.every((id, i) => id === currentIds[i])) {
+      return cached;
+    }
+    this.selectedExerciseIdsCache.set(session.id, currentIds);
+    return currentIds;
+  }
+
   async addSession(): Promise<void> {
     if (!this.date) {
       return;
     }
-    await this.sessionsService.add({ date: this.date, exerciseIds: [] });
+    await this.sessionsService.add({ date: this.date, exercises: [] });
     await this.load();
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {
-    session.exerciseIds = exerciseIds;
+    const existingByExerciseId = new Map(
+      session.exercises.map((sessionExercise) => [sessionExercise.exerciseId, sessionExercise])
+    );
+    session.exercises = exerciseIds.map(
+      (exerciseId) => existingByExerciseId.get(exerciseId) ?? { exerciseId, sets: [] }
+    );
     await this.sessionsService.update(session);
   }
 
   async removeExerciseFromSession(session: TrainingSession, exerciseId: string): Promise<void> {
-    await this.updateSessionExercises(session, session.exerciseIds.filter((id) => id !== exerciseId));
+    session.exercises = session.exercises.filter((sessionExercise) => sessionExercise.exerciseId !== exerciseId);
+    await this.sessionsService.update(session);
+  }
+
+  setsByType(sessionExercise: SessionExercise, type: SetType): ExerciseSet[] {
+    return sessionExercise.sets.filter((set) => set.type === type);
+  }
+
+  async addSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {
+    sessionExercise.sets = [...sessionExercise.sets, { id: crypto.randomUUID(), reps: 0, weight: 0, type }];
+    await this.sessionsService.update(session);
+  }
+
+  async removeSet(session: TrainingSession, sessionExercise: SessionExercise, setId: string): Promise<void> {
+    sessionExercise.sets = sessionExercise.sets.filter((set) => set.id !== setId);
+    await this.sessionsService.update(session);
+  }
+
+  async updateSets(session: TrainingSession): Promise<void> {
+    await this.sessionsService.update(session);
   }
 
   async updateSessionNotes(session: TrainingSession): Promise<void> {

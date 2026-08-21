@@ -37,17 +37,17 @@
           <mat-form-field appearance="outline">
             <mat-label>Übungen</mat-label>
             <mat-select
-              [ngModel]="session.exerciseIds"
+              [ngModel]="selectedExerciseIds(session)"
               name="exerciseIds-{{ session.id }}"
               multiple
               panelClass="exercise-select-panel"
               (selectionChange)="updateSessionExercises(session, $event.value)"
             >
               <mat-select-trigger>
-                @if (session.exerciseIds.length > 0) {
-                  {{ exerciseName(session.exerciseIds[0]) }}
-                  @if (session.exerciseIds.length > 1) {
-                    <span> (+{{ session.exerciseIds.length - 1 }})</span>
+                @if (session.exercises.length > 0) {
+                  {{ exerciseName(session.exercises[0].exerciseId) }}
+                  @if (session.exercises.length > 1) {
+                    <span> (+{{ session.exercises.length - 1 }})</span>
                   }
                 }
               </mat-select-trigger>
@@ -61,22 +61,87 @@
           </mat-form-field>
         </form>
 
-        @if (session.exerciseIds.length > 0) {
-          <mat-list class="exercise-list">
-            @for (exerciseId of session.exerciseIds; track exerciseId) {
-              <mat-list-item>
-                {{ exerciseName(exerciseId) }}
-                <button
-                  mat-icon-button
-                  matListItemMeta
-                  (click)="removeExerciseFromSession(session, exerciseId)"
-                  aria-label="Übung entfernen"
-                >
-                  <mat-icon>close</mat-icon>
-                </button>
-              </mat-list-item>
+        @if (session.exercises.length > 0) {
+          <mat-accordion multi class="exercise-accordion">
+            @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ exerciseName(sessionExercise.exerciseId) }}
+                    <span class="set-count">({{ sessionExercise.sets.length }} Sätze)</span>
+                  </mat-panel-title>
+                  <button
+                    mat-icon-button
+                    (click)="removeExerciseFromSession(session, sessionExercise.exerciseId); $event.stopPropagation()"
+                    aria-label="Übung entfernen"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-expansion-panel-header>
+
+                <mat-accordion multi class="set-type-accordion">
+                  @for (setType of setTypes; track setType.value) {
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          {{ setType.label }}
+                          <span class="set-count">
+                            ({{ setsByType(sessionExercise, setType.value).length }})
+                          </span>
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+
+                      @if (setsByType(sessionExercise, setType.value).length > 0) {
+                        <div class="set-row set-row-header">
+                          <span class="set-index"></span>
+                          <span class="set-col-label">WDH.</span>
+                          <span class="set-col-label">KG</span>
+                        </div>
+                      }
+
+                      @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
+                        <div class="set-row">
+                          <span class="set-index">Satz {{ i + 1 }}</span>
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="Wdh."
+                            [(ngModel)]="set.reps"
+                            name="reps-{{ set.id }}"
+                            (change)="updateSets(session)"
+                          />
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            placeholder="kg"
+                            [(ngModel)]="set.weight"
+                            name="weight-{{ set.id }}"
+                            (change)="updateSets(session)"
+                          />
+                          <button
+                            mat-icon-button
+                            (click)="removeSet(session, sessionExercise, set.id)"
+                            aria-label="Satz entfernen"
+                          >
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                      }
+
+                      <button
+                        mat-stroked-button
+                        type="button"
+                        (click)="addSet(session, sessionExercise, setType.value)"
+                      >
+                        Satz hinzufügen
+                      </button>
+                    </mat-expansion-panel>
+                  }
+                </mat-accordion>
+              </mat-expansion-panel>
             }
-          </mat-list>
+          </mat-accordion>
         }
       </mat-card-content>
 

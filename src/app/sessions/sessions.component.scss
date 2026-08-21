@@ -29,6 +29,52 @@ mat-card {
   color: white;
 }
 
-.exercise-list {
+.exercise-accordion {
+  margin-top: 1rem;
+}
+
+.set-type-accordion {
   margin-top: 0.5rem;
+}
+
+.set-count {
+  margin-left: 0.5rem;
+  color: lightgrey;
+  font-weight: normal;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.25rem 0;
+}
+
+.set-row .set-index {
+  min-width: 4.5rem;
+  color: lightgrey;
+}
+
+.set-row input {
+  box-sizing: border-box;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.95);
+  padding: 0.35rem 0.5rem;
+  font-size: 1rem;
+  width: 5rem;
+}
+
+.set-row-header {
+  margin-bottom: 0;
+}
+
+.set-row-header .set-col-label {
+  width: 5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: lightgrey;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
