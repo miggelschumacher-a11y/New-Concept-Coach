@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Exercise } from '../models/exercise.model';
 
 const DB_NAME = 'trainings-app-db';
 const DB_VERSION = 1;
@@ -8,6 +9,30 @@ export const STORES = {
   trainingPlans: 'trainingPlans',
   sessions: 'sessions'
 } as const;
+
+const DEFAULT_EXERCISE_NAMES = [
+  'Squat',
+  'Deadlift',
+  'Bench-Press',
+  'Overhead-Press',
+  'AB-Rollout',
+  'AB-Wheel',
+  'Back-Extension',
+  'Barbell-Row',
+  'Bent-Over-Dumbbell-Raise',
+  'Cable-Push-Down',
+  'Cable-Row',
+  'Calf-Raises',
+  'Chest-Supported-Rows',
+  'Chin-Ups',
+  'Lat-Pull-Downs',
+  'Pull-Ups',
+  'Dips',
+  'Standing-Leg-Curls',
+  'Neck-Extensions',
+  'Neck-Curls',
+  'Triceps-Push-Down'
+];
 
 export type StoreName = (typeof STORES)[keyof typeof STORES];
 
@@ -30,11 +55,21 @@ export class IndexedDbService {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-      request.onupgradeneeded = () => {
+      request.onupgradeneeded = (event) => {
         const db = request.result;
+        const isNewDatabase = event.oldVersion === 0;
+
         for (const storeName of Object.values(STORES)) {
           if (!db.objectStoreNames.contains(storeName)) {
             db.createObjectStore(storeName, { keyPath: 'id' });
+          }
+        }
+
+        if (isNewDatabase) {
+          const exercisesStore = request.transaction!.objectStore(STORES.exercises);
+          for (const name of DEFAULT_EXERCISE_NAMES) {
+            const exercise: Exercise = { id: crypto.randomUUID(), name, category: '' };
+            exercisesStore.add(exercise);
           }
         }
       };
