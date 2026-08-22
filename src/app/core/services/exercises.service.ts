@@ -6,8 +6,9 @@ import { Exercise } from '../models/exercise.model';
 export class ExercisesService {
   constructor(private readonly db: IndexedDbService) {}
 
-  getAll(): Promise<Exercise[]> {
-    return this.db.getAll<Exercise>(STORES.exercises);
+  async getAll(): Promise<Exercise[]> {
+    const exercises = await this.db.getAll<Exercise>(STORES.exercises);
+    return exercises.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   add(exercise: Omit<Exercise, 'id'>): Promise<Exercise> {
