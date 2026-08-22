@@ -65,6 +65,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return `${this.settingsService.getSettings().dateFormat}, HH:mm`;
   }
 
+  get language(): string {
+    return this.settingsService.getSettings().language;
+  }
+
   get weightUnitLabel(): string {
     return this.settingsService.getSettings().weightUnit.toUpperCase();
   }

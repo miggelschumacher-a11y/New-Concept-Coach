@@ -5,7 +5,7 @@
     <form class="entry-form" (ngSubmit)="addSession()">
       <mat-form-field appearance="outline">
         <mat-label>{{ 'sessions.dateTime' | translate }}</mat-label>
-        <input matInput type="datetime-local" name="date" [(ngModel)]="date" required />
+        <input matInput type="datetime-local" name="date" [(ngModel)]="date" [attr.lang]="language" required />
       </mat-form-field>
 
       <button mat-raised-button color="primary" type="submit">{{ 'common.add' | translate }}</button>
