@@ -20,6 +20,9 @@
     <mat-card class="session-card">
       <mat-card-header>
         <mat-card-title>{{ session.date | date: dateFormat }}</mat-card-title>
+        @if (session.exercises.length > 0) {
+          <mat-card-subtitle>Gehobenes Gewicht: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}</mat-card-subtitle>
+        }
       </mat-card-header>
 
       <mat-card-content>

@@ -140,8 +140,19 @@ export class SessionsComponent implements OnInit {
     return this.countedSets(sessionExercise).length;
   }
 
+  private exerciseWeightLifted(sessionExercise: SessionExercise): number {
+    return this.countedSets(sessionExercise).reduce((sum, set) => sum + set.reps * set.weight, 0);
+  }
+
   totalWeightLifted(sessionExercise: SessionExercise): string {
-    const total = this.countedSets(sessionExercise).reduce((sum, set) => sum + set.reps * set.weight, 0);
+    return this.exerciseWeightLifted(sessionExercise).toFixed(2);
+  }
+
+  sessionWeightLifted(session: TrainingSession): string {
+    const total = session.exercises.reduce(
+      (sum, sessionExercise) => sum + this.exerciseWeightLifted(sessionExercise),
+      0
+    );
     return total.toFixed(2);
   }
 
