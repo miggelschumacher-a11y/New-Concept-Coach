@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -37,6 +38,7 @@ export const SET_TYPES: { value: SetType; label: string }[] = [
     MatIconModule,
     MatCardModule,
     MatExpansionModule,
+    MatCheckboxModule,
     DatePipe
   ],
   templateUrl: './sessions.component.html',
@@ -102,7 +104,13 @@ export class SessionsComponent implements OnInit {
       session.exercises.map((sessionExercise) => [sessionExercise.exerciseId, sessionExercise])
     );
     session.exercises = exerciseIds.map(
-      (exerciseId) => existingByExerciseId.get(exerciseId) ?? { exerciseId, sets: [] }
+      (exerciseId) =>
+        existingByExerciseId.get(exerciseId) ?? {
+          exerciseId,
+          sets: [],
+          countWarmupSets: true,
+          countCooldownSets: true
+        }
     );
     await this.sessionsService.update(session);
   }
@@ -114,6 +122,31 @@ export class SessionsComponent implements OnInit {
 
   setsByType(sessionExercise: SessionExercise, type: SetType): ExerciseSet[] {
     return sessionExercise.sets.filter((set) => set.type === type);
+  }
+
+  private countedSets(sessionExercise: SessionExercise): ExerciseSet[] {
+    return sessionExercise.sets.filter((set) => {
+      if (set.type === 'warmup') {
+        return sessionExercise.countWarmupSets;
+      }
+      if (set.type === 'cooldown') {
+        return sessionExercise.countCooldownSets;
+      }
+      return true;
+    });
+  }
+
+  totalSetsCount(sessionExercise: SessionExercise): number {
+    return this.countedSets(sessionExercise).length;
+  }
+
+  totalWeightLifted(sessionExercise: SessionExercise): string {
+    const total = this.countedSets(sessionExercise).reduce((sum, set) => sum + set.reps * set.weight, 0);
+    return total.toFixed(2);
+  }
+
+  async onCountingPreferenceChange(session: TrainingSession): Promise<void> {
+    await this.sessionsService.update(session);
   }
 
   async addSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {

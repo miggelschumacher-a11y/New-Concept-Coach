@@ -68,7 +68,10 @@
                 <mat-expansion-panel-header>
                   <mat-panel-title>
                     {{ exerciseName(sessionExercise.exerciseId) }}
-                    <span class="set-count">({{ sessionExercise.sets.length }} Sätze)</span>
+                    <span class="set-count">
+                      ({{ totalSetsCount(sessionExercise) }} Sätze, {{ totalWeightLifted(sessionExercise) }}
+                      {{ weightUnitLabel }})
+                    </span>
                   </mat-panel-title>
                   <button
                     mat-icon-button
@@ -78,6 +81,22 @@
                     <mat-icon>close</mat-icon>
                   </button>
                 </mat-expansion-panel-header>
+
+                <mat-checkbox
+                  [(ngModel)]="sessionExercise.countWarmupSets"
+                  name="countWarmup-{{ sessionExercise.exerciseId }}"
+                  (change)="onCountingPreferenceChange(session)"
+                >
+                  Aufwärmsatz mitzählen
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [(ngModel)]="sessionExercise.countCooldownSets"
+                  name="countCooldown-{{ sessionExercise.exerciseId }}"
+                  (change)="onCountingPreferenceChange(session)"
+                >
+                  Cool-Down-Satz mitzählen
+                </mat-checkbox>
 
                 <mat-accordion multi class="set-type-accordion">
                   @for (setType of setTypes; track setType.value) {

@@ -10,6 +10,8 @@ export interface ExerciseSet {
 export interface SessionExercise {
   exerciseId: string;
   sets: ExerciseSet[];
+  countWarmupSets: boolean;
+  countCooldownSets: boolean;
 }
 
 export interface TrainingSession {

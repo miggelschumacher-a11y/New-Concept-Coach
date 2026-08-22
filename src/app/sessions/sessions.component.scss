@@ -33,6 +33,11 @@ mat-card {
   margin-top: 1rem;
 }
 
+mat-expansion-panel mat-checkbox {
+  display: block;
+  margin: 0.75rem 0 0.25rem;
+}
+
 .set-type-accordion {
   margin-top: 0.5rem;
 }
