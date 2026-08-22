@@ -53,6 +53,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
   private timerTickerId?: ReturnType<typeof setInterval>;
   pendingFinishSessionId: string | null = null;
+  pendingDeleteSetId: string | null = null;
+  pendingDeleteExerciseKey: string | null = null;
 
   constructor(
     private readonly sessionsService: SessionsService,
@@ -107,6 +109,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async addSession(): Promise<void> {
     await this.sessionsService.add({
+      name: '',
       date: toDateTimeLocalValue(new Date()),
       exercises: [],
       timerElapsedMs: 0,
@@ -184,6 +187,23 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.sessionsService.update(session);
   }
 
+  isPendingDeleteExercise(session: TrainingSession, exerciseId: string): boolean {
+    return this.pendingDeleteExerciseKey === `${session.id}:${exerciseId}`;
+  }
+
+  requestRemoveExercise(session: TrainingSession, exerciseId: string): void {
+    this.pendingDeleteExerciseKey = `${session.id}:${exerciseId}`;
+  }
+
+  cancelRemoveExercise(): void {
+    this.pendingDeleteExerciseKey = null;
+  }
+
+  async confirmRemoveExercise(session: TrainingSession, exerciseId: string): Promise<void> {
+    this.pendingDeleteExerciseKey = null;
+    await this.removeExerciseFromSession(session, exerciseId);
+  }
+
   async removeExerciseFromSession(session: TrainingSession, exerciseId: string): Promise<void> {
     session.exercises = session.exercises.filter((sessionExercise) => sessionExercise.exerciseId !== exerciseId);
     await this.sessionsService.update(session);
@@ -234,6 +254,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.sessionsService.update(session);
   }
 
+  requestRemoveSet(setId: string): void {
+    this.pendingDeleteSetId = setId;
+  }
+
+  cancelRemoveSet(): void {
+    this.pendingDeleteSetId = null;
+  }
+
+  async confirmRemoveSet(session: TrainingSession, sessionExercise: SessionExercise, setId: string): Promise<void> {
+    this.pendingDeleteSetId = null;
+    await this.removeSet(session, sessionExercise, setId);
+  }
+
   async removeSet(session: TrainingSession, sessionExercise: SessionExercise, setId: string): Promise<void> {
     sessionExercise.sets = sessionExercise.sets.filter((set) => set.id !== setId);
     await this.sessionsService.update(session);
@@ -259,6 +292,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async updateSessionNotes(session: TrainingSession): Promise<void> {
+    await this.sessionsService.update(session);
+  }
+
+  async updateSessionName(session: TrainingSession): Promise<void> {
     await this.sessionsService.update(session);
   }
 

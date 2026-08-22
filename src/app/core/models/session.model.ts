@@ -16,6 +16,7 @@ export interface SessionExercise {
 
 export interface TrainingSession {
   id: string;
+  name: string;
   date: string;
   trainingPlanId?: string;
   exercises: SessionExercise[];
