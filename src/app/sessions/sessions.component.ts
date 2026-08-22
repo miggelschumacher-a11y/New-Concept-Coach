@@ -51,6 +51,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   date = toDateTimeLocalValue(new Date());
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
   private timerTickerId?: ReturnType<typeof setInterval>;
+  pendingFinishSessionId: string | null = null;
 
   constructor(
     private readonly sessionsService: SessionsService,
@@ -144,7 +145,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.sessionsService.update(session);
   }
 
-  async finishSession(session: TrainingSession): Promise<void> {
+  requestFinishSession(session: TrainingSession): void {
+    this.pendingFinishSessionId = session.id;
+  }
+
+  cancelFinishSession(): void {
+    this.pendingFinishSessionId = null;
+  }
+
+  async confirmFinishSession(session: TrainingSession): Promise<void> {
+    this.pendingFinishSessionId = null;
     if (session.timerRunning && session.timerStartedAt) {
       session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
     } else {

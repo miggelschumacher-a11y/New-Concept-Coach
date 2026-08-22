@@ -31,6 +31,12 @@
 
           @if (session.finished) {
             <span class="timer-finished-label">Beendet</span>
+          } @else if (pendingFinishSessionId === session.id) {
+            <span class="finish-confirm-label">Wirklich beenden?</span>
+            <button mat-raised-button color="warn" type="button" (click)="confirmFinishSession(session)">
+              Ja, beenden
+            </button>
+            <button mat-stroked-button type="button" (click)="cancelFinishSession()">Abbrechen</button>
           } @else {
             <button mat-stroked-button type="button" (click)="toggleTimer(session)">
               @if (session.timerRunning) {
@@ -40,7 +46,7 @@
               }
             </button>
 
-            <button mat-stroked-button color="warn" type="button" (click)="finishSession(session)">
+            <button mat-stroked-button color="warn" type="button" (click)="requestFinishSession(session)">
               Session beenden
             </button>
           }
