@@ -20,4 +20,8 @@ export interface TrainingSession {
   trainingPlanId?: string;
   exercises: SessionExercise[];
   notes?: string;
+  timerElapsedMs: number;
+  timerRunning: boolean;
+  timerStartedAt?: string;
+  finished: boolean;
 }

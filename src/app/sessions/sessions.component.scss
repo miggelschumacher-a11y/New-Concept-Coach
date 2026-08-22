@@ -29,6 +29,24 @@ mat-card {
   color: white;
 }
 
+.session-timer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.timer-display {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.timer-finished-label {
+  color: lightgrey;
+  font-style: italic;
+}
+
 .exercise-accordion {
   margin-top: 1rem;
 }

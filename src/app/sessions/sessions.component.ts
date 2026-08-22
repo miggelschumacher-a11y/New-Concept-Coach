@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -44,12 +44,13 @@ export const SET_TYPES: { value: SetType; label: string }[] = [
   templateUrl: './sessions.component.html',
   styleUrl: './sessions.component.scss'
 })
-export class SessionsComponent implements OnInit {
+export class SessionsComponent implements OnInit, OnDestroy {
   readonly setTypes = SET_TYPES;
   sessions: TrainingSession[] = [];
   exercises: Exercise[] = [];
   date = toDateTimeLocalValue(new Date());
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
+  private timerTickerId?: ReturnType<typeof setInterval>;
 
   constructor(
     private readonly sessionsService: SessionsService,
@@ -67,6 +68,13 @@ export class SessionsComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await Promise.all([this.load(), this.loadExercises()]);
+    this.timerTickerId = setInterval(() => {}, 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerTickerId) {
+      clearInterval(this.timerTickerId);
+    }
   }
 
   async load(): Promise<void> {
@@ -95,8 +103,57 @@ export class SessionsComponent implements OnInit {
     if (!this.date) {
       return;
     }
-    await this.sessionsService.add({ date: this.date, exercises: [] });
+    await this.sessionsService.add({
+      date: this.date,
+      exercises: [],
+      timerElapsedMs: 0,
+      timerRunning: true,
+      timerStartedAt: new Date().toISOString(),
+      finished: false
+    });
     await this.load();
+  }
+
+  sessionDuration(session: TrainingSession): string {
+    const baseElapsedMs = session.timerElapsedMs ?? 0;
+    const elapsedMs =
+      session.timerRunning && session.timerStartedAt
+        ? baseElapsedMs + (Date.now() - new Date(session.timerStartedAt).getTime())
+        : baseElapsedMs;
+    const totalSeconds = Math.floor(elapsedMs / 1000);
+    const pad = (value: number) => value.toString().padStart(2, '0');
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return hours > 0 ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}` : `${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  async toggleTimer(session: TrainingSession): Promise<void> {
+    if (session.finished) {
+      return;
+    }
+    if (session.timerRunning && session.timerStartedAt) {
+      session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
+      session.timerRunning = false;
+      session.timerStartedAt = undefined;
+    } else {
+      session.timerElapsedMs ??= 0;
+      session.timerRunning = true;
+      session.timerStartedAt = new Date().toISOString();
+    }
+    await this.sessionsService.update(session);
+  }
+
+  async finishSession(session: TrainingSession): Promise<void> {
+    if (session.timerRunning && session.timerStartedAt) {
+      session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
+    } else {
+      session.timerElapsedMs ??= 0;
+    }
+    session.timerRunning = false;
+    session.timerStartedAt = undefined;
+    session.finished = true;
+    await this.sessionsService.update(session);
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {
