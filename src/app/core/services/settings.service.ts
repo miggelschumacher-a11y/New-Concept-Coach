@@ -2,13 +2,25 @@ import { Injectable } from '@angular/core';
 
 export type WeightUnit = 'kg' | 'lbs';
 export type DateFormat = 'dd.MM.yyyy' | 'MM/dd/yyyy';
-export type Language = 'de' | 'en' | 'es';
+export type Language = 'de' | 'en' | 'es' | 'pt' | 'it' | 'nl' | 'pl' | 'ru' | 'hu';
 
 export interface AppSettings {
   weightUnit: WeightUnit;
   dateFormat: DateFormat;
   language: Language;
 }
+
+export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
+  de: 'dd.MM.yyyy',
+  en: 'MM/dd/yyyy',
+  es: 'dd.MM.yyyy',
+  pt: 'dd.MM.yyyy',
+  it: 'dd.MM.yyyy',
+  nl: 'dd.MM.yyyy',
+  pl: 'dd.MM.yyyy',
+  ru: 'dd.MM.yyyy',
+  hu: 'dd.MM.yyyy'
+};
 
 const STORAGE_KEY = 'trainings-app-settings';
 
