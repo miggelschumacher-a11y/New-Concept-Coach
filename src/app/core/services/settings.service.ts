@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { IndexedDbService, STORES } from './indexed-db.service';
 
 export type WeightUnit = 'kg' | 'lbs';
 export type DateFormat = 'dd.MM.yyyy' | 'MM/dd/yyyy';
@@ -23,7 +24,8 @@ export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
   hu: 'dd.MM.yyyy'
 };
 
-const STORAGE_KEY = 'trainings-app-settings';
+const LEGACY_STORAGE_KEY = 'trainings-app-settings';
+const SETTINGS_RECORD_ID = 'app-settings';
 
 const DEFAULT_SETTINGS: AppSettings = {
   weightUnit: 'kg',
@@ -31,28 +33,59 @@ const DEFAULT_SETTINGS: AppSettings = {
   language: 'en'
 };
 
+type SettingsRecord = AppSettings & { id: string };
+
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-  private settings: AppSettings = this.load();
+  private settings: AppSettings = { ...DEFAULT_SETTINGS };
+  private readonly ready: Promise<void>;
 
-  private load(): AppSettings {
-    const raw = localStorage.getItem(STORAGE_KEY);
+  constructor(private readonly db: IndexedDbService) {
+    this.ready = this.load();
+  }
+
+  private async load(): Promise<void> {
+    const stored = await this.db.get<SettingsRecord>(STORES.settings, SETTINGS_RECORD_ID);
+    if (stored) {
+      const { id: _id, ...settings } = stored;
+      this.settings = { ...DEFAULT_SETTINGS, ...settings };
+      return;
+    }
+
+    const migrated = this.readLegacySettings();
+    if (migrated) {
+      this.settings = migrated;
+      await this.persist();
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+    }
+  }
+
+  private readLegacySettings(): AppSettings | null {
+    const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) {
-      return { ...DEFAULT_SETTINGS };
+      return null;
     }
     try {
       return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
     } catch {
-      return { ...DEFAULT_SETTINGS };
+      return null;
     }
+  }
+
+  private async persist(): Promise<void> {
+    await this.db.put<SettingsRecord>(STORES.settings, { id: SETTINGS_RECORD_ID, ...this.settings });
+  }
+
+  whenReady(): Promise<void> {
+    return this.ready;
   }
 
   getSettings(): AppSettings {
     return this.settings;
   }
 
-  updateSettings(partial: Partial<AppSettings>): void {
+  async updateSettings(partial: Partial<AppSettings>): Promise<void> {
     this.settings = { ...this.settings, ...partial };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.settings));
+    await this.persist();
   }
 }

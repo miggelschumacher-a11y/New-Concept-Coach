@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -33,7 +33,7 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
   templateUrl: './config.component.html',
   styleUrl: './config.component.scss'
 })
-export class ConfigComponent {
+export class ConfigComponent implements OnInit {
   readonly languages = LANGUAGES;
   readonly trainingZones = TRAINING_ZONES;
   weightUnit: WeightUnit;
@@ -47,6 +47,15 @@ export class ConfigComponent {
     private readonly indexedDbService: IndexedDbService,
     private readonly translationService: TranslationService
   ) {
+    const settings = this.settingsService.getSettings();
+    this.weightUnit = settings.weightUnit;
+    this.dateFormat = settings.dateFormat;
+    this.language = settings.language;
+    this.dateOfBirth = settings.dateOfBirth ?? '';
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.settingsService.whenReady();
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
     this.dateFormat = settings.dateFormat;
@@ -77,21 +86,21 @@ export class ConfigComponent {
     return this.age === null ? null : findHeartRateMax(this.age);
   }
 
-  onDateOfBirthChange(): void {
-    this.settingsService.updateSettings({ dateOfBirth: this.dateOfBirth || undefined });
+  async onDateOfBirthChange(): Promise<void> {
+    await this.settingsService.updateSettings({ dateOfBirth: this.dateOfBirth || undefined });
   }
 
-  onWeightUnitChange(): void {
-    this.settingsService.updateSettings({ weightUnit: this.weightUnit });
+  async onWeightUnitChange(): Promise<void> {
+    await this.settingsService.updateSettings({ weightUnit: this.weightUnit });
   }
 
-  onDateFormatChange(): void {
-    this.settingsService.updateSettings({ dateFormat: this.dateFormat });
+  async onDateFormatChange(): Promise<void> {
+    await this.settingsService.updateSettings({ dateFormat: this.dateFormat });
   }
 
-  onLanguageChange(): void {
+  async onLanguageChange(): Promise<void> {
     this.dateFormat = LANGUAGE_DATE_FORMATS[this.language];
-    this.settingsService.updateSettings({ language: this.language, dateFormat: this.dateFormat });
+    await this.settingsService.updateSettings({ language: this.language, dateFormat: this.dateFormat });
   }
 
   async exportData(): Promise<void> {

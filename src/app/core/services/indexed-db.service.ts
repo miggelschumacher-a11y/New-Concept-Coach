@@ -2,13 +2,19 @@ import { Injectable } from '@angular/core';
 import { Exercise } from '../models/exercise.model';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export const STORES = {
   exercises: 'exercises',
   trainingPlans: 'trainingPlans',
-  sessions: 'sessions'
+  sessions: 'sessions',
+  settings: 'settings',
+  tierLineProgression: 'tierLineProgression'
 } as const;
+
+const STORE_KEY_PATHS: Partial<Record<string, string>> = {
+  [STORES.tierLineProgression]: 'exerciseId'
+};
 
 const DEFAULT_EXERCISE_NAMES = [
   'Squat',
@@ -61,7 +67,7 @@ export class IndexedDbService {
 
         for (const storeName of Object.values(STORES)) {
           if (!db.objectStoreNames.contains(storeName)) {
-            db.createObjectStore(storeName, { keyPath: 'id' });
+            db.createObjectStore(storeName, { keyPath: STORE_KEY_PATHS[storeName] ?? 'id' });
           }
         }
 
