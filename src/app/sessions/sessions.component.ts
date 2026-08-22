@@ -12,6 +12,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
+import { TranslationService } from '../core/services/translation.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
@@ -43,6 +44,7 @@ export const SET_TYPES: { value: SetType; labelKey: string }[] = [
     DatePipe,
     TranslatePipe
   ],
+  providers: [DatePipe],
   templateUrl: './sessions.component.html',
   styleUrl: './sessions.component.scss'
 })
@@ -51,15 +53,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
   sessions: TrainingSession[] = [];
   exercises: Exercise[] = [];
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
+  private readonly unsavedSessionIds = new Set<string>();
   private timerTickerId?: ReturnType<typeof setInterval>;
   pendingFinishSessionId: string | null = null;
   pendingDeleteSetId: string | null = null;
   pendingDeleteExerciseKey: string | null = null;
+  pendingDeleteSessionId: string | null = null;
+  finishBlockedSessionId: string | null = null;
 
   constructor(
     private readonly sessionsService: SessionsService,
     private readonly exercisesService: ExercisesService,
-    private readonly settingsService: SettingsService
+    private readonly settingsService: SettingsService,
+    private readonly translationService: TranslationService,
+    private readonly datePipe: DatePipe
   ) {}
 
   get dateFormat(): string {
@@ -107,17 +114,38 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return currentIds;
   }
 
-  async addSession(): Promise<void> {
-    await this.sessionsService.add({
-      name: '',
-      date: toDateTimeLocalValue(new Date()),
+  addSession(): void {
+    const now = new Date();
+    const sessionWord = this.translationService.translate('sessions.defaultName');
+    const name = `${sessionWord} ${this.datePipe.transform(now, this.dateFormat)}`;
+    const session: TrainingSession = {
+      id: crypto.randomUUID(),
+      name,
+      date: toDateTimeLocalValue(now),
       exercises: [],
       timerElapsedMs: 0,
       timerRunning: true,
-      timerStartedAt: new Date().toISOString(),
+      timerStartedAt: now.toISOString(),
       finished: false
-    });
-    await this.load();
+    };
+    this.unsavedSessionIds.add(session.id);
+    this.sessions = [session, ...this.sessions];
+    void this.persist(session);
+  }
+
+  private async persist(session: TrainingSession): Promise<void> {
+    if (!session.name.trim()) {
+      return;
+    }
+    if (this.finishBlockedSessionId === session.id) {
+      this.finishBlockedSessionId = null;
+    }
+    if (this.unsavedSessionIds.has(session.id)) {
+      this.unsavedSessionIds.delete(session.id);
+      await this.sessionsService.add(session);
+    } else {
+      await this.sessionsService.update(session);
+    }
   }
 
   sessionDuration(session: TrainingSession): string {
@@ -147,7 +175,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       session.timerRunning = true;
       session.timerStartedAt = new Date().toISOString();
     }
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   requestFinishSession(session: TrainingSession): void {
@@ -160,6 +188,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async confirmFinishSession(session: TrainingSession): Promise<void> {
     this.pendingFinishSessionId = null;
+    if (!session.name.trim()) {
+      this.finishBlockedSessionId = session.id;
+      return;
+    }
+    this.finishBlockedSessionId = null;
     if (session.timerRunning && session.timerStartedAt) {
       session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
     } else {
@@ -168,7 +201,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session.timerRunning = false;
     session.timerStartedAt = undefined;
     session.finished = true;
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {
@@ -184,7 +217,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
           countCooldownSets: true
         }
     );
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   isPendingDeleteExercise(session: TrainingSession, exerciseId: string): boolean {
@@ -206,7 +239,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async removeExerciseFromSession(session: TrainingSession, exerciseId: string): Promise<void> {
     session.exercises = session.exercises.filter((sessionExercise) => sessionExercise.exerciseId !== exerciseId);
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   setsByType(sessionExercise: SessionExercise, type: SetType): ExerciseSet[] {
@@ -246,12 +279,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async onCountingPreferenceChange(session: TrainingSession): Promise<void> {
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   async addSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {
     sessionExercise.sets = [...sessionExercise.sets, { id: crypto.randomUUID(), reps: 0, weight: 0, type }];
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   requestRemoveSet(setId: string): void {
@@ -269,12 +302,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async removeSet(session: TrainingSession, sessionExercise: SessionExercise, setId: string): Promise<void> {
     sessionExercise.sets = sessionExercise.sets.filter((set) => set.id !== setId);
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   async onRepsChange(session: TrainingSession, set: ExerciseSet): Promise<void> {
     set.reps = Math.min(Math.max(set.reps, 0), 10000);
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   onWeightInput(event: Event): void {
@@ -288,18 +321,36 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async onWeightChange(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     set.weight = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : 0;
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   async updateSessionNotes(session: TrainingSession): Promise<void> {
-    await this.sessionsService.update(session);
+    await this.persist(session);
   }
 
   async updateSessionName(session: TrainingSession): Promise<void> {
-    await this.sessionsService.update(session);
+    await this.persist(session);
+  }
+
+  requestDeleteSession(id: string): void {
+    this.pendingDeleteSessionId = id;
+  }
+
+  cancelDeleteSession(): void {
+    this.pendingDeleteSessionId = null;
+  }
+
+  async confirmDeleteSession(id: string): Promise<void> {
+    this.pendingDeleteSessionId = null;
+    await this.deleteSession(id);
   }
 
   async deleteSession(id: string): Promise<void> {
+    if (this.unsavedSessionIds.has(id)) {
+      this.unsavedSessionIds.delete(id);
+      this.sessions = this.sessions.filter((session) => session.id !== id);
+      return;
+    }
     await this.sessionsService.delete(id);
     await this.load();
   }

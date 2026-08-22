@@ -34,6 +34,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Training Sessions',
     'sessions.dateTime': 'Date & Time',
+    'sessions.defaultName': 'Session',
+    'sessions.nameRequired': 'Name is required.',
+    'sessions.confirmDeleteSessionQuestion': 'Really delete this session?',
     'sessions.empty': 'No training sessions yet.',
     'sessions.weightLifted': 'Weight lifted',
     'sessions.notes': 'Notes',
@@ -60,6 +63,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Really finish?',
     'sessions.confirmYes': 'Yes, finish',
     'sessions.confirmCancel': 'Cancel',
+    'sessions.finishRequiresName': 'Enter a name to save the session.',
 
     'config.title': 'Configuration',
     'config.display': 'Display',
@@ -99,6 +103,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Trainingseinheiten',
     'sessions.dateTime': 'Datum & Uhrzeit',
+    'sessions.defaultName': 'Session',
+    'sessions.nameRequired': 'Name ist erforderlich.',
+    'sessions.confirmDeleteSessionQuestion': 'Diese Session wirklich löschen?',
     'sessions.empty': 'Noch keine Trainingseinheiten vorhanden.',
     'sessions.weightLifted': 'Gehobenes Gewicht',
     'sessions.notes': 'Notizen',
@@ -125,6 +132,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Wirklich beenden?',
     'sessions.confirmYes': 'Ja, beenden',
     'sessions.confirmCancel': 'Abbrechen',
+    'sessions.finishRequiresName': 'Gib einen Namen ein, um die Session zu speichern.',
 
     'config.title': 'Konfiguration',
     'config.display': 'Anzeige',
@@ -165,6 +173,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Sesiones de entrenamiento',
     'sessions.dateTime': 'Fecha y hora',
+    'sessions.defaultName': 'Sesión',
+    'sessions.nameRequired': 'El nombre es obligatorio.',
+    'sessions.confirmDeleteSessionQuestion': '¿Eliminar esta sesión de verdad?',
     'sessions.empty': 'Aún no hay sesiones de entrenamiento.',
     'sessions.weightLifted': 'Peso levantado',
     'sessions.notes': 'Notas',
@@ -191,6 +202,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': '¿Finalizar de verdad?',
     'sessions.confirmYes': 'Sí, finalizar',
     'sessions.confirmCancel': 'Cancelar',
+    'sessions.finishRequiresName': 'Introduce un nombre para guardar la sesión.',
 
     'config.title': 'Configuración',
     'config.display': 'Pantalla',
@@ -231,6 +243,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Sessões de treino',
     'sessions.dateTime': 'Data e hora',
+    'sessions.defaultName': 'Sessão',
+    'sessions.nameRequired': 'O nome é obrigatório.',
+    'sessions.confirmDeleteSessionQuestion': 'Excluir esta sessão mesmo?',
     'sessions.empty': 'Ainda não há sessões de treino.',
     'sessions.weightLifted': 'Peso levantado',
     'sessions.notes': 'Notas',
@@ -257,6 +272,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Finalizar mesmo?',
     'sessions.confirmYes': 'Sim, finalizar',
     'sessions.confirmCancel': 'Cancelar',
+    'sessions.finishRequiresName': 'Insira um nome para salvar a sessão.',
 
     'config.title': 'Configuração',
     'config.display': 'Exibição',
@@ -297,6 +313,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Sessioni di allenamento',
     'sessions.dateTime': 'Data e ora',
+    'sessions.defaultName': 'Sessione',
+    'sessions.nameRequired': 'Il nome è obbligatorio.',
+    'sessions.confirmDeleteSessionQuestion': 'Eliminare davvero questa sessione?',
     'sessions.empty': 'Nessuna sessione di allenamento ancora presente.',
     'sessions.weightLifted': 'Peso sollevato',
     'sessions.notes': 'Note',
@@ -323,6 +342,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Terminare davvero?',
     'sessions.confirmYes': 'Sì, termina',
     'sessions.confirmCancel': 'Annulla',
+    'sessions.finishRequiresName': 'Inserisci un nome per salvare la sessione.',
 
     'config.title': 'Configurazione',
     'config.display': 'Visualizzazione',
@@ -363,6 +383,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Trainingssessies',
     'sessions.dateTime': 'Datum & tijd',
+    'sessions.defaultName': 'Sessie',
+    'sessions.nameRequired': 'Naam is verplicht.',
+    'sessions.confirmDeleteSessionQuestion': 'Deze sessie echt verwijderen?',
     'sessions.empty': 'Nog geen trainingssessies aanwezig.',
     'sessions.weightLifted': 'Getild gewicht',
     'sessions.notes': 'Notities',
@@ -389,6 +412,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Echt beëindigen?',
     'sessions.confirmYes': 'Ja, beëindigen',
     'sessions.confirmCancel': 'Annuleren',
+    'sessions.finishRequiresName': 'Voer een naam in om de sessie op te slaan.',
 
     'config.title': 'Configuratie',
     'config.display': 'Weergave',
@@ -429,6 +453,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Sesje treningowe',
     'sessions.dateTime': 'Data i godzina',
+    'sessions.defaultName': 'Sesja',
+    'sessions.nameRequired': 'Nazwa jest wymagana.',
+    'sessions.confirmDeleteSessionQuestion': 'Czy na pewno usunąć tę sesję?',
     'sessions.empty': 'Brak sesji treningowych.',
     'sessions.weightLifted': 'Uniesiony ciężar',
     'sessions.notes': 'Notatki',
@@ -455,6 +482,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Na pewno zakończyć?',
     'sessions.confirmYes': 'Tak, zakończ',
     'sessions.confirmCancel': 'Anuluj',
+    'sessions.finishRequiresName': 'Wprowadź nazwę, aby zapisać sesję.',
 
     'config.title': 'Konfiguracja',
     'config.display': 'Wyświetlanie',
@@ -495,6 +523,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Тренировки',
     'sessions.dateTime': 'Дата и время',
+    'sessions.defaultName': 'Тренировка',
+    'sessions.nameRequired': 'Название обязательно.',
+    'sessions.confirmDeleteSessionQuestion': 'Действительно удалить эту тренировку?',
     'sessions.empty': 'Тренировок пока нет.',
     'sessions.weightLifted': 'Поднятый вес',
     'sessions.notes': 'Заметки',
@@ -521,6 +552,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Действительно завершить?',
     'sessions.confirmYes': 'Да, завершить',
     'sessions.confirmCancel': 'Отмена',
+    'sessions.finishRequiresName': 'Введите название, чтобы сохранить тренировку.',
 
     'config.title': 'Настройки',
     'config.display': 'Отображение',
@@ -561,6 +593,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'sessions.title': 'Edzések',
     'sessions.dateTime': 'Dátum és idő',
+    'sessions.defaultName': 'Edzés',
+    'sessions.nameRequired': 'A név megadása kötelező.',
+    'sessions.confirmDeleteSessionQuestion': 'Valóban törlöd ezt az edzést?',
     'sessions.empty': 'Még nincsenek edzések.',
     'sessions.weightLifted': 'Emelt súly',
     'sessions.notes': 'Jegyzetek',
@@ -587,6 +622,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Valóban befejezed?',
     'sessions.confirmYes': 'Igen, befejezés',
     'sessions.confirmCancel': 'Mégse',
+    'sessions.finishRequiresName': 'Adj meg egy nevet az edzés mentéséhez.',
 
     'config.title': 'Beállítások',
     'config.display': 'Megjelenítés',

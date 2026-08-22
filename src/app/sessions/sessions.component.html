@@ -31,8 +31,13 @@
             type="text"
             name="name-{{ session.id }}"
             [(ngModel)]="session.name"
+            #nameModel="ngModel"
+            required
             (blur)="updateSessionName(session)"
           />
+          @if (nameModel.invalid && nameModel.touched) {
+            <mat-error>{{ 'sessions.nameRequired' | translate }}</mat-error>
+          }
         </mat-form-field>
 
         <div class="session-timer">
@@ -62,6 +67,10 @@
             </button>
           }
         </div>
+
+        @if (finishBlockedSessionId === session.id) {
+          <p class="finish-blocked-message">{{ 'sessions.finishRequiresName' | translate }}</p>
+        }
 
         <mat-form-field appearance="outline" class="notes-field">
           <mat-label>{{ 'sessions.notes' | translate }}</mat-label>
@@ -243,14 +252,33 @@
         }
 
         <mat-action-row>
-          <button
-            mat-icon-button
-            color="warn"
-            (click)="deleteSession(session.id)"
-            [attr.aria-label]="'common.delete' | translate"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
+          @if (pendingDeleteSessionId === session.id) {
+            <span class="finish-confirm-label">{{ 'sessions.confirmDeleteSessionQuestion' | translate }}</span>
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="confirmDeleteSession(session.id)"
+              [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="cancelDeleteSession()"
+              [attr.aria-label]="'sessions.confirmCancel' | translate"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="requestDeleteSession(session.id)"
+              [attr.aria-label]="'common.delete' | translate"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
         </mat-action-row>
       </mat-expansion-panel>
     }

@@ -10,9 +10,8 @@ export class SessionsService {
     return this.db.getAll<TrainingSession>(STORES.sessions);
   }
 
-  add(session: Omit<TrainingSession, 'id'>): Promise<TrainingSession> {
-    const newSession: TrainingSession = { ...session, id: crypto.randomUUID() };
-    return this.db.add(STORES.sessions, newSession).then(() => newSession);
+  add(session: TrainingSession): Promise<void> {
+    return this.db.add(STORES.sessions, session);
   }
 
   update(session: TrainingSession): Promise<void> {
