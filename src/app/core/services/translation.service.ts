@@ -71,6 +71,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Date Format',
     'config.dateFormatEU': 'DD.MM.YYYY (21.08.2026)',
     'config.dateFormatUS': 'MM/DD/YYYY (08/21/2026)',
+    'config.dateOfBirth': 'Date of Birth',
+    'config.age': 'Age',
+    'config.heartRateMax': 'Maximum Heart Rate for Endurance Sports',
     'config.language': 'Language',
     'config.data': 'Data',
     'config.dataDescription': 'Export all local data as a file or restore a previously exported backup.',
@@ -81,7 +84,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Data imported.',
     'config.importError': 'Import failed: invalid file.',
     'config.resetConfirm': 'Really delete all local data irrevocably?',
-    'config.resetSuccess': 'All data deleted.'
+    'config.resetSuccess': 'All data deleted.',
+
+    'trainingZones.title': 'Training Zones (Endurance Sports)',
+    'trainingZones.zoneColumn': 'Zone',
+    'trainingZones.percentColumn': '% Max. HR',
+    'trainingZones.purposeColumn': 'Purpose',
+    'trainingZones.zone1': 'Zone 1 – Recovery',
+    'trainingZones.zone1Purpose': 'Active recovery',
+    'trainingZones.zone2': 'Zone 2 – Base Endurance',
+    'trainingZones.zone2Purpose': 'Fat burning, base building',
+    'trainingZones.zone3': 'Zone 3 – Aerobic Development',
+    'trainingZones.zone3Purpose': 'Endurance improvement',
+    'trainingZones.zone4': 'Zone 4 – Anaerobic Threshold',
+    'trainingZones.zone4Purpose': 'Performance improvement',
+    'trainingZones.zone5': 'Zone 5 – Maximal Effort',
+    'trainingZones.zone5Purpose': 'Peak performance, short intervals',
+
+    'intensity.warning.exceedsRecommended': 'This intensity exceeds the recommended range for your age and goal.',
+    'intensity.info.belowRecommended': 'This intensity is below the recommended range for your age and goal.',
+    'intensity.notes.seniorTechnicFocus': 'Focus on technique and allow extra recovery time.',
+    'intensity.recommendedSuffix': '% 1RM recommended'
   },
   de: {
     'nav.sessions': 'Trainingseinheiten',
@@ -140,6 +163,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Datumsformat',
     'config.dateFormatEU': 'TT.MM.JJJJ (21.08.2026)',
     'config.dateFormatUS': 'MM/TT/JJJJ (08/21/2026)',
+    'config.dateOfBirth': 'Geburtsdatum',
+    'config.age': 'Alter',
+    'config.heartRateMax': 'Maximale Herzfrequenz bei Ausdauersportarten',
     'config.language': 'Sprache',
     'config.data': 'Daten',
     'config.dataDescription':
@@ -151,7 +177,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Daten wurden importiert.',
     'config.importError': 'Import fehlgeschlagen: ungültige Datei.',
     'config.resetConfirm': 'Wirklich alle lokalen Daten unwiderruflich löschen?',
-    'config.resetSuccess': 'Alle Daten wurden gelöscht.'
+    'config.resetSuccess': 'Alle Daten wurden gelöscht.',
+
+    'trainingZones.title': 'Trainingszonen (Ausdauersport)',
+    'trainingZones.zoneColumn': 'Zone',
+    'trainingZones.percentColumn': '% HFmax',
+    'trainingZones.purposeColumn': 'Zweck',
+    'trainingZones.zone1': 'Zone 1 – Regeneration',
+    'trainingZones.zone1Purpose': 'Aktive Erholung',
+    'trainingZones.zone2': 'Zone 2 – Grundlagenausdauer',
+    'trainingZones.zone2Purpose': 'Fettverbrennung, Basisaufbau',
+    'trainingZones.zone3': 'Zone 3 – Aerobe Entwicklung',
+    'trainingZones.zone3Purpose': 'Ausdauersteigerung',
+    'trainingZones.zone4': 'Zone 4 – Anaerobe Schwelle',
+    'trainingZones.zone4Purpose': 'Leistungssteigerung',
+    'trainingZones.zone5': 'Zone 5 – Maximalbelastung',
+    'trainingZones.zone5Purpose': 'Spitzenleistung, kurze Intervalle',
+
+    'intensity.warning.exceedsRecommended': 'Diese Intensität liegt über dem für Alter und Ziel empfohlenen Bereich.',
+    'intensity.info.belowRecommended': 'Diese Intensität liegt unter dem für Alter und Ziel empfohlenen Bereich.',
+    'intensity.notes.seniorTechnicFocus': 'Fokus auf Technik legen und mehr Erholungszeit einplanen.',
+    'intensity.recommendedSuffix': '% 1RM empfohlen'
   },
   es: {
     'nav.sessions': 'Sesiones de entrenamiento',
@@ -210,6 +256,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Formato de fecha',
     'config.dateFormatEU': 'DD.MM.AAAA (21.08.2026)',
     'config.dateFormatUS': 'MM/DD/AAAA (08/21/2026)',
+    'config.dateOfBirth': 'Fecha de nacimiento',
+    'config.age': 'Edad',
+    'config.heartRateMax': 'Frecuencia cardíaca máxima en deportes de resistencia',
     'config.language': 'Idioma',
     'config.data': 'Datos',
     'config.dataDescription':
@@ -221,7 +270,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Datos importados.',
     'config.importError': 'Error al importar: archivo no válido.',
     'config.resetConfirm': '¿Eliminar realmente todos los datos locales de forma irrevocable?',
-    'config.resetSuccess': 'Todos los datos eliminados.'
+    'config.resetSuccess': 'Todos los datos eliminados.',
+
+    'trainingZones.title': 'Zonas de entrenamiento (deportes de resistencia)',
+    'trainingZones.zoneColumn': 'Zona',
+    'trainingZones.percentColumn': '% FCmáx',
+    'trainingZones.purposeColumn': 'Propósito',
+    'trainingZones.zone1': 'Zona 1 – Recuperación',
+    'trainingZones.zone1Purpose': 'Recuperación activa',
+    'trainingZones.zone2': 'Zona 2 – Resistencia base',
+    'trainingZones.zone2Purpose': 'Quema de grasa, base de resistencia',
+    'trainingZones.zone3': 'Zona 3 – Desarrollo aeróbico',
+    'trainingZones.zone3Purpose': 'Mejora de la resistencia',
+    'trainingZones.zone4': 'Zona 4 – Umbral anaeróbico',
+    'trainingZones.zone4Purpose': 'Mejora del rendimiento',
+    'trainingZones.zone5': 'Zona 5 – Esfuerzo máximo',
+    'trainingZones.zone5Purpose': 'Rendimiento máximo, intervalos cortos',
+
+    'intensity.warning.exceedsRecommended': 'Esta intensidad supera el rango recomendado para tu edad y objetivo.',
+    'intensity.info.belowRecommended': 'Esta intensidad está por debajo del rango recomendado para tu edad y objetivo.',
+    'intensity.notes.seniorTechnicFocus': 'Concéntrate en la técnica y prevé más tiempo de recuperación.',
+    'intensity.recommendedSuffix': '% 1RM recomendado'
   },
   pt: {
     'nav.sessions': 'Sessões de treino',
@@ -280,6 +349,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Formato de data',
     'config.dateFormatEU': 'DD.MM.AAAA (21.08.2026)',
     'config.dateFormatUS': 'MM/DD/AAAA (08/21/2026)',
+    'config.dateOfBirth': 'Data de nascimento',
+    'config.age': 'Idade',
+    'config.heartRateMax': 'Frequência cardíaca máxima em esportes de resistência',
     'config.language': 'Idioma',
     'config.data': 'Dados',
     'config.dataDescription':
@@ -291,7 +363,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Dados importados.',
     'config.importError': 'Falha na importação: arquivo inválido.',
     'config.resetConfirm': 'Excluir realmente todos os dados locais de forma irreversível?',
-    'config.resetSuccess': 'Todos os dados foram excluídos.'
+    'config.resetSuccess': 'Todos os dados foram excluídos.',
+
+    'trainingZones.title': 'Zonas de treino (esportes de resistência)',
+    'trainingZones.zoneColumn': 'Zona',
+    'trainingZones.percentColumn': '% FCmáx',
+    'trainingZones.purposeColumn': 'Finalidade',
+    'trainingZones.zone1': 'Zona 1 – Recuperação',
+    'trainingZones.zone1Purpose': 'Recuperação ativa',
+    'trainingZones.zone2': 'Zona 2 – Resistência de base',
+    'trainingZones.zone2Purpose': 'Queima de gordura, base de resistência',
+    'trainingZones.zone3': 'Zona 3 – Desenvolvimento aeróbico',
+    'trainingZones.zone3Purpose': 'Melhora da resistência',
+    'trainingZones.zone4': 'Zona 4 – Limiar anaeróbico',
+    'trainingZones.zone4Purpose': 'Melhora do desempenho',
+    'trainingZones.zone5': 'Zona 5 – Esforço máximo',
+    'trainingZones.zone5Purpose': 'Desempenho máximo, intervalos curtos',
+
+    'intensity.warning.exceedsRecommended': 'Esta intensidade excede o intervalo recomendado para sua idade e objetivo.',
+    'intensity.info.belowRecommended': 'Esta intensidade está abaixo do intervalo recomendado para sua idade e objetivo.',
+    'intensity.notes.seniorTechnicFocus': 'Foque na técnica e reserve mais tempo de recuperação.',
+    'intensity.recommendedSuffix': '% 1RM recomendado'
   },
   it: {
     'nav.sessions': 'Sessioni di allenamento',
@@ -350,6 +442,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Formato data',
     'config.dateFormatEU': 'GG.MM.AAAA (21.08.2026)',
     'config.dateFormatUS': 'MM/GG/AAAA (08/21/2026)',
+    'config.dateOfBirth': 'Data di nascita',
+    'config.age': 'Età',
+    'config.heartRateMax': 'Frequenza cardiaca massima negli sport di resistenza',
     'config.language': 'Lingua',
     'config.data': 'Dati',
     'config.dataDescription':
@@ -361,7 +456,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Dati importati.',
     'config.importError': 'Importazione non riuscita: file non valido.',
     'config.resetConfirm': 'Eliminare davvero tutti i dati locali in modo irreversibile?',
-    'config.resetSuccess': 'Tutti i dati sono stati eliminati.'
+    'config.resetSuccess': 'Tutti i dati sono stati eliminati.',
+
+    'trainingZones.title': 'Zone di allenamento (sport di resistenza)',
+    'trainingZones.zoneColumn': 'Zona',
+    'trainingZones.percentColumn': '% FCmax',
+    'trainingZones.purposeColumn': 'Scopo',
+    'trainingZones.zone1': 'Zona 1 – Recupero',
+    'trainingZones.zone1Purpose': 'Recupero attivo',
+    'trainingZones.zone2': 'Zona 2 – Resistenza di base',
+    'trainingZones.zone2Purpose': 'Bruciare grassi, costruzione di base',
+    'trainingZones.zone3': 'Zona 3 – Sviluppo aerobico',
+    'trainingZones.zone3Purpose': 'Miglioramento della resistenza',
+    'trainingZones.zone4': 'Zona 4 – Soglia anaerobica',
+    'trainingZones.zone4Purpose': 'Miglioramento delle prestazioni',
+    'trainingZones.zone5': 'Zona 5 – Sforzo massimale',
+    'trainingZones.zone5Purpose': 'Massime prestazioni, intervalli brevi',
+
+    'intensity.warning.exceedsRecommended': "Questa intensità supera l'intervallo consigliato per età e obiettivo.",
+    'intensity.info.belowRecommended': "Questa intensità è inferiore all'intervallo consigliato per età e obiettivo.",
+    'intensity.notes.seniorTechnicFocus': 'Concentrati sulla tecnica e prevedi più tempo di recupero.',
+    'intensity.recommendedSuffix': '% 1RM consigliato'
   },
   nl: {
     'nav.sessions': 'Trainingssessies',
@@ -420,6 +535,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Datumnotatie',
     'config.dateFormatEU': 'DD.MM.JJJJ (21.08.2026)',
     'config.dateFormatUS': 'MM/DD/JJJJ (08/21/2026)',
+    'config.dateOfBirth': 'Geboortedatum',
+    'config.age': 'Leeftijd',
+    'config.heartRateMax': 'Maximale hartslag bij duursporten',
     'config.language': 'Taal',
     'config.data': 'Gegevens',
     'config.dataDescription':
@@ -431,7 +549,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Gegevens geïmporteerd.',
     'config.importError': 'Importeren mislukt: ongeldig bestand.',
     'config.resetConfirm': 'Alle lokale gegevens echt onherroepelijk verwijderen?',
-    'config.resetSuccess': 'Alle gegevens zijn verwijderd.'
+    'config.resetSuccess': 'Alle gegevens zijn verwijderd.',
+
+    'trainingZones.title': 'Trainingszones (duursport)',
+    'trainingZones.zoneColumn': 'Zone',
+    'trainingZones.percentColumn': '% HFmax',
+    'trainingZones.purposeColumn': 'Doel',
+    'trainingZones.zone1': 'Zone 1 – Herstel',
+    'trainingZones.zone1Purpose': 'Actief herstel',
+    'trainingZones.zone2': 'Zone 2 – Basisuithoudingsvermogen',
+    'trainingZones.zone2Purpose': 'Vetverbranding, basisopbouw',
+    'trainingZones.zone3': 'Zone 3 – Aerobe ontwikkeling',
+    'trainingZones.zone3Purpose': 'Verbetering uithoudingsvermogen',
+    'trainingZones.zone4': 'Zone 4 – Anaerobe drempel',
+    'trainingZones.zone4Purpose': 'Prestatieverbetering',
+    'trainingZones.zone5': 'Zone 5 – Maximale inspanning',
+    'trainingZones.zone5Purpose': 'Piekprestatie, korte intervallen',
+
+    'intensity.warning.exceedsRecommended': 'Deze intensiteit overschrijdt het aanbevolen bereik voor leeftijd en doel.',
+    'intensity.info.belowRecommended': 'Deze intensiteit ligt onder het aanbevolen bereik voor leeftijd en doel.',
+    'intensity.notes.seniorTechnicFocus': 'Focus op techniek en plan extra hersteltijd in.',
+    'intensity.recommendedSuffix': '% 1RM aanbevolen'
   },
   pl: {
     'nav.sessions': 'Sesje treningowe',
@@ -490,6 +628,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Format daty',
     'config.dateFormatEU': 'DD.MM.RRRR (21.08.2026)',
     'config.dateFormatUS': 'MM/DD/RRRR (08/21/2026)',
+    'config.dateOfBirth': 'Data urodzenia',
+    'config.age': 'Wiek',
+    'config.heartRateMax': 'Maksymalne tętno w sportach wytrzymałościowych',
     'config.language': 'Język',
     'config.data': 'Dane',
     'config.dataDescription':
@@ -501,7 +642,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Dane zaimportowane.',
     'config.importError': 'Import nie powiódł się: nieprawidłowy plik.',
     'config.resetConfirm': 'Czy na pewno nieodwracalnie usunąć wszystkie dane lokalne?',
-    'config.resetSuccess': 'Wszystkie dane zostały usunięte.'
+    'config.resetSuccess': 'Wszystkie dane zostały usunięte.',
+
+    'trainingZones.title': 'Strefy treningowe (sporty wytrzymałościowe)',
+    'trainingZones.zoneColumn': 'Strefa',
+    'trainingZones.percentColumn': '% HRmax',
+    'trainingZones.purposeColumn': 'Cel',
+    'trainingZones.zone1': 'Strefa 1 – Regeneracja',
+    'trainingZones.zone1Purpose': 'Aktywna regeneracja',
+    'trainingZones.zone2': 'Strefa 2 – Wytrzymałość podstawowa',
+    'trainingZones.zone2Purpose': 'Spalanie tłuszczu, budowa bazy',
+    'trainingZones.zone3': 'Strefa 3 – Rozwój tlenowy',
+    'trainingZones.zone3Purpose': 'Poprawa wytrzymałości',
+    'trainingZones.zone4': 'Strefa 4 – Próg beztlenowy',
+    'trainingZones.zone4Purpose': 'Poprawa wydolności',
+    'trainingZones.zone5': 'Strefa 5 – Maksymalny wysiłek',
+    'trainingZones.zone5Purpose': 'Szczytowa wydajność, krótkie interwały',
+
+    'intensity.warning.exceedsRecommended': 'Ta intensywność przekracza zalecany zakres dla wieku i celu.',
+    'intensity.info.belowRecommended': 'Ta intensywność jest poniżej zalecanego zakresu dla wieku i celu.',
+    'intensity.notes.seniorTechnicFocus': 'Skup się na technice i zaplanuj dodatkowy czas regeneracji.',
+    'intensity.recommendedSuffix': '% 1RM zalecane'
   },
   ru: {
     'nav.sessions': 'Тренировки',
@@ -560,6 +721,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Формат даты',
     'config.dateFormatEU': 'ДД.ММ.ГГГГ (21.08.2026)',
     'config.dateFormatUS': 'ММ/ДД/ГГГГ (08/21/2026)',
+    'config.dateOfBirth': 'Дата рождения',
+    'config.age': 'Возраст',
+    'config.heartRateMax': 'Максимальная частота сердечных сокращений в циклических видах спорта',
     'config.language': 'Язык',
     'config.data': 'Данные',
     'config.dataDescription':
@@ -571,7 +735,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Данные импортированы.',
     'config.importError': 'Ошибка импорта: недопустимый файл.',
     'config.resetConfirm': 'Действительно безвозвратно удалить все локальные данные?',
-    'config.resetSuccess': 'Все данные удалены.'
+    'config.resetSuccess': 'Все данные удалены.',
+
+    'trainingZones.title': 'Тренировочные зоны (циклические виды спорта)',
+    'trainingZones.zoneColumn': 'Зона',
+    'trainingZones.percentColumn': '% от макс. ЧСС',
+    'trainingZones.purposeColumn': 'Цель',
+    'trainingZones.zone1': 'Зона 1 – Восстановление',
+    'trainingZones.zone1Purpose': 'Активное восстановление',
+    'trainingZones.zone2': 'Зона 2 – Базовая выносливость',
+    'trainingZones.zone2Purpose': 'Сжигание жира, база',
+    'trainingZones.zone3': 'Зона 3 – Аэробное развитие',
+    'trainingZones.zone3Purpose': 'Повышение выносливости',
+    'trainingZones.zone4': 'Зона 4 – Анаэробный порог',
+    'trainingZones.zone4Purpose': 'Повышение работоспособности',
+    'trainingZones.zone5': 'Зона 5 – Максимальная нагрузка',
+    'trainingZones.zone5Purpose': 'Пиковая производительность, короткие интервалы',
+
+    'intensity.warning.exceedsRecommended': 'Эта интенсивность превышает рекомендуемый диапазон для вашего возраста и цели.',
+    'intensity.info.belowRecommended': 'Эта интенсивность ниже рекомендуемого диапазона для вашего возраста и цели.',
+    'intensity.notes.seniorTechnicFocus': 'Сосредоточьтесь на технике и предусмотрите больше времени на восстановление.',
+    'intensity.recommendedSuffix': '% от 1ПМ рекомендуется'
   },
   hu: {
     'nav.sessions': 'Edzések',
@@ -630,6 +814,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.dateFormat': 'Dátumformátum',
     'config.dateFormatEU': 'NN.HH.ÉÉÉÉ (21.08.2026)',
     'config.dateFormatUS': 'HH/NN/ÉÉÉÉ (08/21/2026)',
+    'config.dateOfBirth': 'Születési dátum',
+    'config.age': 'Életkor',
+    'config.heartRateMax': 'Maximális pulzus állóképességi sportoknál',
     'config.language': 'Nyelv',
     'config.data': 'Adatok',
     'config.dataDescription':
@@ -641,7 +828,27 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importSuccess': 'Az adatok importálva.',
     'config.importError': 'Sikertelen importálás: érvénytelen fájl.',
     'config.resetConfirm': 'Valóban véglegesen törlöd az összes helyi adatot?',
-    'config.resetSuccess': 'Az összes adat törölve.'
+    'config.resetSuccess': 'Az összes adat törölve.',
+
+    'trainingZones.title': 'Edzési zónák (állóképességi sportok)',
+    'trainingZones.zoneColumn': 'Zóna',
+    'trainingZones.percentColumn': 'Max. pulzus %-a',
+    'trainingZones.purposeColumn': 'Cél',
+    'trainingZones.zone1': '1. zóna – Regeneráció',
+    'trainingZones.zone1Purpose': 'Aktív pihenés',
+    'trainingZones.zone2': '2. zóna – Alapállóképesség',
+    'trainingZones.zone2Purpose': 'Zsírégetés, alapok kiépítése',
+    'trainingZones.zone3': '3. zóna – Aerob fejlesztés',
+    'trainingZones.zone3Purpose': 'Állóképesség javítása',
+    'trainingZones.zone4': '4. zóna – Anaerob küszöb',
+    'trainingZones.zone4Purpose': 'Teljesítményjavítás',
+    'trainingZones.zone5': '5. zóna – Maximális terhelés',
+    'trainingZones.zone5Purpose': 'Csúcsteljesítmény, rövid intervallumok',
+
+    'intensity.warning.exceedsRecommended': 'Ez az intenzitás meghaladja az életkorodhoz és célodhoz ajánlott tartományt.',
+    'intensity.info.belowRecommended': 'Ez az intenzitás az életkorodhoz és célodhoz ajánlott tartomány alatt van.',
+    'intensity.notes.seniorTechnicFocus': 'Koncentrálj a technikára, és tervezz be több pihenőidőt.',
+    'intensity.recommendedSuffix': '% 1RM ajánlott'
   }
 };
 

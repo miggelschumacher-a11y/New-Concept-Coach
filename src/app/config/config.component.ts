@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -13,20 +14,32 @@ import {
 } from '../core/services/settings.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
 import { TranslationService, LANGUAGES } from '../core/services/translation.service';
+import { findHeartRateMax } from '../core/data/heart-rate-zones';
+import { TRAINING_ZONES } from '../core/data/training-zones';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-config',
   standalone: true,
-  imports: [FormsModule, MatCardModule, MatFormFieldModule, MatSelectModule, MatButtonModule, TranslatePipe],
+  imports: [
+    FormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    TranslatePipe
+  ],
   templateUrl: './config.component.html',
   styleUrl: './config.component.scss'
 })
 export class ConfigComponent {
   readonly languages = LANGUAGES;
+  readonly trainingZones = TRAINING_ZONES;
   weightUnit: WeightUnit;
   dateFormat: DateFormat;
   language: Language;
+  dateOfBirth: string;
   statusMessageKey: string | null = null;
 
   constructor(
@@ -38,6 +51,34 @@ export class ConfigComponent {
     this.weightUnit = settings.weightUnit;
     this.dateFormat = settings.dateFormat;
     this.language = settings.language;
+    this.dateOfBirth = settings.dateOfBirth ?? '';
+  }
+
+  get age(): number | null {
+    if (!this.dateOfBirth) {
+      return null;
+    }
+    const birthDate = new Date(this.dateOfBirth);
+    if (Number.isNaN(birthDate.getTime())) {
+      return null;
+    }
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const hasHadBirthdayThisYear =
+      today.getMonth() > birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+    if (!hasHadBirthdayThisYear) {
+      age--;
+    }
+    return age;
+  }
+
+  get heartRateMax(): string | null {
+    return this.age === null ? null : findHeartRateMax(this.age);
+  }
+
+  onDateOfBirthChange(): void {
+    this.settingsService.updateSettings({ dateOfBirth: this.dateOfBirth || undefined });
   }
 
   onWeightUnitChange(): void {

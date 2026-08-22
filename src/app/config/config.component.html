@@ -29,6 +29,47 @@
         <mat-option value="MM/dd/yyyy">{{ 'config.dateFormatUS' | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'config.dateOfBirth' | translate }}</mat-label>
+      <input matInput type="date" [(ngModel)]="dateOfBirth" [attr.lang]="language" (change)="onDateOfBirthChange()" />
+    </mat-form-field>
+
+    @if (age !== null) {
+      <span class="age-display">{{ 'config.age' | translate }}: {{ age }}</span>
+    }
+
+    @if (heartRateMax !== null) {
+      <span class="age-display">{{ 'config.heartRateMax' | translate }}: {{ heartRateMax }}</span>
+    }
+  </mat-card-content>
+</mat-card>
+
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ 'trainingZones.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="zones-table-wrapper">
+      <table class="zones-table">
+        <thead>
+          <tr>
+            <th>{{ 'trainingZones.zoneColumn' | translate }}</th>
+            <th>{{ 'trainingZones.percentColumn' | translate }}</th>
+            <th>{{ 'trainingZones.purposeColumn' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (zone of trainingZones; track zone.nameKey) {
+            <tr>
+              <td>{{ zone.nameKey | translate }}</td>
+              <td>{{ zone.percentRange }}</td>
+              <td>{{ zone.purposeKey | translate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   </mat-card-content>
 </mat-card>
 

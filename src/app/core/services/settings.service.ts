@@ -8,6 +8,7 @@ export interface AppSettings {
   weightUnit: WeightUnit;
   dateFormat: DateFormat;
   language: Language;
+  dateOfBirth?: string;
 }
 
 export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
