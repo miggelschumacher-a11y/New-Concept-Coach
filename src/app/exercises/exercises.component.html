@@ -28,14 +28,39 @@
         @if (exercise.category) {
           <span matListItemLine>{{ exercise.category }}</span>
         }
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="deleteExercise(exercise.id)"
-          [attr.aria-label]="'common.delete' | translate"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
+        <span matListItemMeta class="list-item-meta">
+          <span class="one-rep-max">
+            {{ 'exercises.oneRepMax' | translate }} {{ exercise.oneRepMax !== undefined ? exercise.oneRepMax.toFixed(2) : '–' }}
+            <span class="unit-label">{{ weightUnitLabel }}</span>
+          </span>
+          @if (pendingDeleteExerciseId === exercise.id) {
+            <span class="confirm-label">{{ 'exercises.confirmDeleteQuestion' | translate }}</span>
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="confirmDeleteExercise(exercise.id)"
+              [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              (click)="cancelDeleteExercise()"
+              [attr.aria-label]="'sessions.confirmCancel' | translate"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="requestDeleteExercise(exercise.id)"
+              [attr.aria-label]="'common.delete' | translate"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </span>
       </mat-list-item>
     }
   </mat-list>

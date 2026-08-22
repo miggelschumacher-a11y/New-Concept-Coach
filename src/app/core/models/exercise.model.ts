@@ -3,4 +3,5 @@ export interface Exercise {
   name: string;
   category: string;
   description?: string;
+  oneRepMax?: number;
 }

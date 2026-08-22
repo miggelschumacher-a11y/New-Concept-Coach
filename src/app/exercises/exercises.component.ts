@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { ExercisesService } from '../core/services/exercises.service';
+import { SettingsService } from '../core/services/settings.service';
 import { Exercise } from '../core/models/exercise.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
@@ -30,8 +31,16 @@ export class ExercisesComponent implements OnInit {
   exercises: Exercise[] = [];
   name = '';
   category = '';
+  pendingDeleteExerciseId: string | null = null;
 
-  constructor(private readonly exercisesService: ExercisesService) {}
+  constructor(
+    private readonly exercisesService: ExercisesService,
+    private readonly settingsService: SettingsService
+  ) {}
+
+  get weightUnitLabel(): string {
+    return this.settingsService.getSettings().weightUnit.toUpperCase();
+  }
 
   async ngOnInit(): Promise<void> {
     await this.load();
@@ -49,6 +58,19 @@ export class ExercisesComponent implements OnInit {
     this.name = '';
     this.category = '';
     await this.load();
+  }
+
+  requestDeleteExercise(id: string): void {
+    this.pendingDeleteExerciseId = id;
+  }
+
+  cancelDeleteExercise(): void {
+    this.pendingDeleteExerciseId = null;
+  }
+
+  async confirmDeleteExercise(id: string): Promise<void> {
+    this.pendingDeleteExerciseId = null;
+    await this.deleteExercise(id);
   }
 
   async deleteExercise(id: string): Promise<void> {

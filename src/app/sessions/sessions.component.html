@@ -117,10 +117,10 @@
                 <mat-expansion-panel-header>
                   <mat-panel-title>
                     {{ exerciseName(sessionExercise.exerciseId) }}
-                    <span class="set-count">
-                      ({{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }},
-                      {{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }})
-                    </span>
+                    <span class="set-count"
+                      >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
+                      <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ 'exercises.oneRepMax' | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
+                    >
                   </mat-panel-title>
                   @if (isPendingDeleteExercise(session, sessionExercise.exerciseId)) {
                     <span class="finish-confirm-label">{{ 'sessions.confirmRemoveExerciseQuestion' | translate }}</span>
@@ -196,7 +196,7 @@
                             [placeholder]="'sessions.reps' | translate"
                             [(ngModel)]="set.reps"
                             name="reps-{{ set.id }}"
-                            (change)="onRepsChange(session, set)"
+                            (change)="onRepsChange(session, sessionExercise, set)"
                           />
                           <input
                             type="text"
@@ -205,7 +205,7 @@
                             [value]="set.weight.toFixed(2)"
                             name="weight-{{ set.id }}"
                             (input)="onWeightInput($event)"
-                            (change)="onWeightChange(session, set, $any($event.target).value)"
+                            (change)="onWeightChange(session, sessionExercise, set, $any($event.target).value)"
                           />
                           @if (pendingDeleteSetId === set.id) {
                             <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>

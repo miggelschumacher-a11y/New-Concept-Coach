@@ -9,12 +9,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { TranslationService } from '../core/services/translation.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
+import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 function toDateTimeLocalValue(date: Date): string {
@@ -41,6 +43,7 @@ export const SET_TYPES: { value: SetType; labelKey: string }[] = [
     MatCardModule,
     MatExpansionModule,
     MatCheckboxModule,
+    MatTooltipModule,
     DatePipe,
     TranslatePipe
   ],
@@ -305,9 +308,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  async onRepsChange(session: TrainingSession, set: ExerciseSet): Promise<void> {
+  async onRepsChange(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): Promise<void> {
     set.reps = Math.min(Math.max(set.reps, 0), 10000);
     await this.persist(session);
+    await this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
   }
 
   onWeightInput(event: Event): void {
@@ -318,10 +322,33 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onWeightChange(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
+  async onWeightChange(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    set: ExerciseSet,
+    value: string
+  ): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     set.weight = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : 0;
     await this.persist(session);
+    await this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
+  }
+
+  exerciseOneRepMax(exerciseId: string): number | undefined {
+    return this.exercises.find((exercise) => exercise.id === exerciseId)?.oneRepMax;
+  }
+
+  private async updateEstimatedOneRepMax(exerciseId: string, set: ExerciseSet): Promise<void> {
+    const oneRepMax = estimateOneRepMax(set.weight, set.reps);
+    if (oneRepMax <= 0) {
+      return;
+    }
+    const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
+    if (!exercise) {
+      return;
+    }
+    exercise.oneRepMax = oneRepMax;
+    await this.exercisesService.update(exercise);
   }
 
   async updateSessionNotes(session: TrainingSession): Promise<void> {
