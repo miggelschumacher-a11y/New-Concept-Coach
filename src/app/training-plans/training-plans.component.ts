@@ -8,6 +8,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { TrainingPlan } from '../core/models/training-plan.model';
+import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-training-plans',
@@ -19,7 +20,8 @@ import { TrainingPlan } from '../core/models/training-plan.model';
     MatButtonModule,
     MatIconModule,
     MatListModule,
-    MatCardModule
+    MatCardModule,
+    TranslatePipe
   ],
   templateUrl: './training-plans.component.html',
   styleUrl: './training-plans.component.scss'

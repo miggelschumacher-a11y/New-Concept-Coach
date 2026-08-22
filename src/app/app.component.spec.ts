@@ -21,6 +21,6 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     const links = Array.from(compiled.querySelectorAll('a')).map((a) => a.textContent?.trim());
-    expect(links).toEqual(['Trainingseinheiten', 'Trainingspläne', 'Übungen', 'Konfiguration']);
+    expect(links).toEqual(['Training Sessions', 'Training Plans', 'Exercises', 'Configuration']);
   });
 });

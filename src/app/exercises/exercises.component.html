@@ -1,25 +1,25 @@
-<h2>Übungen</h2>
+<h2>{{ 'exercises.title' | translate }}</h2>
 
 <mat-card>
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addExercise()">
       <mat-form-field appearance="outline">
-        <mat-label>Name</mat-label>
+        <mat-label>{{ 'common.name' | translate }}</mat-label>
         <input matInput name="name" [(ngModel)]="name" required />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Kategorie</mat-label>
+        <mat-label>{{ 'exercises.category' | translate }}</mat-label>
         <input matInput name="category" [(ngModel)]="category" />
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit">Hinzufügen</button>
+      <button mat-raised-button color="primary" type="submit">{{ 'common.add' | translate }}</button>
     </form>
   </mat-card-content>
 </mat-card>
 
 @if (exercises.length === 0) {
-  <p>Noch keine Übungen vorhanden.</p>
+  <p>{{ 'exercises.empty' | translate }}</p>
 } @else {
   <mat-list>
     @for (exercise of exercises; track exercise.id) {
@@ -28,7 +28,12 @@
         @if (exercise.category) {
           <span matListItemLine>{{ exercise.category }}</span>
         }
-        <button mat-icon-button color="warn" (click)="deleteExercise(exercise.id)" aria-label="Löschen">
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="deleteExercise(exercise.id)"
+          [attr.aria-label]="'common.delete' | translate"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       </mat-list-item>

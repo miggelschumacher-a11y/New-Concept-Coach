@@ -4,28 +4,34 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { SettingsService, WeightUnit, DateFormat } from '../core/services/settings.service';
+import { SettingsService, WeightUnit, DateFormat, Language } from '../core/services/settings.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
+import { TranslationService, LANGUAGES } from '../core/services/translation.service';
+import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-config',
   standalone: true,
-  imports: [FormsModule, MatCardModule, MatFormFieldModule, MatSelectModule, MatButtonModule],
+  imports: [FormsModule, MatCardModule, MatFormFieldModule, MatSelectModule, MatButtonModule, TranslatePipe],
   templateUrl: './config.component.html',
   styleUrl: './config.component.scss'
 })
 export class ConfigComponent {
+  readonly languages = LANGUAGES;
   weightUnit: WeightUnit;
   dateFormat: DateFormat;
-  statusMessage = '';
+  language: Language;
+  statusMessageKey: string | null = null;
 
   constructor(
     private readonly settingsService: SettingsService,
-    private readonly indexedDbService: IndexedDbService
+    private readonly indexedDbService: IndexedDbService,
+    private readonly translationService: TranslationService
   ) {
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
     this.dateFormat = settings.dateFormat;
+    this.language = settings.language;
   }
 
   onWeightUnitChange(): void {
@@ -34,6 +40,10 @@ export class ConfigComponent {
 
   onDateFormatChange(): void {
     this.settingsService.updateSettings({ dateFormat: this.dateFormat });
+  }
+
+  onLanguageChange(): void {
+    this.settingsService.updateSettings({ language: this.language });
   }
 
   async exportData(): Promise<void> {
@@ -45,7 +55,7 @@ export class ConfigComponent {
     link.download = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    this.statusMessage = 'Daten wurden exportiert.';
+    this.statusMessageKey = 'config.exportSuccess';
   }
 
   async importData(event: Event): Promise<void> {
@@ -57,19 +67,19 @@ export class ConfigComponent {
     try {
       const data = JSON.parse(await file.text());
       await this.indexedDbService.importAll(data);
-      this.statusMessage = 'Daten wurden importiert.';
+      this.statusMessageKey = 'config.importSuccess';
     } catch {
-      this.statusMessage = 'Import fehlgeschlagen: ungültige Datei.';
+      this.statusMessageKey = 'config.importError';
     } finally {
       input.value = '';
     }
   }
 
   async resetData(): Promise<void> {
-    if (!confirm('Wirklich alle lokalen Daten unwiderruflich löschen?')) {
+    if (!confirm(this.translationService.translate('config.resetConfirm'))) {
       return;
     }
     await this.indexedDbService.clearAll();
-    this.statusMessage = 'Alle Daten wurden gelöscht.';
+    this.statusMessageKey = 'config.resetSuccess';
   }
 }

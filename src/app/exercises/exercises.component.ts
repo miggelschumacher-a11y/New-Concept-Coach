@@ -8,6 +8,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { ExercisesService } from '../core/services/exercises.service';
 import { Exercise } from '../core/models/exercise.model';
+import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-exercises',
@@ -19,7 +20,8 @@ import { Exercise } from '../core/models/exercise.model';
     MatButtonModule,
     MatIconModule,
     MatListModule,
-    MatCardModule
+    MatCardModule,
+    TranslatePipe
   ],
   templateUrl: './exercises.component.html',
   styleUrl: './exercises.component.scss'

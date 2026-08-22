@@ -14,16 +14,17 @@ import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
+import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 function toDateTimeLocalValue(date: Date): string {
   const pad = (value: number) => value.toString().padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export const SET_TYPES: { value: SetType; label: string }[] = [
-  { value: 'warmup', label: 'Aufwärm-Sätze' },
-  { value: 'working', label: 'Arbeitssätze' },
-  { value: 'cooldown', label: 'Cooldown-Sätze' }
+export const SET_TYPES: { value: SetType; labelKey: string }[] = [
+  { value: 'warmup', labelKey: 'sessions.warmupSets' },
+  { value: 'working', labelKey: 'sessions.workingSets' },
+  { value: 'cooldown', labelKey: 'sessions.cooldownSets' }
 ];
 
 @Component({
@@ -39,7 +40,8 @@ export const SET_TYPES: { value: SetType; label: string }[] = [
     MatCardModule,
     MatExpansionModule,
     MatCheckboxModule,
-    DatePipe
+    DatePipe,
+    TranslatePipe
   ],
   templateUrl: './sessions.component.html',
   styleUrl: './sessions.component.scss'

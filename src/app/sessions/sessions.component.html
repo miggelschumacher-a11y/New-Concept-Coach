@@ -1,59 +1,63 @@
-<h2>Trainingseinheiten</h2>
+<h2>{{ 'sessions.title' | translate }}</h2>
 
 <mat-card>
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addSession()">
       <mat-form-field appearance="outline">
-        <mat-label>Datum &amp; Uhrzeit</mat-label>
+        <mat-label>{{ 'sessions.dateTime' | translate }}</mat-label>
         <input matInput type="datetime-local" name="date" [(ngModel)]="date" required />
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit">Hinzufügen</button>
+      <button mat-raised-button color="primary" type="submit">{{ 'common.add' | translate }}</button>
     </form>
   </mat-card-content>
 </mat-card>
 
 @if (sessions.length === 0) {
-  <p>Noch keine Trainingseinheiten vorhanden.</p>
+  <p>{{ 'sessions.empty' | translate }}</p>
 } @else {
-  @for (session of sessions; track session.id) {
-    <mat-card class="session-card">
-      <mat-card-header>
-        <mat-card-title>{{ session.date | date: dateFormat }}</mat-card-title>
-        @if (session.exercises.length > 0) {
-          <mat-card-subtitle>Gehobenes Gewicht: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}</mat-card-subtitle>
-        }
-      </mat-card-header>
+  <mat-accordion multi class="session-accordion">
+    @for (session of sessions; track session.id) {
+      <mat-expansion-panel class="session-card">
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{ session.date | date: dateFormat }}</mat-panel-title>
+          @if (session.exercises.length > 0) {
+            <mat-panel-description>
+              {{ 'sessions.weightLifted' | translate }}: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}
+            </mat-panel-description>
+          }
+        </mat-expansion-panel-header>
 
-      <mat-card-content>
         <div class="session-timer">
           <span class="timer-display">{{ sessionDuration(session) }}</span>
 
           @if (session.finished) {
-            <span class="timer-finished-label">Beendet</span>
+            <span class="timer-finished-label">{{ 'sessions.finished' | translate }}</span>
           } @else if (pendingFinishSessionId === session.id) {
-            <span class="finish-confirm-label">Wirklich beenden?</span>
+            <span class="finish-confirm-label">{{ 'sessions.confirmFinishQuestion' | translate }}</span>
             <button mat-raised-button color="warn" type="button" (click)="confirmFinishSession(session)">
-              Ja, beenden
+              {{ 'sessions.confirmYes' | translate }}
             </button>
-            <button mat-stroked-button type="button" (click)="cancelFinishSession()">Abbrechen</button>
+            <button mat-stroked-button type="button" (click)="cancelFinishSession()">
+              {{ 'sessions.confirmCancel' | translate }}
+            </button>
           } @else {
             <button mat-stroked-button type="button" (click)="toggleTimer(session)">
               @if (session.timerRunning) {
-                Pausieren
+                {{ 'sessions.pause' | translate }}
               } @else {
-                Fortsetzen
+                {{ 'sessions.resume' | translate }}
               }
             </button>
 
             <button mat-stroked-button color="warn" type="button" (click)="requestFinishSession(session)">
-              Session beenden
+              {{ 'sessions.finish' | translate }}
             </button>
           }
         </div>
 
         <mat-form-field appearance="outline" class="notes-field">
-          <mat-label>Notizen</mat-label>
+          <mat-label>{{ 'sessions.notes' | translate }}</mat-label>
           <input
             matInput
             name="notes-{{ session.id }}"
@@ -64,7 +68,7 @@
 
         <form class="exercise-form">
           <mat-form-field appearance="outline">
-            <mat-label>Übungen</mat-label>
+            <mat-label>{{ 'sessions.exercisesLabel' | translate }}</mat-label>
             <mat-select
               [ngModel]="selectedExerciseIds(session)"
               name="exerciseIds-{{ session.id }}"
@@ -85,7 +89,7 @@
               }
             </mat-select>
             @if (exercises.length === 0) {
-              <mat-hint>Noch keine Übungen in den Stammdaten angelegt.</mat-hint>
+              <mat-hint>{{ 'sessions.noExercisesHint' | translate }}</mat-hint>
             }
           </mat-form-field>
         </form>
@@ -98,14 +102,14 @@
                   <mat-panel-title>
                     {{ exerciseName(sessionExercise.exerciseId) }}
                     <span class="set-count">
-                      ({{ totalSetsCount(sessionExercise) }} Sätze, {{ totalWeightLifted(sessionExercise) }}
-                      {{ weightUnitLabel }})
+                      ({{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }},
+                      {{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }})
                     </span>
                   </mat-panel-title>
                   <button
                     mat-icon-button
                     (click)="removeExerciseFromSession(session, sessionExercise.exerciseId); $event.stopPropagation()"
-                    aria-label="Übung entfernen"
+                    [attr.aria-label]="'sessions.removeExercise' | translate"
                   >
                     <mat-icon>close</mat-icon>
                   </button>
@@ -116,7 +120,7 @@
                   name="countWarmup-{{ sessionExercise.exerciseId }}"
                   (change)="onCountingPreferenceChange(session)"
                 >
-                  Aufwärmsatz mitzählen
+                  {{ 'sessions.countWarmup' | translate }}
                 </mat-checkbox>
 
                 <mat-checkbox
@@ -124,7 +128,7 @@
                   name="countCooldown-{{ sessionExercise.exerciseId }}"
                   (change)="onCountingPreferenceChange(session)"
                 >
-                  Cool-Down-Satz mitzählen
+                  {{ 'sessions.countCooldown' | translate }}
                 </mat-checkbox>
 
                 <mat-accordion multi class="set-type-accordion">
@@ -132,7 +136,7 @@
                     <mat-expansion-panel>
                       <mat-expansion-panel-header>
                         <mat-panel-title>
-                          {{ setType.label }}
+                          {{ setType.labelKey | translate }}
                           <span class="set-count">
                             ({{ setsByType(sessionExercise, setType.value).length }})
                           </span>
@@ -142,19 +146,19 @@
                       @if (setsByType(sessionExercise, setType.value).length > 0) {
                         <div class="set-row set-row-header">
                           <span class="set-index"></span>
-                          <span class="set-col-label">WDH.</span>
+                          <span class="set-col-label">{{ 'sessions.reps' | translate }}</span>
                           <span class="set-col-label">{{ weightUnitLabel }}</span>
                         </div>
                       }
 
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
                         <div class="set-row">
-                          <span class="set-index">Satz {{ i + 1 }}</span>
+                          <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
                           <input
                             type="number"
                             min="0"
                             max="10000"
-                            placeholder="Wdh."
+                            [placeholder]="'sessions.reps' | translate"
                             [(ngModel)]="set.reps"
                             name="reps-{{ set.id }}"
                             (change)="onRepsChange(session, set)"
@@ -171,7 +175,7 @@
                           <button
                             mat-icon-button
                             (click)="removeSet(session, sessionExercise, set.id)"
-                            aria-label="Satz entfernen"
+                            [attr.aria-label]="'sessions.removeSet' | translate"
                           >
                             <mat-icon>close</mat-icon>
                           </button>
@@ -183,7 +187,7 @@
                         type="button"
                         (click)="addSet(session, sessionExercise, setType.value)"
                       >
-                        Satz hinzufügen
+                        {{ 'sessions.addSet' | translate }}
                       </button>
                     </mat-expansion-panel>
                   }
@@ -192,13 +196,18 @@
             }
           </mat-accordion>
         }
-      </mat-card-content>
 
-      <mat-card-actions align="end">
-        <button mat-icon-button color="warn" (click)="deleteSession(session.id)" aria-label="Löschen">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  }
+        <mat-action-row>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="deleteSession(session.id)"
+            [attr.aria-label]="'common.delete' | translate"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    }
+  </mat-accordion>
 }

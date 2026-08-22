@@ -1,12 +1,21 @@
-<h2>Konfiguration</h2>
+<h2>{{ 'config.title' | translate }}</h2>
 
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Anzeige</mat-card-title>
+    <mat-card-title>{{ 'config.display' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content class="settings-form">
     <mat-form-field appearance="outline">
-      <mat-label>Gewichtseinheit</mat-label>
+      <mat-label>{{ 'config.language' | translate }}</mat-label>
+      <mat-select [(ngModel)]="language" (selectionChange)="onLanguageChange()">
+        @for (lang of languages; track lang.value) {
+          <mat-option [value]="lang.value">{{ lang.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'config.weightUnit' | translate }}</mat-label>
       <mat-select [(ngModel)]="weightUnit" (selectionChange)="onWeightUnitChange()">
         <mat-option value="kg">kg</mat-option>
         <mat-option value="lbs">lbs</mat-option>
@@ -14,10 +23,10 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>Datumsformat</mat-label>
+      <mat-label>{{ 'config.dateFormat' | translate }}</mat-label>
       <mat-select [(ngModel)]="dateFormat" (selectionChange)="onDateFormatChange()">
-        <mat-option value="dd.MM.yyyy">TT.MM.JJJJ (21.08.2026)</mat-option>
-        <mat-option value="MM/dd/yyyy">MM/TT/JJJJ (08/21/2026)</mat-option>
+        <mat-option value="dd.MM.yyyy">{{ 'config.dateFormatEU' | translate }}</mat-option>
+        <mat-option value="MM/dd/yyyy">{{ 'config.dateFormatUS' | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
   </mat-card-content>
@@ -25,22 +34,26 @@
 
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Daten</mat-card-title>
+    <mat-card-title>{{ 'config.data' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <p>Exportiere alle lokalen Daten als Datei oder stelle eine zuvor exportierte Sicherung wieder her.</p>
+    <p>{{ 'config.dataDescription' | translate }}</p>
 
     <div class="data-actions">
-      <button mat-stroked-button type="button" (click)="exportData()">Daten exportieren</button>
+      <button mat-stroked-button type="button" (click)="exportData()">{{ 'config.export' | translate }}</button>
 
-      <button mat-stroked-button type="button" (click)="fileInput.click()">Daten importieren</button>
+      <button mat-stroked-button type="button" (click)="fileInput.click()">
+        {{ 'config.import' | translate }}
+      </button>
       <input #fileInput type="file" accept="application/json" hidden (change)="importData($event)" />
 
-      <button mat-stroked-button color="warn" type="button" (click)="resetData()">Alle Daten löschen</button>
+      <button mat-stroked-button color="warn" type="button" (click)="resetData()">
+        {{ 'config.reset' | translate }}
+      </button>
     </div>
 
-    @if (statusMessage) {
-      <p class="status-message">{{ statusMessage }}</p>
+    @if (statusMessageKey) {
+      <p class="status-message">{{ statusMessageKey | translate }}</p>
     }
   </mat-card-content>
 </mat-card>

@@ -1,25 +1,25 @@
-<h2>Trainingspläne</h2>
+<h2>{{ 'trainingPlans.title' | translate }}</h2>
 
 <mat-card>
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addPlan()">
       <mat-form-field appearance="outline">
-        <mat-label>Name</mat-label>
+        <mat-label>{{ 'common.name' | translate }}</mat-label>
         <input matInput name="name" [(ngModel)]="name" required />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Beschreibung</mat-label>
+        <mat-label>{{ 'trainingPlans.description' | translate }}</mat-label>
         <input matInput name="description" [(ngModel)]="description" />
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit">Hinzufügen</button>
+      <button mat-raised-button color="primary" type="submit">{{ 'common.add' | translate }}</button>
     </form>
   </mat-card-content>
 </mat-card>
 
 @if (plans.length === 0) {
-  <p>Noch keine Trainingspläne vorhanden.</p>
+  <p>{{ 'trainingPlans.empty' | translate }}</p>
 } @else {
   <mat-list>
     @for (plan of plans; track plan.id) {
@@ -28,7 +28,12 @@
         @if (plan.description) {
           <span matListItemLine>{{ plan.description }}</span>
         }
-        <button mat-icon-button color="warn" (click)="deletePlan(plan.id)" aria-label="Löschen">
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="deletePlan(plan.id)"
+          [attr.aria-label]="'common.delete' | translate"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       </mat-list-item>
