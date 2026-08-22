@@ -50,7 +50,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
   readonly setTypes = SET_TYPES;
   sessions: TrainingSession[] = [];
   exercises: Exercise[] = [];
-  date = toDateTimeLocalValue(new Date());
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
   private timerTickerId?: ReturnType<typeof setInterval>;
   pendingFinishSessionId: string | null = null;
@@ -107,11 +106,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async addSession(): Promise<void> {
-    if (!this.date) {
-      return;
-    }
     await this.sessionsService.add({
-      date: this.date,
+      date: toDateTimeLocalValue(new Date()),
       exercises: [],
       timerElapsedMs: 0,
       timerRunning: true,
