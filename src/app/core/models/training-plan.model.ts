@@ -22,4 +22,5 @@ export interface TrainingPlan {
   exerciseIds: string[];
   methodology?: TrainingMethodology;
   planSessions?: TierLinePlanSession[];
+  isDefault?: boolean;
 }
