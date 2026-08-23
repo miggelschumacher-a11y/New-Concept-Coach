@@ -31,6 +31,10 @@
           }
         </mat-expansion-panel-header>
 
+        @if (plan.description) {
+          <p class="plan-description-full">{{ plan.description }}</p>
+        }
+
         <form class="exercise-form">
           <mat-form-field appearance="outline">
             <mat-label>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>

@@ -14,6 +14,18 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
+.plan-accordion .plan-card mat-panel-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-description-full {
+  white-space: pre-line;
+  color: lightgrey;
+  margin-top: 0;
+}
+
 ::ng-deep .exercise-select-panel .mat-mdc-option {
   font-size: 1.15rem;
   color: lightgrey;
