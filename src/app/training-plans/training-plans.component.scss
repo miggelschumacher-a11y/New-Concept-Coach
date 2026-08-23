@@ -1,4 +1,5 @@
-.entry-form {
+.entry-form,
+.exercise-form {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
@@ -7,4 +8,61 @@
 
 mat-card {
   margin-bottom: 1.5rem;
+}
+
+.plan-accordion .plan-card {
+  margin-bottom: 1.5rem;
+}
+
+::ng-deep .exercise-select-panel .mat-mdc-option {
+  font-size: 1.15rem;
+  color: lightgrey;
+}
+
+::ng-deep .exercise-select-panel .mat-mdc-option.mdc-list-item--selected {
+  color: white;
+}
+
+.plan-sessions {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.plan-session {
+  min-width: 220px;
+
+  h4 {
+    margin: 0 0 0.5rem;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .exercise-name {
+    flex: 1;
+  }
+
+  .tier-badge {
+    color: lightgrey;
+    font-size: 0.8rem;
+  }
+
+  .set-scheme {
+    color: lightgrey;
+  }
 }

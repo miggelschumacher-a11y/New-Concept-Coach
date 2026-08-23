@@ -21,22 +21,74 @@
 @if (plans.length === 0) {
   <p>{{ 'trainingPlans.empty' | translate }}</p>
 } @else {
-  <mat-list>
+  <mat-accordion multi class="plan-accordion">
     @for (plan of plans; track plan.id) {
-      <mat-list-item>
-        <span matListItemTitle>{{ plan.name }}</span>
-        @if (plan.description) {
-          <span matListItemLine>{{ plan.description }}</span>
+      <mat-expansion-panel class="plan-card">
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{ plan.name }}</mat-panel-title>
+          @if (plan.description) {
+            <mat-panel-description>{{ plan.description }}</mat-panel-description>
+          }
+        </mat-expansion-panel-header>
+
+        <form class="exercise-form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
+            <mat-select
+              [ngModel]="plan.exerciseIds"
+              name="exerciseIds-{{ plan.id }}"
+              multiple
+              panelClass="exercise-select-panel"
+              (selectionChange)="updatePlanExercises(plan, $event.value)"
+            >
+              <mat-select-trigger>
+                @if (plan.exerciseIds.length > 0) {
+                  {{ exerciseName(plan.exerciseIds[0]) }}
+                  @if (plan.exerciseIds.length > 1) {
+                    <span> (+{{ plan.exerciseIds.length - 1 }})</span>
+                  }
+                }
+              </mat-select-trigger>
+              @for (exercise of exercises; track exercise.id) {
+                <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+              }
+            </mat-select>
+            @if (exercises.length === 0) {
+              <mat-hint>{{ 'trainingPlans.noExercisesHint' | translate }}</mat-hint>
+            }
+          </mat-form-field>
+        </form>
+
+        @if (plan.planSessions && plan.planSessions.length > 0) {
+          <div class="plan-sessions">
+            @for (planSession of plan.planSessions; track planSession.id) {
+              <div class="plan-session">
+                <h4>{{ planSession.name }}</h4>
+                <ul>
+                  @for (planExercise of planSession.exercises; track planExercise.exerciseId) {
+                    <li>
+                      <span class="exercise-name">{{ exerciseName(planExercise.exerciseId) }}</span>
+                      <span class="tier-badge">{{ tierLabelKey(planExercise.tier) | translate }}</span>
+                      <span class="set-scheme">{{ planExercise.sets }}×{{ planExercise.targetReps }}</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
         }
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="deletePlan(plan.id)"
-          [attr.aria-label]="'common.delete' | translate"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-list-item>
+
+        <mat-action-row>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="deletePlan(plan.id)"
+            [attr.aria-label]="'common.delete' | translate"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-action-row>
+      </mat-expansion-panel>
     }
-  </mat-list>
+  </mat-accordion>
 }

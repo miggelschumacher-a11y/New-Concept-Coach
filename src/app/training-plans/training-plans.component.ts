@@ -4,10 +4,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
+import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { TrainingPlansService } from '../core/services/training-plans.service';
+import { ExercisesService } from '../core/services/exercises.service';
 import { TrainingPlan } from '../core/models/training-plan.model';
+import { Exercise } from '../core/models/exercise.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 @Component({
@@ -19,8 +22,9 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatListModule,
+    MatSelectModule,
     MatCardModule,
+    MatExpansionModule,
     TranslatePipe
   ],
   templateUrl: './training-plans.component.html',
@@ -28,17 +32,32 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
 })
 export class TrainingPlansComponent implements OnInit {
   plans: TrainingPlan[] = [];
+  exercises: Exercise[] = [];
   name = '';
   description = '';
 
-  constructor(private readonly trainingPlansService: TrainingPlansService) {}
+  constructor(
+    private readonly trainingPlansService: TrainingPlansService,
+    private readonly exercisesService: ExercisesService
+  ) {}
 
   async ngOnInit(): Promise<void> {
     await this.load();
   }
 
   async load(): Promise<void> {
-    this.plans = await this.trainingPlansService.getAll();
+    [this.plans, this.exercises] = await Promise.all([
+      this.trainingPlansService.getAll(),
+      this.exercisesService.getAll()
+    ]);
+  }
+
+  exerciseName(exerciseId: string): string {
+    return this.exercises.find((exercise) => exercise.id === exerciseId)?.name ?? '';
+  }
+
+  tierLabelKey(tier: string): string {
+    return 'trainingPlans.tier' + tier.split('_')[0];
   }
 
   async addPlan(): Promise<void> {
@@ -58,5 +77,10 @@ export class TrainingPlansComponent implements OnInit {
   async deletePlan(id: string): Promise<void> {
     await this.trainingPlansService.delete(id);
     await this.load();
+  }
+
+  async updatePlanExercises(plan: TrainingPlan, exerciseIds: string[]): Promise<void> {
+    plan.exerciseIds = exerciseIds;
+    await this.trainingPlansService.update(plan);
   }
 }
