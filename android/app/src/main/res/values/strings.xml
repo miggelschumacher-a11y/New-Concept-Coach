@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TrainingsApp</string>
+    <string name="title_activity_main">TrainingsApp</string>
+    <string name="package_name">com.conceptcoachai.trainingsapp</string>
+    <string name="custom_url_scheme">com.conceptcoachai.trainingsapp</string>
+</resources>
