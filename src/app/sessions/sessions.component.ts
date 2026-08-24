@@ -59,7 +59,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
   exercises: Exercise[] = [];
   trainingPlans: TrainingPlan[] = [];
   selectedPlanId: string | null = null;
-  selectedPlanSessionId: string | null = null;
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
   private readonly unsavedSessionIds = new Set<string>();
   private timerTickerId?: ReturnType<typeof setInterval>;
@@ -113,15 +112,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.trainingPlans = await this.trainingPlansService.getAll();
   }
 
-  get selectedPlanDays(): TierLinePlanSession[] {
-    const plan = this.trainingPlans.find((p) => p.id === this.selectedPlanId);
-    return plan?.planSessions ?? [];
-  }
-
-  onPlanSelected(): void {
-    this.selectedPlanSessionId = null;
-  }
-
   exerciseName(id: string): string {
     return this.exercises.find((exercise) => exercise.id === id)?.name ?? id;
   }
@@ -155,12 +145,28 @@ export class SessionsComponent implements OnInit, OnDestroy {
     void this.persist(session);
   }
 
-  addSessionFromPlan(): void {
+  async onPlanSelected(): Promise<void> {
     const plan = this.trainingPlans.find((p) => p.id === this.selectedPlanId);
+    // Deferred: mat-select writes the newly selected value back onto the
+    // ngModel right after emitting selectionChange, which would otherwise
+    // clobber a synchronous reset here.
+    setTimeout(() => (this.selectedPlanId = null));
     if (!plan) {
       return;
     }
-    const planSession = plan.planSessions?.find((day) => day.id === this.selectedPlanSessionId);
+    const newSessions = plan.planSessions && plan.planSessions.length > 0
+      ? plan.planSessions.map((planSession) => this.buildSessionFromPlan(plan, planSession))
+      : [this.buildSessionFromPlan(plan, null)];
+    for (const session of newSessions) {
+      this.unsavedSessionIds.add(session.id);
+    }
+    this.sessions = [...newSessions, ...this.sessions];
+    for (const session of newSessions) {
+      await this.persist(session);
+    }
+  }
+
+  private buildSessionFromPlan(plan: TrainingPlan, planSession: TierLinePlanSession | null): TrainingSession {
     const now = new Date();
     const name = planSession ? `${plan.name} – ${planSession.name}` : plan.name;
     const exercises: SessionExercise[] = planSession
@@ -181,22 +187,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
           countWarmupSets: true,
           countCooldownSets: true
         }));
-    const session: TrainingSession = {
+    return {
       id: crypto.randomUUID(),
       name,
       date: toDateTimeLocalValue(now),
       trainingPlanId: plan.id,
       exercises,
       timerElapsedMs: 0,
-      timerRunning: true,
-      timerStartedAt: now.toISOString(),
+      timerRunning: false,
+      timerStartedAt: undefined,
       finished: false
     };
-    this.unsavedSessionIds.add(session.id);
-    this.sessions = [session, ...this.sessions];
-    this.selectedPlanId = null;
-    this.selectedPlanSessionId = null;
-    void this.persist(session);
   }
 
   private async persist(session: TrainingSession): Promise<void> {

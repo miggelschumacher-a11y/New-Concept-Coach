@@ -20,26 +20,6 @@
           <mat-hint>{{ 'sessions.noPlansHint' | translate }}</mat-hint>
         }
       </mat-form-field>
-
-      @if (selectedPlanDays.length > 0) {
-        <mat-form-field appearance="outline" class="plan-day-field">
-          <mat-label>{{ 'sessions.selectDayLabel' | translate }}</mat-label>
-          <mat-select name="selectedPlanSessionId" [(ngModel)]="selectedPlanSessionId">
-            @for (day of selectedPlanDays; track day.id) {
-              <mat-option [value]="day.id">{{ day.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      }
-
-      <button
-        mat-stroked-button
-        type="button"
-        [disabled]="!selectedPlanId"
-        (click)="addSessionFromPlan()"
-      >
-        {{ 'sessions.createFromPlan' | translate }}
-      </button>
     </form>
   </mat-card-content>
 </mat-card>
