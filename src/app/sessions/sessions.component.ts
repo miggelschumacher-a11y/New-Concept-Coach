@@ -14,8 +14,10 @@ import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { TranslationService } from '../core/services/translation.service';
+import { TrainingPlansService } from '../core/services/training-plans.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
+import { TrainingPlan, TierLinePlanSession } from '../core/models/training-plan.model';
 import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
@@ -55,6 +57,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
   readonly setTypes = SET_TYPES;
   sessions: TrainingSession[] = [];
   exercises: Exercise[] = [];
+  trainingPlans: TrainingPlan[] = [];
+  selectedPlanId: string | null = null;
+  selectedPlanSessionId: string | null = null;
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
   private readonly unsavedSessionIds = new Set<string>();
   private timerTickerId?: ReturnType<typeof setInterval>;
@@ -69,6 +74,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly exercisesService: ExercisesService,
     private readonly settingsService: SettingsService,
     private readonly translationService: TranslationService,
+    private readonly trainingPlansService: TrainingPlansService,
     private readonly datePipe: DatePipe
   ) {}
 
@@ -85,7 +91,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.load(), this.loadExercises()]);
+    await Promise.all([this.load(), this.loadExercises(), this.loadTrainingPlans()]);
     this.timerTickerId = setInterval(() => {}, 1000);
   }
 
@@ -101,6 +107,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async loadExercises(): Promise<void> {
     this.exercises = await this.exercisesService.getAll();
+  }
+
+  async loadTrainingPlans(): Promise<void> {
+    this.trainingPlans = await this.trainingPlansService.getAll();
+  }
+
+  get selectedPlanDays(): TierLinePlanSession[] {
+    const plan = this.trainingPlans.find((p) => p.id === this.selectedPlanId);
+    return plan?.planSessions ?? [];
+  }
+
+  onPlanSelected(): void {
+    this.selectedPlanSessionId = null;
   }
 
   exerciseName(id: string): string {
@@ -133,6 +152,50 @@ export class SessionsComponent implements OnInit, OnDestroy {
     };
     this.unsavedSessionIds.add(session.id);
     this.sessions = [session, ...this.sessions];
+    void this.persist(session);
+  }
+
+  addSessionFromPlan(): void {
+    const plan = this.trainingPlans.find((p) => p.id === this.selectedPlanId);
+    if (!plan) {
+      return;
+    }
+    const planSession = plan.planSessions?.find((day) => day.id === this.selectedPlanSessionId);
+    const now = new Date();
+    const name = planSession ? `${plan.name} – ${planSession.name}` : plan.name;
+    const exercises: SessionExercise[] = planSession
+      ? planSession.exercises.map((planExercise) => ({
+          exerciseId: planExercise.exerciseId,
+          sets: Array.from({ length: planExercise.sets }, () => ({
+            id: crypto.randomUUID(),
+            reps: planExercise.targetReps,
+            weight: 0,
+            type: 'working' as SetType
+          })),
+          countWarmupSets: true,
+          countCooldownSets: true
+        }))
+      : plan.exerciseIds.map((exerciseId) => ({
+          exerciseId,
+          sets: [],
+          countWarmupSets: true,
+          countCooldownSets: true
+        }));
+    const session: TrainingSession = {
+      id: crypto.randomUUID(),
+      name,
+      date: toDateTimeLocalValue(now),
+      trainingPlanId: plan.id,
+      exercises,
+      timerElapsedMs: 0,
+      timerRunning: true,
+      timerStartedAt: now.toISOString(),
+      finished: false
+    };
+    this.unsavedSessionIds.add(session.id);
+    this.sessions = [session, ...this.sessions];
+    this.selectedPlanId = null;
+    this.selectedPlanSessionId = null;
     void this.persist(session);
   }
 

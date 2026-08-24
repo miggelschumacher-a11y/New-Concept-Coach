@@ -6,6 +6,11 @@
   flex-wrap: wrap;
 }
 
+.plan-select-field,
+.plan-day-field {
+  min-width: 220px;
+}
+
 mat-card {
   margin-bottom: 1.5rem;
 }
