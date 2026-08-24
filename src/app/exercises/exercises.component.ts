@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { Exercise } from '../core/models/exercise.model';
@@ -22,6 +23,7 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
     MatIconModule,
     MatListModule,
     MatCardModule,
+    MatTooltipModule,
     TranslatePipe
   ],
   templateUrl: './exercises.component.html',

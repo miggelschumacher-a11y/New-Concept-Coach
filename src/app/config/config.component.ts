@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   SettingsService,
   WeightUnit,
@@ -30,6 +31,7 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule,
     TranslatePipe
   ],
   templateUrl: './config.component.html',

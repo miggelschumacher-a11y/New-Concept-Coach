@@ -81,28 +81,60 @@
     <p>{{ 'config.dataDescription' | translate }}</p>
 
     <div class="data-actions">
-      <button mat-stroked-button type="button" (click)="exportData()">
-        <mat-icon class="label-icon">file_download</mat-icon>{{ 'config.export' | translate }}
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="exportData()"
+        [matTooltip]="'config.export' | translate"
+        [attr.aria-label]="'config.export' | translate"
+      >
+        <mat-icon>file_download</mat-icon>
       </button>
 
-      <button mat-stroked-button type="button" (click)="fileInput.click()">
-        <mat-icon class="label-icon">file_upload</mat-icon>{{ 'config.import' | translate }}
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="fileInput.click()"
+        [matTooltip]="'config.import' | translate"
+        [attr.aria-label]="'config.import' | translate"
+      >
+        <mat-icon>file_upload</mat-icon>
       </button>
       <input #fileInput type="file" accept="application/json" hidden (change)="importData($event)" />
 
       @if (pendingReset) {
         <div class="confirm-dialog">
           <span class="confirm-label">{{ 'config.resetConfirm' | translate }}</span>
-          <button mat-raised-button color="warn" type="button" (click)="confirmResetData()">
-            <mat-icon class="label-icon">check</mat-icon>{{ 'sessions.confirmYesDelete' | translate }}
+          <button
+            mat-raised-button
+            color="warn"
+            type="button"
+            (click)="confirmResetData()"
+            [matTooltip]="'sessions.confirmYesDelete' | translate"
+            [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+          >
+            <mat-icon>check</mat-icon>
           </button>
-          <button mat-stroked-button type="button" (click)="cancelResetData()">
-            <mat-icon class="label-icon">close</mat-icon>{{ 'sessions.confirmCancel' | translate }}
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="cancelResetData()"
+            [matTooltip]="'sessions.confirmCancel' | translate"
+            [attr.aria-label]="'sessions.confirmCancel' | translate"
+          >
+            <mat-icon>close</mat-icon>
           </button>
         </div>
       } @else {
-        <button mat-stroked-button color="warn" type="button" (click)="requestResetData()">
-          <mat-icon class="label-icon">delete_forever</mat-icon>{{ 'config.reset' | translate }}
+        <button
+          mat-stroked-button
+          color="warn"
+          type="button"
+          (click)="requestResetData()"
+          [matTooltip]="'config.reset' | translate"
+          [attr.aria-label]="'config.reset' | translate"
+        >
+          <mat-icon>delete_forever</mat-icon>
         </button>
       }
     </div>

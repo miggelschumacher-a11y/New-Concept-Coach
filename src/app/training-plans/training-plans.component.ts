@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { TrainingPlan } from '../core/models/training-plan.model';
@@ -25,6 +26,7 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
     MatSelectModule,
     MatCardModule,
     MatExpansionModule,
+    MatTooltipModule,
     TranslatePipe
   ],
   templateUrl: './training-plans.component.html',

@@ -13,8 +13,14 @@
         <input matInput name="description" [(ngModel)]="description" />
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit">
-        <mat-icon class="label-icon">add</mat-icon>{{ 'common.add' | translate }}
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [matTooltip]="'common.add' | translate"
+        [attr.aria-label]="'common.add' | translate"
+      >
+        <mat-icon>add</mat-icon>
       </button>
     </form>
   </mat-card-content>
@@ -89,6 +95,7 @@
             mat-icon-button
             color="warn"
             (click)="deletePlan(plan.id)"
+            [matTooltip]="'common.delete' | translate"
             [attr.aria-label]="'common.delete' | translate"
           >
             <mat-icon>delete</mat-icon>

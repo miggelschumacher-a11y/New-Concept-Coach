@@ -3,8 +3,14 @@
 <mat-card>
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addSession()">
-      <button mat-raised-button color="primary" type="submit">
-        <mat-icon class="label-icon">add</mat-icon>{{ 'common.add' | translate }}
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [matTooltip]="'common.add' | translate"
+        [attr.aria-label]="'common.add' | translate"
+      >
+        <mat-icon>add</mat-icon>
       </button>
 
       <mat-form-field appearance="outline" class="plan-select-field">
@@ -35,11 +41,24 @@
               "{{ plan.name }}"
             }
           </span>
-          <button mat-raised-button color="primary" type="button" (click)="confirmCreateFromPlan()">
-            <mat-icon class="label-icon">check</mat-icon>{{ 'sessions.confirmYesCreate' | translate }}
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="confirmCreateFromPlan()"
+            [matTooltip]="'sessions.confirmYesCreate' | translate"
+            [attr.aria-label]="'sessions.confirmYesCreate' | translate"
+          >
+            <mat-icon>check</mat-icon>
           </button>
-          <button mat-stroked-button type="button" (click)="cancelCreateFromPlan()">
-            <mat-icon class="label-icon">close</mat-icon>{{ 'sessions.confirmCancel' | translate }}
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="cancelCreateFromPlan()"
+            [matTooltip]="'sessions.confirmCancel' | translate"
+            [attr.aria-label]="'sessions.confirmCancel' | translate"
+          >
+            <mat-icon>close</mat-icon>
           </button>
         </div>
       }
@@ -50,11 +69,24 @@
 @if (pendingReplenishSession) {
   <div class="confirm-dialog replenish-dialog">
     <span class="finish-confirm-label">{{ 'sessions.confirmReplenishQuestion' | translate }}</span>
-    <button mat-raised-button color="primary" type="button" (click)="confirmReplenish()">
-      <mat-icon class="label-icon">check</mat-icon>{{ 'sessions.confirmYesCreate' | translate }}
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="confirmReplenish()"
+      [matTooltip]="'sessions.confirmYesCreate' | translate"
+      [attr.aria-label]="'sessions.confirmYesCreate' | translate"
+    >
+      <mat-icon>check</mat-icon>
     </button>
-    <button mat-stroked-button type="button" (click)="cancelReplenish()">
-      <mat-icon class="label-icon">close</mat-icon>{{ 'sessions.confirmNo' | translate }}
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="cancelReplenish()"
+      [matTooltip]="'sessions.confirmNo' | translate"
+      [attr.aria-label]="'sessions.confirmNo' | translate"
+    >
+      <mat-icon>close</mat-icon>
     </button>
   </div>
 }
@@ -84,6 +116,7 @@
                 mat-icon-button
                 color="warn"
                 (click)="confirmDeleteSession(session); $event.stopPropagation()"
+                [matTooltip]="'sessions.confirmYesDelete' | translate"
                 [attr.aria-label]="'sessions.confirmYesDelete' | translate"
               >
                 <mat-icon>check</mat-icon>
@@ -91,6 +124,7 @@
               <button
                 mat-icon-button
                 (click)="cancelDeleteSession(); $event.stopPropagation()"
+                [matTooltip]="'sessions.confirmCancel' | translate"
                 [attr.aria-label]="'sessions.confirmCancel' | translate"
               >
                 <mat-icon>close</mat-icon>
@@ -101,6 +135,7 @@
               mat-icon-button
               color="warn"
               (click)="requestDeleteSession(session.id); $event.stopPropagation()"
+              [matTooltip]="'common.delete' | translate"
               [attr.aria-label]="'common.delete' | translate"
             >
               <mat-icon>delete</mat-icon>
@@ -138,24 +173,50 @@
           @if (pendingFinishSessionId === session.id) {
             <div class="confirm-dialog">
               <span class="finish-confirm-label">{{ 'sessions.confirmFinishQuestion' | translate }}</span>
-              <button mat-raised-button color="warn" type="button" (click)="confirmFinishSession(session)">
-                <mat-icon class="label-icon">check</mat-icon>{{ 'sessions.confirmYes' | translate }}
+              <button
+                mat-raised-button
+                color="warn"
+                type="button"
+                (click)="confirmFinishSession(session)"
+                [matTooltip]="'sessions.confirmYes' | translate"
+                [attr.aria-label]="'sessions.confirmYes' | translate"
+              >
+                <mat-icon>check</mat-icon>
               </button>
-              <button mat-stroked-button type="button" (click)="cancelFinishSession()">
-                <mat-icon class="label-icon">close</mat-icon>{{ 'sessions.confirmCancel' | translate }}
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="cancelFinishSession()"
+                [matTooltip]="'sessions.confirmCancel' | translate"
+                [attr.aria-label]="'sessions.confirmCancel' | translate"
+              >
+                <mat-icon>close</mat-icon>
               </button>
             </div>
           } @else {
-            <button mat-stroked-button type="button" (click)="toggleTimer(session)">
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="toggleTimer(session)"
+              [matTooltip]="(session.timerRunning ? 'sessions.pause' : 'sessions.resume') | translate"
+              [attr.aria-label]="(session.timerRunning ? 'sessions.pause' : 'sessions.resume') | translate"
+            >
               @if (session.timerRunning) {
-                <ng-container><mat-icon class="label-icon">pause</mat-icon>{{ 'sessions.pause' | translate }}</ng-container>
+                <mat-icon>pause</mat-icon>
               } @else {
-                <ng-container><mat-icon class="label-icon">play_arrow</mat-icon>{{ 'sessions.resume' | translate }}</ng-container>
+                <mat-icon>play_arrow</mat-icon>
               }
             </button>
 
-            <button mat-stroked-button color="warn" type="button" (click)="requestFinishSession(session)">
-              <mat-icon class="label-icon">stop</mat-icon>{{ 'sessions.finish' | translate }}
+            <button
+              mat-stroked-button
+              color="warn"
+              type="button"
+              (click)="requestFinishSession(session)"
+              [matTooltip]="'sessions.finish' | translate"
+              [attr.aria-label]="'sessions.finish' | translate"
+            >
+              <mat-icon>stop</mat-icon>
             </button>
           }
         </div>
@@ -225,6 +286,7 @@
                         mat-icon-button
                         color="warn"
                         (click)="confirmRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
+                        [matTooltip]="'sessions.confirmYesDelete' | translate"
                         [attr.aria-label]="'sessions.confirmYesDelete' | translate"
                       >
                         <mat-icon>check</mat-icon>
@@ -232,6 +294,7 @@
                       <button
                         mat-icon-button
                         (click)="cancelRemoveExercise(); $event.stopPropagation()"
+                        [matTooltip]="'sessions.confirmCancel' | translate"
                         [attr.aria-label]="'sessions.confirmCancel' | translate"
                       >
                         <mat-icon>close</mat-icon>
@@ -241,6 +304,7 @@
                     <button
                       mat-icon-button
                       (click)="requestRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
+                      [matTooltip]="'sessions.removeExercise' | translate"
                       [attr.aria-label]="'sessions.removeExercise' | translate"
                     >
                       <mat-icon>close</mat-icon>
@@ -350,6 +414,7 @@
                                 mat-icon-button
                                 color="warn"
                                 (click)="confirmRemoveSet(session, sessionExercise, set.id)"
+                                [matTooltip]="'sessions.confirmYesDelete' | translate"
                                 [attr.aria-label]="'sessions.confirmYesDelete' | translate"
                               >
                                 <mat-icon>check</mat-icon>
@@ -357,6 +422,7 @@
                               <button
                                 mat-icon-button
                                 (click)="cancelRemoveSet()"
+                                [matTooltip]="'sessions.confirmCancel' | translate"
                                 [attr.aria-label]="'sessions.confirmCancel' | translate"
                               >
                                 <mat-icon>close</mat-icon>
@@ -366,6 +432,7 @@
                             <button
                               mat-icon-button
                               (click)="requestRemoveSet(set.id)"
+                              [matTooltip]="'sessions.removeSet' | translate"
                               [attr.aria-label]="'sessions.removeSet' | translate"
                             >
                               <mat-icon>close</mat-icon>
@@ -378,8 +445,10 @@
                         mat-stroked-button
                         type="button"
                         (click)="addSet(session, sessionExercise, setType.value)"
+                        [matTooltip]="'sessions.addSet' | translate"
+                        [attr.aria-label]="'sessions.addSet' | translate"
                       >
-                        <mat-icon class="label-icon">add</mat-icon>{{ 'sessions.addSet' | translate }}
+                        <mat-icon>add</mat-icon>
                       </button>
                     </mat-expansion-panel>
                   }
