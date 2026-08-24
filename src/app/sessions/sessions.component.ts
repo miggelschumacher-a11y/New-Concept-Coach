@@ -68,6 +68,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   pendingDeleteSetId: string | null = null;
   pendingDeleteExerciseKey: string | null = null;
   pendingDeleteSessionId: string | null = null;
+  pendingReplenishSession: TrainingSession | null = null;
   finishBlockedSessionId: string | null = null;
   pausedAttemptFieldKey: string | null = null;
   private pausedAttemptTimeoutId?: ReturnType<typeof setTimeout>;
@@ -99,6 +100,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   get pendingPlan(): TrainingPlan | undefined {
     return this.trainingPlans.find((p) => p.id === this.pendingPlanId);
+  }
+
+  get pendingPlanHasExistingSessions(): boolean {
+    return this.pendingSessions.some((session) => session.trainingPlanId === this.pendingPlanId);
   }
 
   async ngOnInit(): Promise<void> {
@@ -192,8 +197,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sequence: -now.getTime(),
       exercises: [],
       timerElapsedMs: 0,
-      timerRunning: true,
-      timerStartedAt: now.toISOString(),
+      timerRunning: false,
       finished: false
     };
     this.unsavedSessionIds.add(session.id);
@@ -202,16 +206,27 @@ export class SessionsComponent implements OnInit, OnDestroy {
     void this.persist(session);
   }
 
-  private buildBlankSession(): TrainingSession {
+  private buildManualReplenishment(sourceSession: TrainingSession): TrainingSession {
     const now = new Date();
     const sessionWord = this.translationService.translate('sessions.defaultName');
     const name = `${sessionWord} ${this.datePipe.transform(now, this.dateFormat)}`;
+    const exercises: SessionExercise[] = sourceSession.exercises.map((sessionExercise) => ({
+      exerciseId: sessionExercise.exerciseId,
+      sets: sessionExercise.sets.map((set) => ({
+        id: crypto.randomUUID(),
+        reps: 0,
+        weight: 0,
+        type: set.type
+      })),
+      countWarmupSets: sessionExercise.countWarmupSets,
+      countCooldownSets: sessionExercise.countCooldownSets
+    }));
     return {
       id: crypto.randomUUID(),
       name,
       date: toDateTimeLocalValue(now),
       sequence: now.getTime(),
-      exercises: [],
+      exercises,
       timerElapsedMs: 0,
       timerRunning: false,
       timerStartedAt: undefined,
@@ -293,10 +308,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     };
   }
 
-  private async replenishSession(finishedSession: TrainingSession): Promise<void> {
-    const newSession = finishedSession.trainingPlanId
-      ? this.buildPlanReplenishment(finishedSession)
-      : this.buildBlankSession();
+  private async replenishSession(sourceSession: TrainingSession): Promise<void> {
+    const newSession = sourceSession.trainingPlanId
+      ? this.buildPlanReplenishment(sourceSession)
+      : this.buildManualReplenishment(sourceSession);
     if (!newSession) {
       return;
     }
@@ -305,15 +320,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(newSession);
   }
 
-  private buildPlanReplenishment(finishedSession: TrainingSession): TrainingSession | null {
-    const plan = this.trainingPlans.find((p) => p.id === finishedSession.trainingPlanId);
+  private buildPlanReplenishment(sourceSession: TrainingSession): TrainingSession | null {
+    const plan = this.trainingPlans.find((p) => p.id === sourceSession.trainingPlanId);
     if (!plan) {
       return null;
     }
-    const planSession = finishedSession.planSessionId
-      ? (plan.planSessions?.find((ps) => ps.id === finishedSession.planSessionId) ?? null)
+    const planSession = sourceSession.planSessionId
+      ? (plan.planSessions?.find((ps) => ps.id === sourceSession.planSessionId) ?? null)
       : null;
-    if (finishedSession.planSessionId && !planSession) {
+    if (sourceSession.planSessionId && !planSession) {
       // Day template no longer exists on the plan; nothing to replenish.
       return null;
     }
@@ -389,7 +404,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session.timerStartedAt = undefined;
     session.finished = true;
     await this.persist(session);
-    await this.replenishSession(session);
+    this.pendingReplenishSession = session;
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {
@@ -552,9 +567,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.pendingDeleteSessionId = null;
   }
 
-  async confirmDeleteSession(id: string): Promise<void> {
+  async confirmDeleteSession(session: TrainingSession): Promise<void> {
     this.pendingDeleteSessionId = null;
-    await this.deleteSession(id);
+    await this.deleteSession(session.id);
+    this.pendingReplenishSession = session;
   }
 
   async deleteSession(id: string): Promise<void> {
@@ -565,5 +581,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     await this.sessionsService.delete(id);
     await this.load();
+  }
+
+  cancelReplenish(): void {
+    this.pendingReplenishSession = null;
+  }
+
+  async confirmReplenish(): Promise<void> {
+    const session = this.pendingReplenishSession;
+    this.pendingReplenishSession = null;
+    if (!session) {
+      return;
+    }
+    await this.replenishSession(session);
   }
 }

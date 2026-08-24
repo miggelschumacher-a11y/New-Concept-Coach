@@ -18,8 +18,29 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
+.replenish-dialog {
+  margin-bottom: 1.5rem;
+}
+
 .session-name-title {
   font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.session-card mat-panel-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.session-card mat-expansion-panel-header {
+  height: auto;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .session-card mat-form-field {
