@@ -1,9 +1,14 @@
 .entry-form,
-.exercise-form {
+.exercise-form,
+.min-scheme-form {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
   flex-wrap: wrap;
+}
+
+.session-card .min-scheme-form mat-form-field {
+  width: 160px;
 }
 
 .plan-select-field {

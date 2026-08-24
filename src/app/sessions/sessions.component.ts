@@ -26,10 +26,10 @@ function toDateTimeLocalValue(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export const SET_TYPES: { value: SetType; labelKey: string }[] = [
-  { value: 'warmup', labelKey: 'sessions.warmupSets' },
-  { value: 'working', labelKey: 'sessions.workingSets' },
-  { value: 'cooldown', labelKey: 'sessions.cooldownSets' }
+export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
+  { value: 'warmup', labelKey: 'sessions.warmupSets', icon: 'whatshot' },
+  { value: 'working', labelKey: 'sessions.workingSets', icon: 'fitness_center' },
+  { value: 'cooldown', labelKey: 'sessions.cooldownSets', icon: 'ac_unit' }
 ];
 
 @Component({
@@ -219,7 +219,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
         type: set.type
       })),
       countWarmupSets: sessionExercise.countWarmupSets,
-      countCooldownSets: sessionExercise.countCooldownSets
+      countCooldownSets: sessionExercise.countCooldownSets,
+      minReps: sessionExercise.minReps,
+      minWeight: sessionExercise.minWeight
     }));
     return {
       id: crypto.randomUUID(),
@@ -508,8 +510,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  async onRepsChange(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): Promise<void> {
-    set.reps = Math.min(Math.max(set.reps, 0), 10000);
+  async onRepsChange(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    set: ExerciseSet,
+    value: string
+  ): Promise<void> {
+    const parsed = parseInt(value, 10);
+    set.reps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 10000) : 0;
     await this.persist(session);
     await this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
   }
@@ -536,6 +544,40 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   exerciseOneRepMax(exerciseId: string): number | undefined {
     return this.exercises.find((exercise) => exercise.id === exerciseId)?.oneRepMax;
+  }
+
+  private lastExecutedSetOfType(exerciseId: string, type: SetType): ExerciseSet | undefined {
+    const finishedSessions = this.sessions
+      .filter((session) => session.finished)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    for (const session of finishedSessions) {
+      const sessionExercise = session.exercises.find((candidate) => candidate.exerciseId === exerciseId);
+      const setsOfType = sessionExercise?.sets.filter((set) => set.type === type) ?? [];
+      if (setsOfType.length > 0) {
+        return setsOfType[setsOfType.length - 1];
+      }
+    }
+    return undefined;
+  }
+
+  repsPlaceholder(sessionExercise: SessionExercise, type: SetType): string {
+    const lastSet = this.lastExecutedSetOfType(sessionExercise.exerciseId, type);
+    if (lastSet) {
+      return String(lastSet.reps);
+    }
+    return sessionExercise.minReps !== undefined ? String(sessionExercise.minReps) : '0';
+  }
+
+  weightPlaceholder(sessionExercise: SessionExercise, type: SetType): string {
+    const lastSet = this.lastExecutedSetOfType(sessionExercise.exerciseId, type);
+    if (lastSet) {
+      return lastSet.weight.toFixed(2);
+    }
+    return sessionExercise.minWeight !== undefined ? sessionExercise.minWeight.toFixed(2) : '0.00';
+  }
+
+  async updateMinScheme(session: TrainingSession): Promise<void> {
+    await this.persist(session);
   }
 
   private async updateEstimatedOneRepMax(exerciseId: string, set: ExerciseSet): Promise<void> {

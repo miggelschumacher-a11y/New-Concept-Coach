@@ -12,6 +12,8 @@ export interface SessionExercise {
   sets: ExerciseSet[];
   countWarmupSets: boolean;
   countCooldownSets: boolean;
+  minReps?: number;
+  minWeight?: number;
 }
 
 export interface TrainingSession {

@@ -16,11 +16,14 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the navigation links', () => {
+  it('should render the navigation links as labelled icon buttons', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const links = Array.from(compiled.querySelectorAll('a')).map((a) => a.textContent?.trim());
-    expect(links).toEqual(['Training Sessions', 'Training Plans', 'Exercises', 'Configuration']);
+    const links = Array.from(compiled.querySelectorAll('a'));
+    const ariaLabels = links.map((a) => a.getAttribute('aria-label'));
+    expect(ariaLabels).toEqual(['Training Sessions', 'Training Plans', 'Exercises', 'Configuration']);
+    const icons = links.map((a) => a.querySelector('mat-icon')?.textContent?.trim());
+    expect(icons).toEqual(['fitness_center', 'assignment', 'directions_run', 'settings']);
   });
 });

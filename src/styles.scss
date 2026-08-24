@@ -56,3 +56,14 @@ body {
   transform-origin: center left;
   animation: confirm-dialog-pop-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+// Inline icon that precedes a text label (nav link, heading, form-field
+// label, button, checkbox, ...). Sized relative to the surrounding text so
+// it scales with it instead of using mat-icon's fixed 24px default.
+.label-icon {
+  vertical-align: middle;
+  margin-right: 0.35rem;
+  font-size: 1.15em;
+  height: 1.15em;
+  width: 1.15em;
+}

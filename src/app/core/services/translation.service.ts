@@ -26,6 +26,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Exercises',
     'exercises.category': 'Category',
+    'sessions.minReps': 'Minimum Reps',
+    'sessions.minWeight': 'Minimum Weight',
     'exercises.empty': 'No exercises yet.',
     'exercises.oneRepMax': 'Max ≈',
     'exercises.oneRepMaxTooltip': 'Estimated one-rep max, calculated from the last set performed',
@@ -135,6 +137,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Übungen',
     'exercises.category': 'Kategorie',
+    'sessions.minReps': 'Minimum Wiederholungen',
+    'sessions.minWeight': 'Minimum Gewicht',
     'exercises.empty': 'Noch keine Übungen vorhanden.',
     'exercises.oneRepMax': 'Max ≈',
     'exercises.oneRepMaxTooltip': 'Geschätztes Einer-Wiederholungs-Maximum, berechnet aus dem letzten ausgeführten Satz',
@@ -245,6 +249,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Ejercicios',
     'exercises.category': 'Categoría',
+    'sessions.minReps': 'Repeticiones mínimas',
+    'sessions.minWeight': 'Peso mínimo',
     'exercises.empty': 'Aún no hay ejercicios.',
     'exercises.oneRepMax': 'Máx. ≈',
     'exercises.oneRepMaxTooltip': 'Máximo de una repetición estimado, calculado a partir de la última serie realizada',
@@ -355,6 +361,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Exercícios',
     'exercises.category': 'Categoria',
+    'sessions.minReps': 'Repetições mínimas',
+    'sessions.minWeight': 'Peso mínimo',
     'exercises.empty': 'Ainda não há exercícios.',
     'exercises.oneRepMax': 'Máx. ≈',
     'exercises.oneRepMaxTooltip': 'Máximo de uma repetição estimado, calculado a partir da última série realizada',
@@ -465,6 +473,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Esercizi',
     'exercises.category': 'Categoria',
+    'sessions.minReps': 'Ripetizioni minime',
+    'sessions.minWeight': 'Peso minimo',
     'exercises.empty': 'Nessun esercizio ancora presente.',
     'exercises.oneRepMax': 'Max ≈',
     'exercises.oneRepMaxTooltip': "Massimale stimato su una ripetizione, calcolato dall'ultima serie eseguita",
@@ -575,6 +585,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Oefeningen',
     'exercises.category': 'Categorie',
+    'sessions.minReps': 'Minimum herhalingen',
+    'sessions.minWeight': 'Minimum gewicht',
     'exercises.empty': 'Nog geen oefeningen aanwezig.',
     'exercises.oneRepMax': 'Max ≈',
     'exercises.oneRepMaxTooltip': 'Geschat één-herhalingsmaximum, berekend op basis van de laatst uitgevoerde set',
@@ -685,6 +697,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Ćwiczenia',
     'exercises.category': 'Kategoria',
+    'sessions.minReps': 'Minimalna liczba powtórzeń',
+    'sessions.minWeight': 'Minimalny ciężar',
     'exercises.empty': 'Brak ćwiczeń.',
     'exercises.oneRepMax': 'Maks. ≈',
     'exercises.oneRepMaxTooltip': 'Szacowany maksymalny ciężar na jedno powtórzenie, obliczony na podstawie ostatniej wykonanej serii',
@@ -795,6 +809,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Упражнения',
     'exercises.category': 'Категория',
+    'sessions.minReps': 'Минимум повторений',
+    'sessions.minWeight': 'Минимальный вес',
     'exercises.empty': 'Упражнений пока нет.',
     'exercises.oneRepMax': 'Макс. ≈',
     'exercises.oneRepMaxTooltip': 'Оценочный максимум на одно повторение, рассчитанный по последнему выполненному подходу',
@@ -905,6 +921,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Gyakorlatok',
     'exercises.category': 'Kategória',
+    'sessions.minReps': 'Minimum ismétlés',
+    'sessions.minWeight': 'Minimum súly',
     'exercises.empty': 'Még nincsenek gyakorlatok.',
     'exercises.oneRepMax': 'Max. ≈',
     'exercises.oneRepMaxTooltip': 'Becsült egyismétléses maximum, az utoljára végrehajtott sorozat alapján számítva',

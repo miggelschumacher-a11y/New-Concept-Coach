@@ -1,8 +1,40 @@
 <mat-toolbar color="primary">
-  <a mat-button routerLink="/sessions" routerLinkActive="active">{{ 'nav.sessions' | translate }}</a>
-  <a mat-button routerLink="/training-plans" routerLinkActive="active">{{ 'nav.trainingPlans' | translate }}</a>
-  <a mat-button routerLink="/exercises" routerLinkActive="active">{{ 'nav.exercises' | translate }}</a>
-  <a mat-button routerLink="/config" routerLinkActive="active">{{ 'nav.config' | translate }}</a>
+  <a
+    mat-icon-button
+    routerLink="/sessions"
+    routerLinkActive="active"
+    [matTooltip]="'nav.sessions' | translate"
+    [attr.aria-label]="'nav.sessions' | translate"
+  >
+    <mat-icon>fitness_center</mat-icon>
+  </a>
+  <a
+    mat-icon-button
+    routerLink="/training-plans"
+    routerLinkActive="active"
+    [matTooltip]="'nav.trainingPlans' | translate"
+    [attr.aria-label]="'nav.trainingPlans' | translate"
+  >
+    <mat-icon>assignment</mat-icon>
+  </a>
+  <a
+    mat-icon-button
+    routerLink="/exercises"
+    routerLinkActive="active"
+    [matTooltip]="'nav.exercises' | translate"
+    [attr.aria-label]="'nav.exercises' | translate"
+  >
+    <mat-icon>directions_run</mat-icon>
+  </a>
+  <a
+    mat-icon-button
+    routerLink="/config"
+    routerLinkActive="active"
+    [matTooltip]="'nav.config' | translate"
+    [attr.aria-label]="'nav.config' | translate"
+  >
+    <mat-icon>settings</mat-icon>
+  </a>
 </mat-toolbar>
 
 <main>

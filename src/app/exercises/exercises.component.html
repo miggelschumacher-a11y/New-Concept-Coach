@@ -1,19 +1,21 @@
-<h2>{{ 'exercises.title' | translate }}</h2>
+<h2><mat-icon class="label-icon">directions_run</mat-icon>{{ 'exercises.title' | translate }}</h2>
 
 <mat-card>
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addExercise()">
       <mat-form-field appearance="outline">
-        <mat-label>{{ 'common.name' | translate }}</mat-label>
+        <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
         <input matInput name="name" [(ngModel)]="name" required />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>{{ 'exercises.category' | translate }}</mat-label>
+        <mat-label><mat-icon class="label-icon">category</mat-icon>{{ 'exercises.category' | translate }}</mat-label>
         <input matInput name="category" [(ngModel)]="category" />
       </mat-form-field>
 
-      <button mat-raised-button color="primary" type="submit">{{ 'common.add' | translate }}</button>
+      <button mat-raised-button color="primary" type="submit">
+        <mat-icon class="label-icon">add</mat-icon>{{ 'common.add' | translate }}
+      </button>
     </form>
   </mat-card-content>
 </mat-card>

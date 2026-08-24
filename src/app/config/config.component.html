@@ -1,12 +1,12 @@
-<h2>{{ 'config.title' | translate }}</h2>
+<h2><mat-icon class="label-icon">settings</mat-icon>{{ 'config.title' | translate }}</h2>
 
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ 'config.display' | translate }}</mat-card-title>
+    <mat-card-title><mat-icon class="label-icon">tune</mat-icon>{{ 'config.display' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content class="settings-form">
     <mat-form-field appearance="outline">
-      <mat-label>{{ 'config.language' | translate }}</mat-label>
+      <mat-label><mat-icon class="label-icon">language</mat-icon>{{ 'config.language' | translate }}</mat-label>
       <mat-select [(ngModel)]="language" (selectionChange)="onLanguageChange()">
         @for (lang of languages; track lang.value) {
           <mat-option [value]="lang.value">{{ lang.label }}</mat-option>
@@ -15,7 +15,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>{{ 'config.weightUnit' | translate }}</mat-label>
+      <mat-label><mat-icon class="label-icon">straighten</mat-icon>{{ 'config.weightUnit' | translate }}</mat-label>
       <mat-select [(ngModel)]="weightUnit" (selectionChange)="onWeightUnitChange()">
         <mat-option value="kg">kg</mat-option>
         <mat-option value="lbs">lbs</mat-option>
@@ -23,7 +23,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>{{ 'config.dateFormat' | translate }}</mat-label>
+      <mat-label><mat-icon class="label-icon">event</mat-icon>{{ 'config.dateFormat' | translate }}</mat-label>
       <mat-select [(ngModel)]="dateFormat" (selectionChange)="onDateFormatChange()">
         <mat-option value="dd.MM.yyyy">{{ 'config.dateFormatEU' | translate }}</mat-option>
         <mat-option value="MM/dd/yyyy">{{ 'config.dateFormatUS' | translate }}</mat-option>
@@ -31,7 +31,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label>{{ 'config.dateOfBirth' | translate }}</mat-label>
+      <mat-label><mat-icon class="label-icon">cake</mat-icon>{{ 'config.dateOfBirth' | translate }}</mat-label>
       <input matInput type="date" [(ngModel)]="dateOfBirth" [attr.lang]="language" (change)="onDateOfBirthChange()" />
     </mat-form-field>
 
@@ -47,7 +47,7 @@
 
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ 'trainingZones.title' | translate }}</mat-card-title>
+    <mat-card-title><mat-icon class="label-icon">favorite</mat-icon>{{ 'trainingZones.title' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <div class="zones-table-wrapper">
@@ -75,16 +75,18 @@
 
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ 'config.data' | translate }}</mat-card-title>
+    <mat-card-title><mat-icon class="label-icon">storage</mat-icon>{{ 'config.data' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <p>{{ 'config.dataDescription' | translate }}</p>
 
     <div class="data-actions">
-      <button mat-stroked-button type="button" (click)="exportData()">{{ 'config.export' | translate }}</button>
+      <button mat-stroked-button type="button" (click)="exportData()">
+        <mat-icon class="label-icon">file_download</mat-icon>{{ 'config.export' | translate }}
+      </button>
 
       <button mat-stroked-button type="button" (click)="fileInput.click()">
-        {{ 'config.import' | translate }}
+        <mat-icon class="label-icon">file_upload</mat-icon>{{ 'config.import' | translate }}
       </button>
       <input #fileInput type="file" accept="application/json" hidden (change)="importData($event)" />
 
@@ -92,15 +94,15 @@
         <div class="confirm-dialog">
           <span class="confirm-label">{{ 'config.resetConfirm' | translate }}</span>
           <button mat-raised-button color="warn" type="button" (click)="confirmResetData()">
-            {{ 'sessions.confirmYesDelete' | translate }}
+            <mat-icon class="label-icon">check</mat-icon>{{ 'sessions.confirmYesDelete' | translate }}
           </button>
           <button mat-stroked-button type="button" (click)="cancelResetData()">
-            {{ 'sessions.confirmCancel' | translate }}
+            <mat-icon class="label-icon">close</mat-icon>{{ 'sessions.confirmCancel' | translate }}
           </button>
         </div>
       } @else {
         <button mat-stroked-button color="warn" type="button" (click)="requestResetData()">
-          {{ 'config.reset' | translate }}
+          <mat-icon class="label-icon">delete_forever</mat-icon>{{ 'config.reset' | translate }}
         </button>
       }
     </div>
