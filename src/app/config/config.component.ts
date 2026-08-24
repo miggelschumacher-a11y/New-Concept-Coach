@@ -13,7 +13,7 @@ import {
   LANGUAGE_DATE_FORMATS
 } from '../core/services/settings.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
-import { TranslationService, LANGUAGES } from '../core/services/translation.service';
+import { LANGUAGES } from '../core/services/translation.service';
 import { findHeartRateMax } from '../core/data/heart-rate-zones';
 import { TRAINING_ZONES } from '../core/data/training-zones';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
@@ -41,11 +41,11 @@ export class ConfigComponent implements OnInit {
   language: Language;
   dateOfBirth: string;
   statusMessageKey: string | null = null;
+  pendingReset = false;
 
   constructor(
     private readonly settingsService: SettingsService,
-    private readonly indexedDbService: IndexedDbService,
-    private readonly translationService: TranslationService
+    private readonly indexedDbService: IndexedDbService
   ) {
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
@@ -132,10 +132,16 @@ export class ConfigComponent implements OnInit {
     }
   }
 
-  async resetData(): Promise<void> {
-    if (!confirm(this.translationService.translate('config.resetConfirm'))) {
-      return;
-    }
+  requestResetData(): void {
+    this.pendingReset = true;
+  }
+
+  cancelResetData(): void {
+    this.pendingReset = false;
+  }
+
+  async confirmResetData(): Promise<void> {
+    this.pendingReset = false;
     await this.indexedDbService.clearAll();
     this.statusMessageKey = 'config.resetSuccess';
   }

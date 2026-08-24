@@ -19,6 +19,8 @@ export interface TrainingSession {
   name: string;
   date: string;
   trainingPlanId?: string;
+  planSessionId?: string;
+  sequence?: number;
   exercises: SessionExercise[];
   notes?: string;
   timerElapsedMs: number;

@@ -59,14 +59,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
   exercises: Exercise[] = [];
   trainingPlans: TrainingPlan[] = [];
   selectedPlanId: string | null = null;
+  pendingPlanId: string | null = null;
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
   private readonly unsavedSessionIds = new Set<string>();
+  private readonly autoExpandedSessionIds = new Set<string>();
   private timerTickerId?: ReturnType<typeof setInterval>;
   pendingFinishSessionId: string | null = null;
   pendingDeleteSetId: string | null = null;
   pendingDeleteExerciseKey: string | null = null;
   pendingDeleteSessionId: string | null = null;
   finishBlockedSessionId: string | null = null;
+  pausedAttemptFieldKey: string | null = null;
+  private pausedAttemptTimeoutId?: ReturnType<typeof setTimeout>;
 
   constructor(
     private readonly sessionsService: SessionsService,
@@ -89,6 +93,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.settingsService.getSettings().weightUnit.toUpperCase();
   }
 
+  get pendingSessions(): TrainingSession[] {
+    return this.sessions.filter((session) => !session.finished).sort((a, b) => this.sortKey(a) - this.sortKey(b));
+  }
+
+  get pendingPlan(): TrainingPlan | undefined {
+    return this.trainingPlans.find((p) => p.id === this.pendingPlanId);
+  }
+
   async ngOnInit(): Promise<void> {
     await Promise.all([this.load(), this.loadExercises(), this.loadTrainingPlans()]);
     this.timerTickerId = setInterval(() => {}, 1000);
@@ -98,10 +110,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.timerTickerId) {
       clearInterval(this.timerTickerId);
     }
+    if (this.pausedAttemptTimeoutId) {
+      clearTimeout(this.pausedAttemptTimeoutId);
+    }
   }
 
   async load(): Promise<void> {
     this.sessions = await this.sessionsService.getAll();
+  }
+
+  private sortKey(session: TrainingSession): number {
+    return session.sequence ?? new Date(session.date).getTime();
   }
 
   async loadExercises(): Promise<void> {
@@ -110,6 +129,39 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async loadTrainingPlans(): Promise<void> {
     this.trainingPlans = await this.trainingPlansService.getAll();
+  }
+
+  isPaused(session: TrainingSession): boolean {
+    return !session.finished && !session.timerRunning;
+  }
+
+  notePausedInputAttempt(session: TrainingSession, event: FocusEvent, fieldKey: string): void {
+    if (!this.isPaused(session)) {
+      return;
+    }
+    (event.target as HTMLElement).blur();
+    this.pausedAttemptFieldKey = fieldKey;
+    if (this.pausedAttemptTimeoutId) {
+      clearTimeout(this.pausedAttemptTimeoutId);
+    }
+    this.pausedAttemptTimeoutId = setTimeout(() => {
+      this.pausedAttemptFieldKey = null;
+    }, 2500);
+  }
+
+  isExpanded(session: TrainingSession): boolean {
+    return this.autoExpandedSessionIds.has(session.id);
+  }
+
+  onExpandedChange(session: TrainingSession, expanded: boolean): void {
+    if (expanded) {
+      this.autoExpandedSessionIds.add(session.id);
+      return;
+    }
+    this.autoExpandedSessionIds.delete(session.id);
+    if (session.timerRunning) {
+      void this.toggleTimer(session);
+    }
   }
 
   exerciseName(id: string): string {
@@ -134,6 +186,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
       id: crypto.randomUUID(),
       name,
       date: toDateTimeLocalValue(now),
+      // Negative sequence: manually added sessions always float to the very
+      // top of the pending list, newest on top, ahead of anything queued
+      // from a training plan.
+      sequence: -now.getTime(),
       exercises: [],
       timerElapsedMs: 0,
       timerRunning: true,
@@ -141,32 +197,67 @@ export class SessionsComponent implements OnInit, OnDestroy {
       finished: false
     };
     this.unsavedSessionIds.add(session.id);
-    this.sessions = [session, ...this.sessions];
+    this.autoExpandedSessionIds.add(session.id);
+    this.sessions = [...this.sessions, session];
     void this.persist(session);
   }
 
-  async onPlanSelected(): Promise<void> {
-    const plan = this.trainingPlans.find((p) => p.id === this.selectedPlanId);
+  private buildBlankSession(): TrainingSession {
+    const now = new Date();
+    const sessionWord = this.translationService.translate('sessions.defaultName');
+    const name = `${sessionWord} ${this.datePipe.transform(now, this.dateFormat)}`;
+    return {
+      id: crypto.randomUUID(),
+      name,
+      date: toDateTimeLocalValue(now),
+      sequence: now.getTime(),
+      exercises: [],
+      timerElapsedMs: 0,
+      timerRunning: false,
+      timerStartedAt: undefined,
+      finished: false
+    };
+  }
+
+  requestCreateFromPlan(): void {
+    this.pendingPlanId = this.selectedPlanId;
     // Deferred: mat-select writes the newly selected value back onto the
     // ngModel right after emitting selectionChange, which would otherwise
     // clobber a synchronous reset here.
     setTimeout(() => (this.selectedPlanId = null));
+  }
+
+  cancelCreateFromPlan(): void {
+    this.pendingPlanId = null;
+  }
+
+  async confirmCreateFromPlan(): Promise<void> {
+    const plan = this.trainingPlans.find((p) => p.id === this.pendingPlanId);
+    this.pendingPlanId = null;
     if (!plan) {
       return;
     }
-    const newSessions = plan.planSessions && plan.planSessions.length > 0
-      ? plan.planSessions.map((planSession) => this.buildSessionFromPlan(plan, planSession))
-      : [this.buildSessionFromPlan(plan, null)];
+    const baseSequence = Date.now();
+    const newSessions =
+      plan.planSessions && plan.planSessions.length > 0
+        ? plan.planSessions.map((planSession, index) =>
+            this.buildSessionFromPlan(plan, planSession, baseSequence + index)
+          )
+        : [this.buildSessionFromPlan(plan, null, baseSequence)];
     for (const session of newSessions) {
       this.unsavedSessionIds.add(session.id);
     }
-    this.sessions = [...newSessions, ...this.sessions];
+    this.sessions = [...this.sessions, ...newSessions];
     for (const session of newSessions) {
       await this.persist(session);
     }
   }
 
-  private buildSessionFromPlan(plan: TrainingPlan, planSession: TierLinePlanSession | null): TrainingSession {
+  private buildSessionFromPlan(
+    plan: TrainingPlan,
+    planSession: TierLinePlanSession | null,
+    sequence: number
+  ): TrainingSession {
     const now = new Date();
     const name = planSession ? `${plan.name} – ${planSession.name}` : plan.name;
     const exercises: SessionExercise[] = planSession
@@ -192,12 +283,41 @@ export class SessionsComponent implements OnInit, OnDestroy {
       name,
       date: toDateTimeLocalValue(now),
       trainingPlanId: plan.id,
+      planSessionId: planSession?.id,
+      sequence,
       exercises,
       timerElapsedMs: 0,
       timerRunning: false,
       timerStartedAt: undefined,
       finished: false
     };
+  }
+
+  private async replenishSession(finishedSession: TrainingSession): Promise<void> {
+    const newSession = finishedSession.trainingPlanId
+      ? this.buildPlanReplenishment(finishedSession)
+      : this.buildBlankSession();
+    if (!newSession) {
+      return;
+    }
+    this.unsavedSessionIds.add(newSession.id);
+    this.sessions = [...this.sessions, newSession];
+    await this.persist(newSession);
+  }
+
+  private buildPlanReplenishment(finishedSession: TrainingSession): TrainingSession | null {
+    const plan = this.trainingPlans.find((p) => p.id === finishedSession.trainingPlanId);
+    if (!plan) {
+      return null;
+    }
+    const planSession = finishedSession.planSessionId
+      ? (plan.planSessions?.find((ps) => ps.id === finishedSession.planSessionId) ?? null)
+      : null;
+    if (finishedSession.planSessionId && !planSession) {
+      // Day template no longer exists on the plan; nothing to replenish.
+      return null;
+    }
+    return this.buildSessionFromPlan(plan, planSession, Date.now());
   }
 
   private async persist(session: TrainingSession): Promise<void> {
@@ -269,6 +389,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session.timerStartedAt = undefined;
     session.finished = true;
     await this.persist(session);
+    await this.replenishSession(session);
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {

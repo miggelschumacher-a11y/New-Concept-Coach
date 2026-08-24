@@ -10,7 +10,7 @@
         <mat-select
           name="selectedPlanId"
           [(ngModel)]="selectedPlanId"
-          (selectionChange)="onPlanSelected()"
+          (selectionChange)="requestCreateFromPlan()"
         >
           @for (plan of trainingPlans; track plan.id) {
             <mat-option [value]="plan.id">{{ plan.name }}</mat-option>
@@ -20,16 +20,37 @@
           <mat-hint>{{ 'sessions.noPlansHint' | translate }}</mat-hint>
         }
       </mat-form-field>
+
+      @if (pendingPlanId) {
+        <div class="confirm-dialog">
+          <span class="finish-confirm-label">
+            {{ 'sessions.confirmCreateFromPlanQuestion' | translate }}
+            @if (pendingPlan; as plan) {
+              "{{ plan.name }}"
+            }
+          </span>
+          <button mat-raised-button color="primary" type="button" (click)="confirmCreateFromPlan()">
+            {{ 'sessions.confirmYesCreate' | translate }}
+          </button>
+          <button mat-stroked-button type="button" (click)="cancelCreateFromPlan()">
+            {{ 'sessions.confirmCancel' | translate }}
+          </button>
+        </div>
+      }
     </form>
   </mat-card-content>
 </mat-card>
 
-@if (sessions.length === 0) {
+@if (pendingSessions.length === 0) {
   <p>{{ 'sessions.empty' | translate }}</p>
 } @else {
   <mat-accordion multi class="session-accordion">
-    @for (session of sessions; track session.id) {
-      <mat-expansion-panel class="session-card">
+    @for (session of pendingSessions; track session.id) {
+      <mat-expansion-panel
+        class="session-card"
+        [expanded]="isExpanded(session)"
+        (expandedChange)="onExpandedChange(session, $event)"
+      >
         <mat-expansion-panel-header>
           <mat-panel-title class="session-name-title">{{ session.name }}</mat-panel-title>
           <mat-panel-description>
@@ -40,7 +61,10 @@
           </mat-panel-description>
         </mat-expansion-panel-header>
 
-        <mat-form-field appearance="outline" class="name-field">
+        @if (pausedAttemptFieldKey === session.id + ':name') {
+          <p class="paused-field-error">{{ 'sessions.pausedHint' | translate }}</p>
+        }
+        <mat-form-field appearance="outline" class="name-field" [class.paused-field]="isPaused(session)">
           <mat-label>{{ 'common.name' | translate }}</mat-label>
           <input
             matInput
@@ -49,6 +73,7 @@
             [(ngModel)]="session.name"
             #nameModel="ngModel"
             required
+            (focus)="notePausedInputAttempt(session, $event, session.id + ':name')"
             (blur)="updateSessionName(session)"
           />
           @if (nameModel.invalid && nameModel.touched) {
@@ -59,16 +84,20 @@
         <div class="session-timer">
           <span class="timer-display">{{ sessionDuration(session) }}</span>
 
-          @if (session.finished) {
-            <span class="timer-finished-label">{{ 'sessions.finished' | translate }}</span>
-          } @else if (pendingFinishSessionId === session.id) {
-            <span class="finish-confirm-label">{{ 'sessions.confirmFinishQuestion' | translate }}</span>
-            <button mat-raised-button color="warn" type="button" (click)="confirmFinishSession(session)">
-              {{ 'sessions.confirmYes' | translate }}
-            </button>
-            <button mat-stroked-button type="button" (click)="cancelFinishSession()">
-              {{ 'sessions.confirmCancel' | translate }}
-            </button>
+          @if (isPaused(session) && pendingFinishSessionId !== session.id) {
+            <span class="paused-hint">{{ 'sessions.pausedHint' | translate }}</span>
+          }
+
+          @if (pendingFinishSessionId === session.id) {
+            <div class="confirm-dialog">
+              <span class="finish-confirm-label">{{ 'sessions.confirmFinishQuestion' | translate }}</span>
+              <button mat-raised-button color="warn" type="button" (click)="confirmFinishSession(session)">
+                {{ 'sessions.confirmYes' | translate }}
+              </button>
+              <button mat-stroked-button type="button" (click)="cancelFinishSession()">
+                {{ 'sessions.confirmCancel' | translate }}
+              </button>
+            </div>
           } @else {
             <button mat-stroked-button type="button" (click)="toggleTimer(session)">
               @if (session.timerRunning) {
@@ -88,12 +117,16 @@
           <p class="finish-blocked-message">{{ 'sessions.finishRequiresName' | translate }}</p>
         }
 
-        <mat-form-field appearance="outline" class="notes-field">
+        @if (pausedAttemptFieldKey === session.id + ':notes') {
+          <p class="paused-field-error">{{ 'sessions.pausedHint' | translate }}</p>
+        }
+        <mat-form-field appearance="outline" class="notes-field" [class.paused-field]="isPaused(session)">
           <mat-label>{{ 'sessions.notes' | translate }}</mat-label>
           <input
             matInput
             name="notes-{{ session.id }}"
             [(ngModel)]="session.notes"
+            (focus)="notePausedInputAttempt(session, $event, session.id + ':notes')"
             (blur)="updateSessionNotes(session)"
           />
         </mat-form-field>
@@ -139,22 +172,24 @@
                     >
                   </mat-panel-title>
                   @if (isPendingDeleteExercise(session, sessionExercise.exerciseId)) {
-                    <span class="finish-confirm-label">{{ 'sessions.confirmRemoveExerciseQuestion' | translate }}</span>
-                    <button
-                      mat-icon-button
-                      color="warn"
-                      (click)="confirmRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
-                      [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-                    >
-                      <mat-icon>check</mat-icon>
-                    </button>
-                    <button
-                      mat-icon-button
-                      (click)="cancelRemoveExercise(); $event.stopPropagation()"
-                      [attr.aria-label]="'sessions.confirmCancel' | translate"
-                    >
-                      <mat-icon>close</mat-icon>
-                    </button>
+                    <div class="confirm-dialog">
+                      <span class="finish-confirm-label">{{ 'sessions.confirmRemoveExerciseQuestion' | translate }}</span>
+                      <button
+                        mat-icon-button
+                        color="warn"
+                        (click)="confirmRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
+                        [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                      >
+                        <mat-icon>check</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        (click)="cancelRemoveExercise(); $event.stopPropagation()"
+                        [attr.aria-label]="'sessions.confirmCancel' | translate"
+                      >
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
                   } @else {
                     <button
                       mat-icon-button
@@ -169,6 +204,7 @@
                 <mat-checkbox
                   [(ngModel)]="sessionExercise.countWarmupSets"
                   name="countWarmup-{{ sessionExercise.exerciseId }}"
+                  [disabled]="isPaused(session)"
                   (change)="onCountingPreferenceChange(session)"
                 >
                   {{ 'sessions.countWarmup' | translate }}
@@ -177,6 +213,7 @@
                 <mat-checkbox
                   [(ngModel)]="sessionExercise.countCooldownSets"
                   name="countCooldown-{{ sessionExercise.exerciseId }}"
+                  [disabled]="isPaused(session)"
                   (change)="onCountingPreferenceChange(session)"
                 >
                   {{ 'sessions.countCooldown' | translate }}
@@ -203,6 +240,9 @@
                       }
 
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
+                        @if (pausedAttemptFieldKey === set.id) {
+                          <p class="paused-field-error">{{ 'sessions.pausedHint' | translate }}</p>
+                        }
                         <div class="set-row">
                           <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
                           <input
@@ -212,6 +252,8 @@
                             [placeholder]="'sessions.reps' | translate"
                             [(ngModel)]="set.reps"
                             name="reps-{{ set.id }}"
+                            [class.paused-field]="isPaused(session)"
+                            (focus)="notePausedInputAttempt(session, $event, set.id)"
                             (change)="onRepsChange(session, sessionExercise, set)"
                           />
                           <input
@@ -220,26 +262,30 @@
                             [placeholder]="weightUnitLabel"
                             [value]="set.weight.toFixed(2)"
                             name="weight-{{ set.id }}"
+                            [class.paused-field]="isPaused(session)"
+                            (focus)="notePausedInputAttempt(session, $event, set.id)"
                             (input)="onWeightInput($event)"
                             (change)="onWeightChange(session, sessionExercise, set, $any($event.target).value)"
                           />
                           @if (pendingDeleteSetId === set.id) {
-                            <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
-                            <button
-                              mat-icon-button
-                              color="warn"
-                              (click)="confirmRemoveSet(session, sessionExercise, set.id)"
-                              [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-                            >
-                              <mat-icon>check</mat-icon>
-                            </button>
-                            <button
-                              mat-icon-button
-                              (click)="cancelRemoveSet()"
-                              [attr.aria-label]="'sessions.confirmCancel' | translate"
-                            >
-                              <mat-icon>close</mat-icon>
-                            </button>
+                            <div class="confirm-dialog">
+                              <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
+                              <button
+                                mat-icon-button
+                                color="warn"
+                                (click)="confirmRemoveSet(session, sessionExercise, set.id)"
+                                [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                              >
+                                <mat-icon>check</mat-icon>
+                              </button>
+                              <button
+                                mat-icon-button
+                                (click)="cancelRemoveSet()"
+                                [attr.aria-label]="'sessions.confirmCancel' | translate"
+                              >
+                                <mat-icon>close</mat-icon>
+                              </button>
+                            </div>
                           } @else {
                             <button
                               mat-icon-button
@@ -269,22 +315,24 @@
 
         <mat-action-row>
           @if (pendingDeleteSessionId === session.id) {
-            <span class="finish-confirm-label">{{ 'sessions.confirmDeleteSessionQuestion' | translate }}</span>
-            <button
-              mat-icon-button
-              color="warn"
-              (click)="confirmDeleteSession(session.id)"
-              [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-            >
-              <mat-icon>check</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              (click)="cancelDeleteSession()"
-              [attr.aria-label]="'sessions.confirmCancel' | translate"
-            >
-              <mat-icon>close</mat-icon>
-            </button>
+            <div class="confirm-dialog">
+              <span class="finish-confirm-label">{{ 'sessions.confirmDeleteSessionQuestion' | translate }}</span>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="confirmDeleteSession(session.id)"
+                [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+              >
+                <mat-icon>check</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                (click)="cancelDeleteSession()"
+                [attr.aria-label]="'sessions.confirmCancel' | translate"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
           } @else {
             <button
               mat-icon-button

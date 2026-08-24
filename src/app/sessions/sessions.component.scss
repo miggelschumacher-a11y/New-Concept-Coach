@@ -54,11 +54,6 @@ mat-card {
   color: rgba(255, 255, 255, 0.95);
 }
 
-.timer-finished-label {
-  color: lightgrey;
-  font-style: italic;
-}
-
 .finish-confirm-label {
   color: rgba(255, 255, 255, 0.95);
   font-weight: 500;
@@ -69,6 +64,23 @@ mat-card {
   color: #ff8a80;
   font-weight: 500;
   margin: -0.5rem 0 1rem;
+}
+
+.paused-hint {
+  color: lightgrey;
+  font-style: italic;
+}
+
+.paused-field {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paused-field-error {
+  color: #ff8a80;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin: 0 0 0.35rem;
 }
 
 .exercise-accordion {

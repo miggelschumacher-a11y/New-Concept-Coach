@@ -88,9 +88,21 @@
       </button>
       <input #fileInput type="file" accept="application/json" hidden (change)="importData($event)" />
 
-      <button mat-stroked-button color="warn" type="button" (click)="resetData()">
-        {{ 'config.reset' | translate }}
-      </button>
+      @if (pendingReset) {
+        <div class="confirm-dialog">
+          <span class="confirm-label">{{ 'config.resetConfirm' | translate }}</span>
+          <button mat-raised-button color="warn" type="button" (click)="confirmResetData()">
+            {{ 'sessions.confirmYesDelete' | translate }}
+          </button>
+          <button mat-stroked-button type="button" (click)="cancelResetData()">
+            {{ 'sessions.confirmCancel' | translate }}
+          </button>
+        </div>
+      } @else {
+        <button mat-stroked-button color="warn" type="button" (click)="requestResetData()">
+          {{ 'config.reset' | translate }}
+        </button>
+      }
     </div>
 
     @if (statusMessageKey) {
