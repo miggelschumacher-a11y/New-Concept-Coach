@@ -111,6 +111,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Import failed: invalid file.',
     'config.resetConfirm': 'Really delete all local data irrevocably?',
     'config.resetSuccess': 'All data deleted.',
+    'config.driveConnecting': 'Connecting to Google Drive…',
+    'config.driveExportSuccess': 'Data exported and saved to Google Drive.',
+    'config.driveExportError': 'Google Drive export failed.',
 
     'trainingZones.title': 'Training Zones (Endurance Sports)',
     'trainingZones.zoneColumn': 'Zone',
@@ -231,6 +234,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Import fehlgeschlagen: ungültige Datei.',
     'config.resetConfirm': 'Wirklich alle lokalen Daten unwiderruflich löschen?',
     'config.resetSuccess': 'Alle Daten wurden gelöscht.',
+    'config.driveConnecting': 'Verbindung mit Google Drive wird hergestellt…',
+    'config.driveExportSuccess': 'Daten wurden exportiert und in Google Drive gespeichert.',
+    'config.driveExportError': 'Export nach Google Drive fehlgeschlagen.',
 
     'trainingZones.title': 'Trainingszonen (Ausdauersport)',
     'trainingZones.zoneColumn': 'Zone',
@@ -351,6 +357,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Error al importar: archivo no válido.',
     'config.resetConfirm': '¿Eliminar realmente todos los datos locales de forma irrevocable?',
     'config.resetSuccess': 'Todos los datos eliminados.',
+    'config.driveConnecting': 'Conectando con Google Drive…',
+    'config.driveExportSuccess': 'Datos exportados y guardados en Google Drive.',
+    'config.driveExportError': 'Error al exportar a Google Drive.',
 
     'trainingZones.title': 'Zonas de entrenamiento (deportes de resistencia)',
     'trainingZones.zoneColumn': 'Zona',
@@ -471,6 +480,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Falha na importação: arquivo inválido.',
     'config.resetConfirm': 'Excluir realmente todos os dados locais de forma irreversível?',
     'config.resetSuccess': 'Todos os dados foram excluídos.',
+    'config.driveConnecting': 'Conectando ao Google Drive…',
+    'config.driveExportSuccess': 'Dados exportados e salvos no Google Drive.',
+    'config.driveExportError': 'Falha ao exportar para o Google Drive.',
 
     'trainingZones.title': 'Zonas de treino (esportes de resistência)',
     'trainingZones.zoneColumn': 'Zona',
@@ -591,6 +603,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Importazione non riuscita: file non valido.',
     'config.resetConfirm': 'Eliminare davvero tutti i dati locali in modo irreversibile?',
     'config.resetSuccess': 'Tutti i dati sono stati eliminati.',
+    'config.driveConnecting': 'Connessione a Google Drive…',
+    'config.driveExportSuccess': 'Dati esportati e salvati su Google Drive.',
+    'config.driveExportError': 'Esportazione su Google Drive non riuscita.',
 
     'trainingZones.title': 'Zone di allenamento (sport di resistenza)',
     'trainingZones.zoneColumn': 'Zona',
@@ -711,6 +726,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Importeren mislukt: ongeldig bestand.',
     'config.resetConfirm': 'Alle lokale gegevens echt onherroepelijk verwijderen?',
     'config.resetSuccess': 'Alle gegevens zijn verwijderd.',
+    'config.driveConnecting': 'Verbinden met Google Drive…',
+    'config.driveExportSuccess': 'Gegevens geëxporteerd en opgeslagen in Google Drive.',
+    'config.driveExportError': 'Exporteren naar Google Drive mislukt.',
 
     'trainingZones.title': 'Trainingszones (duursport)',
     'trainingZones.zoneColumn': 'Zone',
@@ -831,6 +849,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Import nie powiódł się: nieprawidłowy plik.',
     'config.resetConfirm': 'Czy na pewno nieodwracalnie usunąć wszystkie dane lokalne?',
     'config.resetSuccess': 'Wszystkie dane zostały usunięte.',
+    'config.driveConnecting': 'Łączenie z Google Drive…',
+    'config.driveExportSuccess': 'Dane wyeksportowane i zapisane na Google Drive.',
+    'config.driveExportError': 'Eksport do Google Drive nie powiódł się.',
 
     'trainingZones.title': 'Strefy treningowe (sporty wytrzymałościowe)',
     'trainingZones.zoneColumn': 'Strefa',
@@ -951,6 +972,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Ошибка импорта: недопустимый файл.',
     'config.resetConfirm': 'Действительно безвозвратно удалить все локальные данные?',
     'config.resetSuccess': 'Все данные удалены.',
+    'config.driveConnecting': 'Подключение к Google Диску…',
+    'config.driveExportSuccess': 'Данные экспортированы и сохранены на Google Диске.',
+    'config.driveExportError': 'Не удалось экспортировать в Google Диск.',
 
     'trainingZones.title': 'Тренировочные зоны (циклические виды спорта)',
     'trainingZones.zoneColumn': 'Зона',
@@ -1071,6 +1095,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.importError': 'Sikertelen importálás: érvénytelen fájl.',
     'config.resetConfirm': 'Valóban véglegesen törlöd az összes helyi adatot?',
     'config.resetSuccess': 'Az összes adat törölve.',
+    'config.driveConnecting': 'Kapcsolódás a Google Drive-hoz…',
+    'config.driveExportSuccess': 'Az adatok exportálva és elmentve a Google Drive-ra.',
+    'config.driveExportError': 'A Google Drive-ra történő exportálás sikertelen.',
 
     'trainingZones.title': 'Edzési zónák (állóképességi sportok)',
     'trainingZones.zoneColumn': 'Zóna',

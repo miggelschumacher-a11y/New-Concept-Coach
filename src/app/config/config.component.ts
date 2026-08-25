@@ -15,6 +15,7 @@ import {
   LANGUAGE_DATE_FORMATS
 } from '../core/services/settings.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
+import { GoogleDriveService } from '../core/services/google-drive.service';
 import { LANGUAGES } from '../core/services/translation.service';
 import { findHeartRateMax, parseHeartRateRange } from '../core/data/heart-rate-zones';
 import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
@@ -49,7 +50,8 @@ export class ConfigComponent implements OnInit {
 
   constructor(
     private readonly settingsService: SettingsService,
-    private readonly indexedDbService: IndexedDbService
+    private readonly indexedDbService: IndexedDbService,
+    private readonly googleDriveService: GoogleDriveService
   ) {
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
@@ -122,15 +124,30 @@ export class ConfigComponent implements OnInit {
   }
 
   async exportData(): Promise<void> {
+    // Requested first, still directly inside the click handler, so the
+    // Google sign-in popup stays tied to the user gesture instead of
+    // getting blocked once the IndexedDB read below has to await.
+    this.statusMessageKey = 'config.driveConnecting';
+    const accessTokenPromise = this.googleDriveService.requestAccessToken();
+
     const data = await this.indexedDbService.exportAll();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const json = JSON.stringify(data, null, 2);
+
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    this.statusMessageKey = 'config.exportSuccess';
+
+    try {
+      const accessToken = await accessTokenPromise;
+      await this.googleDriveService.uploadBackup(accessToken, json);
+      this.statusMessageKey = 'config.driveExportSuccess';
+    } catch {
+      this.statusMessageKey = 'config.driveExportError';
+    }
   }
 
   async importData(event: Event): Promise<void> {
