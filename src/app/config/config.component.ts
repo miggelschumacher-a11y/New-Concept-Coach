@@ -101,7 +101,7 @@ export class ConfigComponent implements OnInit {
     }
     const min = Math.round((range.min * zone.percentMin) / 100);
     const max = Math.round((range.max * zone.percentMax) / 100);
-    return min === max ? `${min}` : `${min}–${max}`;
+    return `${min}–${max}`;
   }
 
   async onDateOfBirthChange(): Promise<void> {
