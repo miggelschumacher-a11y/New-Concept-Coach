@@ -90,10 +90,14 @@ export class ConfigComponent implements OnInit {
     return this.age === null ? null : findHeartRateMax(this.age);
   }
 
+  zonePercentDisplay(zone: TrainingZone): string {
+    return `${zone.percentMin}–${zone.percentMax} %`;
+  }
+
   zoneHeartRateDisplay(zone: TrainingZone): string {
     const range = this.heartRateMax === null ? null : parseHeartRateRange(this.heartRateMax);
     if (!range) {
-      return `${zone.percentMin}–${zone.percentMax} %`;
+      return '–';
     }
     const min = Math.round((range.min * zone.percentMin) / 100);
     const max = Math.round((range.max * zone.percentMax) / 100);

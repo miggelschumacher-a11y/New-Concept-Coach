@@ -56,6 +56,7 @@
           <tr>
             <th>{{ 'trainingZones.zoneColumn' | translate }}</th>
             <th>{{ 'trainingZones.percentColumn' | translate }}</th>
+            <th>{{ 'trainingZones.heartRateColumn' | translate }}</th>
             <th>{{ 'trainingZones.purposeColumn' | translate }}</th>
           </tr>
         </thead>
@@ -63,6 +64,7 @@
           @for (zone of trainingZones; track zone.nameKey) {
             <tr>
               <td>{{ zone.nameKey | translate }}</td>
+              <td>{{ zonePercentDisplay(zone) }}</td>
               <td>{{ zoneHeartRateDisplay(zone) }}</td>
               <td>{{ zone.purposeKey | translate }}</td>
             </tr>
