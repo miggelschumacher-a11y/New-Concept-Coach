@@ -309,6 +309,7 @@
                     } @else {
                       <button
                         mat-icon-button
+                        color="warn"
                         (click)="requestRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
                         [matTooltip]="'sessions.removeExercise' | translate"
                         [attr.aria-label]="'sessions.removeExercise' | translate"
@@ -438,6 +439,7 @@
                           } @else {
                             <button
                               mat-icon-button
+                              color="warn"
                               (click)="requestRemoveSet(set.id)"
                               [matTooltip]="'sessions.removeSet' | translate"
                               [attr.aria-label]="'sessions.removeSet' | translate"
