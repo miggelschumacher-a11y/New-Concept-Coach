@@ -48,6 +48,15 @@ mat-card {
   padding-bottom: 0.5rem;
 }
 
+mat-expansion-panel-header .mat-content {
+  align-items: center;
+}
+
+.header-delete-action {
+  order: -1;
+  flex: 0 0 auto;
+}
+
 .session-card mat-form-field {
   width: 100%;
   max-width: 400px;
@@ -155,6 +164,11 @@ mat-expansion-panel mat-checkbox {
 .set-row .set-index {
   min-width: 4.5rem;
   color: lightgrey;
+}
+
+.set-delete-spacer {
+  display: inline-block;
+  width: 40px;
 }
 
 .set-row input {

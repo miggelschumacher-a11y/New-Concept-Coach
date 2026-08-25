@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Exercise } from '../models/exercise.model';
+import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 7;
+const DB_VERSION = 8;
 
 export const STORES = {
   exercises: 'exercises',
@@ -39,6 +40,16 @@ const DEFAULT_EXERCISE_NAMES = [
   'Neck-Curls',
   'Triceps-Push-Down'
 ];
+
+// The TierLine Basis plan's T1/T2 lifts need a body region to pick the right
+// weight increment (2.5 kg lower body / 1.25 kg upper body). Seeded here so
+// it's correct out of the box instead of requiring manual setup per install.
+const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightCategory>> = {
+  Squat: 'LOWER_BODY',
+  Deadlift: 'LOWER_BODY',
+  'Bench-Press': 'UPPER_BODY',
+  'Overhead-Press': 'UPPER_BODY'
+};
 
 export type StoreName = (typeof STORES)[keyof typeof STORES];
 
@@ -93,9 +104,31 @@ export class IndexedDbService {
         if (isNewDatabase) {
           const exercisesStore = request.transaction!.objectStore(STORES.exercises);
           for (const name of DEFAULT_EXERCISE_NAMES) {
-            const exercise: Exercise = { id: crypto.randomUUID(), name, category: '' };
+            const exercise: Exercise = {
+              id: crypto.randomUUID(),
+              name,
+              category: '',
+              weightCategory: DEFAULT_EXERCISE_WEIGHT_CATEGORIES[name]
+            };
             exercisesStore.add(exercise);
           }
+        } else if (event.oldVersion < 8 && db.objectStoreNames.contains(STORES.exercises)) {
+          // Backfill weightCategory on existing installs' Squat/Deadlift/Bench-Press/
+          // Overhead-Press rows so TierLine progression picks the right increment
+          // without the user having to set it manually first.
+          const exercisesStore = request.transaction!.objectStore(STORES.exercises);
+          exercisesStore.openCursor().onsuccess = (cursorEvent) => {
+            const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
+            if (!cursor) {
+              return;
+            }
+            const exercise = cursor.value as Exercise;
+            const defaultCategory = DEFAULT_EXERCISE_WEIGHT_CATEGORIES[exercise.name];
+            if (defaultCategory && !exercise.weightCategory) {
+              cursor.update({ ...exercise, weightCategory: defaultCategory });
+            }
+            cursor.continue();
+          };
         }
       };
 

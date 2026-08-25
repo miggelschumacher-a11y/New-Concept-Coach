@@ -106,6 +106,42 @@
         (expandedChange)="onExpandedChange(session, $event)"
       >
         <mat-expansion-panel-header>
+          <div class="header-delete-action">
+            @if (pendingDeleteSessionId === session.id) {
+              <div class="confirm-dialog" (click)="$event.stopPropagation()">
+                <span class="finish-confirm-label">{{ 'sessions.confirmDeleteSessionQuestion' | translate }}</span>
+                <div class="confirm-dialog-actions">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    (click)="confirmDeleteSession(session); $event.stopPropagation()"
+                    [matTooltip]="'sessions.confirmYesDelete' | translate"
+                    [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                  >
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="cancelDeleteSession(); $event.stopPropagation()"
+                    [matTooltip]="'sessions.confirmCancel' | translate"
+                    [attr.aria-label]="'sessions.confirmCancel' | translate"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="requestDeleteSession(session.id); $event.stopPropagation()"
+                [matTooltip]="'common.delete' | translate"
+                [attr.aria-label]="'common.delete' | translate"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </div>
           <mat-panel-title class="session-name-title">{{ session.name }}</mat-panel-title>
           <mat-panel-description>
             {{ session.date | date: dateFormat }}
@@ -113,40 +149,6 @@
               · {{ 'sessions.weightLifted' | translate }}: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}
             }
           </mat-panel-description>
-          @if (pendingDeleteSessionId === session.id) {
-            <div class="confirm-dialog" (click)="$event.stopPropagation()">
-              <span class="finish-confirm-label">{{ 'sessions.confirmDeleteSessionQuestion' | translate }}</span>
-              <div class="confirm-dialog-actions">
-                <button
-                  mat-icon-button
-                  color="warn"
-                  (click)="confirmDeleteSession(session); $event.stopPropagation()"
-                  [matTooltip]="'sessions.confirmYesDelete' | translate"
-                  [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-                >
-                  <mat-icon>check</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  (click)="cancelDeleteSession(); $event.stopPropagation()"
-                  [matTooltip]="'sessions.confirmCancel' | translate"
-                  [attr.aria-label]="'sessions.confirmCancel' | translate"
-                >
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-            </div>
-          } @else {
-            <button
-              mat-icon-button
-              color="warn"
-              (click)="requestDeleteSession(session.id); $event.stopPropagation()"
-              [matTooltip]="'common.delete' | translate"
-              [attr.aria-label]="'common.delete' | translate"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          }
         </mat-expansion-panel-header>
 
         @if (pausedAttemptFieldKey === session.id + ':name') {
@@ -280,6 +282,41 @@
             @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
               <mat-expansion-panel>
                 <mat-expansion-panel-header>
+                  <div class="header-delete-action">
+                    @if (isPendingDeleteExercise(session, sessionExercise.exerciseId)) {
+                      <div class="confirm-dialog" (click)="$event.stopPropagation()">
+                        <span class="finish-confirm-label">{{ 'sessions.confirmRemoveExerciseQuestion' | translate }}</span>
+                        <div class="confirm-dialog-actions">
+                          <button
+                            mat-icon-button
+                            color="warn"
+                            (click)="confirmRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
+                            [matTooltip]="'sessions.confirmYesDelete' | translate"
+                            [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                          >
+                            <mat-icon>check</mat-icon>
+                          </button>
+                          <button
+                            mat-icon-button
+                            (click)="cancelRemoveExercise(); $event.stopPropagation()"
+                            [matTooltip]="'sessions.confirmCancel' | translate"
+                            [attr.aria-label]="'sessions.confirmCancel' | translate"
+                          >
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    } @else {
+                      <button
+                        mat-icon-button
+                        (click)="requestRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
+                        [matTooltip]="'sessions.removeExercise' | translate"
+                        [attr.aria-label]="'sessions.removeExercise' | translate"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    }
+                  </div>
                   <mat-panel-title>
                     {{ exerciseName(sessionExercise.exerciseId) }}
                     <span class="set-count"
@@ -287,39 +324,6 @@
                       <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ 'exercises.oneRepMax' | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
                     >
                   </mat-panel-title>
-                  @if (isPendingDeleteExercise(session, sessionExercise.exerciseId)) {
-                    <div class="confirm-dialog">
-                      <span class="finish-confirm-label">{{ 'sessions.confirmRemoveExerciseQuestion' | translate }}</span>
-                      <div class="confirm-dialog-actions">
-                        <button
-                          mat-icon-button
-                          color="warn"
-                          (click)="confirmRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
-                          [matTooltip]="'sessions.confirmYesDelete' | translate"
-                          [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-                        >
-                          <mat-icon>check</mat-icon>
-                        </button>
-                        <button
-                          mat-icon-button
-                          (click)="cancelRemoveExercise(); $event.stopPropagation()"
-                          [matTooltip]="'sessions.confirmCancel' | translate"
-                          [attr.aria-label]="'sessions.confirmCancel' | translate"
-                        >
-                          <mat-icon>close</mat-icon>
-                        </button>
-                      </div>
-                    </div>
-                  } @else {
-                    <button
-                      mat-icon-button
-                      (click)="requestRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
-                      [matTooltip]="'sessions.removeExercise' | translate"
-                      [attr.aria-label]="'sessions.removeExercise' | translate"
-                    >
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  }
                 </mat-expansion-panel-header>
 
                 <mat-checkbox
@@ -396,6 +400,7 @@
 
                       @if (setsByType(sessionExercise, setType.value).length > 0) {
                         <div class="set-row set-row-header">
+                          <span class="set-delete-spacer"></span>
                           <span class="set-index"></span>
                           <span class="set-col-label">{{ 'sessions.reps' | translate }}</span>
                           <span class="set-col-label">{{ weightUnitLabel }}</span>
@@ -407,29 +412,6 @@
                           <p class="paused-field-error">{{ 'sessions.pausedHint' | translate }}</p>
                         }
                         <div class="set-row">
-                          <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max="10000"
-                            [placeholder]="repsPlaceholder(sessionExercise, setType.value)"
-                            [value]="set.reps === 0 ? '' : set.reps"
-                            name="reps-{{ set.id }}"
-                            [class.paused-field]="isPaused(session)"
-                            (focus)="notePausedInputAttempt(session, $event, set.id)"
-                            (change)="onRepsChange(session, sessionExercise, set, $any($event.target).value)"
-                          />
-                          <input
-                            type="text"
-                            inputmode="decimal"
-                            [placeholder]="weightPlaceholder(sessionExercise, setType.value)"
-                            [value]="set.weight === 0 ? '' : set.weight.toFixed(2)"
-                            name="weight-{{ set.id }}"
-                            [class.paused-field]="isPaused(session)"
-                            (focus)="notePausedInputAttempt(session, $event, set.id)"
-                            (input)="onWeightInput($event)"
-                            (change)="onWeightChange(session, sessionExercise, set, $any($event.target).value)"
-                          />
                           @if (pendingDeleteSetId === set.id) {
                             <div class="confirm-dialog">
                               <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
@@ -460,9 +442,32 @@
                               [matTooltip]="'sessions.removeSet' | translate"
                               [attr.aria-label]="'sessions.removeSet' | translate"
                             >
-                              <mat-icon>close</mat-icon>
+                              <mat-icon>delete</mat-icon>
                             </button>
                           }
+                          <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max="10000"
+                            [placeholder]="repsPlaceholder(sessionExercise, setType.value)"
+                            [value]="set.reps === 0 ? '' : set.reps"
+                            name="reps-{{ set.id }}"
+                            [class.paused-field]="isPaused(session)"
+                            (focus)="notePausedInputAttempt(session, $event, set.id)"
+                            (change)="onRepsChange(session, sessionExercise, set, $any($event.target).value)"
+                          />
+                          <input
+                            type="text"
+                            inputmode="decimal"
+                            [placeholder]="weightPlaceholder(sessionExercise, setType.value)"
+                            [value]="set.weight === 0 ? '' : set.weight.toFixed(2)"
+                            name="weight-{{ set.id }}"
+                            [class.paused-field]="isPaused(session)"
+                            (focus)="notePausedInputAttempt(session, $event, set.id)"
+                            (input)="onWeightInput($event)"
+                            (change)="onWeightChange(session, sessionExercise, set, $any($event.target).value)"
+                          />
                         </div>
                       }
 
