@@ -30,3 +30,12 @@ mat-card {
   color: rgba(255, 255, 255, 0.95);
   font-weight: 500;
 }
+
+.body-region-field {
+  width: 130px;
+  font-size: 0.85rem;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 2.25rem;
+  }
+}

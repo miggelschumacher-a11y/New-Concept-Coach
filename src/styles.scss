@@ -41,8 +41,7 @@ body {
 // tilt-in entrance so it visually separates itself from the flat page.
 .confirm-dialog {
   display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.75rem;
   padding: 0.5rem 1rem;
   border-radius: 10px;
@@ -55,6 +54,15 @@ body {
   transform-style: preserve-3d;
   transform-origin: center left;
   animation: confirm-dialog-pop-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// Button row for a .confirm-dialog: always its own line, centered, below
+// the message text.
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 // Inline icon that precedes a text label (nav link, heading, form-field

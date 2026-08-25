@@ -24,7 +24,13 @@ export interface TierLineSetScheme {
   isAmrapLastSet: boolean; // AMRAP nur auf letztem Satz relevant (v.a. T1)
 }
 
+export type ExerciseWeightCategory = 'LOWER_BODY' | 'UPPER_BODY';
+
 export interface TierLineProgressionState {
+  // Composite key `${exerciseId}:${tier}` — the same exercise can carry
+  // independent weight/stage progressions when it rotates through
+  // different tier slots (e.g. Squat as T1 on one day, T2 on another).
+  id: string;
   exerciseId: string;
   tier: GzclTier;
   stage: TierLineStage;

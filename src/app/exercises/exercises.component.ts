@@ -7,9 +7,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { Exercise } from '../core/models/exercise.model';
+import { ExerciseWeightCategory } from '../core/models/tier-line-progression.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 @Component({
@@ -24,6 +26,7 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
     MatListModule,
     MatCardModule,
     MatTooltipModule,
+    MatSelectModule,
     TranslatePipe
   ],
   templateUrl: './exercises.component.html',
@@ -33,6 +36,7 @@ export class ExercisesComponent implements OnInit {
   exercises: Exercise[] = [];
   name = '';
   category = '';
+  weightCategory: ExerciseWeightCategory | null = null;
   pendingDeleteExerciseId: string | null = null;
 
   constructor(
@@ -56,10 +60,19 @@ export class ExercisesComponent implements OnInit {
     if (!this.name.trim()) {
       return;
     }
-    await this.exercisesService.add({ name: this.name.trim(), category: this.category.trim() });
+    await this.exercisesService.add({
+      name: this.name.trim(),
+      category: this.category.trim(),
+      weightCategory: this.weightCategory ?? undefined
+    });
     this.name = '';
     this.category = '';
+    this.weightCategory = null;
     await this.load();
+  }
+
+  async updateWeightCategory(exercise: Exercise): Promise<void> {
+    await this.exercisesService.update(exercise);
   }
 
   requestDeleteExercise(id: string): void {

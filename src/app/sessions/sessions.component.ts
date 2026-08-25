@@ -15,9 +15,13 @@ import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { TranslationService } from '../core/services/translation.service';
 import { TrainingPlansService } from '../core/services/training-plans.service';
+import { TierLineProgressionService } from '../core/services/tier-line-progression.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
-import { TrainingPlan, TierLinePlanSession } from '../core/models/training-plan.model';
+import { TrainingPlan, TierLinePlanSession, TierLinePlanExercise } from '../core/models/training-plan.model';
+import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core/models/tier-line-progression.model';
+import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
+import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
@@ -72,6 +76,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   finishBlockedSessionId: string | null = null;
   pausedAttemptFieldKey: string | null = null;
   private pausedAttemptTimeoutId?: ReturnType<typeof setTimeout>;
+  private readonly progressionStates = new Map<string, TierLineProgressionState>();
 
   constructor(
     private readonly sessionsService: SessionsService,
@@ -79,6 +84,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly settingsService: SettingsService,
     private readonly translationService: TranslationService,
     private readonly trainingPlansService: TrainingPlansService,
+    private readonly tierLineProgressionService: TierLineProgressionService,
     private readonly datePipe: DatePipe
   ) {}
 
@@ -107,7 +113,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.load(), this.loadExercises(), this.loadTrainingPlans()]);
+    await Promise.all([this.load(), this.loadExercises(), this.loadTrainingPlans(), this.loadProgressionStates()]);
     this.timerTickerId = setInterval(() => {}, 1000);
   }
 
@@ -134,6 +140,92 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async loadTrainingPlans(): Promise<void> {
     this.trainingPlans = await this.trainingPlansService.getAll();
+  }
+
+  async loadProgressionStates(): Promise<void> {
+    const states = await this.tierLineProgressionService.getAllStates();
+    this.progressionStates.clear();
+    for (const state of states) {
+      this.progressionStates.set(state.id, state);
+    }
+  }
+
+  private progressionKey(exerciseId: string, tier: GzclTier): string {
+    return `${exerciseId}:${tier}`;
+  }
+
+  private findPlanExercise(session: TrainingSession, exerciseId: string): TierLinePlanExercise | undefined {
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    const planSession = plan?.planSessions?.find((ps) => ps.id === session.planSessionId);
+    return planSession?.exercises.find((planExercise) => planExercise.exerciseId === exerciseId);
+  }
+
+  isTierLineProgressionExercise(session: TrainingSession, exerciseId: string): boolean {
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    if (plan?.methodology !== TrainingMethodology.TIER_LINE_PROGRESSION) {
+      return false;
+    }
+    const planExercise = this.findPlanExercise(session, exerciseId);
+    return !!planExercise && planExercise.tier !== GzclTier.T3_ACCESSORY;
+  }
+
+  tierLineWeightIncrement(exerciseId: string): number {
+    const category = this.exercises.find((exercise) => exercise.id === exerciseId)?.weightCategory ?? 'UPPER_BODY';
+    return WEIGHT_INCREMENT_BY_EXERCISE_TYPE[category];
+  }
+
+  private async getOrInitProgressionState(planExercise: TierLinePlanExercise): Promise<TierLineProgressionState> {
+    const key = this.progressionKey(planExercise.exerciseId, planExercise.tier);
+    const cached = this.progressionStates.get(key);
+    if (cached) {
+      return cached;
+    }
+    const existing = await this.tierLineProgressionService.getState(planExercise.exerciseId, planExercise.tier);
+    const state =
+      existing ??
+      (await this.tierLineProgressionService.initState(
+        planExercise.exerciseId,
+        planExercise.tier,
+        0,
+        planExercise.stage
+      ));
+    this.progressionStates.set(key, state);
+    return state;
+  }
+
+  private async recordTierLineProgress(session: TrainingSession): Promise<void> {
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    if (plan?.methodology !== TrainingMethodology.TIER_LINE_PROGRESSION || !session.planSessionId) {
+      return;
+    }
+    const planSession = plan.planSessions?.find((ps) => ps.id === session.planSessionId);
+    if (!planSession) {
+      return;
+    }
+    for (const planExercise of planSession.exercises) {
+      if (planExercise.tier === GzclTier.T3_ACCESSORY) {
+        continue;
+      }
+      const sessionExercise = session.exercises.find((se) => se.exerciseId === planExercise.exerciseId);
+      const workingSets = sessionExercise?.sets.filter((set) => set.type === 'working') ?? [];
+      // Reps are pre-filled with the scheme's target value when the session is created, so an
+      // untouched exercise still "achieves" its target reps on paper. Weight, however, always
+      // starts at 0 and only becomes non-zero once the user actually enters something — so weight,
+      // not reps, is what tells apart "not attempted" from a genuine result.
+      if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+        continue;
+      }
+      const achievedReps = workingSets.map((set) => set.reps);
+      const lastSetWeight = workingSets[workingSets.length - 1].weight;
+      const category = this.exercises.find((exercise) => exercise.id === planExercise.exerciseId)?.weightCategory ?? 'UPPER_BODY';
+      const next = await this.tierLineProgressionService.recordSessionResult(
+        planExercise.exerciseId,
+        planExercise.tier,
+        { achievedReps, lastSetWeight },
+        category
+      );
+      this.progressionStates.set(this.progressionKey(planExercise.exerciseId, planExercise.tier), next);
+    }
   }
 
   isPaused(session: TrainingSession): boolean {
@@ -257,10 +349,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const baseSequence = Date.now();
     const newSessions =
       plan.planSessions && plan.planSessions.length > 0
-        ? plan.planSessions.map((planSession, index) =>
-            this.buildSessionFromPlan(plan, planSession, baseSequence + index)
+        ? await Promise.all(
+            plan.planSessions.map((planSession, index) =>
+              this.buildSessionFromPlan(plan, planSession, baseSequence + index)
+            )
           )
-        : [this.buildSessionFromPlan(plan, null, baseSequence)];
+        : [await this.buildSessionFromPlan(plan, null, baseSequence)];
     for (const session of newSessions) {
       this.unsavedSessionIds.add(session.id);
     }
@@ -270,25 +364,45 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildSessionFromPlan(
+  private async buildSessionFromPlan(
     plan: TrainingPlan,
     planSession: TierLinePlanSession | null,
     sequence: number
-  ): TrainingSession {
+  ): Promise<TrainingSession> {
     const now = new Date();
     const name = planSession ? `${plan.name} – ${planSession.name}` : plan.name;
+    const isTierLine = plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION;
     const exercises: SessionExercise[] = planSession
-      ? planSession.exercises.map((planExercise) => ({
-          exerciseId: planExercise.exerciseId,
-          sets: Array.from({ length: planExercise.sets }, () => ({
-            id: crypto.randomUUID(),
-            reps: planExercise.targetReps,
-            weight: 0,
-            type: 'working' as SetType
-          })),
-          countWarmupSets: true,
-          countCooldownSets: true
-        }))
+      ? await Promise.all(
+          planSession.exercises.map(async (planExercise) => {
+            if (isTierLine && planExercise.tier !== GzclTier.T3_ACCESSORY) {
+              const state = await this.getOrInitProgressionState(planExercise);
+              const scheme = TIER_LINE_SCHEME[state.tier][state.stage];
+              return {
+                exerciseId: planExercise.exerciseId,
+                sets: Array.from({ length: scheme.sets }, () => ({
+                  id: crypto.randomUUID(),
+                  reps: scheme.targetReps,
+                  weight: state.currentWeight,
+                  type: 'working' as SetType
+                })),
+                countWarmupSets: true,
+                countCooldownSets: true
+              };
+            }
+            return {
+              exerciseId: planExercise.exerciseId,
+              sets: Array.from({ length: planExercise.sets }, () => ({
+                id: crypto.randomUUID(),
+                reps: planExercise.targetReps,
+                weight: 0,
+                type: 'working' as SetType
+              })),
+              countWarmupSets: true,
+              countCooldownSets: true
+            };
+          })
+        )
       : plan.exerciseIds.map((exerciseId) => ({
           exerciseId,
           sets: [],
@@ -312,7 +426,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   private async replenishSession(sourceSession: TrainingSession): Promise<void> {
     const newSession = sourceSession.trainingPlanId
-      ? this.buildPlanReplenishment(sourceSession)
+      ? await this.buildPlanReplenishment(sourceSession)
       : this.buildManualReplenishment(sourceSession);
     if (!newSession) {
       return;
@@ -322,7 +436,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(newSession);
   }
 
-  private buildPlanReplenishment(sourceSession: TrainingSession): TrainingSession | null {
+  private async buildPlanReplenishment(sourceSession: TrainingSession): Promise<TrainingSession | null> {
     const plan = this.trainingPlans.find((p) => p.id === sourceSession.trainingPlanId);
     if (!plan) {
       return null;
@@ -406,6 +520,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session.timerStartedAt = undefined;
     session.finished = true;
     await this.persist(session);
+    await this.recordTierLineProgress(session);
     this.pendingReplenishSession = session;
   }
 

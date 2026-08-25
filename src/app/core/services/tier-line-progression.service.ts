@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
 import { IndexedDbService, STORES } from './indexed-db.service';
 import { AsyncLock } from '../utils/async-lock.util';
-import { computeNextTierLineState, SessionResult, ExerciseWeightCategory } from '../utils/tier-line-progression.util';
-import { TierLineProgressionState, GzclTier, TierLineStage } from '../models/tier-line-progression.model';
+import { computeNextTierLineState, SessionResult } from '../utils/tier-line-progression.util';
+import {
+  TierLineProgressionState,
+  GzclTier,
+  TierLineStage,
+  ExerciseWeightCategory
+} from '../models/tier-line-progression.model';
 
 @Injectable({ providedIn: 'root' })
 export class TierLineProgressionService {
@@ -10,13 +15,25 @@ export class TierLineProgressionService {
 
   constructor(private readonly db: IndexedDbService) {}
 
-  /** Liest den aktuellen Fortschrittsstatus einer Übung, oder null falls noch nicht initialisiert. */
-  async getState(exerciseId: string): Promise<TierLineProgressionState | null> {
-    const stored = await this.db.get<TierLineProgressionState>(STORES.tierLineProgression, exerciseId);
+  private stateId(exerciseId: string, tier: GzclTier): string {
+    return `${exerciseId}:${tier}`;
+  }
+
+  /** Liest den aktuellen Fortschrittsstatus einer Übung in einem Tier, oder null falls noch nicht initialisiert. */
+  async getState(exerciseId: string, tier: GzclTier): Promise<TierLineProgressionState | null> {
+    const stored = await this.db.get<TierLineProgressionState>(
+      STORES.tierLineProgression,
+      this.stateId(exerciseId, tier)
+    );
     return stored ?? null;
   }
 
-  /** Initialisiert den Progression-State für eine Übung (z.B. bei erster Zuweisung als T1/T2/T3). */
+  /** Liest alle bisher initialisierten Fortschrittsstände (z.B. zur Anzeige in der UI). */
+  async getAllStates(): Promise<TierLineProgressionState[]> {
+    return this.db.getAll<TierLineProgressionState>(STORES.tierLineProgression);
+  }
+
+  /** Initialisiert den Progression-State für eine Übung in einem Tier (z.B. bei erster Zuweisung als T1/T2/T3). */
   async initState(
     exerciseId: string,
     tier: GzclTier,
@@ -24,12 +41,14 @@ export class TierLineProgressionService {
     stage: TierLineStage = TierLineStage.STAGE_1
   ): Promise<TierLineProgressionState> {
     return this.lock.acquire(async () => {
-      const existing = await this.db.get<TierLineProgressionState>(STORES.tierLineProgression, exerciseId);
+      const id = this.stateId(exerciseId, tier);
+      const existing = await this.db.get<TierLineProgressionState>(STORES.tierLineProgression, id);
       if (existing) {
         // Bereits initialisiert -> nicht überschreiben, außer explizit gewünscht
         return existing;
       }
       const state: TierLineProgressionState = {
+        id,
         exerciseId,
         tier,
         stage,
@@ -50,14 +69,16 @@ export class TierLineProgressionService {
    */
   async recordSessionResult(
     exerciseId: string,
+    tier: GzclTier,
     result: SessionResult,
     exerciseCategory: ExerciseWeightCategory
   ): Promise<TierLineProgressionState> {
     return this.lock.acquire(async () => {
-      const current = await this.db.get<TierLineProgressionState>(STORES.tierLineProgression, exerciseId);
+      const id = this.stateId(exerciseId, tier);
+      const current = await this.db.get<TierLineProgressionState>(STORES.tierLineProgression, id);
       if (!current) {
         throw new Error(
-          `TierLineProgressionService: Kein State für Exercise ${exerciseId} initialisiert.`
+          `TierLineProgressionService: Kein State für Exercise ${exerciseId} (${tier}) initialisiert.`
         );
       }
       const next = computeNextTierLineState(current, result, exerciseCategory);
@@ -66,16 +87,14 @@ export class TierLineProgressionService {
     });
   }
 
-  /** Setzt den Fortschritt einer Übung manuell zurück (z.B. nach Verletzungspause). */
-  async resetState(
-    exerciseId: string,
-    startWeight: number
-  ): Promise<TierLineProgressionState> {
+  /** Setzt den Fortschritt einer Übung in einem Tier manuell zurück (z.B. nach Verletzungspause). */
+  async resetState(exerciseId: string, tier: GzclTier, startWeight: number): Promise<TierLineProgressionState> {
     return this.lock.acquire(async () => {
-      const current = await this.db.get<TierLineProgressionState>(STORES.tierLineProgression, exerciseId);
+      const id = this.stateId(exerciseId, tier);
+      const current = await this.db.get<TierLineProgressionState>(STORES.tierLineProgression, id);
       if (!current) {
         throw new Error(
-          `TierLineProgressionService: Kein State für Exercise ${exerciseId} zum Zurücksetzen vorhanden.`
+          `TierLineProgressionService: Kein State für Exercise ${exerciseId} (${tier}) zum Zurücksetzen vorhanden.`
         );
       }
       const reset: TierLineProgressionState = {
@@ -91,9 +110,9 @@ export class TierLineProgressionService {
   }
 
   /** Entfernt den State komplett, z.B. wenn die Exercise gelöscht wird (ReferenceIntegrityService-Hook). */
-  async deleteState(exerciseId: string): Promise<void> {
+  async deleteState(exerciseId: string, tier: GzclTier): Promise<void> {
     await this.lock.acquire(async () => {
-      await this.db.delete(STORES.tierLineProgression, exerciseId);
+      await this.db.delete(STORES.tierLineProgression, this.stateId(exerciseId, tier));
     });
   }
 }

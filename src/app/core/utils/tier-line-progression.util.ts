@@ -1,20 +1,19 @@
 import { TIER_LINE_SCHEME } from '../data/tier-line-scheme';
-import { TierLineStage, TierLineProgressionState } from '../models/tier-line-progression.model';
+import { TierLineStage, TierLineProgressionState, ExerciseWeightCategory } from '../models/tier-line-progression.model';
 
 export interface SessionResult {
   achievedReps: number[]; // Reps je Satz der letzten Session
+  lastSetWeight: number; // tatsächlich gehobenes Gewicht im letzten Arbeitssatz
 }
 
-export type ExerciseWeightCategory = 'LOWER_BODY' | 'UPPER_BODY';
-
-const WEIGHT_INCREMENT_BY_EXERCISE_TYPE: Record<ExerciseWeightCategory, number> = {
+export const WEIGHT_INCREMENT_BY_EXERCISE_TYPE: Record<ExerciseWeightCategory, number> = {
   LOWER_BODY: 2.5, // kg, z.B. Kniebeuge, Kreuzheben
   UPPER_BODY: 1.25 // kg, z.B. Bankdrücken, Schulterdrücken
 };
 
-const DELOAD_FACTOR = 0.9; // 10% Reduktion bei Reset nach Stage 3
+export const DELOAD_FACTOR = 0.9; // 10% Reduktion bei Reset nach Stage 3
 
-const FAIL_THRESHOLD = 2; // 2x Fail in Folge -> Stage-Wechsel
+export const FAIL_THRESHOLD = 2; // 2x Fail in Folge -> Stage-Wechsel
 
 export function computeNextTierLineState(
   state: TierLineProgressionState,
@@ -31,7 +30,11 @@ export function computeNextTierLineState(
   if (success) {
     return {
       ...state,
-      currentWeight: state.currentWeight + WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory],
+      // Auf dem tatsächlich gehobenen Gewicht aufbauen, nicht auf dem zuvor
+      // gespeicherten state.currentWeight — die beiden können auseinanderlaufen,
+      // wenn das Gewicht im letzten Satz manuell abweichend vom Vorschlag
+      // eingetragen wurde.
+      currentWeight: result.lastSetWeight + WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory],
       consecutiveFails: 0,
       lastUpdated: new Date()
     };

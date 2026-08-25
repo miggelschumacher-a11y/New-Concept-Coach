@@ -41,25 +41,27 @@
               "{{ plan.name }}"
             }
           </span>
-          <button
-            mat-raised-button
-            color="primary"
-            type="button"
-            (click)="confirmCreateFromPlan()"
-            [matTooltip]="'sessions.confirmYesCreate' | translate"
-            [attr.aria-label]="'sessions.confirmYesCreate' | translate"
-          >
-            <mat-icon>check</mat-icon>
-          </button>
-          <button
-            mat-stroked-button
-            type="button"
-            (click)="cancelCreateFromPlan()"
-            [matTooltip]="'sessions.confirmCancel' | translate"
-            [attr.aria-label]="'sessions.confirmCancel' | translate"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
+          <div class="confirm-dialog-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              (click)="confirmCreateFromPlan()"
+              [matTooltip]="'sessions.confirmYesCreate' | translate"
+              [attr.aria-label]="'sessions.confirmYesCreate' | translate"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="cancelCreateFromPlan()"
+              [matTooltip]="'sessions.confirmCancel' | translate"
+              [attr.aria-label]="'sessions.confirmCancel' | translate"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
         </div>
       }
     </form>
@@ -69,25 +71,27 @@
 @if (pendingReplenishSession) {
   <div class="confirm-dialog replenish-dialog">
     <span class="finish-confirm-label">{{ 'sessions.confirmReplenishQuestion' | translate }}</span>
-    <button
-      mat-raised-button
-      color="primary"
-      type="button"
-      (click)="confirmReplenish()"
-      [matTooltip]="'sessions.confirmYesCreate' | translate"
-      [attr.aria-label]="'sessions.confirmYesCreate' | translate"
-    >
-      <mat-icon>check</mat-icon>
-    </button>
-    <button
-      mat-stroked-button
-      type="button"
-      (click)="cancelReplenish()"
-      [matTooltip]="'sessions.confirmNo' | translate"
-      [attr.aria-label]="'sessions.confirmNo' | translate"
-    >
-      <mat-icon>close</mat-icon>
-    </button>
+    <div class="confirm-dialog-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="confirmReplenish()"
+        [matTooltip]="'sessions.confirmYesCreate' | translate"
+        [attr.aria-label]="'sessions.confirmYesCreate' | translate"
+      >
+        <mat-icon>check</mat-icon>
+      </button>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="cancelReplenish()"
+        [matTooltip]="'sessions.confirmNo' | translate"
+        [attr.aria-label]="'sessions.confirmNo' | translate"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   </div>
 }
 
@@ -112,23 +116,25 @@
           @if (pendingDeleteSessionId === session.id) {
             <div class="confirm-dialog" (click)="$event.stopPropagation()">
               <span class="finish-confirm-label">{{ 'sessions.confirmDeleteSessionQuestion' | translate }}</span>
-              <button
-                mat-icon-button
-                color="warn"
-                (click)="confirmDeleteSession(session); $event.stopPropagation()"
-                [matTooltip]="'sessions.confirmYesDelete' | translate"
-                [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-              >
-                <mat-icon>check</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                (click)="cancelDeleteSession(); $event.stopPropagation()"
-                [matTooltip]="'sessions.confirmCancel' | translate"
-                [attr.aria-label]="'sessions.confirmCancel' | translate"
-              >
-                <mat-icon>close</mat-icon>
-              </button>
+              <div class="confirm-dialog-actions">
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="confirmDeleteSession(session); $event.stopPropagation()"
+                  [matTooltip]="'sessions.confirmYesDelete' | translate"
+                  [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                >
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="cancelDeleteSession(); $event.stopPropagation()"
+                  [matTooltip]="'sessions.confirmCancel' | translate"
+                  [attr.aria-label]="'sessions.confirmCancel' | translate"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </div>
           } @else {
             <button
@@ -173,25 +179,27 @@
           @if (pendingFinishSessionId === session.id) {
             <div class="confirm-dialog">
               <span class="finish-confirm-label">{{ 'sessions.confirmFinishQuestion' | translate }}</span>
-              <button
-                mat-raised-button
-                color="warn"
-                type="button"
-                (click)="confirmFinishSession(session)"
-                [matTooltip]="'sessions.confirmYes' | translate"
-                [attr.aria-label]="'sessions.confirmYes' | translate"
-              >
-                <mat-icon>check</mat-icon>
-              </button>
-              <button
-                mat-stroked-button
-                type="button"
-                (click)="cancelFinishSession()"
-                [matTooltip]="'sessions.confirmCancel' | translate"
-                [attr.aria-label]="'sessions.confirmCancel' | translate"
-              >
-                <mat-icon>close</mat-icon>
-              </button>
+              <div class="confirm-dialog-actions">
+                <button
+                  mat-raised-button
+                  color="warn"
+                  type="button"
+                  (click)="confirmFinishSession(session)"
+                  [matTooltip]="'sessions.confirmYes' | translate"
+                  [attr.aria-label]="'sessions.confirmYes' | translate"
+                >
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="cancelFinishSession()"
+                  [matTooltip]="'sessions.confirmCancel' | translate"
+                  [attr.aria-label]="'sessions.confirmCancel' | translate"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </div>
           } @else {
             <button
@@ -282,23 +290,25 @@
                   @if (isPendingDeleteExercise(session, sessionExercise.exerciseId)) {
                     <div class="confirm-dialog">
                       <span class="finish-confirm-label">{{ 'sessions.confirmRemoveExerciseQuestion' | translate }}</span>
-                      <button
-                        mat-icon-button
-                        color="warn"
-                        (click)="confirmRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
-                        [matTooltip]="'sessions.confirmYesDelete' | translate"
-                        [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-                      >
-                        <mat-icon>check</mat-icon>
-                      </button>
-                      <button
-                        mat-icon-button
-                        (click)="cancelRemoveExercise(); $event.stopPropagation()"
-                        [matTooltip]="'sessions.confirmCancel' | translate"
-                        [attr.aria-label]="'sessions.confirmCancel' | translate"
-                      >
-                        <mat-icon>close</mat-icon>
-                      </button>
+                      <div class="confirm-dialog-actions">
+                        <button
+                          mat-icon-button
+                          color="warn"
+                          (click)="confirmRemoveExercise(session, sessionExercise.exerciseId); $event.stopPropagation()"
+                          [matTooltip]="'sessions.confirmYesDelete' | translate"
+                          [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                        >
+                          <mat-icon>check</mat-icon>
+                        </button>
+                        <button
+                          mat-icon-button
+                          (click)="cancelRemoveExercise(); $event.stopPropagation()"
+                          [matTooltip]="'sessions.confirmCancel' | translate"
+                          [attr.aria-label]="'sessions.confirmCancel' | translate"
+                        >
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
                     </div>
                   } @else {
                     <button
@@ -329,6 +339,19 @@
                 >
                   <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
                 </mat-checkbox>
+
+                @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
+                  <div class="tier-line-info">
+                    <p>
+                      <strong>{{ 'sessions.tierLineSuccessLabel' | translate }}</strong>
+                      +{{ tierLineWeightIncrement(sessionExercise.exerciseId) }} {{ weightUnitLabel }}
+                    </p>
+                    <p>
+                      <strong>{{ 'sessions.tierLineFailLabel' | translate }}</strong>
+                      {{ 'sessions.tierLineFailExplanation' | translate }}
+                    </p>
+                  </div>
+                }
 
                 <div class="min-scheme-form">
                   <mat-form-field appearance="outline">
@@ -410,23 +433,25 @@
                           @if (pendingDeleteSetId === set.id) {
                             <div class="confirm-dialog">
                               <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
-                              <button
-                                mat-icon-button
-                                color="warn"
-                                (click)="confirmRemoveSet(session, sessionExercise, set.id)"
-                                [matTooltip]="'sessions.confirmYesDelete' | translate"
-                                [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-                              >
-                                <mat-icon>check</mat-icon>
-                              </button>
-                              <button
-                                mat-icon-button
-                                (click)="cancelRemoveSet()"
-                                [matTooltip]="'sessions.confirmCancel' | translate"
-                                [attr.aria-label]="'sessions.confirmCancel' | translate"
-                              >
-                                <mat-icon>close</mat-icon>
-                              </button>
+                              <div class="confirm-dialog-actions">
+                                <button
+                                  mat-icon-button
+                                  color="warn"
+                                  (click)="confirmRemoveSet(session, sessionExercise, set.id)"
+                                  [matTooltip]="'sessions.confirmYesDelete' | translate"
+                                  [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                                >
+                                  <mat-icon>check</mat-icon>
+                                </button>
+                                <button
+                                  mat-icon-button
+                                  (click)="cancelRemoveSet()"
+                                  [matTooltip]="'sessions.confirmCancel' | translate"
+                                  [attr.aria-label]="'sessions.confirmCancel' | translate"
+                                >
+                                  <mat-icon>close</mat-icon>
+                                </button>
+                              </div>
                             </div>
                           } @else {
                             <button

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Exercise } from '../models/exercise.model';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 4;
+const DB_VERSION = 7;
 
 export const STORES = {
   exercises: 'exercises',
@@ -13,7 +13,7 @@ export const STORES = {
 } as const;
 
 const STORE_KEY_PATHS: Partial<Record<string, string>> = {
-  [STORES.tierLineProgression]: 'exerciseId'
+  [STORES.tierLineProgression]: 'id'
 };
 
 const DEFAULT_EXERCISE_NAMES = [
@@ -64,6 +64,25 @@ export class IndexedDbService {
       request.onupgradeneeded = (event) => {
         const db = request.result;
         const isNewDatabase = event.oldVersion === 0;
+
+        // Recreate any store whose actual keyPath no longer matches
+        // STORE_KEY_PATHS (e.g. tierLineProgression moved from exerciseId to
+        // a composite `${exerciseId}:${tier}` id, since the same exercise can
+        // rotate through different tier slots with independent progression).
+        // Checking the real keyPath instead of the version number is what
+        // actually matters here — relying on a version-range guard silently
+        // failed to fire for databases that had already reached the target
+        // version with the stale keyPath. No store affected by this had real
+        // user data yet, so dropping and recreating loses nothing.
+        for (const storeName of Object.values(STORES)) {
+          const desiredKeyPath = STORE_KEY_PATHS[storeName] ?? 'id';
+          if (
+            db.objectStoreNames.contains(storeName) &&
+            request.transaction!.objectStore(storeName).keyPath !== desiredKeyPath
+          ) {
+            db.deleteObjectStore(storeName);
+          }
+        }
 
         for (const storeName of Object.values(STORES)) {
           if (!db.objectStoreNames.contains(storeName)) {
