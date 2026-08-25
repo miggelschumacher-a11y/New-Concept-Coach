@@ -63,7 +63,7 @@
           @for (zone of trainingZones; track zone.nameKey) {
             <tr>
               <td>{{ zone.nameKey | translate }}</td>
-              <td>{{ zone.percentRange }}</td>
+              <td>{{ zoneHeartRateDisplay(zone) }}</td>
               <td>{{ zone.purposeKey | translate }}</td>
             </tr>
           }

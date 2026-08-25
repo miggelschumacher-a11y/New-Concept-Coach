@@ -16,8 +16,8 @@ import {
 } from '../core/services/settings.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
 import { LANGUAGES } from '../core/services/translation.service';
-import { findHeartRateMax } from '../core/data/heart-rate-zones';
-import { TRAINING_ZONES } from '../core/data/training-zones';
+import { findHeartRateMax, parseHeartRateRange } from '../core/data/heart-rate-zones';
+import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 @Component({
@@ -88,6 +88,16 @@ export class ConfigComponent implements OnInit {
 
   get heartRateMax(): string | null {
     return this.age === null ? null : findHeartRateMax(this.age);
+  }
+
+  zoneHeartRateDisplay(zone: TrainingZone): string {
+    const range = this.heartRateMax === null ? null : parseHeartRateRange(this.heartRateMax);
+    if (!range) {
+      return `${zone.percentMin}–${zone.percentMax} %`;
+    }
+    const min = Math.round((range.min * zone.percentMin) / 100);
+    const max = Math.round((range.max * zone.percentMax) / 100);
+    return min === max ? `${min}` : `${min}–${max}`;
   }
 
   async onDateOfBirthChange(): Promise<void> {

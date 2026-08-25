@@ -24,3 +24,18 @@ export function findHeartRateMax(age: number): string | null {
   const zone = HEART_RATE_ZONES.find((z) => age >= z.minAge && (z.maxAge === null || age <= z.maxAge));
   return zone?.hfMax ?? null;
 }
+
+export interface HeartRateRange {
+  min: number;
+  max: number;
+}
+
+// Parses an hfMax display string ('176–180' or the open-ended '≤145') into
+// numeric bounds so it can be used to compute actual bpm values per zone.
+export function parseHeartRateRange(hfMax: string): HeartRateRange | null {
+  const numbers = hfMax.match(/\d+/g)?.map(Number);
+  if (!numbers || numbers.length === 0) {
+    return null;
+  }
+  return numbers.length === 1 ? { min: numbers[0], max: numbers[0] } : { min: numbers[0], max: numbers[1] };
+}

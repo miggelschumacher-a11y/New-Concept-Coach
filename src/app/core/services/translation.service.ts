@@ -114,7 +114,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Training Zones (Endurance Sports)',
     'trainingZones.zoneColumn': 'Zone',
-    'trainingZones.percentColumn': '% Max. HR',
+    'trainingZones.percentColumn': 'Heart Rate (bpm)',
     'trainingZones.purposeColumn': 'Purpose',
     'trainingZones.zone1': 'Zone 1 – Recovery',
     'trainingZones.zone1Purpose': 'Active recovery',
@@ -233,7 +233,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Trainingszonen (Ausdauersport)',
     'trainingZones.zoneColumn': 'Zone',
-    'trainingZones.percentColumn': '% HFmax',
+    'trainingZones.percentColumn': 'Herzfrequenz (S/min)',
     'trainingZones.purposeColumn': 'Zweck',
     'trainingZones.zone1': 'Zone 1 – Regeneration',
     'trainingZones.zone1Purpose': 'Aktive Erholung',
@@ -352,7 +352,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Zonas de entrenamiento (deportes de resistencia)',
     'trainingZones.zoneColumn': 'Zona',
-    'trainingZones.percentColumn': '% FCmáx',
+    'trainingZones.percentColumn': 'Frecuencia cardíaca (lpm)',
     'trainingZones.purposeColumn': 'Propósito',
     'trainingZones.zone1': 'Zona 1 – Recuperación',
     'trainingZones.zone1Purpose': 'Recuperación activa',
@@ -471,7 +471,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Zonas de treino (esportes de resistência)',
     'trainingZones.zoneColumn': 'Zona',
-    'trainingZones.percentColumn': '% FCmáx',
+    'trainingZones.percentColumn': 'Frequência cardíaca (bpm)',
     'trainingZones.purposeColumn': 'Finalidade',
     'trainingZones.zone1': 'Zona 1 – Recuperação',
     'trainingZones.zone1Purpose': 'Recuperação ativa',
@@ -590,7 +590,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Zone di allenamento (sport di resistenza)',
     'trainingZones.zoneColumn': 'Zona',
-    'trainingZones.percentColumn': '% FCmax',
+    'trainingZones.percentColumn': 'Frequenza cardiaca (bpm)',
     'trainingZones.purposeColumn': 'Scopo',
     'trainingZones.zone1': 'Zona 1 – Recupero',
     'trainingZones.zone1Purpose': 'Recupero attivo',
@@ -709,7 +709,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Trainingszones (duursport)',
     'trainingZones.zoneColumn': 'Zone',
-    'trainingZones.percentColumn': '% HFmax',
+    'trainingZones.percentColumn': 'Hartslag (bpm)',
     'trainingZones.purposeColumn': 'Doel',
     'trainingZones.zone1': 'Zone 1 – Herstel',
     'trainingZones.zone1Purpose': 'Actief herstel',
@@ -828,7 +828,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Strefy treningowe (sporty wytrzymałościowe)',
     'trainingZones.zoneColumn': 'Strefa',
-    'trainingZones.percentColumn': '% HRmax',
+    'trainingZones.percentColumn': 'Tętno (ud./min)',
     'trainingZones.purposeColumn': 'Cel',
     'trainingZones.zone1': 'Strefa 1 – Regeneracja',
     'trainingZones.zone1Purpose': 'Aktywna regeneracja',
@@ -947,7 +947,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Тренировочные зоны (циклические виды спорта)',
     'trainingZones.zoneColumn': 'Зона',
-    'trainingZones.percentColumn': '% от макс. ЧСС',
+    'trainingZones.percentColumn': 'ЧСС (уд/мин)',
     'trainingZones.purposeColumn': 'Цель',
     'trainingZones.zone1': 'Зона 1 – Восстановление',
     'trainingZones.zone1Purpose': 'Активное восстановление',
@@ -1066,7 +1066,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'trainingZones.title': 'Edzési zónák (állóképességi sportok)',
     'trainingZones.zoneColumn': 'Zóna',
-    'trainingZones.percentColumn': 'Max. pulzus %-a',
+    'trainingZones.percentColumn': 'Pulzus (ütés/perc)',
     'trainingZones.purposeColumn': 'Cél',
     'trainingZones.zone1': '1. zóna – Regeneráció',
     'trainingZones.zone1Purpose': 'Aktív pihenés',
