@@ -127,7 +127,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async load(): Promise<void> {
-    this.sessions = await this.sessionsService.getAll();
+    const sessions = await this.sessionsService.getAll();
+    // Defends against legacy session records from an older data model that
+    // predates the `exercises` field — without this, one such record throws
+    // on `.length` access and breaks rendering of the entire session list.
+    this.sessions = sessions.map((session) => ({ ...session, exercises: session.exercises ?? [] }));
   }
 
   private sortKey(session: TrainingSession): number {
