@@ -76,7 +76,7 @@ export class TrainingPlansComponent implements OnInit {
   }
 
   isTierLineProgressionExercise(plan: TrainingPlan, planExercise: TierLinePlanExercise): boolean {
-    return plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION && planExercise.tier !== GzclTier.T3_ACCESSORY;
+    return plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION && !!planExercise;
   }
 
   tierLineWeightIncrement(exerciseId: string): number {

@@ -165,8 +165,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (plan?.methodology !== TrainingMethodology.TIER_LINE_PROGRESSION) {
       return false;
     }
-    const planExercise = this.findPlanExercise(session, exerciseId);
-    return !!planExercise && planExercise.tier !== GzclTier.T3_ACCESSORY;
+    return !!this.findPlanExercise(session, exerciseId);
   }
 
   tierLineWeightIncrement(exerciseId: string): number {
@@ -203,9 +202,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     for (const planExercise of planSession.exercises) {
-      if (planExercise.tier === GzclTier.T3_ACCESSORY) {
-        continue;
-      }
       const sessionExercise = session.exercises.find((se) => se.exerciseId === planExercise.exerciseId);
       const workingSets = sessionExercise?.sets.filter((set) => set.type === 'working') ?? [];
       // Reps are pre-filled with the scheme's target value when the session is created, so an
@@ -375,7 +371,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const exercises: SessionExercise[] = planSession
       ? await Promise.all(
           planSession.exercises.map(async (planExercise) => {
-            if (isTierLine && planExercise.tier !== GzclTier.T3_ACCESSORY) {
+            if (isTierLine) {
               const state = await this.getOrInitProgressionState(planExercise);
               const scheme = TIER_LINE_SCHEME[state.tier][state.stage];
               return {

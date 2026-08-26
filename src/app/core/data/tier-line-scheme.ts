@@ -12,9 +12,8 @@ export const TIER_LINE_SCHEME: Record<GzclTier, Record<TierLineStage, TierLineSe
     [TierLineStage.STAGE_3]: { sets: 3, targetReps: 6, isAmrapLastSet: false }
   },
   [GzclTier.T3_ACCESSORY]: {
-    // Korrektur: T3 ist reines Volumen, kein AMRAP auf dem letzten Satz
-    [TierLineStage.STAGE_1]: { sets: 3, targetReps: 15, isAmrapLastSet: false },
-    [TierLineStage.STAGE_2]: { sets: 3, targetReps: 15, isAmrapLastSet: false },
-    [TierLineStage.STAGE_3]: { sets: 3, targetReps: 15, isAmrapLastSet: false }
+    [TierLineStage.STAGE_1]: { sets: 3, targetReps: 15, isAmrapLastSet: true },
+    [TierLineStage.STAGE_2]: { sets: 3, targetReps: 15, isAmrapLastSet: true },
+    [TierLineStage.STAGE_3]: { sets: 3, targetReps: 15, isAmrapLastSet: true }
   }
 };
