@@ -63,6 +63,10 @@ export class TrainingPlansComponent implements OnInit {
     return 'trainingPlans.tier' + tier.split('_')[0];
   }
 
+  setNumbers(count: number): number[] {
+    return Array.from({ length: count }, (_, i) => i + 1);
+  }
+
   async addPlan(): Promise<void> {
     if (!this.name.trim()) {
       return;

@@ -72,22 +72,40 @@
         </form>
 
         @if (plan.planSessions && plan.planSessions.length > 0) {
-          <div class="plan-sessions">
+          <mat-accordion multi class="plan-session-accordion">
             @for (planSession of plan.planSessions; track planSession.id) {
-              <div class="plan-session">
-                <h4>{{ planSession.name }}</h4>
-                <ul>
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>{{ planSession.name }}</mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <mat-accordion multi class="exercise-accordion">
                   @for (planExercise of planSession.exercises; track planExercise.exerciseId) {
-                    <li>
-                      <span class="exercise-name">{{ exerciseName(planExercise.exerciseId) }}</span>
-                      <span class="tier-badge">{{ tierLabelKey(planExercise.tier) | translate }}</span>
-                      <span class="set-scheme">{{ planExercise.sets }}×{{ planExercise.targetReps }}</span>
-                    </li>
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          {{ exerciseName(planExercise.exerciseId) }}
+                          <span class="set-count">({{ planExercise.sets }} {{ 'sessions.setsWord' | translate }})</span>
+                        </mat-panel-title>
+                        <mat-panel-description>{{ tierLabelKey(planExercise.tier) | translate }}</mat-panel-description>
+                      </mat-expansion-panel-header>
+
+                      <div class="set-row set-row-header">
+                        <span class="set-index"></span>
+                        <span class="set-col-label">{{ 'sessions.reps' | translate }}</span>
+                      </div>
+                      @for (setNumber of setNumbers(planExercise.sets); track setNumber) {
+                        <div class="set-row">
+                          <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ setNumber }}</span>
+                          <input type="text" readonly [value]="planExercise.targetReps" />
+                        </div>
+                      }
+                    </mat-expansion-panel>
                   }
-                </ul>
-              </div>
+                </mat-accordion>
+              </mat-expansion-panel>
             }
-          </div>
+          </mat-accordion>
         }
 
         <mat-action-row>
