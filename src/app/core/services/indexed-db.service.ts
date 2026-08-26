@@ -42,7 +42,7 @@ const DEFAULT_EXERCISE_NAMES = [
 ];
 
 // The TierLine Basis plan's T1/T2 lifts need a body region to pick the right
-// weight increment (2.5 kg lower body / 1.25 kg upper body). Seeded here so
+// weight increment (2.5 kg lower body / 1 kg upper body). Seeded here so
 // it's correct out of the box instead of requiring manual setup per install.
 const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightCategory>> = {
   Squat: 'LOWER_BODY',

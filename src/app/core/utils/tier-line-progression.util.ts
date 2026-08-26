@@ -8,7 +8,7 @@ export interface SessionResult {
 
 export const WEIGHT_INCREMENT_BY_EXERCISE_TYPE: Record<ExerciseWeightCategory, number> = {
   LOWER_BODY: 2.5, // kg, z.B. Kniebeuge, Kreuzheben
-  UPPER_BODY: 1.25 // kg, z.B. Bankdrücken, Schulterdrücken
+  UPPER_BODY: 1 // kg, z.B. Bankdrücken, Schulterdrücken
 };
 
 export const DELOAD_FACTOR = 0.9; // 10% Reduktion bei Reset nach Stage 3
