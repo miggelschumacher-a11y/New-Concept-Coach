@@ -320,11 +320,43 @@
                   </div>
                   <mat-panel-title>
                     {{ exerciseName(sessionExercise.exerciseId) }}
+                    @if (exerciseTierLabelKey(session, sessionExercise.exerciseId); as tierLabelKey) {
+                      <span class="tier-badge">{{ tierLabelKey | translate }}</span>
+                    }
                     <span class="set-count"
                       >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
                       <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ 'exercises.oneRepMax' | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
                     >
                   </mat-panel-title>
+                  @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
+                    <div class="weight-info-trigger">
+                      <button
+                        mat-icon-button
+                        (click)="toggleWeightInfo(session.id, sessionExercise.exerciseId, $event)"
+                        [matTooltip]="'sessions.tierLineInfoButton' | translate"
+                        [attr.aria-label]="'sessions.tierLineInfoButton' | translate"
+                      >
+                        <mat-icon>info</mat-icon>
+                      </button>
+                      @if (isWeightInfoOpen(session.id, sessionExercise.exerciseId) && weightInfoPosition) {
+                        <div
+                          class="weight-info-popup"
+                          [style.top.px]="weightInfoPosition.top"
+                          [style.left.px]="weightInfoPosition.left"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <p>
+                            <strong>{{ 'sessions.tierLineSuccessLabel' | translate }}</strong>
+                            +{{ tierLineWeightIncrement(sessionExercise.exerciseId) }} {{ weightUnitLabel }}
+                          </p>
+                          <p>
+                            <strong>{{ 'sessions.tierLineFailLabel' | translate }}</strong>
+                            {{ 'sessions.tierLineFailExplanation' | translate }}
+                          </p>
+                        </div>
+                      }
+                    </div>
+                  }
                 </mat-expansion-panel-header>
 
                 <div class="count-sets-row">
@@ -345,48 +377,6 @@
                   >
                     <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
                   </mat-checkbox>
-                </div>
-
-                @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
-                  <div class="tier-line-info">
-                    <p>
-                      <strong>{{ 'sessions.tierLineSuccessLabel' | translate }}</strong>
-                      +{{ tierLineWeightIncrement(sessionExercise.exerciseId) }} {{ weightUnitLabel }}
-                    </p>
-                    <p>
-                      <strong>{{ 'sessions.tierLineFailLabel' | translate }}</strong>
-                      {{ 'sessions.tierLineFailExplanation' | translate }}
-                    </p>
-                  </div>
-                }
-
-                <div class="min-scheme-form">
-                  <mat-form-field appearance="outline">
-                    <mat-label><mat-icon class="label-icon">repeat</mat-icon>{{ 'sessions.minReps' | translate }}</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      min="0"
-                      name="minReps-{{ sessionExercise.exerciseId }}"
-                      [(ngModel)]="sessionExercise.minReps"
-                      [disabled]="isPaused(session)"
-                      (change)="updateMinScheme(session)"
-                    />
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline">
-                    <mat-label><mat-icon class="label-icon">fitness_center</mat-icon>{{ 'sessions.minWeight' | translate }}</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      name="minWeight-{{ sessionExercise.exerciseId }}"
-                      [(ngModel)]="sessionExercise.minWeight"
-                      [disabled]="isPaused(session)"
-                      (change)="updateMinScheme(session)"
-                    />
-                  </mat-form-field>
                 </div>
 
                 <mat-accordion multi class="set-type-accordion">

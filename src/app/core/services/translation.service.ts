@@ -28,6 +28,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Category',
     'sessions.minReps': 'Minimum Reps',
     'sessions.minWeight': 'Minimum Weight',
+    'sessions.tierLineInfoButton': 'Progression info',
     'sessions.tierLineSuccessLabel': 'Weight increase on success:',
     'sessions.tierLineFailLabel': "If the target reps aren't reached:",
     'sessions.tierLineFailExplanation':
@@ -151,6 +152,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Kategorie',
     'sessions.minReps': 'Minimum Wiederholungen',
     'sessions.minWeight': 'Minimum Gewicht',
+    'sessions.tierLineInfoButton': 'Progressions-Info',
     'sessions.tierLineSuccessLabel': 'Die Gewichtssteigerung bei Erfolg:',
     'sessions.tierLineFailLabel': 'Bei Nichterreichen der Zielwiederholungen:',
     'sessions.tierLineFailExplanation':
@@ -275,6 +277,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Categoría',
     'sessions.minReps': 'Repeticiones mínimas',
     'sessions.minWeight': 'Peso mínimo',
+    'sessions.tierLineInfoButton': 'Info de progresión',
     'sessions.tierLineSuccessLabel': 'Aumento de peso en caso de éxito:',
     'sessions.tierLineFailLabel': 'Si no se alcanzan las repeticiones objetivo:',
     'sessions.tierLineFailExplanation':
@@ -399,6 +402,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Categoria',
     'sessions.minReps': 'Repetições mínimas',
     'sessions.minWeight': 'Peso mínimo',
+    'sessions.tierLineInfoButton': 'Informações de progressão',
     'sessions.tierLineSuccessLabel': 'Aumento de peso em caso de sucesso:',
     'sessions.tierLineFailLabel': 'Se as repetições-alvo não forem atingidas:',
     'sessions.tierLineFailExplanation':
@@ -523,6 +527,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Categoria',
     'sessions.minReps': 'Ripetizioni minime',
     'sessions.minWeight': 'Peso minimo',
+    'sessions.tierLineInfoButton': 'Info progressione',
     'sessions.tierLineSuccessLabel': 'Aumento del peso in caso di successo:',
     'sessions.tierLineFailLabel': 'Se non si raggiungono le ripetizioni target:',
     'sessions.tierLineFailExplanation':
@@ -647,6 +652,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Categorie',
     'sessions.minReps': 'Minimum herhalingen',
     'sessions.minWeight': 'Minimum gewicht',
+    'sessions.tierLineInfoButton': 'Progressie-info',
     'sessions.tierLineSuccessLabel': 'Gewichtstoename bij succes:',
     'sessions.tierLineFailLabel': 'Bij niet halen van het doelaantal herhalingen:',
     'sessions.tierLineFailExplanation':
@@ -771,6 +777,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Kategoria',
     'sessions.minReps': 'Minimalna liczba powtórzeń',
     'sessions.minWeight': 'Minimalny ciężar',
+    'sessions.tierLineInfoButton': 'Informacje o progresji',
     'sessions.tierLineSuccessLabel': 'Zwiększenie ciężaru przy sukcesie:',
     'sessions.tierLineFailLabel': 'Przy nieosiągnięciu docelowej liczby powtórzeń:',
     'sessions.tierLineFailExplanation':
@@ -895,6 +902,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Категория',
     'sessions.minReps': 'Минимум повторений',
     'sessions.minWeight': 'Минимальный вес',
+    'sessions.tierLineInfoButton': 'Информация о прогрессии',
     'sessions.tierLineSuccessLabel': 'Увеличение веса при успехе:',
     'sessions.tierLineFailLabel': 'При недостижении целевого числа повторений:',
     'sessions.tierLineFailExplanation':
@@ -1019,6 +1027,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.category': 'Kategória',
     'sessions.minReps': 'Minimum ismétlés',
     'sessions.minWeight': 'Minimum súly',
+    'sessions.tierLineInfoButton': 'Progressziós infó',
     'sessions.tierLineSuccessLabel': 'Súlynövelés siker esetén:',
     'sessions.tierLineFailLabel': 'Ha a célismétlésszám nem teljesül:',
     'sessions.tierLineFailExplanation':

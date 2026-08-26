@@ -1,14 +1,9 @@
 .entry-form,
-.exercise-form,
-.min-scheme-form {
+.exercise-form {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
   flex-wrap: wrap;
-}
-
-.session-card .min-scheme-form mat-form-field {
-  width: 160px;
 }
 
 .plan-select-field {
@@ -50,6 +45,7 @@ mat-card {
 
 mat-expansion-panel-header .mat-content {
   align-items: center;
+  overflow: visible;
 }
 
 .header-delete-action {
@@ -106,16 +102,31 @@ mat-expansion-panel-header .mat-content {
   font-style: italic;
 }
 
-.tier-line-info {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 0.75rem;
+.weight-info-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.weight-info-popup {
+  position: fixed;
+  z-index: 1000;
+  width: 320px;
+  background: linear-gradient(145deg, #3d4058, #24263a);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  transform: perspective(700px) rotateX(4deg);
+  transform-origin: top right;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.45),
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   p {
     margin: 0.25rem 0;
     color: lightgrey;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   strong {
@@ -162,6 +173,13 @@ mat-expansion-panel mat-checkbox {
 .set-count {
   margin-left: 0.5rem;
   color: lightgrey;
+  font-weight: normal;
+}
+
+.tier-badge {
+  margin-left: 0.5rem;
+  color: lightgrey;
+  font-size: 0.8rem;
   font-weight: normal;
 }
 

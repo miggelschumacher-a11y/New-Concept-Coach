@@ -115,6 +115,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     await Promise.all([this.load(), this.loadExercises(), this.loadTrainingPlans(), this.loadProgressionStates()]);
     this.timerTickerId = setInterval(() => {}, 1000);
+    document.addEventListener('click', this.handleDocumentClick, true);
   }
 
   ngOnDestroy(): void {
@@ -124,6 +125,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.pausedAttemptTimeoutId) {
       clearTimeout(this.pausedAttemptTimeoutId);
     }
+    document.removeEventListener('click', this.handleDocumentClick, true);
   }
 
   async load(): Promise<void> {
@@ -172,10 +174,66 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return !!this.findPlanExercise(session, exerciseId);
   }
 
+  exerciseTierLabelKey(session: TrainingSession, exerciseId: string): string | null {
+    if (!this.isTierLineProgressionExercise(session, exerciseId)) {
+      return null;
+    }
+    const planExercise = this.findPlanExercise(session, exerciseId);
+    return planExercise ? 'trainingPlans.tier' + planExercise.tier.split('_')[0] : null;
+  }
+
   tierLineWeightIncrement(exerciseId: string): number {
     const category = this.exercises.find((exercise) => exercise.id === exerciseId)?.weightCategory ?? 'UPPER_BODY';
     return WEIGHT_INCREMENT_BY_EXERCISE_TYPE[category];
   }
+
+  private weightInfoOpenKey: string | null = null;
+  weightInfoPosition: { top: number; left: number } | null = null;
+
+  toggleWeightInfo(sessionId: string, exerciseId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    const key = `${sessionId}:${exerciseId}`;
+    if (this.weightInfoOpenKey === key) {
+      this.closeWeightInfo();
+      return;
+    }
+    // Fixed positioning computed from the button's own rect, rather than
+    // absolute positioning within the header, because mat-expansion-panel
+    // clips overflowing content (needed for its collapse animation) and
+    // would otherwise cut the popup off when the panel is collapsed.
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const popupWidth = 320;
+    this.weightInfoPosition = {
+      top: rect.bottom + 8,
+      left: Math.max(8, rect.right - popupWidth)
+    };
+    this.weightInfoOpenKey = key;
+  }
+
+  isWeightInfoOpen(sessionId: string, exerciseId: string): boolean {
+    return this.weightInfoOpenKey === `${sessionId}:${exerciseId}`;
+  }
+
+  private closeWeightInfo(): void {
+    this.weightInfoOpenKey = null;
+    this.weightInfoPosition = null;
+  }
+
+  // Closes an open popup on any other click in the app (a different button,
+  // an input, a panel toggle, etc.). Registered on the capture phase so it
+  // runs before target handlers that call stopPropagation() elsewhere in
+  // this component (e.g. the delete-confirm buttons) — a bubble-phase
+  // listener would never see those clicks.
+  private readonly handleDocumentClick = (event: MouseEvent): void => {
+    if (!this.weightInfoOpenKey) {
+      return;
+    }
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('.weight-info-trigger')) {
+      return;
+    }
+    this.closeWeightInfo();
+  };
 
   private async getOrInitProgressionState(planExercise: TierLinePlanExercise): Promise<TierLineProgressionState> {
     const key = this.progressionKey(planExercise.exerciseId, planExercise.tier);
@@ -689,10 +747,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return lastSet.weight.toFixed(2);
     }
     return sessionExercise.minWeight !== undefined ? sessionExercise.minWeight.toFixed(2) : '0.00';
-  }
-
-  async updateMinScheme(session: TrainingSession): Promise<void> {
-    await this.persist(session);
   }
 
   private async updateEstimatedOneRepMax(exerciseId: string, set: ExerciseSet): Promise<void> {
