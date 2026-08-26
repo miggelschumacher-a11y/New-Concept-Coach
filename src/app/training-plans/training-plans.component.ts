@@ -37,6 +37,7 @@ export class TrainingPlansComponent implements OnInit {
   exercises: Exercise[] = [];
   name = '';
   description = '';
+  pendingDeletePlanId: string | null = null;
 
   constructor(
     private readonly trainingPlansService: TrainingPlansService,
@@ -76,7 +77,16 @@ export class TrainingPlansComponent implements OnInit {
     await this.load();
   }
 
-  async deletePlan(id: string): Promise<void> {
+  requestDeletePlan(id: string): void {
+    this.pendingDeletePlanId = id;
+  }
+
+  cancelDeletePlan(): void {
+    this.pendingDeletePlanId = null;
+  }
+
+  async confirmDeletePlan(id: string): Promise<void> {
+    this.pendingDeletePlanId = null;
     await this.trainingPlansService.delete(id);
     await this.load();
   }
