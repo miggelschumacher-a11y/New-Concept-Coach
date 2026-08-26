@@ -144,6 +144,17 @@ mat-expansion-panel mat-checkbox {
   margin: 0.75rem 0 0.25rem;
 }
 
+.count-sets-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.count-sets-row mat-checkbox {
+  margin: 0.75rem 0 0.25rem;
+}
+
 .set-type-accordion {
   margin-top: 0.5rem;
 }

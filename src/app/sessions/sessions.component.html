@@ -327,23 +327,25 @@
                   </mat-panel-title>
                 </mat-expansion-panel-header>
 
-                <mat-checkbox
-                  [(ngModel)]="sessionExercise.countWarmupSets"
-                  name="countWarmup-{{ sessionExercise.exerciseId }}"
-                  [disabled]="isPaused(session)"
-                  (change)="onCountingPreferenceChange(session)"
-                >
-                  <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
-                </mat-checkbox>
+                <div class="count-sets-row">
+                  <mat-checkbox
+                    [(ngModel)]="sessionExercise.countWarmupSets"
+                    name="countWarmup-{{ sessionExercise.exerciseId }}"
+                    [disabled]="isPaused(session)"
+                    (change)="onCountingPreferenceChange(session)"
+                  >
+                    <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
+                  </mat-checkbox>
 
-                <mat-checkbox
-                  [(ngModel)]="sessionExercise.countCooldownSets"
-                  name="countCooldown-{{ sessionExercise.exerciseId }}"
-                  [disabled]="isPaused(session)"
-                  (change)="onCountingPreferenceChange(session)"
-                >
-                  <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
-                </mat-checkbox>
+                  <mat-checkbox
+                    [(ngModel)]="sessionExercise.countCooldownSets"
+                    name="countCooldown-{{ sessionExercise.exerciseId }}"
+                    [disabled]="isPaused(session)"
+                    (change)="onCountingPreferenceChange(session)"
+                  >
+                    <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
+                  </mat-checkbox>
+                </div>
 
                 @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
                   <div class="tier-line-info">
