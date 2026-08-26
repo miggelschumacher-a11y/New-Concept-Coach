@@ -10,8 +10,11 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
-import { TrainingPlan } from '../core/models/training-plan.model';
+import { SettingsService } from '../core/services/settings.service';
+import { TrainingPlan, TierLinePlanExercise } from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
+import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
+import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 @Component({
@@ -41,8 +44,13 @@ export class TrainingPlansComponent implements OnInit {
 
   constructor(
     private readonly trainingPlansService: TrainingPlansService,
-    private readonly exercisesService: ExercisesService
+    private readonly exercisesService: ExercisesService,
+    private readonly settingsService: SettingsService
   ) {}
+
+  get weightUnitLabel(): string {
+    return this.settingsService.getSettings().weightUnit.toUpperCase();
+  }
 
   async ngOnInit(): Promise<void> {
     await this.load();
@@ -65,6 +73,21 @@ export class TrainingPlansComponent implements OnInit {
 
   setNumbers(count: number): number[] {
     return Array.from({ length: count }, (_, i) => i + 1);
+  }
+
+  isTierLineProgressionExercise(plan: TrainingPlan, planExercise: TierLinePlanExercise): boolean {
+    return plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION && planExercise.tier !== GzclTier.T3_ACCESSORY;
+  }
+
+  tierLineWeightIncrement(exerciseId: string): number {
+    const category = this.exercises.find((exercise) => exercise.id === exerciseId)?.weightCategory ?? 'UPPER_BODY';
+    return WEIGHT_INCREMENT_BY_EXERCISE_TYPE[category];
+  }
+
+  setValueDisplay(planExercise: TierLinePlanExercise, setNumber: number): string {
+    const isLastSet = setNumber === planExercise.sets;
+    const isAmrapTier = planExercise.tier === GzclTier.T1_MAIN || planExercise.tier === GzclTier.T3_ACCESSORY;
+    return isLastSet && isAmrapTier ? `${planExercise.targetReps}+` : `${planExercise.targetReps}`;
   }
 
   async addPlan(): Promise<void> {

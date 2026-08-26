@@ -85,3 +85,20 @@ mat-card {
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
+
+.tier-line-info {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+
+  p {
+    margin: 0.25rem 0;
+    color: lightgrey;
+    font-size: 0.9rem;
+  }
+
+  strong {
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
