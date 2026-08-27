@@ -12,7 +12,8 @@ import {
   WeightUnit,
   DateFormat,
   Language,
-  LANGUAGE_DATE_FORMATS
+  LANGUAGE_DATE_FORMATS,
+  FinishedSessionReplenishMode
 } from '../core/services/settings.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
 import { GoogleDriveService } from '../core/services/google-drive.service';
@@ -45,6 +46,7 @@ export class ConfigComponent implements OnInit {
   dateFormat: DateFormat;
   language: Language;
   dateOfBirth: string;
+  finishedSessionReplenishMode: FinishedSessionReplenishMode;
   statusMessageKey: string | null = null;
   pendingReset = false;
 
@@ -58,6 +60,7 @@ export class ConfigComponent implements OnInit {
     this.dateFormat = settings.dateFormat;
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
+    this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
   }
 
   async ngOnInit(): Promise<void> {
@@ -67,6 +70,7 @@ export class ConfigComponent implements OnInit {
     this.dateFormat = settings.dateFormat;
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
+    this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
   }
 
   get age(): number | null {
@@ -121,6 +125,10 @@ export class ConfigComponent implements OnInit {
   async onLanguageChange(): Promise<void> {
     this.dateFormat = LANGUAGE_DATE_FORMATS[this.language];
     await this.settingsService.updateSettings({ language: this.language, dateFormat: this.dateFormat });
+  }
+
+  async onFinishedSessionReplenishModeChange(): Promise<void> {
+    await this.settingsService.updateSettings({ finishedSessionReplenishMode: this.finishedSessionReplenishMode });
   }
 
   async exportData(): Promise<void> {

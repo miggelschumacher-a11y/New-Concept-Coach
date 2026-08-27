@@ -4,12 +4,14 @@ import { IndexedDbService, STORES } from './indexed-db.service';
 export type WeightUnit = 'kg' | 'lbs';
 export type DateFormat = 'dd.MM.yyyy' | 'MM/dd/yyyy';
 export type Language = 'de' | 'en' | 'es' | 'pt' | 'it' | 'nl' | 'pl' | 'ru' | 'hu';
+export type FinishedSessionReplenishMode = 'always' | 'never' | 'ask';
 
 export interface AppSettings {
   weightUnit: WeightUnit;
   dateFormat: DateFormat;
   language: Language;
   dateOfBirth?: string;
+  finishedSessionReplenishMode: FinishedSessionReplenishMode;
 }
 
 export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
@@ -30,7 +32,8 @@ const SETTINGS_RECORD_ID = 'app-settings';
 const DEFAULT_SETTINGS: AppSettings = {
   weightUnit: 'kg',
   dateFormat: 'dd.MM.yyyy',
-  language: 'en'
+  language: 'en',
+  finishedSessionReplenishMode: 'always'
 };
 
 type SettingsRecord = AppSettings & { id: string };

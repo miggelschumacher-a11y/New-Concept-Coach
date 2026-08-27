@@ -30,26 +30,42 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label><mat-icon class="label-icon">cake</mat-icon>{{ 'config.dateOfBirth' | translate }}</mat-label>
-      <input matInput type="date" [(ngModel)]="dateOfBirth" [attr.lang]="language" (change)="onDateOfBirthChange()" />
+    <div class="settings-form-break"></div>
+
+    <mat-form-field appearance="outline" class="finished-session-field">
+      <mat-label
+        ><mat-icon class="label-icon">repeat</mat-icon>{{ 'config.finishedSessionReplenish' | translate }}</mat-label
+      >
+      <mat-select [(ngModel)]="finishedSessionReplenishMode" (selectionChange)="onFinishedSessionReplenishModeChange()">
+        <mat-option value="always">{{ 'config.finishedSessionReplenishAlways' | translate }}</mat-option>
+        <mat-option value="never">{{ 'config.finishedSessionReplenishNever' | translate }}</mat-option>
+        <mat-option value="ask">{{ 'config.finishedSessionReplenishAsk' | translate }}</mat-option>
+      </mat-select>
     </mat-form-field>
-
-    @if (age !== null) {
-      <span class="age-display">{{ 'config.age' | translate }}: {{ age }}</span>
-    }
-
-    @if (heartRateMax !== null) {
-      <span class="age-display">{{ 'config.heartRateMax' | translate }}: {{ heartRateMax }}</span>
-    }
   </mat-card-content>
 </mat-card>
 
 <mat-card>
-  <mat-card-header>
-    <mat-card-title><mat-icon class="label-icon">favorite</mat-icon>{{ 'trainingZones.title' | translate }}</mat-card-title>
-  </mat-card-header>
   <mat-card-content>
+    <div class="settings-form">
+      <mat-form-field appearance="outline">
+        <mat-label><mat-icon class="label-icon">cake</mat-icon>{{ 'config.dateOfBirth' | translate }}</mat-label>
+        <input matInput type="date" [(ngModel)]="dateOfBirth" [attr.lang]="language" (change)="onDateOfBirthChange()" />
+      </mat-form-field>
+
+      @if (age !== null) {
+        <span class="age-display">{{ 'config.age' | translate }}: {{ age }}</span>
+      }
+
+      @if (heartRateMax !== null) {
+        <span class="age-display">{{ 'config.heartRateMax' | translate }}: {{ heartRateMax }}</span>
+      }
+    </div>
+
+    <mat-card-title class="zones-title"
+      ><mat-icon class="label-icon">favorite</mat-icon>{{ 'trainingZones.title' | translate }}</mat-card-title
+    >
+
     <div class="zones-table-wrapper">
       <table class="zones-table">
         <thead>

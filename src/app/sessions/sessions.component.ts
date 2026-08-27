@@ -583,7 +583,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session.finished = true;
     await this.persist(session);
     await this.recordTierLineProgress(session);
-    this.pendingReplenishSession = session;
+
+    const mode = this.settingsService.getSettings().finishedSessionReplenishMode;
+    if (mode === 'always') {
+      await this.replenishSession(session);
+    } else if (mode === 'ask') {
+      this.pendingReplenishSession = session;
+    }
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {
