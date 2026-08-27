@@ -440,7 +440,7 @@
                             type="text"
                             inputmode="numeric"
                             [placeholder]="repsPlaceholder(sessionExercise, setType.value)"
-                            [value]="set.reps === '0' ? '' : set.reps"
+                            [value]="set.reps === 0 ? '' : set.reps"
                             name="reps-{{ set.id }}"
                             [class.paused-field]="isPaused(session)"
                             (focus)="notePausedInputAttempt(session, $event, set.id)"

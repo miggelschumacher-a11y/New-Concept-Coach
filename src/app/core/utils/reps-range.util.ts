@@ -24,24 +24,3 @@ export function parseRepsRange(value: string | number): RepsRange {
   }
   return { min: Math.min(...numbers), max: Math.max(...numbers) };
 }
-
-// Normalizes a from-to input into the canonical stored form: a single
-// number when both sides match, otherwise 'min-max' (sorted ascending).
-export function normalizeRepsRange(value: string): string {
-  const { min, max } = parseRepsRange(value);
-  return min === max ? String(min) : `${min}-${max}`;
-}
-
-// Strips characters typed into a reps field down to digits and a single
-// dash while the user is still typing (final clamping happens on blur via
-// normalizeRepsRange), mirroring the weight field's input sanitizer.
-export function sanitizeRepsTyping(value: string): string {
-  const cleaned = value.replace(/[^\d-]/g, '');
-  const dashIndex = cleaned.indexOf('-');
-  if (dashIndex === -1) {
-    return cleaned.slice(0, 5);
-  }
-  const first = cleaned.slice(0, dashIndex).slice(0, 5);
-  const second = cleaned.slice(dashIndex + 1).replace(/-/g, '').slice(0, 5);
-  return `${first}-${second}`;
-}
