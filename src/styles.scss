@@ -16,6 +16,13 @@ $trainings-app-theme: mat.m2-define-dark-theme((
 
 @include mat.all-component-themes($trainings-app-theme);
 
+// The selected option in a mat-select dropdown otherwise renders in the
+// theme's primary indigo (#3f51b5), which reads as too dark/muddy against
+// this app's dark background - lighten it to match the other (white) options.
+:root {
+  --mat-option-selected-state-label-text-color: white;
+}
+
 html, body { height: 100%; }
 body {
   margin: 0;
