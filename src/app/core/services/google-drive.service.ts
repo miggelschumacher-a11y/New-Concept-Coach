@@ -5,7 +5,6 @@ declare const google: any;
 const CLIENT_ID = '378514290266-hq6di64hljgis5vslahs49v3ukkl3r2c.apps.googleusercontent.com';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const GIS_SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
-const BACKUP_FILE_NAME = 'trainings-app-backup.json';
 
 @Injectable({ providedIn: 'root' })
 export class GoogleDriveService {
@@ -60,9 +59,10 @@ export class GoogleDriveService {
     });
   }
 
-  private async findBackupFileId(token: string): Promise<string | null> {
+  private async findBackupFileId(token: string, fileName: string): Promise<string | null> {
+    const escapedName = fileName.replace(/'/g, "\\'");
     const params = new URLSearchParams({
-      q: `name='${BACKUP_FILE_NAME}' and trashed=false`,
+      q: `name='${escapedName}' and trashed=false`,
       spaces: 'drive',
       fields: 'files(id,name)'
     });
@@ -76,11 +76,12 @@ export class GoogleDriveService {
     return result.files?.[0]?.id ?? null;
   }
 
-  async uploadBackup(token: string, json: string): Promise<void> {
+  async uploadBackup(token: string, json: string, fileName: string): Promise<void> {
+    const normalizedName = fileName.toLowerCase().endsWith('.json') ? fileName : `${fileName}.json`;
     try {
-      const fileId = await this.findBackupFileId(token);
+      const fileId = await this.findBackupFileId(token, normalizedName);
       const boundary = 'trainings_app_backup_boundary';
-      const metadata = { name: BACKUP_FILE_NAME, mimeType: 'application/json' };
+      const metadata = { name: normalizedName, mimeType: 'application/json' };
       const body =
         `--${boundary}\r\n` +
         'Content-Type: application/json; charset=UTF-8\r\n\r\n' +

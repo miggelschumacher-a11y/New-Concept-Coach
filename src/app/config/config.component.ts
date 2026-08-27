@@ -49,6 +49,8 @@ export class ConfigComponent implements OnInit {
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
   statusMessageKey: string | null = null;
   pendingReset = false;
+  pendingDriveExportJson: string | null = null;
+  driveFileName = '';
 
   constructor(
     private readonly settingsService: SettingsService,
@@ -132,26 +134,40 @@ export class ConfigComponent implements OnInit {
   }
 
   async exportData(): Promise<void> {
-    // Requested first, still directly inside the click handler, so the
-    // Google sign-in popup stays tied to the user gesture instead of
-    // getting blocked once the IndexedDB read below has to await.
-    this.statusMessageKey = 'config.driveConnecting';
-    const accessTokenPromise = this.googleDriveService.requestAccessToken();
-
     const data = await this.indexedDbService.exportAll();
     const json = JSON.stringify(data, null, 2);
+    const fileName = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
 
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = fileName;
     link.click();
     URL.revokeObjectURL(url);
 
+    this.driveFileName = fileName;
+    this.pendingDriveExportJson = json;
+  }
+
+  cancelDriveExport(): void {
+    this.pendingDriveExportJson = null;
+  }
+
+  async confirmDriveExport(): Promise<void> {
+    // Requested directly inside this click handler, still tied to the user
+    // gesture, so the Google sign-in popup doesn't get blocked.
+    const json = this.pendingDriveExportJson;
+    const fileName = this.driveFileName.trim();
+    this.pendingDriveExportJson = null;
+    if (!json || !fileName) {
+      return;
+    }
+
+    this.statusMessageKey = 'config.driveConnecting';
     try {
-      const accessToken = await accessTokenPromise;
-      await this.googleDriveService.uploadBackup(accessToken, json);
+      const accessToken = await this.googleDriveService.requestAccessToken();
+      await this.googleDriveService.uploadBackup(accessToken, json, fileName);
       this.statusMessageKey = 'config.driveExportSuccess';
     } catch {
       this.statusMessageKey = 'config.driveExportError';

@@ -118,6 +118,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': 'Really delete all local data irrevocably?',
     'config.resetSuccess': 'All data deleted.',
     'config.driveConnecting': 'Connecting to Google Drive…',
+    'config.driveFileNameLabel': 'File name',
+    'config.driveUploadConfirm': 'Upload',
     'config.driveExportSuccess': 'Data exported and saved to Google Drive.',
     'config.driveExportError': 'Google Drive export failed.',
 
@@ -247,6 +249,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': 'Wirklich alle lokalen Daten unwiderruflich löschen?',
     'config.resetSuccess': 'Alle Daten wurden gelöscht.',
     'config.driveConnecting': 'Verbindung mit Google Drive wird hergestellt…',
+    'config.driveFileNameLabel': 'Dateiname',
+    'config.driveUploadConfirm': 'Hochladen',
     'config.driveExportSuccess': 'Daten wurden exportiert und in Google Drive gespeichert.',
     'config.driveExportError': 'Export nach Google Drive fehlgeschlagen.',
 
@@ -376,6 +380,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': '¿Eliminar realmente todos los datos locales de forma irrevocable?',
     'config.resetSuccess': 'Todos los datos eliminados.',
     'config.driveConnecting': 'Conectando con Google Drive…',
+    'config.driveFileNameLabel': 'Nombre del archivo',
+    'config.driveUploadConfirm': 'Subir',
     'config.driveExportSuccess': 'Datos exportados y guardados en Google Drive.',
     'config.driveExportError': 'Error al exportar a Google Drive.',
 
@@ -505,6 +511,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': 'Excluir realmente todos os dados locais de forma irreversível?',
     'config.resetSuccess': 'Todos os dados foram excluídos.',
     'config.driveConnecting': 'Conectando ao Google Drive…',
+    'config.driveFileNameLabel': 'Nome do arquivo',
+    'config.driveUploadConfirm': 'Enviar',
     'config.driveExportSuccess': 'Dados exportados e salvos no Google Drive.',
     'config.driveExportError': 'Falha ao exportar para o Google Drive.',
 
@@ -634,6 +642,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': 'Eliminare davvero tutti i dati locali in modo irreversibile?',
     'config.resetSuccess': 'Tutti i dati sono stati eliminati.',
     'config.driveConnecting': 'Connessione a Google Drive…',
+    'config.driveFileNameLabel': 'Nome del file',
+    'config.driveUploadConfirm': 'Carica',
     'config.driveExportSuccess': 'Dati esportati e salvati su Google Drive.',
     'config.driveExportError': 'Esportazione su Google Drive non riuscita.',
 
@@ -763,6 +773,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': 'Alle lokale gegevens echt onherroepelijk verwijderen?',
     'config.resetSuccess': 'Alle gegevens zijn verwijderd.',
     'config.driveConnecting': 'Verbinden met Google Drive…',
+    'config.driveFileNameLabel': 'Bestandsnaam',
+    'config.driveUploadConfirm': 'Uploaden',
     'config.driveExportSuccess': 'Gegevens geëxporteerd en opgeslagen in Google Drive.',
     'config.driveExportError': 'Exporteren naar Google Drive mislukt.',
 
@@ -892,6 +904,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': 'Czy na pewno nieodwracalnie usunąć wszystkie dane lokalne?',
     'config.resetSuccess': 'Wszystkie dane zostały usunięte.',
     'config.driveConnecting': 'Łączenie z Google Drive…',
+    'config.driveFileNameLabel': 'Nazwa pliku',
+    'config.driveUploadConfirm': 'Prześlij',
     'config.driveExportSuccess': 'Dane wyeksportowane i zapisane na Google Drive.',
     'config.driveExportError': 'Eksport do Google Drive nie powiódł się.',
 
@@ -1021,6 +1035,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': 'Действительно безвозвратно удалить все локальные данные?',
     'config.resetSuccess': 'Все данные удалены.',
     'config.driveConnecting': 'Подключение к Google Диску…',
+    'config.driveFileNameLabel': 'Имя файла',
+    'config.driveUploadConfirm': 'Загрузить',
     'config.driveExportSuccess': 'Данные экспортированы и сохранены на Google Диске.',
     'config.driveExportError': 'Не удалось экспортировать в Google Диск.',
 
@@ -1150,6 +1166,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.resetConfirm': 'Valóban véglegesen törlöd az összes helyi adatot?',
     'config.resetSuccess': 'Az összes adat törölve.',
     'config.driveConnecting': 'Kapcsolódás a Google Drive-hoz…',
+    'config.driveFileNameLabel': 'Fájlnév',
+    'config.driveUploadConfirm': 'Feltöltés',
     'config.driveExportSuccess': 'Az adatok exportálva és elmentve a Google Drive-ra.',
     'config.driveExportError': 'A Google Drive-ra történő exportálás sikertelen.',
 

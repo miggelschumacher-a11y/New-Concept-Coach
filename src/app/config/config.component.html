@@ -99,15 +99,45 @@
     <p>{{ 'config.dataDescription' | translate }}</p>
 
     <div class="data-actions">
-      <button
-        mat-stroked-button
-        type="button"
-        (click)="exportData()"
-        [matTooltip]="'config.export' | translate"
-        [attr.aria-label]="'config.export' | translate"
-      >
-        <mat-icon>file_download</mat-icon>
-      </button>
+      @if (pendingDriveExportJson !== null) {
+        <div class="confirm-dialog">
+          <mat-form-field appearance="outline" class="drive-filename-field">
+            <mat-label>{{ 'config.driveFileNameLabel' | translate }}</mat-label>
+            <input matInput [(ngModel)]="driveFileName" />
+          </mat-form-field>
+          <div class="confirm-dialog-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              (click)="confirmDriveExport()"
+              [matTooltip]="'config.driveUploadConfirm' | translate"
+              [attr.aria-label]="'config.driveUploadConfirm' | translate"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="cancelDriveExport()"
+              [matTooltip]="'sessions.confirmCancel' | translate"
+              [attr.aria-label]="'sessions.confirmCancel' | translate"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      } @else {
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="exportData()"
+          [matTooltip]="'config.export' | translate"
+          [attr.aria-label]="'config.export' | translate"
+        >
+          <mat-icon>file_download</mat-icon>
+        </button>
+      }
 
       <button
         mat-stroked-button
