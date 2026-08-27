@@ -28,5 +28,9 @@ export interface TrainingSession {
   timerElapsedMs: number;
   timerRunning: boolean;
   timerStartedAt?: string;
+  // Set once, the first time the session's timer is started - unlike
+  // timerStartedAt, this never resets on pause/resume. This is the date the
+  // session's body weight lookup corresponds to.
+  startedAt?: string;
   finished: boolean;
 }

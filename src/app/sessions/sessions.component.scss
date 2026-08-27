@@ -183,6 +183,17 @@ mat-expansion-panel mat-checkbox {
   font-weight: normal;
 }
 
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.session-body-weight {
+  color: lightgrey;
+}
+
 .set-row {
   display: flex;
   align-items: center;

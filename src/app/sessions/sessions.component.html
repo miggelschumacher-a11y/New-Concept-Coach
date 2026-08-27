@@ -144,28 +144,39 @@
           </div>
           <mat-panel-title class="session-name-title">{{ session.name }}</mat-panel-title>
           <mat-panel-description>
-            {{ session.date | date: dateFormat }}
+            @if (session.startedAt; as startedAt) {
+              {{ startedAt | date: dateFormat }}
+            }
             @if (session.exercises.length > 0) {
-              · {{ 'sessions.weightLifted' | translate }}: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}
+              @if (session.startedAt) {
+                ·
+              }
+              {{ 'sessions.weightLifted' | translate }}: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}
             }
           </mat-panel-description>
         </mat-expansion-panel-header>
 
-        <mat-form-field appearance="outline" class="name-field">
-          <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
-          <input
-            matInput
-            type="text"
-            name="name-{{ session.id }}"
-            [(ngModel)]="session.name"
-            #nameModel="ngModel"
-            required
-            (blur)="updateSessionName(session)"
-          />
-          @if (nameModel.invalid && nameModel.touched) {
-            <mat-error>{{ 'sessions.nameRequired' | translate }}</mat-error>
+        <div class="name-row">
+          <mat-form-field appearance="outline" class="name-field">
+            <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
+            <input
+              matInput
+              type="text"
+              name="name-{{ session.id }}"
+              [(ngModel)]="session.name"
+              #nameModel="ngModel"
+              required
+              (blur)="updateSessionName(session)"
+            />
+            @if (nameModel.invalid && nameModel.touched) {
+              <mat-error>{{ 'sessions.nameRequired' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          @if (sessionBodyWeight(session); as bodyWeight) {
+            <span class="session-body-weight">{{ 'sessions.bodyWeight' | translate }}: {{ bodyWeight }} {{ weightUnitLabel }}</span>
           }
-        </mat-form-field>
+        </div>
 
         <div class="session-timer">
           <span class="timer-display">{{ sessionDuration(session) }}</span>

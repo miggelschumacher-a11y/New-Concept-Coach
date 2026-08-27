@@ -16,14 +16,17 @@ import { SettingsService } from '../core/services/settings.service';
 import { TranslationService } from '../core/services/translation.service';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { TierLineProgressionService } from '../core/services/tier-line-progression.service';
+import { BodyWeightService } from '../core/services/body-weight.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
 import { TrainingPlan, TierLinePlanSession, TierLinePlanExercise } from '../core/models/training-plan.model';
 import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core/models/tier-line-progression.model';
+import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
 import { parseRepsRange } from '../core/utils/reps-range.util';
+import { findBodyWeightForDate } from '../core/utils/body-weight-lookup.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 function toDateTimeLocalValue(date: Date): string {
@@ -79,6 +82,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private pausedAttemptTimeoutId?: ReturnType<typeof setTimeout>;
   private readonly progressionStates = new Map<string, TierLineProgressionState>();
 
+  bodyWeightEntries: BodyWeightEntry[] = [];
+
   constructor(
     private readonly sessionsService: SessionsService,
     private readonly exercisesService: ExercisesService,
@@ -86,6 +91,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly translationService: TranslationService,
     private readonly trainingPlansService: TrainingPlansService,
     private readonly tierLineProgressionService: TierLineProgressionService,
+    private readonly bodyWeightService: BodyWeightService,
     private readonly datePipe: DatePipe
   ) {}
 
@@ -114,7 +120,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([this.load(), this.loadExercises(), this.loadTrainingPlans(), this.loadProgressionStates()]);
+    await Promise.all([
+      this.load(),
+      this.loadExercises(),
+      this.loadTrainingPlans(),
+      this.loadProgressionStates(),
+      this.loadBodyWeightEntries()
+    ]);
     this.timerTickerId = setInterval(() => {}, 1000);
     document.addEventListener('click', this.handleDocumentClick, true);
   }
@@ -135,6 +147,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // predates the `exercises` field — without this, one such record throws
     // on `.length` access and breaks rendering of the entire session list.
     this.sessions = sessions.map((session) => ({ ...session, exercises: session.exercises ?? [] }));
+  }
+
+  async loadBodyWeightEntries(): Promise<void> {
+    this.bodyWeightEntries = await this.bodyWeightService.getAll();
   }
 
   private sortKey(session: TrainingSession): number {
@@ -349,6 +365,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       exercises: [],
       timerElapsedMs: 0,
       timerRunning: false,
+      startedAt: undefined,
       finished: false
     };
     this.unsavedSessionIds.add(session.id);
@@ -383,6 +400,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       timerElapsedMs: 0,
       timerRunning: false,
       timerStartedAt: undefined,
+      startedAt: undefined,
       finished: false
     };
   }
@@ -482,6 +500,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       timerElapsedMs: 0,
       timerRunning: false,
       timerStartedAt: undefined,
+      startedAt: undefined,
       finished: false
     };
   }
@@ -554,6 +573,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       session.timerElapsedMs ??= 0;
       session.timerRunning = true;
       session.timerStartedAt = new Date().toISOString();
+      session.startedAt ??= session.timerStartedAt;
     }
     await this.persist(session);
   }
@@ -664,6 +684,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
       0
     );
     return total.toFixed(2);
+  }
+
+  private bodyWeightReferenceDate(session: TrainingSession): string {
+    return session.startedAt ?? session.date;
+  }
+
+  sessionBodyWeight(session: TrainingSession): string {
+    const entry = findBodyWeightForDate(new Date(this.bodyWeightReferenceDate(session)), this.bodyWeightEntries);
+    return entry === null ? (0).toFixed(2) : entry.weight.toFixed(2);
   }
 
   async onCountingPreferenceChange(session: TrainingSession): Promise<void> {

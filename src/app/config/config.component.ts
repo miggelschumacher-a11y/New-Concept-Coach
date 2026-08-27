@@ -16,9 +16,10 @@ import {
   LANGUAGE_DATE_FORMATS,
   FinishedSessionReplenishMode
 } from '../core/services/settings.service';
-import { IndexedDbService, STORES } from '../core/services/indexed-db.service';
+import { IndexedDbService } from '../core/services/indexed-db.service';
 import { DriveBackupFile, GoogleDriveService } from '../core/services/google-drive.service';
 import { LANGUAGES } from '../core/services/translation.service';
+import { BodyWeightService } from '../core/services/body-weight.service';
 import { findHeartRateMax, parseHeartRateRange } from '../core/data/heart-rate-zones';
 import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
@@ -65,7 +66,8 @@ export class ConfigComponent implements OnInit {
   constructor(
     private readonly settingsService: SettingsService,
     private readonly indexedDbService: IndexedDbService,
-    private readonly googleDriveService: GoogleDriveService
+    private readonly googleDriveService: GoogleDriveService,
+    private readonly bodyWeightService: BodyWeightService
   ) {
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
@@ -83,7 +85,7 @@ export class ConfigComponent implements OnInit {
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
-    this.bodyWeightEntries = await this.indexedDbService.getAll<BodyWeightEntry>(STORES.bodyWeightEntries);
+    this.bodyWeightEntries = await this.bodyWeightService.getAll();
   }
 
   private currentLocalDateTime(): string {
@@ -251,7 +253,7 @@ export class ConfigComponent implements OnInit {
       weight,
       timestamp: new Date(this.newBodyWeightTimestamp).toISOString()
     };
-    await this.indexedDbService.add(STORES.bodyWeightEntries, entry);
+    await this.bodyWeightService.add(entry);
     this.bodyWeightEntries = [...this.bodyWeightEntries, entry];
     this.newBodyWeightValue = '';
     this.newBodyWeightTimestamp = this.currentLocalDateTime();
@@ -267,7 +269,7 @@ export class ConfigComponent implements OnInit {
 
   async confirmDeleteBodyWeightEntry(id: string): Promise<void> {
     this.pendingDeleteBodyWeightId = null;
-    await this.indexedDbService.delete(STORES.bodyWeightEntries, id);
+    await this.bodyWeightService.delete(id);
     this.bodyWeightEntries = this.bodyWeightEntries.filter((entry) => entry.id !== id);
   }
 }
