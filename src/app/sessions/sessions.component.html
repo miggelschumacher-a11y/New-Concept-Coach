@@ -151,10 +151,7 @@
           </mat-panel-description>
         </mat-expansion-panel-header>
 
-        @if (pausedAttemptFieldKey === session.id + ':name') {
-          <p class="paused-field-error">{{ 'sessions.pausedHint' | translate }}</p>
-        }
-        <mat-form-field appearance="outline" class="name-field" [class.paused-field]="isPaused(session)">
+        <mat-form-field appearance="outline" class="name-field">
           <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
           <input
             matInput
@@ -163,7 +160,6 @@
             [(ngModel)]="session.name"
             #nameModel="ngModel"
             required
-            (focus)="notePausedInputAttempt(session, $event, session.id + ':name')"
             (blur)="updateSessionName(session)"
           />
           @if (nameModel.invalid && nameModel.touched) {
@@ -441,14 +437,14 @@
                           }
                           <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
                           <input
-                            type="number"
-                            min="0"
-                            max="10000"
+                            type="text"
+                            inputmode="numeric"
                             [placeholder]="repsPlaceholder(sessionExercise, setType.value)"
-                            [value]="set.reps === 0 ? '' : set.reps"
+                            [value]="set.reps === '0' ? '' : set.reps"
                             name="reps-{{ set.id }}"
                             [class.paused-field]="isPaused(session)"
                             (focus)="notePausedInputAttempt(session, $event, set.id)"
+                            (input)="onRepsInput($event)"
                             (change)="onRepsChange(session, sessionExercise, set, $any($event.target).value)"
                           />
                           <input

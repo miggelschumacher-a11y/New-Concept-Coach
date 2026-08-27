@@ -23,6 +23,7 @@ import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core
 import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
+import { parseRepsRange, normalizeRepsRange, sanitizeRepsTyping } from '../core/utils/reps-range.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 function toDateTimeLocalValue(date: Date): string {
@@ -273,7 +274,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
         continue;
       }
-      const achievedReps = workingSets.map((set) => set.reps);
+      // If a set's reps were entered as a range (e.g. '8-12'), the lower bound
+      // feeds the TierLine success check unchanged — same as a plain number.
+      const achievedReps = workingSets.map((set) => parseRepsRange(set.reps).min);
       const lastSetWeight = workingSets[workingSets.length - 1].weight;
       const category = this.exercises.find((exercise) => exercise.id === planExercise.exerciseId)?.weightCategory ?? 'UPPER_BODY';
       const next = await this.tierLineProgressionService.recordSessionResult(
@@ -364,7 +367,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       exerciseId: sessionExercise.exerciseId,
       sets: sessionExercise.sets.map((set) => ({
         id: crypto.randomUUID(),
-        reps: 0,
+        reps: '0',
         weight: 0,
         type: set.type
       })),
@@ -440,7 +443,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 exerciseId: planExercise.exerciseId,
                 sets: Array.from({ length: scheme.sets }, () => ({
                   id: crypto.randomUUID(),
-                  reps: scheme.targetReps,
+                  reps: String(scheme.targetReps),
                   weight: state.currentWeight,
                   type: 'working' as SetType
                 })),
@@ -641,7 +644,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   private exerciseWeightLifted(sessionExercise: SessionExercise): number {
-    return this.countedSets(sessionExercise).reduce((sum, set) => sum + set.reps * set.weight, 0);
+    return this.countedSets(sessionExercise).reduce(
+      (sum, set) => sum + parseRepsRange(set.reps).min * set.weight,
+      0
+    );
   }
 
   totalWeightLifted(sessionExercise: SessionExercise): string {
@@ -661,7 +667,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async addSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {
-    sessionExercise.sets = [...sessionExercise.sets, { id: crypto.randomUUID(), reps: 0, weight: 0, type }];
+    sessionExercise.sets = [...sessionExercise.sets, { id: crypto.randomUUID(), reps: '0', weight: 0, type }];
     await this.persist(session);
   }
 
@@ -683,14 +689,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
+  onRepsInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = sanitizeRepsTyping(input.value);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
   async onRepsChange(
     session: TrainingSession,
     sessionExercise: SessionExercise,
     set: ExerciseSet,
     value: string
   ): Promise<void> {
-    const parsed = parseInt(value, 10);
-    set.reps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 10000) : 0;
+    set.reps = normalizeRepsRange(value);
     await this.persist(session);
     await this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
   }
@@ -750,7 +763,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   private async updateEstimatedOneRepMax(exerciseId: string, set: ExerciseSet): Promise<void> {
-    const oneRepMax = estimateOneRepMax(set.weight, set.reps);
+    const oneRepMax = estimateOneRepMax(set.weight, parseRepsRange(set.reps).min);
     if (oneRepMax <= 0) {
       return;
     }

@@ -5,7 +5,8 @@ export interface TierLinePlanExercise {
   tier: GzclTier;
   stage: TierLineStage;
   sets: number;
-  targetReps: number;
+  // Plain number ('8') or a from-to range ('8-12'), each side 0-10000.
+  targetReps: string;
 }
 
 export interface TierLinePlanSession {

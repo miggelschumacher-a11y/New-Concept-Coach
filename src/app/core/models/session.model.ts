@@ -2,7 +2,8 @@ export type SetType = 'warmup' | 'working' | 'cooldown';
 
 export interface ExerciseSet {
   id: string;
-  reps: number;
+  // Plain number ('8') or a from-to range ('8-12'), each side 0-10000.
+  reps: string;
   weight: number;
   type: SetType;
 }
