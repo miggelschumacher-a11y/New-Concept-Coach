@@ -799,7 +799,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async confirmDeleteSession(session: TrainingSession): Promise<void> {
     this.pendingDeleteSessionId = null;
     await this.deleteSession(session.id);
-    this.pendingReplenishSession = session;
   }
 
   async deleteSession(id: string): Promise<void> {
