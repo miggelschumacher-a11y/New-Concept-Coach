@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,12 +16,15 @@ import {
   LANGUAGE_DATE_FORMATS,
   FinishedSessionReplenishMode
 } from '../core/services/settings.service';
-import { IndexedDbService } from '../core/services/indexed-db.service';
+import { IndexedDbService, STORES } from '../core/services/indexed-db.service';
 import { DriveBackupFile, GoogleDriveService } from '../core/services/google-drive.service';
 import { LANGUAGES } from '../core/services/translation.service';
 import { findHeartRateMax, parseHeartRateRange } from '../core/data/heart-rate-zones';
 import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
+import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
+
+const BODY_WEIGHT_MAX = 300;
 
 @Component({
   selector: 'app-config',
@@ -34,6 +38,8 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    DatePipe,
+    DecimalPipe,
     TranslatePipe
   ],
   templateUrl: './config.component.html',
@@ -51,6 +57,10 @@ export class ConfigComponent implements OnInit {
   pendingDriveBackupJson: string | null = null;
   driveFileName = '';
   pendingDriveRestoreFiles: DriveBackupFile[] | null = null;
+  bodyWeightEntries: BodyWeightEntry[] = [];
+  newBodyWeightValue = '';
+  newBodyWeightTimestamp = this.currentLocalDateTime();
+  pendingDeleteBodyWeightId: string | null = null;
 
   constructor(
     private readonly settingsService: SettingsService,
@@ -73,6 +83,13 @@ export class ConfigComponent implements OnInit {
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
+    this.bodyWeightEntries = await this.indexedDbService.getAll<BodyWeightEntry>(STORES.bodyWeightEntries);
+  }
+
+  private currentLocalDateTime(): string {
+    const now = new Date();
+    const pad = (value: number) => value.toString().padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   }
 
   get age(): number | null {
@@ -96,6 +113,20 @@ export class ConfigComponent implements OnInit {
 
   get heartRateMax(): string | null {
     return this.age === null ? null : findHeartRateMax(this.age);
+  }
+
+  get weightUnitLabel(): string {
+    return this.weightUnit.toUpperCase();
+  }
+
+  get timestampDisplayFormat(): string {
+    return `${this.dateFormat}, HH:mm`;
+  }
+
+  get sortedBodyWeightEntries(): BodyWeightEntry[] {
+    return [...this.bodyWeightEntries].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
   }
 
   zonePercentDisplay(zone: TrainingZone): string {
@@ -192,5 +223,51 @@ export class ConfigComponent implements OnInit {
     } catch {
       this.statusMessageKey = 'config.importError';
     }
+  }
+
+  onBodyWeightValueInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let sanitized = input.value.replace(/[^\d.,]/g, '').replace(',', '.');
+    const firstDotIndex = sanitized.indexOf('.');
+    if (firstDotIndex !== -1) {
+      const integerPart = sanitized.slice(0, firstDotIndex);
+      const decimalPart = sanitized.slice(firstDotIndex + 1).replace(/\./g, '').slice(0, 2);
+      sanitized = `${integerPart}.${decimalPart}`;
+    }
+    if (parseFloat(sanitized) > BODY_WEIGHT_MAX) {
+      sanitized = String(BODY_WEIGHT_MAX);
+    }
+    input.value = sanitized;
+    this.newBodyWeightValue = sanitized;
+  }
+
+  async addBodyWeightEntry(): Promise<void> {
+    const weight = Math.round(Math.min(parseFloat(this.newBodyWeightValue), BODY_WEIGHT_MAX) * 100) / 100;
+    if (!Number.isFinite(weight) || weight <= 0 || !this.newBodyWeightTimestamp) {
+      return;
+    }
+    const entry: BodyWeightEntry = {
+      id: crypto.randomUUID(),
+      weight,
+      timestamp: new Date(this.newBodyWeightTimestamp).toISOString()
+    };
+    await this.indexedDbService.add(STORES.bodyWeightEntries, entry);
+    this.bodyWeightEntries = [...this.bodyWeightEntries, entry];
+    this.newBodyWeightValue = '';
+    this.newBodyWeightTimestamp = this.currentLocalDateTime();
+  }
+
+  requestDeleteBodyWeightEntry(id: string): void {
+    this.pendingDeleteBodyWeightId = id;
+  }
+
+  cancelDeleteBodyWeightEntry(): void {
+    this.pendingDeleteBodyWeightId = null;
+  }
+
+  async confirmDeleteBodyWeightEntry(id: string): Promise<void> {
+    this.pendingDeleteBodyWeightId = null;
+    await this.indexedDbService.delete(STORES.bodyWeightEntries, id);
+    this.bodyWeightEntries = this.bodyWeightEntries.filter((entry) => entry.id !== id);
   }
 }

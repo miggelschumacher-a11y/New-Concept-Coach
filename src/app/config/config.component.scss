@@ -65,6 +65,15 @@ mat-card {
   border-bottom: none;
 }
 
+.zones-table th.body-weight-column,
+.zones-table td.body-weight-column {
+  text-align: right;
+}
+
+.body-weight-input {
+  text-align: right;
+}
+
 .data-actions {
   display: flex;
   gap: 1.5rem;

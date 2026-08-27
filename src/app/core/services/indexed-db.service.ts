@@ -3,14 +3,15 @@ import { Exercise } from '../models/exercise.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 8;
+const DB_VERSION = 9;
 
 export const STORES = {
   exercises: 'exercises',
   trainingPlans: 'trainingPlans',
   sessions: 'sessions',
   settings: 'settings',
-  tierLineProgression: 'tierLineProgression'
+  tierLineProgression: 'tierLineProgression',
+  bodyWeightEntries: 'bodyWeightEntries'
 } as const;
 
 const STORE_KEY_PATHS: Partial<Record<string, string>> = {
