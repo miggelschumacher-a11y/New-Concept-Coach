@@ -16,6 +16,14 @@ export interface TierLinePlanSession {
   exercises: TierLinePlanExercise[];
 }
 
+export interface PlanExerciseConfig {
+  exerciseId: string;
+  // Each 0-100.
+  warmupSets: number;
+  workingSets: number;
+  cooldownSets: number;
+}
+
 export interface TrainingPlan {
   id: string;
   name: string;
@@ -23,5 +31,8 @@ export interface TrainingPlan {
   exerciseIds: string[];
   methodology?: TrainingMethodology;
   planSessions?: TierLinePlanSession[];
+  // Per-exercise sets/reps config for self-created plans (no planSessions).
+  // One entry per id in exerciseIds, kept in sync by updatePlanExercises.
+  exerciseConfigs?: PlanExerciseConfig[];
   isDefault?: boolean;
 }

@@ -11,11 +11,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
-import { TrainingPlan, TierLinePlanExercise } from '../core/models/training-plan.model';
+import { TrainingPlan, TierLinePlanExercise, PlanExerciseConfig } from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
+
+const DEFAULT_WARMUP_SETS = 0;
+const DEFAULT_WORKING_SETS = 3;
+const DEFAULT_COOLDOWN_SETS = 0;
+const PLAN_EXERCISE_SETS_MAX = 100;
 
 @Component({
   selector: 'app-training-plans',
@@ -120,6 +125,79 @@ export class TrainingPlansComponent implements OnInit {
 
   async updatePlanExercises(plan: TrainingPlan, exerciseIds: string[]): Promise<void> {
     plan.exerciseIds = exerciseIds;
+    const existingByExerciseId = new Map((plan.exerciseConfigs ?? []).map((config) => [config.exerciseId, config]));
+    plan.exerciseConfigs = exerciseIds.map(
+      (exerciseId) =>
+        existingByExerciseId.get(exerciseId) ?? {
+          exerciseId,
+          warmupSets: DEFAULT_WARMUP_SETS,
+          workingSets: DEFAULT_WORKING_SETS,
+          cooldownSets: DEFAULT_COOLDOWN_SETS
+        }
+    );
+    await this.trainingPlansService.update(plan);
+  }
+
+  async removePlanExercise(plan: TrainingPlan, exerciseId: string): Promise<void> {
+    await this.updatePlanExercises(
+      plan,
+      plan.exerciseIds.filter((id) => id !== exerciseId)
+    );
+  }
+
+  planExerciseConfig(plan: TrainingPlan, exerciseId: string): PlanExerciseConfig {
+    return (
+      plan.exerciseConfigs?.find((config) => config.exerciseId === exerciseId) ?? {
+        exerciseId,
+        warmupSets: DEFAULT_WARMUP_SETS,
+        workingSets: DEFAULT_WORKING_SETS,
+        cooldownSets: DEFAULT_COOLDOWN_SETS
+      }
+    );
+  }
+
+  planExerciseTotalSets(plan: TrainingPlan, exerciseId: string): number {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    return config.warmupSets + config.workingSets + config.cooldownSets;
+  }
+
+  onPlanExerciseSetsInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/\D/g, '').slice(0, 3);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  private clampSets(value: string): number {
+    const parsed = parseInt(value, 10);
+    return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), PLAN_EXERCISE_SETS_MAX) : 0;
+  }
+
+  async updatePlanExerciseWarmupSets(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const warmupSets = this.clampSets(value);
+    const config = this.planExerciseConfig(plan, exerciseId);
+    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
+      c.exerciseId === exerciseId ? { ...config, warmupSets } : c
+    );
+    await this.trainingPlansService.update(plan);
+  }
+
+  async updatePlanExerciseWorkingSets(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const workingSets = this.clampSets(value);
+    const config = this.planExerciseConfig(plan, exerciseId);
+    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
+      c.exerciseId === exerciseId ? { ...config, workingSets } : c
+    );
+    await this.trainingPlansService.update(plan);
+  }
+
+  async updatePlanExerciseCooldownSets(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const cooldownSets = this.clampSets(value);
+    const config = this.planExerciseConfig(plan, exerciseId);
+    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
+      c.exerciseId === exerciseId ? { ...config, cooldownSets } : c
+    );
     await this.trainingPlansService.update(plan);
   }
 }

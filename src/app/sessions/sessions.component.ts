@@ -488,12 +488,24 @@ export class SessionsComponent implements OnInit, OnDestroy {
             };
           })
         )
-      : plan.exerciseIds.map((exerciseId) => ({
-          exerciseId,
-          sets: [],
-          countWarmupSets: true,
-          countCooldownSets: true
-        }));
+      : plan.exerciseIds.map((exerciseId) => {
+          const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
+          if (!config) {
+            return { exerciseId, sets: [], countWarmupSets: true, countCooldownSets: true };
+          }
+          const buildSets = (count: number, type: SetType) =>
+            Array.from({ length: count }, () => ({ id: crypto.randomUUID(), reps: 0, weight: 0, type }));
+          return {
+            exerciseId,
+            sets: [
+              ...buildSets(config.warmupSets, 'warmup'),
+              ...buildSets(config.workingSets, 'working'),
+              ...buildSets(config.cooldownSets, 'cooldown')
+            ],
+            countWarmupSets: true,
+            countCooldownSets: true
+          };
+        });
     return {
       id: crypto.randomUUID(),
       name,
