@@ -16,7 +16,7 @@ import {
   FinishedSessionReplenishMode
 } from '../core/services/settings.service';
 import { IndexedDbService } from '../core/services/indexed-db.service';
-import { GoogleDriveService } from '../core/services/google-drive.service';
+import { DriveBackupFile, GoogleDriveService } from '../core/services/google-drive.service';
 import { LANGUAGES } from '../core/services/translation.service';
 import { findHeartRateMax, parseHeartRateRange } from '../core/data/heart-rate-zones';
 import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
@@ -48,9 +48,9 @@ export class ConfigComponent implements OnInit {
   dateOfBirth: string;
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
   statusMessageKey: string | null = null;
-  pendingReset = false;
-  pendingDriveExportJson: string | null = null;
+  pendingDriveBackupJson: string | null = null;
   driveFileName = '';
+  pendingDriveRestoreFiles: DriveBackupFile[] | null = null;
 
   constructor(
     private readonly settingsService: SettingsService,
@@ -133,33 +133,22 @@ export class ConfigComponent implements OnInit {
     await this.settingsService.updateSettings({ finishedSessionReplenishMode: this.finishedSessionReplenishMode });
   }
 
-  async exportData(): Promise<void> {
+  async startDriveBackup(): Promise<void> {
     const data = await this.indexedDbService.exportAll();
-    const json = JSON.stringify(data, null, 2);
-    const fileName = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
-
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    link.click();
-    URL.revokeObjectURL(url);
-
-    this.driveFileName = fileName;
-    this.pendingDriveExportJson = json;
+    this.driveFileName = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    this.pendingDriveBackupJson = JSON.stringify(data, null, 2);
   }
 
-  cancelDriveExport(): void {
-    this.pendingDriveExportJson = null;
+  cancelDriveBackup(): void {
+    this.pendingDriveBackupJson = null;
   }
 
-  async confirmDriveExport(): Promise<void> {
+  async confirmDriveBackup(): Promise<void> {
     // Requested directly inside this click handler, still tied to the user
     // gesture, so the Google sign-in popup doesn't get blocked.
-    const json = this.pendingDriveExportJson;
+    const json = this.pendingDriveBackupJson;
     const fileName = this.driveFileName.trim();
-    this.pendingDriveExportJson = null;
+    this.pendingDriveBackupJson = null;
     if (!json || !fileName) {
       return;
     }
@@ -168,40 +157,40 @@ export class ConfigComponent implements OnInit {
     try {
       const accessToken = await this.googleDriveService.requestAccessToken();
       await this.googleDriveService.uploadBackup(accessToken, json, fileName);
-      this.statusMessageKey = 'config.driveExportSuccess';
+      this.statusMessageKey = 'config.driveBackupSuccess';
     } catch {
-      this.statusMessageKey = 'config.driveExportError';
+      this.statusMessageKey = 'config.driveBackupError';
     }
   }
 
-  async importData(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) {
-      return;
-    }
+  async startDriveRestore(): Promise<void> {
+    // Requested directly inside this click handler, still tied to the user
+    // gesture, so the Google sign-in popup doesn't get blocked.
+    this.statusMessageKey = 'config.driveConnecting';
     try {
-      const data = JSON.parse(await file.text());
+      const accessToken = await this.googleDriveService.requestAccessToken();
+      this.pendingDriveRestoreFiles = await this.googleDriveService.listBackups(accessToken);
+      this.statusMessageKey = null;
+    } catch {
+      this.statusMessageKey = 'config.driveRestoreError';
+    }
+  }
+
+  cancelDriveRestore(): void {
+    this.pendingDriveRestoreFiles = null;
+  }
+
+  async confirmDriveRestore(file: DriveBackupFile): Promise<void> {
+    this.pendingDriveRestoreFiles = null;
+    this.statusMessageKey = 'config.driveConnecting';
+    try {
+      const accessToken = await this.googleDriveService.requestAccessToken();
+      const json = await this.googleDriveService.downloadBackup(accessToken, file.id);
+      const data = JSON.parse(json);
       await this.indexedDbService.importAll(data);
       this.statusMessageKey = 'config.importSuccess';
     } catch {
       this.statusMessageKey = 'config.importError';
-    } finally {
-      input.value = '';
     }
-  }
-
-  requestResetData(): void {
-    this.pendingReset = true;
-  }
-
-  cancelResetData(): void {
-    this.pendingReset = false;
-  }
-
-  async confirmResetData(): Promise<void> {
-    this.pendingReset = false;
-    await this.indexedDbService.clearAll();
-    this.statusMessageKey = 'config.resetSuccess';
   }
 }

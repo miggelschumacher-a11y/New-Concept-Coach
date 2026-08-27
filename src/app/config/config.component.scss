@@ -67,9 +67,32 @@ mat-card {
 
 .data-actions {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   flex-wrap: wrap;
   margin-top: 0.5rem;
+}
+
+.data-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.data-action-label {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.drive-restore-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 320px;
+}
+
+.drive-restore-file-button {
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .status-message {

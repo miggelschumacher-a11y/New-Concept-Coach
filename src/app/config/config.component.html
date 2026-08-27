@@ -96,10 +96,8 @@
     <mat-card-title><mat-icon class="label-icon">storage</mat-icon>{{ 'config.data' | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <p>{{ 'config.dataDescription' | translate }}</p>
-
     <div class="data-actions">
-      @if (pendingDriveExportJson !== null) {
+      @if (pendingDriveBackupJson !== null) {
         <div class="confirm-dialog">
           <mat-form-field appearance="outline" class="drive-filename-field">
             <mat-label>{{ 'config.driveFileNameLabel' | translate }}</mat-label>
@@ -110,7 +108,7 @@
               mat-raised-button
               color="primary"
               type="button"
-              (click)="confirmDriveExport()"
+              (click)="confirmDriveBackup()"
               [matTooltip]="'config.driveUploadConfirm' | translate"
               [attr.aria-label]="'config.driveUploadConfirm' | translate"
             >
@@ -119,7 +117,7 @@
             <button
               mat-stroked-button
               type="button"
-              (click)="cancelDriveExport()"
+              (click)="cancelDriveBackup()"
               [matTooltip]="'sessions.confirmCancel' | translate"
               [attr.aria-label]="'sessions.confirmCancel' | translate"
             >
@@ -128,46 +126,39 @@
           </div>
         </div>
       } @else {
-        <button
-          mat-stroked-button
-          type="button"
-          (click)="exportData()"
-          [matTooltip]="'config.export' | translate"
-          [attr.aria-label]="'config.export' | translate"
-        >
-          <mat-icon>file_download</mat-icon>
-        </button>
+        <div class="data-action-group">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="startDriveBackup()"
+            [matTooltip]="'config.driveBackupLabel' | translate"
+            [attr.aria-label]="'config.driveBackupLabel' | translate"
+          >
+            <mat-icon>file_upload</mat-icon>
+          </button>
+          <span class="data-action-label">{{ 'config.driveBackupLabel' | translate }}</span>
+        </div>
       }
 
-      <button
-        mat-stroked-button
-        type="button"
-        (click)="fileInput.click()"
-        [matTooltip]="'config.import' | translate"
-        [attr.aria-label]="'config.import' | translate"
-      >
-        <mat-icon>file_upload</mat-icon>
-      </button>
-      <input #fileInput type="file" accept="application/json" hidden (change)="importData($event)" />
-
-      @if (pendingReset) {
+      @if (pendingDriveRestoreFiles !== null) {
         <div class="confirm-dialog">
-          <span class="confirm-label">{{ 'config.resetConfirm' | translate }}</span>
+          @if (pendingDriveRestoreFiles.length === 0) {
+            <span class="confirm-label">{{ 'config.driveRestoreNoBackups' | translate }}</span>
+          } @else {
+            <span class="confirm-label">{{ 'config.driveRestoreSelectLabel' | translate }}</span>
+            <div class="drive-restore-file-list">
+              @for (file of pendingDriveRestoreFiles; track file.id) {
+                <button mat-stroked-button type="button" class="drive-restore-file-button" (click)="confirmDriveRestore(file)">
+                  {{ file.name }}
+                </button>
+              }
+            </div>
+          }
           <div class="confirm-dialog-actions">
-            <button
-              mat-raised-button
-              color="warn"
-              type="button"
-              (click)="confirmResetData()"
-              [matTooltip]="'sessions.confirmYesDelete' | translate"
-              [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-            >
-              <mat-icon>check</mat-icon>
-            </button>
             <button
               mat-stroked-button
               type="button"
-              (click)="cancelResetData()"
+              (click)="cancelDriveRestore()"
               [matTooltip]="'sessions.confirmCancel' | translate"
               [attr.aria-label]="'sessions.confirmCancel' | translate"
             >
@@ -176,16 +167,18 @@
           </div>
         </div>
       } @else {
-        <button
-          mat-stroked-button
-          color="warn"
-          type="button"
-          (click)="requestResetData()"
-          [matTooltip]="'config.reset' | translate"
-          [attr.aria-label]="'config.reset' | translate"
-        >
-          <mat-icon>delete_forever</mat-icon>
-        </button>
+        <div class="data-action-group">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="startDriveRestore()"
+            [matTooltip]="'config.driveRestoreLabel' | translate"
+            [attr.aria-label]="'config.driveRestoreLabel' | translate"
+          >
+            <mat-icon>file_download</mat-icon>
+          </button>
+          <span class="data-action-label">{{ 'config.driveRestoreLabel' | translate }}</span>
+        </div>
       }
     </div>
 

@@ -6,6 +6,11 @@ const CLIENT_ID = '378514290266-hq6di64hljgis5vslahs49v3ukkl3r2c.apps.googleuser
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const GIS_SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
 
+export interface DriveBackupFile {
+  id: string;
+  name: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GoogleDriveService {
   private accessToken: string | null = null;
@@ -59,6 +64,19 @@ export class GoogleDriveService {
     });
   }
 
+  // Wraps a Drive API call so an expired/revoked token (401) is dropped from
+  // the cache, forcing the next requestAccessToken() call to re-prompt.
+  private async withAuthErrorHandling<T>(fn: () => Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('401')) {
+        this.accessToken = null;
+      }
+      throw error;
+    }
+  }
+
   private async findBackupFileId(token: string, fileName: string): Promise<string | null> {
     const escapedName = fileName.replace(/'/g, "\\'");
     const params = new URLSearchParams({
@@ -78,7 +96,7 @@ export class GoogleDriveService {
 
   async uploadBackup(token: string, json: string, fileName: string): Promise<void> {
     const normalizedName = fileName.toLowerCase().endsWith('.json') ? fileName : `${fileName}.json`;
-    try {
+    await this.withAuthErrorHandling(async () => {
       const fileId = await this.findBackupFileId(token, normalizedName);
       const boundary = 'trainings_app_backup_boundary';
       const metadata = { name: normalizedName, mimeType: 'application/json' };
@@ -107,11 +125,37 @@ export class GoogleDriveService {
       if (!response.ok) {
         throw new Error(`Google Drive upload failed (${response.status}).`);
       }
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('401')) {
-        this.accessToken = null;
+    });
+  }
+
+  async listBackups(token: string): Promise<DriveBackupFile[]> {
+    return this.withAuthErrorHandling(async () => {
+      const params = new URLSearchParams({
+        q: "mimeType='application/json' and trashed=false",
+        spaces: 'drive',
+        fields: 'files(id,name)',
+        orderBy: 'modifiedTime desc'
+      });
+      const response = await fetch(`https://www.googleapis.com/drive/v3/files?${params}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) {
+        throw new Error(`Google Drive file list failed (${response.status}).`);
       }
-      throw error;
-    }
+      const result = (await response.json()) as { files?: DriveBackupFile[] };
+      return result.files ?? [];
+    });
+  }
+
+  async downloadBackup(token: string, fileId: string): Promise<string> {
+    return this.withAuthErrorHandling(async () => {
+      const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) {
+        throw new Error(`Google Drive file download failed (${response.status}).`);
+      }
+      return response.text();
+    });
   }
 }

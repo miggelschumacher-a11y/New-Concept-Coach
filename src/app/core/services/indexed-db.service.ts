@@ -198,10 +198,4 @@ export class IndexedDbService {
       });
     }
   }
-
-  async clearAll(): Promise<void> {
-    for (const storeName of Object.values(STORES)) {
-      await this.runWriteTransaction(storeName, (store) => store.clear());
-    }
-  }
 }
