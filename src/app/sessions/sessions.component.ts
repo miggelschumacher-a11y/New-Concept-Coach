@@ -26,7 +26,7 @@ import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
 import { parseRepsRange } from '../core/utils/reps-range.util';
-import { findBodyWeightForDate } from '../core/utils/body-weight-lookup.util';
+import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/body-weight-lookup.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 
 function toDateTimeLocalValue(date: Date): string {
@@ -83,6 +83,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private readonly progressionStates = new Map<string, TierLineProgressionState>();
 
   bodyWeightEntries: BodyWeightEntry[] = [];
+  private readonly confirmedBodyWeightFallbackSessionIds = new Set<string>();
+  private readonly declinedBodyWeightFallbackSessionIds = new Set<string>();
+  // Only sessions in here may show the fallback-confirm prompt - populated
+  // when the session is started/resumed, not merely expanded.
+  private readonly promptedBodyWeightFallbackSessionIds = new Set<string>();
 
   constructor(
     private readonly sessionsService: SessionsService,
@@ -574,6 +579,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       session.timerRunning = true;
       session.timerStartedAt = new Date().toISOString();
       session.startedAt ??= session.timerStartedAt;
+      if (this.bodyWeightFallbackCandidate(session) !== null) {
+        this.promptedBodyWeightFallbackSessionIds.add(session.id);
+      }
     }
     await this.persist(session);
   }
@@ -690,9 +698,41 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return session.startedAt ?? session.date;
   }
 
-  sessionBodyWeight(session: TrainingSession): string {
-    const entry = findBodyWeightForDate(new Date(this.bodyWeightReferenceDate(session)), this.bodyWeightEntries);
-    return entry === null ? (0).toFixed(2) : entry.weight.toFixed(2);
+  private sessionBodyWeightLookup(session: TrainingSession): BodyWeightLookupResult | null {
+    return findBodyWeightForDate(new Date(this.bodyWeightReferenceDate(session)), this.bodyWeightEntries);
+  }
+
+  sessionBodyWeight(session: TrainingSession): string | null {
+    const result = this.sessionBodyWeightLookup(session);
+    if (result === null) {
+      return null;
+    }
+    if (!result.isFallback || this.confirmedBodyWeightFallbackSessionIds.has(session.id)) {
+      return result.entry.weight.toFixed(2);
+    }
+    return null;
+  }
+
+  bodyWeightFallbackCandidate(session: TrainingSession): string | null {
+    if (this.confirmedBodyWeightFallbackSessionIds.has(session.id) || this.declinedBodyWeightFallbackSessionIds.has(session.id)) {
+      return null;
+    }
+    const result = this.sessionBodyWeightLookup(session);
+    return result !== null && result.isFallback ? result.entry.weight.toFixed(2) : null;
+  }
+
+  // The fallback-confirm prompt should only appear once the session is
+  // started/resumed (see toggleTimer), never just from expanding the panel.
+  shouldShowBodyWeightFallbackPrompt(session: TrainingSession): boolean {
+    return this.promptedBodyWeightFallbackSessionIds.has(session.id) && this.bodyWeightFallbackCandidate(session) !== null;
+  }
+
+  confirmBodyWeightFallback(session: TrainingSession): void {
+    this.confirmedBodyWeightFallbackSessionIds.add(session.id);
+  }
+
+  declineBodyWeightFallback(session: TrainingSession): void {
+    this.declinedBodyWeightFallbackSessionIds.add(session.id);
   }
 
   async onCountingPreferenceChange(session: TrainingSession): Promise<void> {

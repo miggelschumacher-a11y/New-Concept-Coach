@@ -175,6 +175,34 @@
 
           @if (sessionBodyWeight(session); as bodyWeight) {
             <span class="session-body-weight">{{ 'sessions.bodyWeight' | translate }}: {{ bodyWeight }} {{ weightUnitLabel }}</span>
+          } @else if (shouldShowBodyWeightFallbackPrompt(session)) {
+            <div class="confirm-dialog">
+              <span class="confirm-label">{{ 'sessions.bodyWeightNotSet' | translate }}</span>
+              <span class="confirm-label"
+                >{{ 'sessions.bodyWeightFallbackQuestion' | translate }} {{ bodyWeightFallbackCandidate(session) }} {{ weightUnitLabel }}?</span
+              >
+              <div class="confirm-dialog-actions">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  type="button"
+                  (click)="confirmBodyWeightFallback(session)"
+                  [matTooltip]="'sessions.bodyWeightFallbackConfirm' | translate"
+                  [attr.aria-label]="'sessions.bodyWeightFallbackConfirm' | translate"
+                >
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="declineBodyWeightFallback(session)"
+                  [matTooltip]="'sessions.confirmCancel' | translate"
+                  [attr.aria-label]="'sessions.confirmCancel' | translate"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
           }
         </div>
 
