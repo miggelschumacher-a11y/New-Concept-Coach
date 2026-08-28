@@ -56,9 +56,14 @@ export interface WaveProgressionConfig {
 }
 
 export interface LinearProgressionConfig {
-  // Minimum reps every working set must reach for the weight to increase
-  // next session, 1-100. No global default - set directly per exercise.
-  targetReps: number;
+  // Plain number ('5') or a from-to range ('8-12'), each side 1-100. No
+  // global default - set directly per exercise.
+  targetReps: string;
+  // Only meaningful when targetReps is an actual range (min !== max):
+  // whether every working set reaching just the lower bound is enough to
+  // trigger a weight increase (true), or whether every set must reach the
+  // upper bound instead (false).
+  lowerBoundSufficient: boolean;
 }
 
 export interface PercentageSet {

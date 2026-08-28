@@ -710,7 +710,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
               }));
             } else if (config.exerciseType === 'LINEAR_PROGRESSION' && config.linearProgression) {
               const state = await this.getOrInitLinearProgressionState(exerciseId);
-              const targetReps = config.linearProgression.targetReps;
+              // Prefilled with the range's lower bound regardless of
+              // lowerBoundSufficient - that flag only affects what counts as
+              // a success, not what's prescribed going in.
+              const targetReps = parseRepsRange(config.linearProgression.targetReps).min;
               workingSets = Array.from({ length: config.workingSets }, () => ({
                 id: crypto.randomUUID(),
                 reps: targetReps,

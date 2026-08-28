@@ -29,6 +29,7 @@ import {
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
+import { parseRepsRange } from '../core/utils/reps-range.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
 import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
@@ -53,7 +54,8 @@ const DEFAULT_WORKING_SETS = 3;
 const DEFAULT_COOLDOWN_SETS = 0;
 const PLAN_EXERCISE_SETS_MAX = 100;
 const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'LINEAR_PROGRESSION';
-const DEFAULT_LINEAR_PROGRESSION_TARGET_REPS = 5;
+const DEFAULT_LINEAR_PROGRESSION_TARGET_REPS = '5';
+const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = true;
 
 // Classic Wendler 5/3/1: 3 waves building to a heavier AMRAP top set, then a
 // deload week. Seeded the first time an exercise is switched to
@@ -302,7 +304,12 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       workingSets: DEFAULT_WORKING_SETS,
       cooldownSets: DEFAULT_COOLDOWN_SETS,
       ...(DEFAULT_EXERCISE_TYPE === 'LINEAR_PROGRESSION'
-        ? { linearProgression: { targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS } }
+        ? {
+            linearProgression: {
+              targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS,
+              lowerBoundSufficient: DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT
+            }
+          }
         : {})
     };
   }
@@ -386,7 +393,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     }
     // No Config-level default for this one - it's set directly per exercise.
     if (exerciseType === 'LINEAR_PROGRESSION' && !config.linearProgression) {
-      patch.linearProgression = { targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS };
+      patch.linearProgression = {
+        targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS,
+        lowerBoundSufficient: DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT
+      };
     }
     await this.updateConfig(plan, exerciseId, patch);
   }
@@ -516,12 +526,46 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.updateWaveProgression(plan, exerciseId, { repsDecrement: this.clampSets(value) });
   }
 
+  onLinearProgressionTargetRepsInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/[^\d-]/g, '').slice(0, 7);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // A plain number ('5') behaves exactly as before; a range ('8-12') is only
+  // meaningful together with the lowerBoundSufficient checkbox, so that
+  // checkbox is only shown once a real range (min !== max) is entered.
+  isLinearProgressionRange(plan: TrainingPlan, exerciseId: string): boolean {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    if (!config.linearProgression) {
+      return false;
+    }
+    const range = parseRepsRange(config.linearProgression.targetReps);
+    return range.min !== range.max;
+  }
+
   async updateLinearProgressionTargetReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
     const config = this.planExerciseConfig(plan, exerciseId);
     if (!config.linearProgression) {
       return;
     }
-    await this.updateConfig(plan, exerciseId, { linearProgression: { targetReps: this.clampSets(value) } });
+    const range = parseRepsRange(value);
+    const normalized = range.min === range.max ? `${range.min}` : `${range.min}-${range.max}`;
+    await this.updateConfig(plan, exerciseId, {
+      linearProgression: { ...config.linearProgression, targetReps: normalized }
+    });
+  }
+
+  async updateLinearProgressionLowerBoundSufficient(plan: TrainingPlan, exerciseId: string, checked: boolean): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    if (!config.linearProgression) {
+      return;
+    }
+    await this.updateConfig(plan, exerciseId, {
+      linearProgression: { ...config.linearProgression, lowerBoundSufficient: checked }
+    });
   }
 
   percentageSetWeight(exerciseId: string, percentage: number): number | null {
