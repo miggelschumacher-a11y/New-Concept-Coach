@@ -7,9 +7,10 @@ import { buildDefaultGzclpPlan } from '../data/default-gzclp-plan';
 import { buildDefaultGreyskullPlan } from '../data/default-greyskull-plan';
 import { buildDefaultNsunsPlan } from '../data/default-nsuns-plan';
 import { buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
+import { buildDefaultHstPlan } from '../data/default-hst-plan';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 21;
+const DB_VERSION = 22;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -17,7 +18,8 @@ const DEFAULT_PLAN_BUILDERS = [
   buildDefaultGzclpPlan,
   buildDefaultGreyskullPlan,
   buildDefaultNsunsPlan,
-  buildDefaultHeavyDutyPlan
+  buildDefaultHeavyDutyPlan,
+  buildDefaultHstPlan
 ];
 
 export const STORES = {
@@ -158,17 +160,17 @@ export class IndexedDbService {
           }
 
           if (
-            event.oldVersion < 21 &&
+            event.oldVersion < 22 &&
             db.objectStoreNames.contains(STORES.exercises) &&
             db.objectStoreNames.contains(STORES.trainingPlans)
           ) {
             // Seed the default plans (5/3/1, 5x5, GZCLP, GreySkull LP, nSuns,
-            // Heavy Duty) for
-            // existing installs too, looking up the lift ids by name since
-            // they're randomly generated per install. Re-running this is
-            // harmless/idempotent (put), so it also re-adds any default plan
-            // a restore/import may have dropped, and picks up content changes
-            // (e.g. attribution added to a plan's name) that the self-healing
+            // Heavy Duty, HST) for existing installs too, looking up the lift
+            // ids by name since they're randomly generated per install.
+            // Re-running this is harmless/idempotent (put), so it also
+            // re-adds any default plan a restore/import may have dropped, and
+            // picks up content changes (e.g. attribution added to a plan's
+            // name) that the self-healing
             // check alone wouldn't apply to an already-seeded plan.
             const exercisesStore = request.transaction!.objectStore(STORES.exercises);
             exercisesStore.getAll().onsuccess = (getAllEvent) => {

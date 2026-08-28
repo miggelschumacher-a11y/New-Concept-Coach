@@ -34,6 +34,7 @@ import { DEFAULT_GZCLP_PLAN_ID } from '../core/data/default-gzclp-plan';
 import { DEFAULT_GREYSKULL_PLAN_ID } from '../core/data/default-greyskull-plan';
 import { DEFAULT_NSUNS_PLAN_ID } from '../core/data/default-nsuns-plan';
 import { DEFAULT_HEAVYDUTY_PLAN_ID } from '../core/data/default-heavyduty-plan';
+import { DEFAULT_HST_PLAN_ID } from '../core/data/default-hst-plan';
 
 const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_531_PLAN_ID]: 'trainingPlans.plan531Description',
@@ -41,7 +42,8 @@ const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_GZCLP_PLAN_ID]: 'trainingPlans.planGzclpDescription',
   [DEFAULT_NSUNS_PLAN_ID]: 'trainingPlans.planNsunsDescription',
   [DEFAULT_GREYSKULL_PLAN_ID]: 'trainingPlans.planGreyskullDescription',
-  [DEFAULT_HEAVYDUTY_PLAN_ID]: 'trainingPlans.planHeavyDutyDescription'
+  [DEFAULT_HEAVYDUTY_PLAN_ID]: 'trainingPlans.planHeavyDutyDescription',
+  [DEFAULT_HST_PLAN_ID]: 'trainingPlans.planHstDescription'
 };
 
 const DEFAULT_WARMUP_SETS = 0;
