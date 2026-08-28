@@ -4,11 +4,12 @@ import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
 import { buildDefault531Plan } from '../data/default-531-plan';
 import { buildDefault5x5Plan } from '../data/default-5x5-plan';
 import { buildDefaultGzclpPlan } from '../data/default-gzclp-plan';
+import { buildDefaultGreyskullPlan } from '../data/default-greyskull-plan';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 17;
+const DB_VERSION = 19;
 
-const DEFAULT_PLAN_BUILDERS = [buildDefault531Plan, buildDefault5x5Plan, buildDefaultGzclpPlan];
+const DEFAULT_PLAN_BUILDERS = [buildDefault531Plan, buildDefault5x5Plan, buildDefaultGzclpPlan, buildDefaultGreyskullPlan];
 
 export const STORES = {
   exercises: 'exercises',
@@ -148,15 +149,17 @@ export class IndexedDbService {
           }
 
           if (
-            event.oldVersion < 17 &&
+            event.oldVersion < 19 &&
             db.objectStoreNames.contains(STORES.exercises) &&
             db.objectStoreNames.contains(STORES.trainingPlans)
           ) {
-            // Seed the default plans (5/3/1, 5x5, GZCLP) for existing installs
-            // too, looking up the lift ids by name since they're randomly
-            // generated per install. Re-running this is harmless/idempotent
-            // (put), so it also re-adds any default plan a restore/import may
-            // have dropped.
+            // Seed the default plans (5/3/1, 5x5, GZCLP, GreySkull LP) for
+            // existing installs too, looking up the lift ids by name since
+            // they're randomly generated per install. Re-running this is
+            // harmless/idempotent (put), so it also re-adds any default plan
+            // a restore/import may have dropped, and picks up content changes
+            // (e.g. attribution added to a plan's name) that the self-healing
+            // check alone wouldn't apply to an already-seeded plan.
             const exercisesStore = request.transaction!.objectStore(STORES.exercises);
             exercisesStore.getAll().onsuccess = (getAllEvent) => {
               const allExercises = (getAllEvent.target as IDBRequest<Exercise[]>).result;

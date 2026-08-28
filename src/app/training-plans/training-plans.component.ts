@@ -30,11 +30,13 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
 import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
 import { DEFAULT_GZCLP_PLAN_ID } from '../core/data/default-gzclp-plan';
+import { DEFAULT_GREYSKULL_PLAN_ID } from '../core/data/default-greyskull-plan';
 
 const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_531_PLAN_ID]: 'trainingPlans.plan531Description',
   [DEFAULT_5X5_PLAN_ID]: 'trainingPlans.plan5x5Description',
-  [DEFAULT_GZCLP_PLAN_ID]: 'trainingPlans.planGzclpDescription'
+  [DEFAULT_GZCLP_PLAN_ID]: 'trainingPlans.planGzclpDescription',
+  [DEFAULT_GREYSKULL_PLAN_ID]: 'trainingPlans.planGreyskullDescription'
 };
 
 const DEFAULT_WARMUP_SETS = 0;

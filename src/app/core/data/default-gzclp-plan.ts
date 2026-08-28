@@ -39,7 +39,9 @@ export function buildDefaultGzclpPlan(exerciseIdByName: ReadonlyMap<string, stri
 
   return {
     id: DEFAULT_GZCLP_PLAN_ID,
-    name: 'GZCLP',
+    // Attributed by name, same reasoning applied to 5/3/1 and GreySkull LP:
+    // the methodology is free to use, but crediting the creator is good practice.
+    name: 'GZCLP (Cody Lefever)',
     exerciseIds: [squat, deadlift, bench, ohp, latPullDowns],
     methodology: TrainingMethodology.TIER_LINE_PROGRESSION,
     planSessions: [

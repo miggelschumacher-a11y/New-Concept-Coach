@@ -5,11 +5,13 @@ import { TrainingPlan } from '../models/training-plan.model';
 import { DEFAULT_531_PLAN_ID, buildDefault531Plan } from '../data/default-531-plan';
 import { DEFAULT_5X5_PLAN_ID, buildDefault5x5Plan } from '../data/default-5x5-plan';
 import { DEFAULT_GZCLP_PLAN_ID, buildDefaultGzclpPlan } from '../data/default-gzclp-plan';
+import { DEFAULT_GREYSKULL_PLAN_ID, buildDefaultGreyskullPlan } from '../data/default-greyskull-plan';
 
 const DEFAULT_PLANS = [
   { id: DEFAULT_531_PLAN_ID, build: buildDefault531Plan },
   { id: DEFAULT_5X5_PLAN_ID, build: buildDefault5x5Plan },
-  { id: DEFAULT_GZCLP_PLAN_ID, build: buildDefaultGzclpPlan }
+  { id: DEFAULT_GZCLP_PLAN_ID, build: buildDefaultGzclpPlan },
+  { id: DEFAULT_GREYSKULL_PLAN_ID, build: buildDefaultGreyskullPlan }
 ];
 
 @Injectable({ providedIn: 'root' })
