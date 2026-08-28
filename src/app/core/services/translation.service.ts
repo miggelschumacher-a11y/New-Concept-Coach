@@ -54,6 +54,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': 'No 1RM set',
     'trainingPlans.editPlan': 'Edit plan',
     'trainingPlans.copyPlan': 'Copy plan',
+    'trainingPlans.planInfoButton': 'Plan info',
     'trainingPlans.copySuffix': ' (Copy)',
     'trainingPlans.defaultPlanHint': 'This is a default plan. It cannot be edited or deleted — copy it to create your own editable version.',
     'trainingPlans.plan531Description':
@@ -216,6 +217,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': 'Kein 1RM hinterlegt',
     'trainingPlans.editPlan': 'Plan bearbeiten',
     'trainingPlans.copyPlan': 'Plan kopieren',
+    'trainingPlans.planInfoButton': 'Plan-Info',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dies ist ein Standardplan. Er kann nicht bearbeitet oder gelöscht werden – kopiere ihn, um eine eigene bearbeitbare Version zu erstellen.',
     'trainingPlans.plan531Description':
@@ -378,6 +380,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': 'Sin 1RM establecido',
     'trainingPlans.editPlan': 'Editar plan',
     'trainingPlans.copyPlan': 'Copiar plan',
+    'trainingPlans.planInfoButton': 'Información del plan',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Este es un plan predeterminado. No se puede editar ni eliminar; cópialo para crear tu propia versión editable.',
     'trainingPlans.plan531Description':
@@ -540,6 +543,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': 'Nenhum 1RM definido',
     'trainingPlans.editPlan': 'Editar plano',
     'trainingPlans.copyPlan': 'Copiar plano',
+    'trainingPlans.planInfoButton': 'Informações do plano',
     'trainingPlans.copySuffix': ' (Cópia)',
     'trainingPlans.defaultPlanHint': 'Este é um plano padrão. Não pode ser editado nem excluído — copie-o para criar sua própria versão editável.',
     'trainingPlans.plan531Description':
@@ -702,6 +706,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': 'Nessun 1RM impostato',
     'trainingPlans.editPlan': 'Modifica piano',
     'trainingPlans.copyPlan': 'Copia piano',
+    'trainingPlans.planInfoButton': 'Info piano',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Questo è un piano predefinito. Non può essere modificato o eliminato: copialo per creare la tua versione modificabile.',
     'trainingPlans.plan531Description':
@@ -864,6 +869,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': 'Geen 1RM ingesteld',
     'trainingPlans.editPlan': 'Plan bewerken',
     'trainingPlans.copyPlan': 'Plan kopiëren',
+    'trainingPlans.planInfoButton': 'Plan-info',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dit is een standaardplan. Het kan niet worden bewerkt of verwijderd — kopieer het om je eigen bewerkbare versie te maken.',
     'trainingPlans.plan531Description':
@@ -1026,6 +1032,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': 'Brak ustawionego 1RM',
     'trainingPlans.editPlan': 'Edytuj plan',
     'trainingPlans.copyPlan': 'Kopiuj plan',
+    'trainingPlans.planInfoButton': 'Informacje o planie',
     'trainingPlans.copySuffix': ' (Kopia)',
     'trainingPlans.defaultPlanHint': 'To jest plan domyślny. Nie można go edytować ani usunąć — skopiuj go, aby utworzyć własną edytowalną wersję.',
     'trainingPlans.plan531Description':
@@ -1188,6 +1195,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': '1ПМ не задан',
     'trainingPlans.editPlan': 'Редактировать план',
     'trainingPlans.copyPlan': 'Копировать план',
+    'trainingPlans.planInfoButton': 'Информация о плане',
     'trainingPlans.copySuffix': ' (Копия)',
     'trainingPlans.defaultPlanHint': 'Это план по умолчанию. Его нельзя редактировать или удалить — скопируйте его, чтобы создать свою редактируемую версию.',
     'trainingPlans.plan531Description':
@@ -1350,6 +1358,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.oneRepMaxMissing': 'Nincs beállítva 1RM',
     'trainingPlans.editPlan': 'Terv szerkesztése',
     'trainingPlans.copyPlan': 'Terv másolása',
+    'trainingPlans.planInfoButton': 'Terv infó',
     'trainingPlans.copySuffix': ' (Másolat)',
     'trainingPlans.defaultPlanHint': 'Ez egy alapértelmezett terv. Nem szerkeszthető és nem törölhető – másold le, hogy saját szerkeszthető verziót hozz létre.',
     'trainingPlans.plan531Description':

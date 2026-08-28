@@ -56,7 +56,26 @@
           </div>
           <mat-panel-title>{{ plan.name }}</mat-panel-title>
           @if (planDescription(plan)) {
-            <mat-panel-description>{{ planDescription(plan) }}</mat-panel-description>
+            <div class="description-info-trigger">
+              <button
+                mat-icon-button
+                (click)="toggleDescriptionInfo(plan.id, $event)"
+                [matTooltip]="'trainingPlans.planInfoButton' | translate"
+                [attr.aria-label]="'trainingPlans.planInfoButton' | translate"
+              >
+                <mat-icon>info</mat-icon>
+              </button>
+              @if (isDescriptionInfoOpen(plan.id) && descriptionInfoPosition) {
+                <div
+                  class="description-info-popup"
+                  [style.top.px]="descriptionInfoPosition.top"
+                  [style.left.px]="descriptionInfoPosition.left"
+                  (click)="$event.stopPropagation()"
+                >
+                  <p>{{ planDescription(plan) }}</p>
+                </div>
+              }
+            </div>
           }
         </mat-expansion-panel-header>
 

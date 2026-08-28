@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -107,7 +107,7 @@ const DEFAULT_PERCENTAGE_WEEKS: PercentageWeek[] = [
   templateUrl: './training-plans.component.html',
   styleUrl: './training-plans.component.scss'
 })
-export class TrainingPlansComponent implements OnInit {
+export class TrainingPlansComponent implements OnInit, OnDestroy {
   plans: TrainingPlan[] = [];
   exercises: Exercise[] = [];
   name = '';
@@ -115,6 +115,8 @@ export class TrainingPlansComponent implements OnInit {
   editingPlanId: string | null = null;
   editName = '';
   editDescription = '';
+  private descriptionInfoOpenPlanId: string | null = null;
+  descriptionInfoPosition: { top: number; left: number } | null = null;
 
   constructor(
     private readonly trainingPlansService: TrainingPlansService,
@@ -130,6 +132,11 @@ export class TrainingPlansComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.load();
+    document.addEventListener('click', this.handleDocumentClick, true);
+  }
+
+  ngOnDestroy(): void {
+    document.removeEventListener('click', this.handleDocumentClick, true);
   }
 
   async load(): Promise<void> {
@@ -150,6 +157,46 @@ export class TrainingPlansComponent implements OnInit {
     const key = DEFAULT_PLAN_DESCRIPTION_KEYS[plan.id];
     return key ? this.translationService.translate(key) : plan.description ?? '';
   }
+
+  // Same pattern as the TierLine info popup on the Training Sessions page:
+  // fixed positioning computed from the button's own rect, rather than
+  // absolute positioning within the header, because mat-expansion-panel
+  // clips overflowing content (needed for its collapse animation) and would
+  // otherwise cut the popup off when the panel is collapsed.
+  toggleDescriptionInfo(planId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.descriptionInfoOpenPlanId === planId) {
+      this.closeDescriptionInfo();
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const popupWidth = 440;
+    this.descriptionInfoPosition = {
+      top: rect.bottom + 8,
+      left: Math.max(8, rect.right - popupWidth)
+    };
+    this.descriptionInfoOpenPlanId = planId;
+  }
+
+  isDescriptionInfoOpen(planId: string): boolean {
+    return this.descriptionInfoOpenPlanId === planId;
+  }
+
+  private closeDescriptionInfo(): void {
+    this.descriptionInfoOpenPlanId = null;
+    this.descriptionInfoPosition = null;
+  }
+
+  private readonly handleDocumentClick = (event: MouseEvent): void => {
+    if (!this.descriptionInfoOpenPlanId) {
+      return;
+    }
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('.description-info-trigger')) {
+      return;
+    }
+    this.closeDescriptionInfo();
+  };
 
   tierLabelKey(tier: string): string {
     return 'trainingPlans.tier' + tier.split('_')[0];
