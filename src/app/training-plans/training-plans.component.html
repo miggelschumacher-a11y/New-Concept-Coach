@@ -131,32 +131,33 @@
         }
 
         <form class="exercise-form">
-          <mat-form-field appearance="outline">
-            <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
-            <mat-select
-              [ngModel]="plan.exerciseIds"
-              name="exerciseIds-{{ plan.id }}"
-              multiple
-              [disabled]="!!plan.isDefault"
-              panelClass="exercise-select-panel"
-              (selectionChange)="updatePlanExercises(plan, $event.value)"
-            >
-              <mat-select-trigger>
-                @if (plan.exerciseIds.length > 0) {
-                  {{ exerciseName(plan.exerciseIds[0]) }}
-                  @if (plan.exerciseIds.length > 1) {
-                    <span> (+{{ plan.exerciseIds.length - 1 }})</span>
+          @if (!plan.isDefault) {
+            <mat-form-field appearance="outline">
+              <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
+              <mat-select
+                [ngModel]="plan.exerciseIds"
+                name="exerciseIds-{{ plan.id }}"
+                multiple
+                panelClass="exercise-select-panel"
+                (selectionChange)="updatePlanExercises(plan, $event.value)"
+              >
+                <mat-select-trigger>
+                  @if (plan.exerciseIds.length > 0) {
+                    {{ exerciseName(plan.exerciseIds[0]) }}
+                    @if (plan.exerciseIds.length > 1) {
+                      <span> (+{{ plan.exerciseIds.length - 1 }})</span>
+                    }
                   }
+                </mat-select-trigger>
+                @for (exercise of exercises; track exercise.id) {
+                  <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
                 }
-              </mat-select-trigger>
-              @for (exercise of exercises; track exercise.id) {
-                <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+              </mat-select>
+              @if (exercises.length === 0) {
+                <mat-hint>{{ 'trainingPlans.noExercisesHint' | translate }}</mat-hint>
               }
-            </mat-select>
-            @if (exercises.length === 0) {
-              <mat-hint>{{ 'trainingPlans.noExercisesHint' | translate }}</mat-hint>
-            }
-          </mat-form-field>
+            </mat-form-field>
+          }
         </form>
 
         @if ((!plan.planSessions || plan.planSessions.length === 0) && plan.exerciseIds.length > 0) {
@@ -183,23 +184,24 @@
                   </mat-panel-title>
                 </mat-expansion-panel-header>
 
-                <mat-form-field appearance="outline" class="exercise-type-field">
-                  <mat-label>Select Exercise-Type</mat-label>
-                  <mat-select
-                    [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
-                    name="exerciseType-{{ exerciseId }}"
-                    [disabled]="!!plan.isDefault"
-                    (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
-                  >
-                    <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
-                    <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
-                    <mat-option value="TIME_BASED">Time-Based</mat-option>
-                    <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
-                    <mat-option value="REP_GOAL">Rep Goal System</mat-option>
-                    <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
-                    <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                @if (!plan.isDefault) {
+                  <mat-form-field appearance="outline" class="exercise-type-field">
+                    <mat-label>Select Exercise-Type</mat-label>
+                    <mat-select
+                      [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
+                      name="exerciseType-{{ exerciseId }}"
+                      (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
+                    >
+                      <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                      <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                      <mat-option value="TIME_BASED">Time-Based</mat-option>
+                      <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
+                      <mat-option value="REP_GOAL">Rep Goal System</mat-option>
+                      <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
+                      <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                }
 
                 <mat-accordion multi class="set-type-accordion">
                   <!-- A default (read-only) plan's warmup/cooldown accordions are pure
