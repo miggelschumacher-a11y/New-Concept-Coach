@@ -155,6 +155,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Google Drive backup failed.',
     'config.restoreFromFileLabel': 'Restore DB from file',
     'config.incrementSchemeTitle': 'Increment Scheme',
+    'config.doubleProgressionTitle': 'Double Progression',
     'config.incrementSchemeDescription':
       'Double progression: work within a rep range at a fixed weight. Once every set reaches the top of the range, the weight goes up and you start again at the bottom.',
     'config.incrementSchemeLowerReps': 'Lower rep range',
@@ -334,6 +335,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Sicherung in Google Drive fehlgeschlagen.',
     'config.restoreFromFileLabel': 'DB aus Datei wiederherstellen',
     'config.incrementSchemeTitle': 'Inkrement-Schema',
+    'config.doubleProgressionTitle': 'Doppel-Progression',
     'config.incrementSchemeDescription':
       'Doppelte Progression: Du trainierst innerhalb eines Wiederholungsbereichs bei gleichbleibendem Gewicht. Sobald jeder Satz die Obergrenze erreicht hat, steigt das Gewicht, und du beginnst wieder am unteren Ende.',
     'config.incrementSchemeLowerReps': 'Untere Wiederholungsgrenze',
@@ -513,6 +515,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Error al respaldar en Google Drive.',
     'config.restoreFromFileLabel': 'Restaurar BD desde archivo',
     'config.incrementSchemeTitle': 'Esquema de incremento',
+    'config.doubleProgressionTitle': 'Progresión doble',
     'config.incrementSchemeDescription':
       'Progresión doble: entrenas dentro de un rango de repeticiones con un peso fijo. En cuanto cada serie alcanza el límite superior, el peso sube y vuelves a empezar desde el límite inferior.',
     'config.incrementSchemeLowerReps': 'Rango inferior de repeticiones',
@@ -692,6 +695,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Falha ao salvar no Google Drive.',
     'config.restoreFromFileLabel': 'Restaurar BD a partir de arquivo',
     'config.incrementSchemeTitle': 'Esquema de incremento',
+    'config.doubleProgressionTitle': 'Progressão dupla',
     'config.incrementSchemeDescription':
       'Progressão dupla: você treina dentro de uma faixa de repetições com um peso fixo. Assim que cada série atinge o limite superior, o peso aumenta e você recomeça no limite inferior.',
     'config.incrementSchemeLowerReps': 'Faixa inferior de repetições',
@@ -871,6 +875,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Backup su Google Drive non riuscito.',
     'config.restoreFromFileLabel': 'Ripristina DB da file',
     'config.incrementSchemeTitle': 'Schema di incremento',
+    'config.doubleProgressionTitle': 'Progressione doppia',
     'config.incrementSchemeDescription':
       'Progressione doppia: alleni all\'interno di un intervallo di ripetizioni con un peso fisso. Non appena ogni serie raggiunge il limite superiore, il peso aumenta e ricominci dal limite inferiore.',
     'config.incrementSchemeLowerReps': 'Limite inferiore delle ripetizioni',
@@ -1050,6 +1055,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Back-up naar Google Drive mislukt.',
     'config.restoreFromFileLabel': 'DB uit bestand herstellen',
     'config.incrementSchemeTitle': 'Increment-schema',
+    'config.doubleProgressionTitle': 'Dubbele progressie',
     'config.incrementSchemeDescription':
       'Dubbele progressie: je traint binnen een herhalingsbereik met een vast gewicht. Zodra elke set de bovengrens bereikt, gaat het gewicht omhoog en begin je weer bij de ondergrens.',
     'config.incrementSchemeLowerReps': 'Onderste herhalingsbereik',
@@ -1229,6 +1235,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Kopia zapasowa w Google Drive nie powiodła się.',
     'config.restoreFromFileLabel': 'Przywróć bazę z pliku',
     'config.incrementSchemeTitle': 'Schemat przyrostu',
+    'config.doubleProgressionTitle': 'Podwójna progresja',
     'config.incrementSchemeDescription':
       'Podwójna progresja: trenujesz w zakresie powtórzeń przy stałym ciężarze. Gdy każda seria osiągnie górną granicę, ciężar rośnie, a ty zaczynasz od nowa od dolnej granicy.',
     'config.incrementSchemeLowerReps': 'Dolny zakres powtórzeń',
@@ -1408,6 +1415,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Не удалось выполнить резервное копирование в Google Диск.',
     'config.restoreFromFileLabel': 'Восстановить БД из файла',
     'config.incrementSchemeTitle': 'Схема прироста',
+    'config.doubleProgressionTitle': 'Двойная прогрессия',
     'config.incrementSchemeDescription':
       'Двойная прогрессия: вы тренируетесь в диапазоне повторений с фиксированным весом. Как только каждый подход достигает верхней границы, вес увеличивается, и вы начинаете заново с нижней границы.',
     'config.incrementSchemeLowerReps': 'Нижняя граница повторений',
@@ -1587,6 +1595,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'A Google Drive-ra történő mentés sikertelen.',
     'config.restoreFromFileLabel': 'Adatbázis visszaállítása fájlból',
     'config.incrementSchemeTitle': 'Növekményi séma',
+    'config.doubleProgressionTitle': 'Dupla progresszió',
     'config.incrementSchemeDescription':
       'Dupla progresszió: egy ismétlésszám-tartományon belül edzel állandó súllyal. Amint minden szett eléri a felső határt, a súly nő, és újra az alsó határtól kezdesz.',
     'config.incrementSchemeLowerReps': 'Alsó ismétlésszám-határ',
