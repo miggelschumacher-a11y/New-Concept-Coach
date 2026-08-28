@@ -54,6 +54,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Copy plan',
     'trainingPlans.copySuffix': ' (Copy)',
     'trainingPlans.defaultPlanHint': 'This is a default plan. It cannot be edited or deleted — copy it to create your own editable version.',
+    'trainingPlans.plan531Description':
+      'Classic Wendler 5/3/1: a 4-week cycle (3 build-up weeks + a deload week) for squat, bench press, deadlift, and overhead press, based on percentages of your 1RM.',
     'trainingPlans.noExercisesHint': 'No exercises available yet. Add some in Exercises first.',
     'trainingPlans.tierT1': 'T1 – Main',
     'trainingPlans.tierT2': 'T2 – Secondary',
@@ -136,6 +138,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Failed to connect to Google Drive.',
     'config.driveBackupSuccess': 'Data backed up to Google Drive.',
     'config.driveBackupError': 'Google Drive backup failed.',
+    'config.restoreFromFileLabel': 'Restore DB from file',
     'config.incrementSchemeTitle': 'Increment Scheme',
 
     'trainingZones.title': 'Training Zones (Endurance Sports)',
@@ -199,6 +202,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Plan kopieren',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dies ist ein Standardplan. Er kann nicht bearbeitet oder gelöscht werden – kopiere ihn, um eine eigene bearbeitbare Version zu erstellen.',
+    'trainingPlans.plan531Description':
+      'Klassisches Wendler 5/3/1: 4-Wochen-Zyklus (3 Aufbauwochen + Deload-Woche) für Squat, Bankdrücken, Kreuzheben und Overhead-Press, basierend auf Prozentsätzen des 1RM.',
     'trainingPlans.noExercisesHint': 'Noch keine Übungen vorhanden. Bitte zuerst unter Übungen anlegen.',
     'trainingPlans.tierT1': 'T1 – Hauptübung',
     'trainingPlans.tierT2': 'T2 – Nebenübung',
@@ -281,6 +286,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Verbindung mit Google Drive fehlgeschlagen.',
     'config.driveBackupSuccess': 'Daten in Google Drive gesichert.',
     'config.driveBackupError': 'Sicherung in Google Drive fehlgeschlagen.',
+    'config.restoreFromFileLabel': 'DB aus Datei wiederherstellen',
     'config.incrementSchemeTitle': 'Inkrement-Schema',
 
     'trainingZones.title': 'Trainingszonen (Ausdauersport)',
@@ -344,6 +350,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Copiar plan',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Este es un plan predeterminado. No se puede editar ni eliminar; cópialo para crear tu propia versión editable.',
+    'trainingPlans.plan531Description':
+      '5/3/1 clásico de Wendler: un ciclo de 4 semanas (3 semanas de progresión + una semana de descarga) para sentadilla, press de banca, peso muerto y press militar, basado en porcentajes de tu 1RM.',
     'trainingPlans.noExercisesHint': 'Aún no hay ejercicios disponibles. Añade algunos primero en Ejercicios.',
     'trainingPlans.tierT1': 'T1 – Principal',
     'trainingPlans.tierT2': 'T2 – Secundario',
@@ -426,6 +434,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Error al conectar con Google Drive.',
     'config.driveBackupSuccess': 'Datos respaldados en Google Drive.',
     'config.driveBackupError': 'Error al respaldar en Google Drive.',
+    'config.restoreFromFileLabel': 'Restaurar BD desde archivo',
     'config.incrementSchemeTitle': 'Esquema de incremento',
 
     'trainingZones.title': 'Zonas de entrenamiento (deportes de resistencia)',
@@ -489,6 +498,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Copiar plano',
     'trainingPlans.copySuffix': ' (Cópia)',
     'trainingPlans.defaultPlanHint': 'Este é um plano padrão. Não pode ser editado nem excluído — copie-o para criar sua própria versão editável.',
+    'trainingPlans.plan531Description':
+      '5/3/1 clássico de Wendler: um ciclo de 4 semanas (3 semanas de progressão + uma semana de deload) para agachamento, supino, levantamento terra e desenvolvimento militar, baseado em percentuais do seu 1RM.',
     'trainingPlans.noExercisesHint': 'Ainda não há exercícios disponíveis. Adicione alguns primeiro em Exercícios.',
     'trainingPlans.tierT1': 'T1 – Principal',
     'trainingPlans.tierT2': 'T2 – Secundário',
@@ -571,6 +582,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Falha ao conectar ao Google Drive.',
     'config.driveBackupSuccess': 'Dados salvos no Google Drive.',
     'config.driveBackupError': 'Falha ao salvar no Google Drive.',
+    'config.restoreFromFileLabel': 'Restaurar BD a partir de arquivo',
     'config.incrementSchemeTitle': 'Esquema de incremento',
 
     'trainingZones.title': 'Zonas de treino (esportes de resistência)',
@@ -634,6 +646,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Copia piano',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Questo è un piano predefinito. Non può essere modificato o eliminato: copialo per creare la tua versione modificabile.',
+    'trainingPlans.plan531Description':
+      'Classico 5/3/1 di Wendler: un ciclo di 4 settimane (3 settimane di progressione + una settimana di scarico) per squat, panca piana, stacco da terra e military press, basato su percentuali del tuo 1RM.',
     'trainingPlans.noExercisesHint': 'Nessun esercizio disponibile. Aggiungine prima alcuni in Esercizi.',
     'trainingPlans.tierT1': 'T1 – Principale',
     'trainingPlans.tierT2': 'T2 – Secondario',
@@ -716,6 +730,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Connessione a Google Drive non riuscita.',
     'config.driveBackupSuccess': 'Dati salvati su Google Drive.',
     'config.driveBackupError': 'Backup su Google Drive non riuscito.',
+    'config.restoreFromFileLabel': 'Ripristina DB da file',
     'config.incrementSchemeTitle': 'Schema di incremento',
 
     'trainingZones.title': 'Zone di allenamento (sport di resistenza)',
@@ -779,6 +794,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Plan kopiëren',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dit is een standaardplan. Het kan niet worden bewerkt of verwijderd — kopieer het om je eigen bewerkbare versie te maken.',
+    'trainingPlans.plan531Description':
+      'Klassiek Wendler 5/3/1: een cyclus van 4 weken (3 opbouwweken + een deload-week) voor squat, bankdrukken, deadlift en overhead press, gebaseerd op percentages van je 1RM.',
     'trainingPlans.noExercisesHint': 'Nog geen oefeningen beschikbaar. Voeg er eerst een toe bij Oefeningen.',
     'trainingPlans.tierT1': 'T1 – Hoofd',
     'trainingPlans.tierT2': 'T2 – Secundair',
@@ -861,6 +878,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Verbinden met Google Drive mislukt.',
     'config.driveBackupSuccess': 'Gegevens opgeslagen in Google Drive.',
     'config.driveBackupError': 'Back-up naar Google Drive mislukt.',
+    'config.restoreFromFileLabel': 'DB uit bestand herstellen',
     'config.incrementSchemeTitle': 'Increment-schema',
 
     'trainingZones.title': 'Trainingszones (duursport)',
@@ -924,6 +942,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Kopiuj plan',
     'trainingPlans.copySuffix': ' (Kopia)',
     'trainingPlans.defaultPlanHint': 'To jest plan domyślny. Nie można go edytować ani usunąć — skopiuj go, aby utworzyć własną edytowalną wersję.',
+    'trainingPlans.plan531Description':
+      'Klasyczny Wendler 5/3/1: 4-tygodniowy cykl (3 tygodnie budowania + tydzień deload) dla przysiadu, wyciskania na ławce, martwego ciągu i wyciskania nad głowę, oparty na procentach twojego 1RM.',
     'trainingPlans.noExercisesHint': 'Brak dostępnych ćwiczeń. Dodaj je najpierw w sekcji Ćwiczenia.',
     'trainingPlans.tierT1': 'T1 – Główne',
     'trainingPlans.tierT2': 'T2 – Drugorzędne',
@@ -1006,6 +1026,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Nie udało się połączyć z Google Drive.',
     'config.driveBackupSuccess': 'Dane zapisane w Google Drive.',
     'config.driveBackupError': 'Kopia zapasowa w Google Drive nie powiodła się.',
+    'config.restoreFromFileLabel': 'Przywróć bazę z pliku',
     'config.incrementSchemeTitle': 'Schemat przyrostu',
 
     'trainingZones.title': 'Strefy treningowe (sporty wytrzymałościowe)',
@@ -1069,6 +1090,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Копировать план',
     'trainingPlans.copySuffix': ' (Копия)',
     'trainingPlans.defaultPlanHint': 'Это план по умолчанию. Его нельзя редактировать или удалить — скопируйте его, чтобы создать свою редактируемую версию.',
+    'trainingPlans.plan531Description':
+      'Классический Вендлер 5/3/1: 4-недельный цикл (3 недели наращивания + неделя разгрузки) для приседаний, жима лёжа, становой тяги и жима стоя, основанный на процентах от вашего 1ПМ.',
     'trainingPlans.noExercisesHint': 'Пока нет доступных упражнений. Сначала добавьте их в разделе Упражнения.',
     'trainingPlans.tierT1': 'T1 – Основное',
     'trainingPlans.tierT2': 'T2 – Вторичное',
@@ -1151,6 +1174,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Не удалось подключиться к Google Диску.',
     'config.driveBackupSuccess': 'Данные сохранены в Google Диске.',
     'config.driveBackupError': 'Не удалось выполнить резервное копирование в Google Диск.',
+    'config.restoreFromFileLabel': 'Восстановить БД из файла',
     'config.incrementSchemeTitle': 'Схема прироста',
 
     'trainingZones.title': 'Тренировочные зоны (циклические виды спорта)',
@@ -1214,6 +1238,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.copyPlan': 'Terv másolása',
     'trainingPlans.copySuffix': ' (Másolat)',
     'trainingPlans.defaultPlanHint': 'Ez egy alapértelmezett terv. Nem szerkeszthető és nem törölhető – másold le, hogy saját szerkeszthető verziót hozz létre.',
+    'trainingPlans.plan531Description':
+      'Klasszikus Wendler 5/3/1: 4 hetes ciklus (3 felépítő hét + egy deload hét) guggolásra, fekvenyomásra, felhúzásra és vállból nyomásra, az 1RM százalékai alapján.',
     'trainingPlans.noExercisesHint': 'Még nincsenek elérhető gyakorlatok. Először adj hozzá néhányat a Gyakorlatok oldalon.',
     'trainingPlans.tierT1': 'T1 – Fő gyakorlat',
     'trainingPlans.tierT2': 'T2 – Másodlagos',
@@ -1296,6 +1322,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Nem sikerült kapcsolódni a Google Drive-hoz.',
     'config.driveBackupSuccess': 'Az adatok mentve a Google Drive-ra.',
     'config.driveBackupError': 'A Google Drive-ra történő mentés sikertelen.',
+    'config.restoreFromFileLabel': 'Adatbázis visszaállítása fájlból',
     'config.incrementSchemeTitle': 'Növekményi séma',
 
     'trainingZones.title': 'Edzési zónák (állóképességi sportok)',

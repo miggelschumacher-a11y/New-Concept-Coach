@@ -117,6 +117,13 @@ export class TrainingPlansComponent implements OnInit {
     return this.exercises.find((exercise) => exercise.id === exerciseId)?.name ?? '';
   }
 
+  // The seeded default plan's description is generated text, not user input,
+  // so it should track the current language live like the rest of the UI
+  // instead of being frozen in whatever language it was seeded in.
+  planDescription(plan: TrainingPlan): string {
+    return plan.isDefault ? this.translationService.translate('trainingPlans.plan531Description') : plan.description ?? '';
+  }
+
   tierLabelKey(tier: string): string {
     return 'trainingPlans.tier' + tier.split('_')[0];
   }

@@ -229,6 +229,22 @@ export class ConfigComponent implements OnInit {
     }
   }
 
+  async onRestoreFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    try {
+      const data = JSON.parse(await file.text());
+      await this.indexedDbService.importAll(data);
+      this.statusMessageKey = 'config.importSuccess';
+    } catch {
+      this.statusMessageKey = 'config.importError';
+    }
+  }
+
   onBodyWeightValueInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     let sanitized = input.value.replace(/[^\d.,]/g, '').replace(',', '.');

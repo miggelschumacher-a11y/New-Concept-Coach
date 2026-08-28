@@ -285,6 +285,20 @@
           <span class="data-action-label">{{ 'config.driveRestoreLabel' | translate }}</span>
         </div>
       }
+
+      <div class="data-action-group">
+        <input #restoreFileInput type="file" accept="application/json" hidden (change)="onRestoreFileSelected($event)" />
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="restoreFileInput.click()"
+          [matTooltip]="'config.restoreFromFileLabel' | translate"
+          [attr.aria-label]="'config.restoreFromFileLabel' | translate"
+        >
+          <mat-icon>upload_file</mat-icon>
+        </button>
+        <span class="data-action-label">{{ 'config.restoreFromFileLabel' | translate }}</span>
+      </div>
     </div>
 
     @if (statusMessageKey) {

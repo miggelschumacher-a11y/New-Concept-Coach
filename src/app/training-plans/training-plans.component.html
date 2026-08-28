@@ -34,13 +34,13 @@
       <mat-expansion-panel class="plan-card">
         <mat-expansion-panel-header>
           <mat-panel-title>{{ plan.name }}</mat-panel-title>
-          @if (plan.description) {
-            <mat-panel-description>{{ plan.description }}</mat-panel-description>
+          @if (planDescription(plan)) {
+            <mat-panel-description>{{ planDescription(plan) }}</mat-panel-description>
           }
         </mat-expansion-panel-header>
 
-        @if (plan.description) {
-          <p class="plan-description-full">{{ plan.description }}</p>
+        @if (planDescription(plan)) {
+          <p class="plan-description-full">{{ planDescription(plan) }}</p>
         }
 
         @if (plan.isDefault) {
