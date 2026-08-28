@@ -64,6 +64,38 @@ mat-card {
   text-align: right;
 }
 
+.percentage-week-accordion {
+  margin-top: 0.5rem;
+}
+
+.percentage-set-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0;
+}
+
+.percentage-set-index {
+  min-width: 4.5rem;
+  color: lightgrey;
+}
+
+.percentage-input-field {
+  width: 5.5rem;
+}
+
+.percentage-set-weight {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+.percentage-set-weight-missing {
+  color: lightgrey;
+  font-weight: normal;
+  font-style: italic;
+}
+
 .set-count {
   margin-left: 0.5rem;
   color: lightgrey;

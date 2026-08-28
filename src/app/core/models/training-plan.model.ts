@@ -18,6 +18,18 @@ export interface TierLinePlanSession {
 
 export type PlanExerciseType = 'WEIGHT_BASED' | 'PERCENTAGE_BASED' | 'TIME_BASED';
 
+export interface PercentageSet {
+  // Of the exercise's current one-rep max, 0-100.
+  percentage: number;
+  // Target reps, 0-100.
+  reps: number;
+  isAmrap: boolean;
+}
+
+export interface PercentageWeek {
+  sets: PercentageSet[];
+}
+
 export interface PlanExerciseConfig {
   exerciseId: string;
   exerciseType?: PlanExerciseType;
@@ -25,6 +37,9 @@ export interface PlanExerciseConfig {
   warmupSets: number;
   workingSets: number;
   cooldownSets: number;
+  // Only used when exerciseType is PERCENTAGE_BASED - a wave of weeks, each
+  // with its own set-by-set %1RM/reps/AMRAP, e.g. a 5/3/1 style cycle.
+  percentageWeeks?: PercentageWeek[];
 }
 
 export interface TrainingPlan {

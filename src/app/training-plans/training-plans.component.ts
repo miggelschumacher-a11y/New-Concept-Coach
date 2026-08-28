@@ -8,10 +8,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
-import { TrainingPlan, TierLinePlanExercise, PlanExerciseConfig, PlanExerciseType } from '../core/models/training-plan.model';
+import {
+  TrainingPlan,
+  TierLinePlanExercise,
+  PlanExerciseConfig,
+  PlanExerciseType,
+  PercentageWeek
+} from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
@@ -22,6 +29,40 @@ const DEFAULT_WORKING_SETS = 3;
 const DEFAULT_COOLDOWN_SETS = 0;
 const PLAN_EXERCISE_SETS_MAX = 100;
 const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
+
+// Classic Wendler 5/3/1: 3 waves building to a heavier AMRAP top set, then a
+// deload week. Seeded the first time an exercise is switched to
+// percentage-based, so there's a working example to edit instead of nothing.
+const DEFAULT_PERCENTAGE_WEEKS: PercentageWeek[] = [
+  {
+    sets: [
+      { percentage: 65, reps: 5, isAmrap: false },
+      { percentage: 75, reps: 5, isAmrap: false },
+      { percentage: 85, reps: 5, isAmrap: true }
+    ]
+  },
+  {
+    sets: [
+      { percentage: 70, reps: 3, isAmrap: false },
+      { percentage: 80, reps: 3, isAmrap: false },
+      { percentage: 90, reps: 3, isAmrap: true }
+    ]
+  },
+  {
+    sets: [
+      { percentage: 75, reps: 5, isAmrap: false },
+      { percentage: 85, reps: 3, isAmrap: false },
+      { percentage: 95, reps: 1, isAmrap: true }
+    ]
+  },
+  {
+    sets: [
+      { percentage: 40, reps: 5, isAmrap: false },
+      { percentage: 50, reps: 5, isAmrap: false },
+      { percentage: 60, reps: 5, isAmrap: false }
+    ]
+  }
+];
 
 @Component({
   selector: 'app-training-plans',
@@ -36,6 +77,7 @@ const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
     MatCardModule,
     MatExpansionModule,
     MatTooltipModule,
+    MatCheckboxModule,
     TranslatePipe
   ],
   templateUrl: './training-plans.component.html',
@@ -161,15 +203,28 @@ export class TrainingPlansComponent implements OnInit {
 
   planExerciseTotalSets(plan: TrainingPlan, exerciseId: string): number {
     const config = this.planExerciseConfig(plan, exerciseId);
-    return config.warmupSets + config.workingSets + config.cooldownSets;
+    const workingSets =
+      config.exerciseType === 'PERCENTAGE_BASED' && config.percentageWeeks?.length
+        ? config.percentageWeeks[0].sets.length
+        : config.workingSets;
+    return config.warmupSets + workingSets + config.cooldownSets;
+  }
+
+  private async updateConfig(plan: TrainingPlan, exerciseId: string, patch: Partial<PlanExerciseConfig>): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
+      c.exerciseId === exerciseId ? { ...config, ...patch } : c
+    );
+    await this.trainingPlansService.update(plan);
   }
 
   async updatePlanExerciseType(plan: TrainingPlan, exerciseId: string, exerciseType: PlanExerciseType): Promise<void> {
     const config = this.planExerciseConfig(plan, exerciseId);
-    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
-      c.exerciseId === exerciseId ? { ...config, exerciseType } : c
-    );
-    await this.trainingPlansService.update(plan);
+    const patch: Partial<PlanExerciseConfig> = { exerciseType };
+    if (exerciseType === 'PERCENTAGE_BASED' && !config.percentageWeeks) {
+      patch.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
+    }
+    await this.updateConfig(plan, exerciseId, patch);
   }
 
   onPlanExerciseSetsInput(event: Event): void {
@@ -186,29 +241,67 @@ export class TrainingPlansComponent implements OnInit {
   }
 
   async updatePlanExerciseWarmupSets(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    const warmupSets = this.clampSets(value);
-    const config = this.planExerciseConfig(plan, exerciseId);
-    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
-      c.exerciseId === exerciseId ? { ...config, warmupSets } : c
-    );
-    await this.trainingPlansService.update(plan);
+    await this.updateConfig(plan, exerciseId, { warmupSets: this.clampSets(value) });
   }
 
   async updatePlanExerciseWorkingSets(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    const workingSets = this.clampSets(value);
-    const config = this.planExerciseConfig(plan, exerciseId);
-    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
-      c.exerciseId === exerciseId ? { ...config, workingSets } : c
-    );
-    await this.trainingPlansService.update(plan);
+    await this.updateConfig(plan, exerciseId, { workingSets: this.clampSets(value) });
   }
 
   async updatePlanExerciseCooldownSets(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    const cooldownSets = this.clampSets(value);
+    await this.updateConfig(plan, exerciseId, { cooldownSets: this.clampSets(value) });
+  }
+
+  private async updatePercentageSet(
+    plan: TrainingPlan,
+    exerciseId: string,
+    weekIndex: number,
+    setIndex: number,
+    patch: Partial<{ percentage: number; reps: number; isAmrap: boolean }>
+  ): Promise<void> {
     const config = this.planExerciseConfig(plan, exerciseId);
-    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
-      c.exerciseId === exerciseId ? { ...config, cooldownSets } : c
+    const weeks = (config.percentageWeeks ?? []).map((week, wi) =>
+      wi === weekIndex ? { sets: week.sets.map((set, si) => (si === setIndex ? { ...set, ...patch } : set)) } : week
     );
-    await this.trainingPlansService.update(plan);
+    await this.updateConfig(plan, exerciseId, { percentageWeeks: weeks });
+  }
+
+  async updatePercentageSetPercentage(
+    plan: TrainingPlan,
+    exerciseId: string,
+    weekIndex: number,
+    setIndex: number,
+    value: string
+  ): Promise<void> {
+    await this.updatePercentageSet(plan, exerciseId, weekIndex, setIndex, { percentage: this.clampSets(value) });
+  }
+
+  async updatePercentageSetReps(
+    plan: TrainingPlan,
+    exerciseId: string,
+    weekIndex: number,
+    setIndex: number,
+    value: string
+  ): Promise<void> {
+    await this.updatePercentageSet(plan, exerciseId, weekIndex, setIndex, { reps: this.clampSets(value) });
+  }
+
+  async togglePercentageSetAmrap(
+    plan: TrainingPlan,
+    exerciseId: string,
+    weekIndex: number,
+    setIndex: number,
+    isAmrap: boolean
+  ): Promise<void> {
+    await this.updatePercentageSet(plan, exerciseId, weekIndex, setIndex, { isAmrap });
+  }
+
+  percentageSetWeight(exerciseId: string, percentage: number): number | null {
+    const oneRepMax = this.exercises.find((exercise) => exercise.id === exerciseId)?.oneRepMax;
+    if (!oneRepMax) {
+      return null;
+    }
+    const increment = this.settingsService.getSettings().weightUnit === 'lbs' ? 5 : 2.5;
+    return Math.round((oneRepMax * percentage) / 100 / increment) * increment;
   }
 }
