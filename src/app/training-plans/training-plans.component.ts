@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,11 +32,13 @@ import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
 import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
 import { DEFAULT_GZCLP_PLAN_ID } from '../core/data/default-gzclp-plan';
 import { DEFAULT_GREYSKULL_PLAN_ID } from '../core/data/default-greyskull-plan';
+import { DEFAULT_NSUNS_PLAN_ID } from '../core/data/default-nsuns-plan';
 
 const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_531_PLAN_ID]: 'trainingPlans.plan531Description',
   [DEFAULT_5X5_PLAN_ID]: 'trainingPlans.plan5x5Description',
   [DEFAULT_GZCLP_PLAN_ID]: 'trainingPlans.planGzclpDescription',
+  [DEFAULT_NSUNS_PLAN_ID]: 'trainingPlans.planNsunsDescription',
   [DEFAULT_GREYSKULL_PLAN_ID]: 'trainingPlans.planGreyskullDescription'
 };
 
@@ -94,6 +97,7 @@ const DEFAULT_PERCENTAGE_WEEKS: PercentageWeek[] = [
     MatTooltipModule,
     MatCheckboxModule,
     MatDialogModule,
+    NgTemplateOutlet,
     TranslatePipe
   ],
   templateUrl: './training-plans.component.html',
@@ -277,6 +281,13 @@ export class TrainingPlansComponent implements OnInit {
         ? config.percentageWeeks[0].sets.length
         : config.workingSets;
     return config.warmupSets + workingSets + config.cooldownSets;
+  }
+
+  // A plan whose percentage scheme repeats identically every session (e.g.
+  // nSuns) has just one week; showing a "Week 1" wrapper around it would be
+  // redundant, so its sets render directly under Working Sets instead.
+  hasSinglePercentageWeek(plan: TrainingPlan, exerciseId: string): boolean {
+    return this.planExerciseConfig(plan, exerciseId).percentageWeeks?.length === 1;
   }
 
   private async updateConfig(plan: TrainingPlan, exerciseId: string, patch: Partial<PlanExerciseConfig>): Promise<void> {

@@ -6,12 +6,14 @@ import { DEFAULT_531_PLAN_ID, buildDefault531Plan } from '../data/default-531-pl
 import { DEFAULT_5X5_PLAN_ID, buildDefault5x5Plan } from '../data/default-5x5-plan';
 import { DEFAULT_GZCLP_PLAN_ID, buildDefaultGzclpPlan } from '../data/default-gzclp-plan';
 import { DEFAULT_GREYSKULL_PLAN_ID, buildDefaultGreyskullPlan } from '../data/default-greyskull-plan';
+import { DEFAULT_NSUNS_PLAN_ID, buildDefaultNsunsPlan } from '../data/default-nsuns-plan';
 
 const DEFAULT_PLANS = [
   { id: DEFAULT_531_PLAN_ID, build: buildDefault531Plan },
   { id: DEFAULT_5X5_PLAN_ID, build: buildDefault5x5Plan },
   { id: DEFAULT_GZCLP_PLAN_ID, build: buildDefaultGzclpPlan },
-  { id: DEFAULT_GREYSKULL_PLAN_ID, build: buildDefaultGreyskullPlan }
+  { id: DEFAULT_GREYSKULL_PLAN_ID, build: buildDefaultGreyskullPlan },
+  { id: DEFAULT_NSUNS_PLAN_ID, build: buildDefaultNsunsPlan }
 ];
 
 @Injectable({ providedIn: 'root' })
