@@ -66,6 +66,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP by John Sheaffer: 3x per week linear progression on squat, bench press, chin-ups, overhead press, and deadlift — 2 sets of 5 plus an AMRAP (as-many-reps-as-possible) top set each session (deadlift 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: a higher-volume take on Wendler\'s 5/3/1, created by the Reddit user nSuns. Each session, squat, bench press, deadlift, and overhead press are trained for 9 sets based on percentages of your training max, ending in an AMRAP (as-many-reps-as-possible) top set.',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty by Mike Mentzer: high-intensity training (HIT) — a single all-out set taken to complete muscular failure per exercise, with infrequent, brief sessions covering the major compound lifts.',
     'trainingPlans.noExercisesHint': 'No exercises available yet. Add some in Exercises first.',
     'trainingPlans.tierT1': 'T1 – Main',
     'trainingPlans.tierT2': 'T2 – Secondary',
@@ -224,6 +226,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP von John Sheaffer: 3x wöchentliche lineare Progression auf Kniebeuge, Bankdrücken, Klimmzüge, Overhead-Press und Kreuzheben – 2 Sätze à 5 Wiederholungen plus ein AMRAP-Topsatz pro Einheit (Kreuzheben 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: eine höher-volumige Variante von Wendlers 5/3/1, entwickelt vom Reddit-Nutzer nSuns. Squat, Bankdrücken, Kreuzheben und Overhead-Press werden jede Einheit über 9 Sätze nach Prozentsätzen des Trainingsmax trainiert, mit einem abschließenden AMRAP-Topsatz.',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty nach Mike Mentzer: High Intensity Training (HIT) – ein einziger maximaler Satz bis zum vollständigen Muskelversagen pro Übung, in seltenen, kurzen Einheiten über die wichtigsten Grundübungen.',
     'trainingPlans.noExercisesHint': 'Noch keine Übungen vorhanden. Bitte zuerst unter Übungen anlegen.',
     'trainingPlans.tierT1': 'T1 – Hauptübung',
     'trainingPlans.tierT2': 'T2 – Nebenübung',
@@ -382,6 +386,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP de John Sheaffer: progresión lineal 3 veces por semana en sentadilla, press de banca, dominadas, press militar y peso muerto — 2 series de 5 más una serie final AMRAP (máximas repeticiones posibles) por sesión (peso muerto 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: una variante de mayor volumen del 5/3/1 de Wendler, creada por el usuario de Reddit nSuns. En cada sesión, sentadilla, press de banca, peso muerto y press militar se entrenan durante 9 series según porcentajes de tu máximo de entrenamiento, terminando en una serie final AMRAP (máximas repeticiones posibles).',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty de Mike Mentzer: entrenamiento de alta intensidad (HIT) — una única serie máxima hasta el fallo muscular completo por ejercicio, en sesiones breves y poco frecuentes que cubren los principales ejercicios básicos.',
     'trainingPlans.noExercisesHint': 'Aún no hay ejercicios disponibles. Añade algunos primero en Ejercicios.',
     'trainingPlans.tierT1': 'T1 – Principal',
     'trainingPlans.tierT2': 'T2 – Secundario',
@@ -540,6 +546,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP de John Sheaffer: progressão linear 3x por semana em agachamento, supino, barra fixa, desenvolvimento militar e levantamento terra — 2 séries de 5 mais uma série final AMRAP (máximo de repetições possível) por sessão (levantamento terra 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: uma variante de maior volume do 5/3/1 de Wendler, criada pelo usuário do Reddit nSuns. Em cada sessão, agachamento, supino, levantamento terra e desenvolvimento militar são treinados em 9 séries com base em percentuais do seu máximo de treino, terminando em uma série final AMRAP (máximo de repetições possível).',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty de Mike Mentzer: treino de alta intensidade (HIT) — uma única série máxima até a falha muscular completa por exercício, em sessões breves e pouco frequentes que cobrem os principais exercícios básicos.',
     'trainingPlans.noExercisesHint': 'Ainda não há exercícios disponíveis. Adicione alguns primeiro em Exercícios.',
     'trainingPlans.tierT1': 'T1 – Principal',
     'trainingPlans.tierT2': 'T2 – Secundário',
@@ -698,6 +706,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP di John Sheaffer: progressione lineare 3 volte a settimana su squat, panca piana, trazioni alla sbarra, military press e stacco da terra — 2 serie da 5 più una serie finale AMRAP (massime ripetizioni possibili) a sessione (stacco da terra 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: una variante ad alto volume del 5/3/1 di Wendler, creata dall\'utente Reddit nSuns. Ogni sessione, squat, panca piana, stacco da terra e military press vengono allenati per 9 serie basate su percentuali del tuo massimale di allenamento, terminando con una serie finale AMRAP (massime ripetizioni possibili).',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty di Mike Mentzer: allenamento ad alta intensità (HIT) — una singola serie massimale fino al cedimento muscolare completo per esercizio, in sessioni brevi e poco frequenti che coprono i principali esercizi fondamentali.',
     'trainingPlans.noExercisesHint': 'Nessun esercizio disponibile. Aggiungine prima alcuni in Esercizi.',
     'trainingPlans.tierT1': 'T1 – Principale',
     'trainingPlans.tierT2': 'T2 – Secondario',
@@ -856,6 +866,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP van John Sheaffer: 3x per week lineaire progressie op squat, bankdrukken, pull-ups, overhead press en deadlift — 2 sets van 5 plus een AMRAP-topset (zoveel mogelijk herhalingen) per sessie (deadlift 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: een variant met hoger volume van Wendlers 5/3/1, gemaakt door Reddit-gebruiker nSuns. Elke sessie worden squat, bankdrukken, deadlift en overhead press getraind over 9 sets op basis van percentages van je trainingsmax, eindigend in een AMRAP-topset (zoveel mogelijk herhalingen).',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty naar Mike Mentzer: high intensity training (HIT) — één maximale set tot volledig spierfalen per oefening, in korte, weinig frequente sessies die de belangrijkste basisoefeningen behandelen.',
     'trainingPlans.noExercisesHint': 'Nog geen oefeningen beschikbaar. Voeg er eerst een toe bij Oefeningen.',
     'trainingPlans.tierT1': 'T1 – Hoofd',
     'trainingPlans.tierT2': 'T2 – Secundair',
@@ -1014,6 +1026,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP autorstwa Johna Sheaffera: liniowy progres 3x w tygodniu na przysiadzie, wyciskaniu na ławce, podciąganiu, wyciskaniu nad głowę i martwym ciągu — 2 serie po 5 powtórzeń plus finałowa seria AMRAP (maksymalna liczba powtórzeń) na sesję (martwy ciąg 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: wersja o wyższej objętości Wendlerowskiego 5/3/1, stworzona przez użytkownika Reddita nSuns. Podczas każdej sesji przysiad, wyciskanie na ławce, martwy ciąg i wyciskanie nad głowę są trenowane przez 9 serii opartych na procentach twojego maksimum treningowego, kończąc finałową serią AMRAP (maksymalna liczba powtórzeń).',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty według Mike\'a Mentzera: trening wysokiej intensywności (HIT) — jedna maksymalna seria do całkowitego zmęczenia mięśniowego na ćwiczenie, w krótkich, rzadkich sesjach obejmujących najważniejsze ćwiczenia podstawowe.',
     'trainingPlans.noExercisesHint': 'Brak dostępnych ćwiczeń. Dodaj je najpierw w sekcji Ćwiczenia.',
     'trainingPlans.tierT1': 'T1 – Główne',
     'trainingPlans.tierT2': 'T2 – Drugorzędne',
@@ -1172,6 +1186,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP от Джона Шеффера: линейная прогрессия 3 раза в неделю в приседаниях, жиме лёжа, подтягиваниях, жиме стоя и становой тяге — 2 подхода по 5 повторений плюс финальный AMRAP-подход (максимум повторений) за тренировку (становая тяга 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: вариант программы Вендлера 5/3/1 с большим объёмом, созданный пользователем Reddit nSuns. На каждой тренировке приседания, жим лёжа, становая тяга и жим стоя выполняются на 9 подходов по процентам от вашего тренировочного максимума, завершаясь финальным AMRAP-подходом (максимум повторений).',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty от Майка Ментцера: высокоинтенсивный тренинг (HIT) — один максимальный подход до полного мышечного отказа на упражнение, в коротких, редких тренировках, охватывающих основные базовые упражнения.',
     'trainingPlans.noExercisesHint': 'Пока нет доступных упражнений. Сначала добавьте их в разделе Упражнения.',
     'trainingPlans.tierT1': 'T1 – Основное',
     'trainingPlans.tierT2': 'T2 – Вторичное',
@@ -1330,6 +1346,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'GreySkull LP John Sheaffertől: heti 3x lineáris progresszió guggolásban, fekvenyomásban, húzódzkodásban, vállból nyomásban és felhúzásban — 2x5 ismétlés plusz egy záró AMRAP szett (maximális ismétlésszám) edzésenként (felhúzás 1x5).',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: Wendler 5/3/1-jének nagyobb volumenű változata, amelyet a Reddit-felhasználó nSuns hozott létre. Minden edzésen a guggolás, fekvenyomás, felhúzás és vállból nyomás 9 szetten keresztül, az edzési maximum százalékai alapján történik, egy záró AMRAP szettel.',
+    'trainingPlans.planHeavyDutyDescription':
+      'Heavy Duty Mike Mentzer nyomán: nagy intenzitású edzés (HIT) — egyetlen maximális szett a teljes izomkimerülésig gyakorlatonként, ritka, rövid edzéseken, amelyek a legfontosabb alapgyakorlatokat fedik le.',
     'trainingPlans.noExercisesHint': 'Még nincsenek elérhető gyakorlatok. Először adj hozzá néhányat a Gyakorlatok oldalon.',
     'trainingPlans.tierT1': 'T1 – Fő gyakorlat',
     'trainingPlans.tierT2': 'T2 – Másodlagos',

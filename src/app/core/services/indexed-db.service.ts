@@ -6,16 +6,18 @@ import { buildDefault5x5Plan } from '../data/default-5x5-plan';
 import { buildDefaultGzclpPlan } from '../data/default-gzclp-plan';
 import { buildDefaultGreyskullPlan } from '../data/default-greyskull-plan';
 import { buildDefaultNsunsPlan } from '../data/default-nsuns-plan';
+import { buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 20;
+const DB_VERSION = 21;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
   buildDefault5x5Plan,
   buildDefaultGzclpPlan,
   buildDefaultGreyskullPlan,
-  buildDefaultNsunsPlan
+  buildDefaultNsunsPlan,
+  buildDefaultHeavyDutyPlan
 ];
 
 export const STORES = {
@@ -156,11 +158,12 @@ export class IndexedDbService {
           }
 
           if (
-            event.oldVersion < 20 &&
+            event.oldVersion < 21 &&
             db.objectStoreNames.contains(STORES.exercises) &&
             db.objectStoreNames.contains(STORES.trainingPlans)
           ) {
-            // Seed the default plans (5/3/1, 5x5, GZCLP, GreySkull LP, nSuns) for
+            // Seed the default plans (5/3/1, 5x5, GZCLP, GreySkull LP, nSuns,
+            // Heavy Duty) for
             // existing installs too, looking up the lift ids by name since
             // they're randomly generated per install. Re-running this is
             // harmless/idempotent (put), so it also re-adds any default plan
