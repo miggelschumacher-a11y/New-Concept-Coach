@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatExpansionModule } from '@angular/material/expansion';
 import {
   SettingsService,
   WeightUnit,
@@ -39,6 +40,7 @@ const BODY_WEIGHT_MAX = 300;
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatExpansionModule,
     DatePipe,
     DecimalPipe,
     TranslatePipe

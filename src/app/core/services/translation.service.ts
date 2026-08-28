@@ -129,6 +129,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Failed to connect to Google Drive.',
     'config.driveBackupSuccess': 'Data backed up to Google Drive.',
     'config.driveBackupError': 'Google Drive backup failed.',
+    'config.incrementSchemeTitle': 'Increment Scheme',
 
     'trainingZones.title': 'Training Zones (Endurance Sports)',
     'trainingZones.zoneColumn': 'Zone',
@@ -266,6 +267,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Verbindung mit Google Drive fehlgeschlagen.',
     'config.driveBackupSuccess': 'Daten in Google Drive gesichert.',
     'config.driveBackupError': 'Sicherung in Google Drive fehlgeschlagen.',
+    'config.incrementSchemeTitle': 'Inkrement-Schema',
 
     'trainingZones.title': 'Trainingszonen (Ausdauersport)',
     'trainingZones.zoneColumn': 'Zone',
@@ -403,6 +405,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Error al conectar con Google Drive.',
     'config.driveBackupSuccess': 'Datos respaldados en Google Drive.',
     'config.driveBackupError': 'Error al respaldar en Google Drive.',
+    'config.incrementSchemeTitle': 'Esquema de incremento',
 
     'trainingZones.title': 'Zonas de entrenamiento (deportes de resistencia)',
     'trainingZones.zoneColumn': 'Zona',
@@ -540,6 +543,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Falha ao conectar ao Google Drive.',
     'config.driveBackupSuccess': 'Dados salvos no Google Drive.',
     'config.driveBackupError': 'Falha ao salvar no Google Drive.',
+    'config.incrementSchemeTitle': 'Esquema de incremento',
 
     'trainingZones.title': 'Zonas de treino (esportes de resistência)',
     'trainingZones.zoneColumn': 'Zona',
@@ -677,6 +681,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Connessione a Google Drive non riuscita.',
     'config.driveBackupSuccess': 'Dati salvati su Google Drive.',
     'config.driveBackupError': 'Backup su Google Drive non riuscito.',
+    'config.incrementSchemeTitle': 'Schema di incremento',
 
     'trainingZones.title': 'Zone di allenamento (sport di resistenza)',
     'trainingZones.zoneColumn': 'Zona',
@@ -814,6 +819,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Verbinden met Google Drive mislukt.',
     'config.driveBackupSuccess': 'Gegevens opgeslagen in Google Drive.',
     'config.driveBackupError': 'Back-up naar Google Drive mislukt.',
+    'config.incrementSchemeTitle': 'Increment-schema',
 
     'trainingZones.title': 'Trainingszones (duursport)',
     'trainingZones.zoneColumn': 'Zone',
@@ -951,6 +957,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Nie udało się połączyć z Google Drive.',
     'config.driveBackupSuccess': 'Dane zapisane w Google Drive.',
     'config.driveBackupError': 'Kopia zapasowa w Google Drive nie powiodła się.',
+    'config.incrementSchemeTitle': 'Schemat przyrostu',
 
     'trainingZones.title': 'Strefy treningowe (sporty wytrzymałościowe)',
     'trainingZones.zoneColumn': 'Strefa',
@@ -1088,6 +1095,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Не удалось подключиться к Google Диску.',
     'config.driveBackupSuccess': 'Данные сохранены в Google Диске.',
     'config.driveBackupError': 'Не удалось выполнить резервное копирование в Google Диск.',
+    'config.incrementSchemeTitle': 'Схема прироста',
 
     'trainingZones.title': 'Тренировочные зоны (циклические виды спорта)',
     'trainingZones.zoneColumn': 'Зона',
@@ -1225,6 +1233,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveRestoreError': 'Nem sikerült kapcsolódni a Google Drive-hoz.',
     'config.driveBackupSuccess': 'Az adatok mentve a Google Drive-ra.',
     'config.driveBackupError': 'A Google Drive-ra történő mentés sikertelen.',
+    'config.incrementSchemeTitle': 'Növekményi séma',
 
     'trainingZones.title': 'Edzési zónák (állóképességi sportok)',
     'trainingZones.zoneColumn': 'Zóna',
