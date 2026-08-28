@@ -10,7 +10,7 @@ import { buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
 import { buildDefaultHstPlan } from '../data/default-hst-plan';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 22;
+const DB_VERSION = 24;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -160,7 +160,12 @@ export class IndexedDbService {
           }
 
           if (
-            event.oldVersion < 22 &&
+            // Always compares against the live DB_VERSION constant rather
+            // than a hardcoded number that must be bumped in lockstep — a
+            // mismatch here once let a live-reload race skip this backfill
+            // for an already-open real browser, permanently missing a content
+            // update (see project memory: default-training-plans).
+            event.oldVersion < DB_VERSION &&
             db.objectStoreNames.contains(STORES.exercises) &&
             db.objectStoreNames.contains(STORES.trainingPlans)
           ) {
