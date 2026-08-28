@@ -12,6 +12,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
+import { TranslationService } from '../core/services/translation.service';
 import {
   TrainingPlan,
   TierLinePlanExercise,
@@ -93,7 +94,8 @@ export class TrainingPlansComponent implements OnInit {
   constructor(
     private readonly trainingPlansService: TrainingPlansService,
     private readonly exercisesService: ExercisesService,
-    private readonly settingsService: SettingsService
+    private readonly settingsService: SettingsService,
+    private readonly translationService: TranslationService
   ) {}
 
   get weightUnitLabel(): string {
@@ -162,11 +164,32 @@ export class TrainingPlansComponent implements OnInit {
 
   async confirmDeletePlan(id: string): Promise<void> {
     this.pendingDeletePlanId = null;
+    const plan = this.plans.find((p) => p.id === id);
+    if (plan?.isDefault) {
+      return;
+    }
     await this.trainingPlansService.delete(id);
     await this.load();
   }
 
+  async copyPlan(plan: TrainingPlan): Promise<void> {
+    const { id: _id, isDefault: _isDefault, ...rest } = plan;
+    await this.trainingPlansService.add({
+      ...rest,
+      name: plan.name + this.translationService.translate('trainingPlans.copySuffix'),
+      exerciseConfigs: plan.exerciseConfigs?.map((config) => ({
+        ...config,
+        percentageWeeks: config.percentageWeeks?.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }))
+      })),
+      isDefault: false
+    });
+    await this.load();
+  }
+
   async updatePlanExercises(plan: TrainingPlan, exerciseIds: string[]): Promise<void> {
+    if (plan.isDefault) {
+      return;
+    }
     plan.exerciseIds = exerciseIds;
     const existingByExerciseId = new Map((plan.exerciseConfigs ?? []).map((config) => [config.exerciseId, config]));
     plan.exerciseConfigs = exerciseIds.map(
@@ -211,6 +234,9 @@ export class TrainingPlansComponent implements OnInit {
   }
 
   private async updateConfig(plan: TrainingPlan, exerciseId: string, patch: Partial<PlanExerciseConfig>): Promise<void> {
+    if (plan.isDefault) {
+      return;
+    }
     const config = this.planExerciseConfig(plan, exerciseId);
     plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
       c.exerciseId === exerciseId ? { ...config, ...patch } : c

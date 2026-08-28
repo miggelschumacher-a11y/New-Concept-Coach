@@ -43,6 +43,10 @@
           <p class="plan-description-full">{{ plan.description }}</p>
         }
 
+        @if (plan.isDefault) {
+          <p class="plan-description-full">{{ 'trainingPlans.defaultPlanHint' | translate }}</p>
+        }
+
         <form class="exercise-form">
           <mat-form-field appearance="outline">
             <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
@@ -50,6 +54,7 @@
               [ngModel]="plan.exerciseIds"
               name="exerciseIds-{{ plan.id }}"
               multiple
+              [disabled]="!!plan.isDefault"
               panelClass="exercise-select-panel"
               (selectionChange)="updatePlanExercises(plan, $event.value)"
             >
@@ -76,17 +81,19 @@
             @for (exerciseId of plan.exerciseIds; track exerciseId) {
               <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                  <div class="header-delete-action">
-                    <button
-                      mat-icon-button
-                      color="warn"
-                      (click)="removePlanExercise(plan, exerciseId); $event.stopPropagation()"
-                      [matTooltip]="'common.delete' | translate"
-                      [attr.aria-label]="'common.delete' | translate"
-                    >
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
+                  @if (!plan.isDefault) {
+                    <div class="header-delete-action">
+                      <button
+                        mat-icon-button
+                        color="warn"
+                        (click)="removePlanExercise(plan, exerciseId); $event.stopPropagation()"
+                        [matTooltip]="'common.delete' | translate"
+                        [attr.aria-label]="'common.delete' | translate"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  }
                   <mat-panel-title>
                     {{ exerciseName(exerciseId) }}
                     <span class="set-count">({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }})</span>
@@ -98,6 +105,7 @@
                   <mat-select
                     [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
                     name="exerciseType-{{ exerciseId }}"
+                    [disabled]="!!plan.isDefault"
                     (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
                   >
                     <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
@@ -120,6 +128,7 @@
                         inputmode="numeric"
                         class="plan-sets-input"
                         [value]="planExerciseConfig(plan, exerciseId).warmupSets"
+                        [disabled]="!!plan.isDefault"
                         (input)="onPlanExerciseSetsInput($event)"
                         (change)="updatePlanExerciseWarmupSets(plan, exerciseId, $any($event.target).value)"
                       />
@@ -158,6 +167,7 @@
                                     inputmode="numeric"
                                     class="plan-sets-input"
                                     [value]="set.percentage"
+                                    [disabled]="!!plan.isDefault"
                                     (input)="onPlanExerciseSetsInput($event)"
                                     (change)="updatePercentageSetPercentage(plan, exerciseId, weekIndex, setIndex, $any($event.target).value)"
                                   />
@@ -171,6 +181,7 @@
                                     inputmode="numeric"
                                     class="plan-sets-input"
                                     [value]="set.reps"
+                                    [disabled]="!!plan.isDefault"
                                     (input)="onPlanExerciseSetsInput($event)"
                                     (change)="updatePercentageSetReps(plan, exerciseId, weekIndex, setIndex, $any($event.target).value)"
                                   />
@@ -178,6 +189,7 @@
 
                                 <mat-checkbox
                                   [checked]="set.isAmrap"
+                                  [disabled]="!!plan.isDefault"
                                   (change)="togglePercentageSetAmrap(plan, exerciseId, weekIndex, setIndex, $event.checked)"
                                 >
                                   {{ 'trainingPlans.amrapLabel' | translate }}
@@ -204,6 +216,7 @@
                           inputmode="numeric"
                           class="plan-sets-input"
                           [value]="planExerciseConfig(plan, exerciseId).workingSets"
+                          [disabled]="!!plan.isDefault"
                           (input)="onPlanExerciseSetsInput($event)"
                           (change)="updatePlanExerciseWorkingSets(plan, exerciseId, $any($event.target).value)"
                         />
@@ -224,6 +237,7 @@
                         inputmode="numeric"
                         class="plan-sets-input"
                         [value]="planExerciseConfig(plan, exerciseId).cooldownSets"
+                        [disabled]="!!plan.isDefault"
                         (input)="onPlanExerciseSetsInput($event)"
                         (change)="updatePlanExerciseCooldownSets(plan, exerciseId, $any($event.target).value)"
                       />
@@ -312,13 +326,23 @@
           } @else {
             <button
               mat-icon-button
-              color="warn"
-              (click)="requestDeletePlan(plan.id)"
-              [matTooltip]="'common.delete' | translate"
-              [attr.aria-label]="'common.delete' | translate"
+              (click)="copyPlan(plan)"
+              [matTooltip]="'trainingPlans.copyPlan' | translate"
+              [attr.aria-label]="'trainingPlans.copyPlan' | translate"
             >
-              <mat-icon>delete</mat-icon>
+              <mat-icon>content_copy</mat-icon>
             </button>
+            @if (!plan.isDefault) {
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="requestDeletePlan(plan.id)"
+                [matTooltip]="'common.delete' | translate"
+                [attr.aria-label]="'common.delete' | translate"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
           }
         </mat-action-row>
       </mat-expansion-panel>
