@@ -33,6 +33,27 @@
     @for (plan of plans; track plan.id) {
       <mat-expansion-panel class="plan-card">
         <mat-expansion-panel-header>
+          <div class="header-plan-actions">
+            <button
+              mat-icon-button
+              (click)="copyPlan(plan); $event.stopPropagation()"
+              [matTooltip]="'trainingPlans.copyPlan' | translate"
+              [attr.aria-label]="'trainingPlans.copyPlan' | translate"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+            @if (!plan.isDefault) {
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="requestDeletePlan(plan); $event.stopPropagation()"
+                [matTooltip]="'common.delete' | translate"
+                [attr.aria-label]="'common.delete' | translate"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </div>
           <mat-panel-title>{{ plan.name }}</mat-panel-title>
           @if (planDescription(plan)) {
             <mat-panel-description>{{ planDescription(plan) }}</mat-panel-description>
@@ -342,52 +363,6 @@
           </mat-accordion>
         }
 
-        <mat-action-row>
-          @if (pendingDeletePlanId === plan.id) {
-            <div class="confirm-dialog">
-              <span class="finish-confirm-label">{{ 'trainingPlans.confirmDeleteQuestion' | translate }}</span>
-              <div class="confirm-dialog-actions">
-                <button
-                  mat-icon-button
-                  color="warn"
-                  (click)="confirmDeletePlan(plan.id)"
-                  [matTooltip]="'sessions.confirmYesDelete' | translate"
-                  [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-                >
-                  <mat-icon>check</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  (click)="cancelDeletePlan()"
-                  [matTooltip]="'sessions.confirmCancel' | translate"
-                  [attr.aria-label]="'sessions.confirmCancel' | translate"
-                >
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-            </div>
-          } @else {
-            <button
-              mat-icon-button
-              (click)="copyPlan(plan)"
-              [matTooltip]="'trainingPlans.copyPlan' | translate"
-              [attr.aria-label]="'trainingPlans.copyPlan' | translate"
-            >
-              <mat-icon>content_copy</mat-icon>
-            </button>
-            @if (!plan.isDefault) {
-              <button
-                mat-icon-button
-                color="warn"
-                (click)="requestDeletePlan(plan.id)"
-                [matTooltip]="'common.delete' | translate"
-                [attr.aria-label]="'common.delete' | translate"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            }
-          }
-        </mat-action-row>
       </mat-expansion-panel>
     }
   </mat-accordion>

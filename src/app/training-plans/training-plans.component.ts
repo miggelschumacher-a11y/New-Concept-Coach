@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +10,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -88,6 +91,7 @@ const DEFAULT_PERCENTAGE_WEEKS: PercentageWeek[] = [
     MatExpansionModule,
     MatTooltipModule,
     MatCheckboxModule,
+    MatDialogModule,
     TranslatePipe
   ],
   templateUrl: './training-plans.component.html',
@@ -98,7 +102,6 @@ export class TrainingPlansComponent implements OnInit {
   exercises: Exercise[] = [];
   name = '';
   description = '';
-  pendingDeletePlanId: string | null = null;
   editingPlanId: string | null = null;
   editName = '';
   editDescription = '';
@@ -107,7 +110,8 @@ export class TrainingPlansComponent implements OnInit {
     private readonly trainingPlansService: TrainingPlansService,
     private readonly exercisesService: ExercisesService,
     private readonly settingsService: SettingsService,
-    private readonly translationService: TranslationService
+    private readonly translationService: TranslationService,
+    private readonly dialog: MatDialog
   ) {}
 
   get weightUnitLabel(): string {
@@ -197,21 +201,18 @@ export class TrainingPlansComponent implements OnInit {
     await this.load();
   }
 
-  requestDeletePlan(id: string): void {
-    this.pendingDeletePlanId = id;
-  }
-
-  cancelDeletePlan(): void {
-    this.pendingDeletePlanId = null;
-  }
-
-  async confirmDeletePlan(id: string): Promise<void> {
-    this.pendingDeletePlanId = null;
-    const plan = this.plans.find((p) => p.id === id);
-    if (plan?.isDefault) {
+  async requestDeletePlan(plan: TrainingPlan): Promise<void> {
+    if (plan.isDefault) {
       return;
     }
-    await this.trainingPlansService.delete(id);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { messageKey: 'trainingPlans.confirmDeleteQuestion' }
+    });
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) {
+      return;
+    }
+    await this.trainingPlansService.delete(plan.id);
     await this.load();
   }
 

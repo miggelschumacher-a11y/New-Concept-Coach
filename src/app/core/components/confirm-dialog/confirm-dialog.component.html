@@ -1,0 +1,5 @@
+<h2 mat-dialog-title>{{ data.messageKey | translate }}</h2>
+<div mat-dialog-actions class="confirm-dialog-button-row">
+  <button mat-stroked-button (click)="dialogRef.close(false)">{{ 'sessions.confirmCancel' | translate }}</button>
+  <button mat-raised-button color="warn" (click)="dialogRef.close(true)">{{ 'sessions.confirmYesDelete' | translate }}</button>
+</div>

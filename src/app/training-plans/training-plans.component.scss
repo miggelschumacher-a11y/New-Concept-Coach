@@ -18,6 +18,13 @@ mat-card {
   flex: 0 0 auto;
 }
 
+.header-plan-actions {
+  order: -1;
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.25rem;
+}
+
 .plan-accordion .plan-card {
   margin-bottom: 1.5rem;
 }
