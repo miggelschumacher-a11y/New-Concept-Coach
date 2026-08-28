@@ -16,8 +16,11 @@ export interface TierLinePlanSession {
   exercises: TierLinePlanExercise[];
 }
 
+export type PlanExerciseType = 'WEIGHT_BASED' | 'PERCENTAGE_BASED' | 'TIME_BASED';
+
 export interface PlanExerciseConfig {
   exerciseId: string;
+  exerciseType?: PlanExerciseType;
   // Each 0-100.
   warmupSets: number;
   workingSets: number;

@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
-import { TrainingPlan, TierLinePlanExercise, PlanExerciseConfig } from '../core/models/training-plan.model';
+import { TrainingPlan, TierLinePlanExercise, PlanExerciseConfig, PlanExerciseType } from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
@@ -21,6 +21,7 @@ const DEFAULT_WARMUP_SETS = 0;
 const DEFAULT_WORKING_SETS = 3;
 const DEFAULT_COOLDOWN_SETS = 0;
 const PLAN_EXERCISE_SETS_MAX = 100;
+const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
 
 @Component({
   selector: 'app-training-plans',
@@ -130,6 +131,7 @@ export class TrainingPlansComponent implements OnInit {
       (exerciseId) =>
         existingByExerciseId.get(exerciseId) ?? {
           exerciseId,
+          exerciseType: DEFAULT_EXERCISE_TYPE,
           warmupSets: DEFAULT_WARMUP_SETS,
           workingSets: DEFAULT_WORKING_SETS,
           cooldownSets: DEFAULT_COOLDOWN_SETS
@@ -149,6 +151,7 @@ export class TrainingPlansComponent implements OnInit {
     return (
       plan.exerciseConfigs?.find((config) => config.exerciseId === exerciseId) ?? {
         exerciseId,
+        exerciseType: DEFAULT_EXERCISE_TYPE,
         warmupSets: DEFAULT_WARMUP_SETS,
         workingSets: DEFAULT_WORKING_SETS,
         cooldownSets: DEFAULT_COOLDOWN_SETS
@@ -159,6 +162,14 @@ export class TrainingPlansComponent implements OnInit {
   planExerciseTotalSets(plan: TrainingPlan, exerciseId: string): number {
     const config = this.planExerciseConfig(plan, exerciseId);
     return config.warmupSets + config.workingSets + config.cooldownSets;
+  }
+
+  async updatePlanExerciseType(plan: TrainingPlan, exerciseId: string, exerciseType: PlanExerciseType): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    plan.exerciseConfigs = (plan.exerciseConfigs ?? []).map((c) =>
+      c.exerciseId === exerciseId ? { ...config, exerciseType } : c
+    );
+    await this.trainingPlansService.update(plan);
   }
 
   onPlanExerciseSetsInput(event: Event): void {

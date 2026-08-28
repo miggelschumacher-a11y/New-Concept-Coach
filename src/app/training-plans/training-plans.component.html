@@ -76,11 +76,35 @@
             @for (exerciseId of plan.exerciseIds; track exerciseId) {
               <mat-expansion-panel>
                 <mat-expansion-panel-header>
+                  <div class="header-delete-action">
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      (click)="removePlanExercise(plan, exerciseId); $event.stopPropagation()"
+                      [matTooltip]="'common.delete' | translate"
+                      [attr.aria-label]="'common.delete' | translate"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
                   <mat-panel-title>
                     {{ exerciseName(exerciseId) }}
                     <span class="set-count">({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }})</span>
                   </mat-panel-title>
                 </mat-expansion-panel-header>
+
+                <mat-form-field appearance="outline" class="exercise-type-field">
+                  <mat-label>Select Exercise-Type</mat-label>
+                  <mat-select
+                    [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
+                    name="exerciseType-{{ exerciseId }}"
+                    (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
+                  >
+                    <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                    <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                    <mat-option value="TIME_BASED">Time-Based</mat-option>
+                  </mat-select>
+                </mat-form-field>
 
                 <mat-accordion multi class="set-type-accordion">
                   <mat-expansion-panel>
@@ -140,18 +164,6 @@
                     </mat-form-field>
                   </mat-expansion-panel>
                 </mat-accordion>
-
-                <mat-action-row>
-                  <button
-                    mat-icon-button
-                    color="warn"
-                    (click)="removePlanExercise(plan, exerciseId)"
-                    [matTooltip]="'common.delete' | translate"
-                    [attr.aria-label]="'common.delete' | translate"
-                  >
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </mat-action-row>
               </mat-expansion-panel>
             }
           </mat-accordion>

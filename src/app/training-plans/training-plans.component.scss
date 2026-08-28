@@ -10,6 +10,14 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
+// Material always renders mat-panel-title/description first in the header's
+// flex layout regardless of source order, so this needs `order: -1` to
+// actually appear before the title.
+.header-delete-action {
+  order: -1;
+  flex: 0 0 auto;
+}
+
 .plan-accordion .plan-card {
   margin-bottom: 1.5rem;
 }
@@ -44,6 +52,11 @@ mat-card {
 }
 
 .set-type-accordion {
+  margin-top: 0.5rem;
+}
+
+.exercise-type-field {
+  display: block;
   margin-top: 0.5rem;
 }
 
