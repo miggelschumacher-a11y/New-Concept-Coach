@@ -22,6 +22,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Add',
     'common.delete': 'Delete',
+    'common.save': 'Save',
     'common.name': 'Name',
 
     'exercises.title': 'Exercises',
@@ -51,11 +52,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Week',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': 'No 1RM set',
+    'trainingPlans.editPlan': 'Edit plan',
     'trainingPlans.copyPlan': 'Copy plan',
     'trainingPlans.copySuffix': ' (Copy)',
     'trainingPlans.defaultPlanHint': 'This is a default plan. It cannot be edited or deleted — copy it to create your own editable version.',
     'trainingPlans.plan531Description':
-      'Classic Wendler 5/3/1: a 4-week cycle (3 build-up weeks + a deload week) for squat, bench press, deadlift, and overhead press, based on percentages of your 1RM.',
+      '5/3/1 by Jim Wendler: a 4-week cycle (3 build-up weeks + a deload week) for squat, bench press, deadlift, and overhead press, based on percentages of your 1RM.',
+    'trainingPlans.plan5x5Description':
+      'Classic 5x5 strength training: linear weight progression on squat, bench press, deadlift, overhead press, and barbell row — 5 sets of 5 reps (deadlift 1x5).',
+    'trainingPlans.planGzclpDescription':
+      'Foundational 4-day tier-based plan (T1/T2/T3), inspired by GZCLP. Trains 4x per week in the Day A1 - B1 - A2 - B2 rotation, with squat, bench press, deadlift, and overhead press alternating between T1 (main lift, 5x3+) and T2 (secondary lift, 3x10) roles. Lat pull-downs run as a constant T3 accessory (3x15).',
     'trainingPlans.noExercisesHint': 'No exercises available yet. Add some in Exercises first.',
     'trainingPlans.tierT1': 'T1 – Main',
     'trainingPlans.tierT2': 'T2 – Secondary',
@@ -170,6 +176,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Hinzufügen',
     'common.delete': 'Löschen',
+    'common.save': 'Speichern',
     'common.name': 'Name',
 
     'exercises.title': 'Übungen',
@@ -199,11 +206,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Woche',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': 'Kein 1RM hinterlegt',
+    'trainingPlans.editPlan': 'Plan bearbeiten',
     'trainingPlans.copyPlan': 'Plan kopieren',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dies ist ein Standardplan. Er kann nicht bearbeitet oder gelöscht werden – kopiere ihn, um eine eigene bearbeitbare Version zu erstellen.',
     'trainingPlans.plan531Description':
-      'Klassisches Wendler 5/3/1: 4-Wochen-Zyklus (3 Aufbauwochen + Deload-Woche) für Squat, Bankdrücken, Kreuzheben und Overhead-Press, basierend auf Prozentsätzen des 1RM.',
+      '5/3/1 von Jim Wendler: 4-Wochen-Zyklus (3 Aufbauwochen + Deload-Woche) für Squat, Bankdrücken, Kreuzheben und Overhead-Press, basierend auf Prozentsätzen des 1RM.',
+    'trainingPlans.plan5x5Description':
+      'Klassisches 5×5-Krafttraining: lineare Gewichtssteigerung auf Kniebeuge, Bankdrücken, Kreuzheben, Overhead-Press und Rudern – 5 Sätze à 5 Wiederholungen (Kreuzheben 1×5).',
+    'trainingPlans.planGzclpDescription':
+      'Grundlegender 4-Tage-Plan nach dem Tier-Prinzip (T1/T2/T3), inspiriert von GZCLP. Trainiert 4x pro Woche in der Rotation Tag A1 - B1 - A2 - B2, wobei sich Kniebeuge, Bankdrücken, Kreuzheben und Schulterdrücken als T1 (Hauptübung, 5x3+) und T2 (Nebenübung, 3x10) abwechseln. Lat-Pull-Downs laufen als konstante T3-Zusatzübung (3x15) mit.',
     'trainingPlans.noExercisesHint': 'Noch keine Übungen vorhanden. Bitte zuerst unter Übungen anlegen.',
     'trainingPlans.tierT1': 'T1 – Hauptübung',
     'trainingPlans.tierT2': 'T2 – Nebenübung',
@@ -318,6 +330,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Añadir',
     'common.delete': 'Eliminar',
+    'common.save': 'Guardar',
     'common.name': 'Nombre',
 
     'exercises.title': 'Ejercicios',
@@ -347,11 +360,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Semana',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': 'Sin 1RM establecido',
+    'trainingPlans.editPlan': 'Editar plan',
     'trainingPlans.copyPlan': 'Copiar plan',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Este es un plan predeterminado. No se puede editar ni eliminar; cópialo para crear tu propia versión editable.',
     'trainingPlans.plan531Description':
-      '5/3/1 clásico de Wendler: un ciclo de 4 semanas (3 semanas de progresión + una semana de descarga) para sentadilla, press de banca, peso muerto y press militar, basado en porcentajes de tu 1RM.',
+      '5/3/1 de Jim Wendler: un ciclo de 4 semanas (3 semanas de progresión + una semana de descarga) para sentadilla, press de banca, peso muerto y press militar, basado en porcentajes de tu 1RM.',
+    'trainingPlans.plan5x5Description':
+      'Entrenamiento de fuerza clásico 5x5: progresión lineal de peso en sentadilla, press de banca, peso muerto, press militar y remo con barra — 5 series de 5 repeticiones (peso muerto 1x5).',
+    'trainingPlans.planGzclpDescription':
+      'Plan básico de 4 días basado en niveles (T1/T2/T3), inspirado en GZCLP. Entrena 4 veces por semana en la rotación Día A1 - B1 - A2 - B2, alternando sentadilla, press de banca, peso muerto y press militar entre los roles T1 (ejercicio principal, 5x3+) y T2 (secundario, 3x10). Los jalones al pecho se mantienen como accesorio T3 constante (3x15).',
     'trainingPlans.noExercisesHint': 'Aún no hay ejercicios disponibles. Añade algunos primero en Ejercicios.',
     'trainingPlans.tierT1': 'T1 – Principal',
     'trainingPlans.tierT2': 'T2 – Secundario',
@@ -466,6 +484,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Adicionar',
     'common.delete': 'Excluir',
+    'common.save': 'Salvar',
     'common.name': 'Nome',
 
     'exercises.title': 'Exercícios',
@@ -495,11 +514,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Semana',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': 'Nenhum 1RM definido',
+    'trainingPlans.editPlan': 'Editar plano',
     'trainingPlans.copyPlan': 'Copiar plano',
     'trainingPlans.copySuffix': ' (Cópia)',
     'trainingPlans.defaultPlanHint': 'Este é um plano padrão. Não pode ser editado nem excluído — copie-o para criar sua própria versão editável.',
     'trainingPlans.plan531Description':
-      '5/3/1 clássico de Wendler: um ciclo de 4 semanas (3 semanas de progressão + uma semana de deload) para agachamento, supino, levantamento terra e desenvolvimento militar, baseado em percentuais do seu 1RM.',
+      '5/3/1 de Jim Wendler: um ciclo de 4 semanas (3 semanas de progressão + uma semana de deload) para agachamento, supino, levantamento terra e desenvolvimento militar, baseado em percentuais do seu 1RM.',
+    'trainingPlans.plan5x5Description':
+      'Treino de força clássico 5x5: progressão linear de carga em agachamento, supino, levantamento terra, desenvolvimento militar e remada curvada — 5 séries de 5 repetições (levantamento terra 1x5).',
+    'trainingPlans.planGzclpDescription':
+      'Plano básico de 4 dias baseado em níveis (T1/T2/T3), inspirado no GZCLP. Treina 4x por semana na rotação Dia A1 - B1 - A2 - B2, alternando agachamento, supino, levantamento terra e desenvolvimento militar entre as funções T1 (exercício principal, 5x3+) e T2 (secundário, 3x10). A puxada na polia alta é o acessório T3 constante (3x15).',
     'trainingPlans.noExercisesHint': 'Ainda não há exercícios disponíveis. Adicione alguns primeiro em Exercícios.',
     'trainingPlans.tierT1': 'T1 – Principal',
     'trainingPlans.tierT2': 'T2 – Secundário',
@@ -614,6 +638,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Aggiungi',
     'common.delete': 'Elimina',
+    'common.save': 'Salva',
     'common.name': 'Nome',
 
     'exercises.title': 'Esercizi',
@@ -643,11 +668,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Settimana',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': 'Nessun 1RM impostato',
+    'trainingPlans.editPlan': 'Modifica piano',
     'trainingPlans.copyPlan': 'Copia piano',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Questo è un piano predefinito. Non può essere modificato o eliminato: copialo per creare la tua versione modificabile.',
     'trainingPlans.plan531Description':
-      'Classico 5/3/1 di Wendler: un ciclo di 4 settimane (3 settimane di progressione + una settimana di scarico) per squat, panca piana, stacco da terra e military press, basato su percentuali del tuo 1RM.',
+      '5/3/1 di Jim Wendler: un ciclo di 4 settimane (3 settimane di progressione + una settimana di scarico) per squat, panca piana, stacco da terra e military press, basato su percentuali del tuo 1RM.',
+    'trainingPlans.plan5x5Description':
+      'Allenamento di forza classico 5x5: progressione lineare del carico su squat, panca piana, stacco da terra, military press e rematore con bilanciere — 5 serie da 5 ripetizioni (stacco da terra 1x5).',
+    'trainingPlans.planGzclpDescription':
+      'Piano base di 4 giorni basato sui tier (T1/T2/T3), ispirato al GZCLP. Allena 4 volte a settimana nella rotazione Giorno A1 - B1 - A2 - B2, alternando squat, panca piana, stacco da terra e military press tra i ruoli T1 (esercizio principale, 5x3+) e T2 (secondario, 3x10). Il lat machine funge da accessorio T3 costante (3x15).',
     'trainingPlans.noExercisesHint': 'Nessun esercizio disponibile. Aggiungine prima alcuni in Esercizi.',
     'trainingPlans.tierT1': 'T1 – Principale',
     'trainingPlans.tierT2': 'T2 – Secondario',
@@ -762,6 +792,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Toevoegen',
     'common.delete': 'Verwijderen',
+    'common.save': 'Opslaan',
     'common.name': 'Naam',
 
     'exercises.title': 'Oefeningen',
@@ -791,11 +822,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Week',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': 'Geen 1RM ingesteld',
+    'trainingPlans.editPlan': 'Plan bewerken',
     'trainingPlans.copyPlan': 'Plan kopiëren',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dit is een standaardplan. Het kan niet worden bewerkt of verwijderd — kopieer het om je eigen bewerkbare versie te maken.',
     'trainingPlans.plan531Description':
-      'Klassiek Wendler 5/3/1: een cyclus van 4 weken (3 opbouwweken + een deload-week) voor squat, bankdrukken, deadlift en overhead press, gebaseerd op percentages van je 1RM.',
+      '5/3/1 van Jim Wendler: een cyclus van 4 weken (3 opbouwweken + een deload-week) voor squat, bankdrukken, deadlift en overhead press, gebaseerd op percentages van je 1RM.',
+    'trainingPlans.plan5x5Description':
+      'Klassieke 5x5-krachttraining: lineaire gewichtsopbouw op squat, bankdrukken, deadlift, overhead press en barbell row — 5 sets van 5 reps (deadlift 1x5).',
+    'trainingPlans.planGzclpDescription':
+      'Basisplan van 4 dagen volgens het tier-principe (T1/T2/T3), geïnspireerd op GZCLP. Traint 4x per week in de rotatie Dag A1 - B1 - A2 - B2, waarbij squat, bankdrukken, deadlift en overhead press afwisselen tussen de rollen T1 (hoofdoefening, 5x3+) en T2 (secundair, 3x10). Lat pulldowns lopen als constante T3-accessoire mee (3x15).',
     'trainingPlans.noExercisesHint': 'Nog geen oefeningen beschikbaar. Voeg er eerst een toe bij Oefeningen.',
     'trainingPlans.tierT1': 'T1 – Hoofd',
     'trainingPlans.tierT2': 'T2 – Secundair',
@@ -910,6 +946,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Dodaj',
     'common.delete': 'Usuń',
+    'common.save': 'Zapisz',
     'common.name': 'Nazwa',
 
     'exercises.title': 'Ćwiczenia',
@@ -939,11 +976,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Tydzień',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': 'Brak ustawionego 1RM',
+    'trainingPlans.editPlan': 'Edytuj plan',
     'trainingPlans.copyPlan': 'Kopiuj plan',
     'trainingPlans.copySuffix': ' (Kopia)',
     'trainingPlans.defaultPlanHint': 'To jest plan domyślny. Nie można go edytować ani usunąć — skopiuj go, aby utworzyć własną edytowalną wersję.',
     'trainingPlans.plan531Description':
-      'Klasyczny Wendler 5/3/1: 4-tygodniowy cykl (3 tygodnie budowania + tydzień deload) dla przysiadu, wyciskania na ławce, martwego ciągu i wyciskania nad głowę, oparty na procentach twojego 1RM.',
+      '5/3/1 według Jima Wendlera: 4-tygodniowy cykl (3 tygodnie budowania + tydzień deload) dla przysiadu, wyciskania na ławce, martwego ciągu i wyciskania nad głowę, oparty na procentach twojego 1RM.',
+    'trainingPlans.plan5x5Description':
+      'Klasyczny trening siłowy 5x5: liniowy progres obciążenia na przysiadzie, wyciskaniu na ławce, martwym ciągu, wyciskaniu nad głowę i wiosłowaniu sztangą — 5 serii po 5 powtórzeń (martwy ciąg 1x5).',
+    'trainingPlans.planGzclpDescription':
+      'Podstawowy 4-dniowy plan oparty na systemie poziomów (T1/T2/T3), inspirowany GZCLP. Trening 4x w tygodniu w rotacji Dzień A1 - B1 - A2 - B2, gdzie przysiad, wyciskanie na ławce, martwy ciąg i wyciskanie nad głowę zmieniają się między rolami T1 (ćwiczenie główne, 5x3+) i T2 (pomocnicze, 3x10). Ściąganie drążka wysokiego to stały dodatek T3 (3x15).',
     'trainingPlans.noExercisesHint': 'Brak dostępnych ćwiczeń. Dodaj je najpierw w sekcji Ćwiczenia.',
     'trainingPlans.tierT1': 'T1 – Główne',
     'trainingPlans.tierT2': 'T2 – Drugorzędne',
@@ -1058,6 +1100,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Добавить',
     'common.delete': 'Удалить',
+    'common.save': 'Сохранить',
     'common.name': 'Название',
 
     'exercises.title': 'Упражнения',
@@ -1087,11 +1130,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Неделя',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': '1ПМ не задан',
+    'trainingPlans.editPlan': 'Редактировать план',
     'trainingPlans.copyPlan': 'Копировать план',
     'trainingPlans.copySuffix': ' (Копия)',
     'trainingPlans.defaultPlanHint': 'Это план по умолчанию. Его нельзя редактировать или удалить — скопируйте его, чтобы создать свою редактируемую версию.',
     'trainingPlans.plan531Description':
-      'Классический Вендлер 5/3/1: 4-недельный цикл (3 недели наращивания + неделя разгрузки) для приседаний, жима лёжа, становой тяги и жима стоя, основанный на процентах от вашего 1ПМ.',
+      '5/3/1 по методике Джима Вендлера: 4-недельный цикл (3 недели наращивания + неделя разгрузки) для приседаний, жима лёжа, становой тяги и жима стоя, основанный на процентах от вашего 1ПМ.',
+    'trainingPlans.plan5x5Description':
+      'Классическая силовая программа 5×5: линейный рост весов в приседаниях, жиме лёжа, становой тяге, жиме стоя и тяге штанги в наклоне — 5 подходов по 5 повторений (становая тяга 1×5).',
+    'trainingPlans.planGzclpDescription':
+      'Базовая 4-дневная программа по принципу уровней (T1/T2/T3), вдохновлённая GZCLP. Тренировки 4 раза в неделю по ротации День A1 - B1 - A2 - B2, где приседания, жим лёжа, становая тяга и жим стоя чередуются между ролями T1 (основное упражнение, 5x3+) и T2 (вспомогательное, 3x10). Тяга верхнего блока идёт постоянным дополнением T3 (3x15).',
     'trainingPlans.noExercisesHint': 'Пока нет доступных упражнений. Сначала добавьте их в разделе Упражнения.',
     'trainingPlans.tierT1': 'T1 – Основное',
     'trainingPlans.tierT2': 'T2 – Вторичное',
@@ -1206,6 +1254,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'common.add': 'Hozzáadás',
     'common.delete': 'Törlés',
+    'common.save': 'Mentés',
     'common.name': 'Név',
 
     'exercises.title': 'Gyakorlatok',
@@ -1235,11 +1284,16 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weekLabel': 'Hét',
     'trainingPlans.amrapLabel': 'AMRAP',
     'trainingPlans.oneRepMaxMissing': 'Nincs beállítva 1RM',
+    'trainingPlans.editPlan': 'Terv szerkesztése',
     'trainingPlans.copyPlan': 'Terv másolása',
     'trainingPlans.copySuffix': ' (Másolat)',
     'trainingPlans.defaultPlanHint': 'Ez egy alapértelmezett terv. Nem szerkeszthető és nem törölhető – másold le, hogy saját szerkeszthető verziót hozz létre.',
     'trainingPlans.plan531Description':
-      'Klasszikus Wendler 5/3/1: 4 hetes ciklus (3 felépítő hét + egy deload hét) guggolásra, fekvenyomásra, felhúzásra és vállból nyomásra, az 1RM százalékai alapján.',
+      '5/3/1 Jim Wendlertől: 4 hetes ciklus (3 felépítő hét + egy deload hét) guggolásra, fekvenyomásra, felhúzásra és vállból nyomásra, az 1RM százalékai alapján.',
+    'trainingPlans.plan5x5Description':
+      'Klasszikus 5x5-ös erőedzés: lineáris súlynövelés guggolásban, fekvenyomásban, felhúzásban, vállból nyomásban és rúdhúzásban — 5x5 ismétlés (felhúzás 1x5).',
+    'trainingPlans.planGzclpDescription':
+      'Alapvető 4 napos, szintalapú terv (T1/T2/T3), a GZCLP ihlette. Heti 4x edzés A1 - B1 - A2 - B2 napok rotációjában, ahol a guggolás, fekvenyomás, felhúzás és vállból nyomás váltakozik a T1 (fő gyakorlat, 5x3+) és T2 (kiegészítő, 3x10) szerepek között. A húzódzkodó gép állandó T3 kiegészítő gyakorlatként szerepel (3x15).',
     'trainingPlans.noExercisesHint': 'Még nincsenek elérhető gyakorlatok. Először adj hozzá néhányat a Gyakorlatok oldalon.',
     'trainingPlans.tierT1': 'T1 – Fő gyakorlat',
     'trainingPlans.tierT2': 'T2 – Másodlagos',

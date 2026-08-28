@@ -24,6 +24,15 @@ import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
+import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
+import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
+import { DEFAULT_GZCLP_PLAN_ID } from '../core/data/default-gzclp-plan';
+
+const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
+  [DEFAULT_531_PLAN_ID]: 'trainingPlans.plan531Description',
+  [DEFAULT_5X5_PLAN_ID]: 'trainingPlans.plan5x5Description',
+  [DEFAULT_GZCLP_PLAN_ID]: 'trainingPlans.planGzclpDescription'
+};
 
 const DEFAULT_WARMUP_SETS = 0;
 const DEFAULT_WORKING_SETS = 3;
@@ -90,6 +99,9 @@ export class TrainingPlansComponent implements OnInit {
   name = '';
   description = '';
   pendingDeletePlanId: string | null = null;
+  editingPlanId: string | null = null;
+  editName = '';
+  editDescription = '';
 
   constructor(
     private readonly trainingPlansService: TrainingPlansService,
@@ -121,7 +133,8 @@ export class TrainingPlansComponent implements OnInit {
   // so it should track the current language live like the rest of the UI
   // instead of being frozen in whatever language it was seeded in.
   planDescription(plan: TrainingPlan): string {
-    return plan.isDefault ? this.translationService.translate('trainingPlans.plan531Description') : plan.description ?? '';
+    const key = DEFAULT_PLAN_DESCRIPTION_KEYS[plan.id];
+    return key ? this.translationService.translate(key) : plan.description ?? '';
   }
 
   tierLabelKey(tier: string): string {
@@ -158,6 +171,29 @@ export class TrainingPlansComponent implements OnInit {
     });
     this.name = '';
     this.description = '';
+    await this.load();
+  }
+
+  startEditPlan(plan: TrainingPlan): void {
+    if (plan.isDefault) {
+      return;
+    }
+    this.editingPlanId = plan.id;
+    this.editName = plan.name;
+    this.editDescription = plan.description ?? '';
+  }
+
+  cancelEditPlan(): void {
+    this.editingPlanId = null;
+  }
+
+  async confirmEditPlan(plan: TrainingPlan): Promise<void> {
+    const name = this.editName.trim();
+    if (!name || plan.isDefault) {
+      return;
+    }
+    this.editingPlanId = null;
+    await this.trainingPlansService.update({ ...plan, name, description: this.editDescription.trim() });
     await this.load();
   }
 

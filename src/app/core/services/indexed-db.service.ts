@@ -2,9 +2,13 @@ import { Injectable } from '@angular/core';
 import { Exercise } from '../models/exercise.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
 import { buildDefault531Plan } from '../data/default-531-plan';
+import { buildDefault5x5Plan } from '../data/default-5x5-plan';
+import { buildDefaultGzclpPlan } from '../data/default-gzclp-plan';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 12;
+const DB_VERSION = 17;
+
+const DEFAULT_PLAN_BUILDERS = [buildDefault531Plan, buildDefault5x5Plan, buildDefaultGzclpPlan];
 
 export const STORES = {
   exercises: 'exercises',
@@ -116,9 +120,12 @@ export class IndexedDbService {
             exercisesStore.add(exercise);
             exerciseIdByName.set(name, exercise.id);
           }
-          const defaultPlan = buildDefault531Plan(exerciseIdByName);
-          if (defaultPlan) {
-            request.transaction!.objectStore(STORES.trainingPlans).put(defaultPlan);
+          const trainingPlansStore = request.transaction!.objectStore(STORES.trainingPlans);
+          for (const buildPlan of DEFAULT_PLAN_BUILDERS) {
+            const defaultPlan = buildPlan(exerciseIdByName);
+            if (defaultPlan) {
+              trainingPlansStore.put(defaultPlan);
+            }
           }
         } else {
           if (event.oldVersion < 8 && db.objectStoreNames.contains(STORES.exercises)) {
@@ -141,19 +148,25 @@ export class IndexedDbService {
           }
 
           if (
-            event.oldVersion < 10 &&
+            event.oldVersion < 17 &&
             db.objectStoreNames.contains(STORES.exercises) &&
             db.objectStoreNames.contains(STORES.trainingPlans)
           ) {
-            // Seed the default 5/3/1 plan for existing installs too, looking up
-            // the lift ids by name since they're randomly generated per install.
+            // Seed the default plans (5/3/1, 5x5, GZCLP) for existing installs
+            // too, looking up the lift ids by name since they're randomly
+            // generated per install. Re-running this is harmless/idempotent
+            // (put), so it also re-adds any default plan a restore/import may
+            // have dropped.
             const exercisesStore = request.transaction!.objectStore(STORES.exercises);
             exercisesStore.getAll().onsuccess = (getAllEvent) => {
               const allExercises = (getAllEvent.target as IDBRequest<Exercise[]>).result;
               const exerciseIdByName = new Map(allExercises.map((exercise) => [exercise.name, exercise.id]));
-              const defaultPlan = buildDefault531Plan(exerciseIdByName);
-              if (defaultPlan) {
-                request.transaction!.objectStore(STORES.trainingPlans).put(defaultPlan);
+              const trainingPlansStore = request.transaction!.objectStore(STORES.trainingPlans);
+              for (const buildPlan of DEFAULT_PLAN_BUILDERS) {
+                const defaultPlan = buildPlan(exerciseIdByName);
+                if (defaultPlan) {
+                  trainingPlansStore.put(defaultPlan);
+                }
               }
             };
           }

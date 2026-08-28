@@ -39,12 +39,55 @@
           }
         </mat-expansion-panel-header>
 
-        @if (planDescription(plan)) {
-          <p class="plan-description-full">{{ planDescription(plan) }}</p>
-        }
-
         @if (plan.isDefault) {
+          @if (planDescription(plan)) {
+            <p class="plan-description-full">{{ planDescription(plan) }}</p>
+          }
           <p class="plan-description-full">{{ 'trainingPlans.defaultPlanHint' | translate }}</p>
+        } @else if (editingPlanId === plan.id) {
+          <form class="entry-form" (ngSubmit)="confirmEditPlan(plan)">
+            <mat-form-field appearance="outline">
+              <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
+              <input matInput name="editName-{{ plan.id }}" [(ngModel)]="editName" required />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label><mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}</mat-label>
+              <input matInput name="editDescription-{{ plan.id }}" [(ngModel)]="editDescription" />
+            </mat-form-field>
+
+            <button
+              mat-icon-button
+              color="primary"
+              type="submit"
+              [matTooltip]="'common.save' | translate"
+              [attr.aria-label]="'common.save' | translate"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="cancelEditPlan()"
+              [matTooltip]="'sessions.confirmCancel' | translate"
+              [attr.aria-label]="'sessions.confirmCancel' | translate"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </form>
+        } @else {
+          @if (planDescription(plan)) {
+            <p class="plan-description-full">{{ planDescription(plan) }}</p>
+          }
+          <button
+            mat-icon-button
+            type="button"
+            (click)="startEditPlan(plan)"
+            [matTooltip]="'trainingPlans.editPlan' | translate"
+            [attr.aria-label]="'trainingPlans.editPlan' | translate"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
         }
 
         <form class="exercise-form">

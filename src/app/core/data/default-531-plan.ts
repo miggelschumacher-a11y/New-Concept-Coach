@@ -39,10 +39,6 @@ const DEFAULT_531_PERCENTAGE_WEEKS: PercentageWeek[] = [
   }
 ];
 
-const DEFAULT_531_PLAN_DESCRIPTION =
-  'Klassisches Wendler 5/3/1: 4-Wochen-Zyklus (3 Aufbauwochen + Deload-Woche) für Squat, ' +
-  'Bankdrücken, Kreuzheben und Overhead-Press, basierend auf Prozentsätzen des 1RM.';
-
 // Builds the default 5/3/1 plan from whichever of the 4 lifts exist by name.
 // Returns null if none of them do (e.g. all were deleted on an existing
 // install), rather than seeding an empty default plan.
@@ -63,8 +59,9 @@ export function buildDefault531Plan(exerciseIdByName: ReadonlyMap<string, string
   }));
   return {
     id: DEFAULT_531_PLAN_ID,
-    name: '5/3/1 Powerlifting',
-    description: DEFAULT_531_PLAN_DESCRIPTION,
+    // Attributed by name per Jim Wendler's own stated terms for using 5/3/1
+    // in a program: the methodology is free to use, but should credit him.
+    name: '5/3/1 (Jim Wendler)',
     exerciseIds,
     exerciseConfigs,
     isDefault: true
