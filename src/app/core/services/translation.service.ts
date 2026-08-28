@@ -172,6 +172,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Initial reps',
     'config.waveProgressionFinalRepsLabel': 'Final reps',
     'config.waveProgressionDecrementLabel': 'Reps decrement per session',
+    'config.linearProgressionTitle': 'Linear Progression',
+    'config.linearProgressionDescription':
+      'Linear progression: the classic StrongLifts/Starting Strength style. Every working set must reach the same fixed minimum rep count (e.g. 3x5) for the weight to increase next session; miss even one set and the same weight repeats so you can try again. Unlike the other schemes here, there\'s no global default to configure - the minimum rep count is set directly on each exercise in its training plan. This is the default progression scheme for newly added exercises.',
 
     'trainingZones.title': 'Training Zones (Endurance Sports)',
     'trainingZones.zoneColumn': 'Zone',
@@ -352,6 +355,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Anfangswiederholungen',
     'config.waveProgressionFinalRepsLabel': 'Endwiederholungen',
     'config.waveProgressionDecrementLabel': 'Wiederholungsreduktion pro Einheit',
+    'config.linearProgressionTitle': 'Lineare Progression',
+    'config.linearProgressionDescription':
+      'Lineare Progression: der klassische StrongLifts-/Starting-Strength-Stil. Jeder Arbeitssatz muss dieselbe feste Mindestwiederholungszahl erreichen (z. B. 3x5), damit das Gewicht in der nächsten Einheit steigt; verfehlst du auch nur einen Satz, wiederholt sich die gleiche Gewichtsvorgabe unverändert. Anders als bei den übrigen Schemata hier gibt es keine globale Voreinstellung – die Mindestwiederholungszahl wird direkt pro Übung im Trainingsplan festgelegt. Dies ist das Standard-Progressionsschema für neu hinzugefügte Übungen.',
 
     'trainingZones.title': 'Trainingszonen (Ausdauersport)',
     'trainingZones.zoneColumn': 'Zone',
@@ -532,6 +538,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Repeticiones iniciales',
     'config.waveProgressionFinalRepsLabel': 'Repeticiones finales',
     'config.waveProgressionDecrementLabel': 'Reducción de repeticiones por sesión',
+    'config.linearProgressionTitle': 'Progresión lineal',
+    'config.linearProgressionDescription':
+      'Progresión lineal: el estilo clásico de StrongLifts/Starting Strength. Cada serie de trabajo debe alcanzar el mismo número mínimo fijo de repeticiones (p. ej. 3x5) para que el peso suba en la siguiente sesión; si fallas aunque sea una serie, el mismo peso se repite para que lo intentes de nuevo. A diferencia de los demás esquemas, aquí no hay una configuración global predeterminada: el número mínimo de repeticiones se establece directamente en cada ejercicio del plan de entrenamiento. Este es el esquema de progresión predeterminado para los ejercicios recién añadidos.',
 
     'trainingZones.title': 'Zonas de entrenamiento (deportes de resistencia)',
     'trainingZones.zoneColumn': 'Zona',
@@ -712,6 +721,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Repetições iniciais',
     'config.waveProgressionFinalRepsLabel': 'Repetições finais',
     'config.waveProgressionDecrementLabel': 'Redução de repetições por sessão',
+    'config.linearProgressionTitle': 'Progressão linear',
+    'config.linearProgressionDescription':
+      'Progressão linear: o estilo clássico do StrongLifts/Starting Strength. Cada série de trabalho deve atingir o mesmo número mínimo fixo de repetições (ex.: 3x5) para que o peso aumente na próxima sessão; se você errar mesmo que uma série, o mesmo peso se repete para você tentar novamente. Ao contrário dos demais esquemas, aqui não há uma configuração global padrão: o número mínimo de repetições é definido diretamente em cada exercício do plano de treino. Este é o esquema de progressão padrão para exercícios recém-adicionados.',
 
     'trainingZones.title': 'Zonas de treino (esportes de resistência)',
     'trainingZones.zoneColumn': 'Zona',
@@ -892,6 +904,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Ripetizioni iniziali',
     'config.waveProgressionFinalRepsLabel': 'Ripetizioni finali',
     'config.waveProgressionDecrementLabel': 'Riduzione ripetizioni per sessione',
+    'config.linearProgressionTitle': 'Progressione lineare',
+    'config.linearProgressionDescription':
+      'Progressione lineare: lo stile classico di StrongLifts/Starting Strength. Ogni serie di lavoro deve raggiungere lo stesso numero minimo fisso di ripetizioni (es. 3x5) affinché il peso aumenti nella sessione successiva; se manchi anche una sola serie, lo stesso peso si ripete per riprovare. A differenza degli altri schemi, qui non c\'è un\'impostazione globale predefinita: il numero minimo di ripetizioni viene impostato direttamente su ogni esercizio nel piano di allenamento. Questo è lo schema di progressione predefinito per gli esercizi appena aggiunti.',
 
     'trainingZones.title': 'Zone di allenamento (sport di resistenza)',
     'trainingZones.zoneColumn': 'Zona',
@@ -1072,6 +1087,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Beginherhalingen',
     'config.waveProgressionFinalRepsLabel': 'Eindherhalingen',
     'config.waveProgressionDecrementLabel': 'Herhalingsafname per sessie',
+    'config.linearProgressionTitle': 'Lineaire progressie',
+    'config.linearProgressionDescription':
+      'Lineaire progressie: de klassieke StrongLifts-/Starting Strength-stijl. Elke werkset moet hetzelfde vaste minimumaantal herhalingen halen (bijv. 3x5) voordat het gewicht in de volgende sessie omhoog gaat; mis je ook maar één set, dan wordt hetzelfde gewicht herhaald zodat je het opnieuw kunt proberen. In tegenstelling tot de andere schema\'s is er hier geen algemene standaardinstelling: het minimumaantal herhalingen wordt direct per oefening in het trainingsplan ingesteld. Dit is het standaard progressieschema voor nieuw toegevoegde oefeningen.',
 
     'trainingZones.title': 'Trainingszones (duursport)',
     'trainingZones.zoneColumn': 'Zone',
@@ -1252,6 +1270,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Powtórzenia początkowe',
     'config.waveProgressionFinalRepsLabel': 'Powtórzenia końcowe',
     'config.waveProgressionDecrementLabel': 'Redukcja powtórzeń na sesję',
+    'config.linearProgressionTitle': 'Progresja liniowa',
+    'config.linearProgressionDescription':
+      'Progresja liniowa: klasyczny styl StrongLifts/Starting Strength. Każda seria robocza musi osiągnąć tę samą, stałą minimalną liczbę powtórzeń (np. 3x5), aby ciężar wzrósł w kolejnej sesji; jeśli nie uda się choćby jedna seria, ten sam ciężar powtarza się, byś mógł spróbować ponownie. W przeciwieństwie do pozostałych schematów, tutaj nie ma globalnego ustawienia domyślnego – minimalna liczba powtórzeń jest ustawiana bezpośrednio dla każdego ćwiczenia w planie treningowym. To domyślny schemat progresji dla nowo dodanych ćwiczeń.',
 
     'trainingZones.title': 'Strefy treningowe (sporty wytrzymałościowe)',
     'trainingZones.zoneColumn': 'Strefa',
@@ -1432,6 +1453,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Начальные повторения',
     'config.waveProgressionFinalRepsLabel': 'Конечные повторения',
     'config.waveProgressionDecrementLabel': 'Снижение повторений за тренировку',
+    'config.linearProgressionTitle': 'Линейная прогрессия',
+    'config.linearProgressionDescription':
+      'Линейная прогрессия: классический стиль StrongLifts/Starting Strength. Каждый рабочий подход должен достичь одинакового фиксированного минимального числа повторений (например, 3x5), чтобы вес увеличился в следующей тренировке; если не удаётся выполнить хотя бы один подход, тот же вес повторяется, чтобы попробовать снова. В отличие от остальных схем, здесь нет глобальной настройки по умолчанию — минимальное число повторений задаётся напрямую для каждого упражнения в плане тренировок. Это схема прогрессии по умолчанию для новых добавленных упражнений.',
 
     'trainingZones.title': 'Тренировочные зоны (циклические виды спорта)',
     'trainingZones.zoneColumn': 'Зона',
@@ -1612,6 +1636,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.waveProgressionInitialRepsLabel': 'Kezdő ismétlésszám',
     'config.waveProgressionFinalRepsLabel': 'Végső ismétlésszám',
     'config.waveProgressionDecrementLabel': 'Ismétlésszám csökkentése edzésenként',
+    'config.linearProgressionTitle': 'Lineáris progresszió',
+    'config.linearProgressionDescription':
+      'Lineáris progresszió: a klasszikus StrongLifts/Starting Strength stílus. Minden munkaszettnek el kell érnie ugyanazt a rögzített minimális ismétlésszámot (pl. 3x5), hogy a súly nőjön a következő edzésen; ha akár egy szettet is elrontasz, ugyanaz a súly ismétlődik, hogy újra megpróbálhasd. A többi sémától eltérően itt nincs globális alapbeállítás – a minimális ismétlésszámot közvetlenül az egyes gyakorlatoknál állítod be az edzéstervben. Ez az alapértelmezett progressziós séma az újonnan hozzáadott gyakorlatokhoz.',
 
     'trainingZones.title': 'Edzési zónák (állóképességi sportok)',
     'trainingZones.zoneColumn': 'Zóna',

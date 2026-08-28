@@ -19,6 +19,7 @@ import { TierLineProgressionService } from '../core/services/tier-line-progressi
 import { DoubleProgressionService } from '../core/services/double-progression.service';
 import { RepGoalService } from '../core/services/rep-goal.service';
 import { WaveProgressionService } from '../core/services/wave-progression.service';
+import { LinearProgressionService } from '../core/services/linear-progression.service';
 import { BodyWeightService } from '../core/services/body-weight.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
@@ -27,6 +28,7 @@ import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core
 import { DoubleProgressionState } from '../core/models/double-progression.model';
 import { RepGoalState } from '../core/models/rep-goal.model';
 import { WaveProgressionState } from '../core/models/wave-progression.model';
+import { LinearProgressionState } from '../core/models/linear-progression.model';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
@@ -91,6 +93,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private readonly doubleProgressionStates = new Map<string, DoubleProgressionState>();
   private readonly repGoalStates = new Map<string, RepGoalState>();
   private readonly waveProgressionStates = new Map<string, WaveProgressionState>();
+  private readonly linearProgressionStates = new Map<string, LinearProgressionState>();
 
   bodyWeightEntries: BodyWeightEntry[] = [];
   private readonly confirmedBodyWeightFallbackSessionIds = new Set<string>();
@@ -109,6 +112,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly doubleProgressionService: DoubleProgressionService,
     private readonly repGoalService: RepGoalService,
     private readonly waveProgressionService: WaveProgressionService,
+    private readonly linearProgressionService: LinearProgressionService,
     private readonly bodyWeightService: BodyWeightService,
     private readonly datePipe: DatePipe
   ) {}
@@ -447,6 +451,45 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async getOrInitLinearProgressionState(exerciseId: string): Promise<LinearProgressionState> {
+    const cached = this.linearProgressionStates.get(exerciseId);
+    if (cached) {
+      return cached;
+    }
+    const existing = await this.linearProgressionService.getState(exerciseId);
+    const state = existing ?? (await this.linearProgressionService.initState(exerciseId, 0));
+    this.linearProgressionStates.set(exerciseId, state);
+    return state;
+  }
+
+  private async recordLinearProgressionProgress(session: TrainingSession): Promise<void> {
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    if (!plan || plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION) {
+      return;
+    }
+    for (const sessionExercise of session.exercises) {
+      const config = plan.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
+      if (config?.exerciseType !== 'LINEAR_PROGRESSION' || !config.linearProgression) {
+        continue;
+      }
+      const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+      if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+        continue;
+      }
+      const achievedReps = workingSets.map((set) => set.reps);
+      const lastSetWeight = workingSets[workingSets.length - 1].weight;
+      const category =
+        this.exercises.find((exercise) => exercise.id === sessionExercise.exerciseId)?.weightCategory ?? 'UPPER_BODY';
+      const next = await this.linearProgressionService.recordSessionResult(
+        sessionExercise.exerciseId,
+        config.linearProgression,
+        { achievedReps, lastSetWeight },
+        category
+      );
+      this.linearProgressionStates.set(sessionExercise.exerciseId, next);
+    }
+  }
+
   isPaused(session: TrainingSession): boolean {
     return !session.finished && !session.timerRunning;
   }
@@ -665,6 +708,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 weight: state.currentWeight,
                 type: 'working' as SetType
               }));
+            } else if (config.exerciseType === 'LINEAR_PROGRESSION' && config.linearProgression) {
+              const state = await this.getOrInitLinearProgressionState(exerciseId);
+              const targetReps = config.linearProgression.targetReps;
+              workingSets = Array.from({ length: config.workingSets }, () => ({
+                id: crypto.randomUUID(),
+                reps: targetReps,
+                weight: state.currentWeight,
+                type: 'working' as SetType
+              }));
             } else {
               workingSets = buildSets(config.workingSets, 'working');
             }
@@ -797,6 +849,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.recordDoubleProgressionProgress(session);
     await this.recordRepGoalProgress(session);
     await this.recordWaveProgressionProgress(session);
+    await this.recordLinearProgressionProgress(session);
 
     const mode = this.settingsService.getSettings().finishedSessionReplenishMode;
     if (mode === 'always') {

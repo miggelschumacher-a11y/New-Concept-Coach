@@ -52,7 +52,8 @@ const DEFAULT_WARMUP_SETS = 0;
 const DEFAULT_WORKING_SETS = 3;
 const DEFAULT_COOLDOWN_SETS = 0;
 const PLAN_EXERCISE_SETS_MAX = 100;
-const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
+const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'LINEAR_PROGRESSION';
+const DEFAULT_LINEAR_PROGRESSION_TARGET_REPS = 5;
 
 // Classic Wendler 5/3/1: 3 waves building to a heavier AMRAP top set, then a
 // deload week. Seeded the first time an exercise is switched to
@@ -290,6 +291,22 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.load();
   }
 
+  // DEFAULT_EXERCISE_TYPE is LINEAR_PROGRESSION, which - unlike the other
+  // progression schemes - has no Config-level default to copy on first
+  // switch, so its config has to be seeded right here instead.
+  private defaultExerciseConfig(exerciseId: string): PlanExerciseConfig {
+    return {
+      exerciseId,
+      exerciseType: DEFAULT_EXERCISE_TYPE,
+      warmupSets: DEFAULT_WARMUP_SETS,
+      workingSets: DEFAULT_WORKING_SETS,
+      cooldownSets: DEFAULT_COOLDOWN_SETS,
+      ...(DEFAULT_EXERCISE_TYPE === 'LINEAR_PROGRESSION'
+        ? { linearProgression: { targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS } }
+        : {})
+    };
+  }
+
   async updatePlanExercises(plan: TrainingPlan, exerciseIds: string[]): Promise<void> {
     if (plan.isDefault) {
       return;
@@ -297,14 +314,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     plan.exerciseIds = exerciseIds;
     const existingByExerciseId = new Map((plan.exerciseConfigs ?? []).map((config) => [config.exerciseId, config]));
     plan.exerciseConfigs = exerciseIds.map(
-      (exerciseId) =>
-        existingByExerciseId.get(exerciseId) ?? {
-          exerciseId,
-          exerciseType: DEFAULT_EXERCISE_TYPE,
-          warmupSets: DEFAULT_WARMUP_SETS,
-          workingSets: DEFAULT_WORKING_SETS,
-          cooldownSets: DEFAULT_COOLDOWN_SETS
-        }
+      (exerciseId) => existingByExerciseId.get(exerciseId) ?? this.defaultExerciseConfig(exerciseId)
     );
     await this.trainingPlansService.update(plan);
   }
@@ -317,15 +327,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   planExerciseConfig(plan: TrainingPlan, exerciseId: string): PlanExerciseConfig {
-    return (
-      plan.exerciseConfigs?.find((config) => config.exerciseId === exerciseId) ?? {
-        exerciseId,
-        exerciseType: DEFAULT_EXERCISE_TYPE,
-        warmupSets: DEFAULT_WARMUP_SETS,
-        workingSets: DEFAULT_WORKING_SETS,
-        cooldownSets: DEFAULT_COOLDOWN_SETS
-      }
-    );
+    return plan.exerciseConfigs?.find((config) => config.exerciseId === exerciseId) ?? this.defaultExerciseConfig(exerciseId);
   }
 
   planExerciseTotalSets(plan: TrainingPlan, exerciseId: string): number {
@@ -381,6 +383,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
         finalReps: settings.waveProgressionFinalReps,
         repsDecrement: settings.waveProgressionRepsDecrement
       };
+    }
+    // No Config-level default for this one - it's set directly per exercise.
+    if (exerciseType === 'LINEAR_PROGRESSION' && !config.linearProgression) {
+      patch.linearProgression = { targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS };
     }
     await this.updateConfig(plan, exerciseId, patch);
   }
@@ -508,6 +514,14 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async updateWaveProgressionRepsDecrement(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
     await this.updateWaveProgression(plan, exerciseId, { repsDecrement: this.clampSets(value) });
+  }
+
+  async updateLinearProgressionTargetReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    if (!config.linearProgression) {
+      return;
+    }
+    await this.updateConfig(plan, exerciseId, { linearProgression: { targetReps: this.clampSets(value) } });
   }
 
   percentageSetWeight(exerciseId: string, percentage: number): number | null {

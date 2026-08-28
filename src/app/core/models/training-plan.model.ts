@@ -22,7 +22,8 @@ export type PlanExerciseType =
   | 'TIME_BASED'
   | 'DOUBLE_PROGRESSION'
   | 'REP_GOAL'
-  | 'WAVE_PROGRESSION';
+  | 'WAVE_PROGRESSION'
+  | 'LINEAR_PROGRESSION';
 
 // 'ADD_TO_ALL_SETS': every set gains a rep each session, in lockstep.
 // 'ADD_ONE_TOTAL_REP': only one set gains a rep each session, distributed
@@ -54,6 +55,12 @@ export interface WaveProgressionConfig {
   repsDecrement: number;
 }
 
+export interface LinearProgressionConfig {
+  // Minimum reps every working set must reach for the weight to increase
+  // next session, 1-100. No global default - set directly per exercise.
+  targetReps: number;
+}
+
 export interface PercentageSet {
   // Of the exercise's current one-rep max, 0-100.
   percentage: number;
@@ -82,6 +89,8 @@ export interface PlanExerciseConfig {
   repGoal?: RepGoalConfig;
   // Only used when exerciseType is WAVE_PROGRESSION.
   waveProgression?: WaveProgressionConfig;
+  // Only used when exerciseType is LINEAR_PROGRESSION.
+  linearProgression?: LinearProgressionConfig;
 }
 
 export interface TrainingPlan {
