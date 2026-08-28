@@ -185,22 +185,34 @@
                 </mat-expansion-panel-header>
 
                 @if (!plan.isDefault) {
-                  <mat-form-field appearance="outline" class="exercise-type-field">
-                    <mat-label>Select Exercise-Type</mat-label>
-                    <mat-select
-                      [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
-                      name="exerciseType-{{ exerciseId }}"
-                      (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
-                    >
-                      <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
-                      <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
-                      <mat-option value="TIME_BASED">Time-Based</mat-option>
-                      <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
-                      <mat-option value="REP_GOAL">Rep Goal System</mat-option>
-                      <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
-                      <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
-                    </mat-select>
-                  </mat-form-field>
+                  <div class="exercise-type-row">
+                    <mat-form-field appearance="outline" class="exercise-type-field">
+                      <mat-label>Select Exercise-Type</mat-label>
+                      <mat-select
+                        [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
+                        name="exerciseType-{{ exerciseId }}"
+                        (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
+                      >
+                        <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                        <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                        <mat-option value="TIME_BASED">Time-Based</mat-option>
+                        <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="exercise-type-field">
+                      <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
+                      <mat-select
+                        [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
+                        name="incrementScheme-{{ exerciseId }}"
+                        (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
+                      >
+                        <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
+                        <mat-option value="REP_GOAL">Rep Goal System</mat-option>
+                        <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
                 }
 
                 <mat-accordion multi class="set-type-accordion">

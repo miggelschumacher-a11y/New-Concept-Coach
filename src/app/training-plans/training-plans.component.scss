@@ -91,6 +91,12 @@ mat-card {
   margin-top: 0.5rem;
 }
 
+.exercise-type-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .exercise-type-field {
   display: block;
   margin-top: 0.5rem;
