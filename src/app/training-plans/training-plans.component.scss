@@ -104,6 +104,24 @@ mat-card {
   margin-top: 0.5rem;
 }
 
+.double-progression-fields {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.rep-range-field {
+  width: 9rem;
+}
+
+.double-progression-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .percentage-set-row {
   display: flex;
   align-items: center;

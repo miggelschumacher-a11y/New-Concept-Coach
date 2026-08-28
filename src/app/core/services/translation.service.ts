@@ -155,6 +155,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Google Drive backup failed.',
     'config.restoreFromFileLabel': 'Restore DB from file',
     'config.incrementSchemeTitle': 'Increment Scheme',
+    'config.incrementSchemeDescription':
+      'Double progression: work within a rep range at a fixed weight. Once every set reaches the top of the range, the weight goes up and you start again at the bottom.',
+    'config.incrementSchemeLowerReps': 'Lower rep range',
+    'config.incrementSchemeUpperReps': 'Upper rep range',
+    'config.incrementSchemeModeAllSets': 'Add a rep to every set each session',
+    'config.incrementSchemeModeOneTotalRep': 'Add one total extra rep each session',
+    'config.repGoalTitle': 'Rep Goal System',
+    'config.repGoalDescription':
+      'Rep goal system: work sets are pushed close to failure and the reps are added up. Once the total across all working sets surpasses the rep goal, the weight goes up next session.',
+    'config.repGoalTotalRepGoalLabel': 'Total rep goal',
+    'config.waveProgressionTitle': 'Wave Progression',
+    'config.waveProgressionDescription':
+      'Wave progression: every session the weight goes up and the rep target steps down. Once the rep target hits the bottom of the range, the next wave starts back at the top, with the weight one increment above where the previous wave began.',
+    'config.waveProgressionInitialRepsLabel': 'Initial reps',
+    'config.waveProgressionFinalRepsLabel': 'Final reps',
+    'config.waveProgressionDecrementLabel': 'Reps decrement per session',
 
     'trainingZones.title': 'Training Zones (Endurance Sports)',
     'trainingZones.zoneColumn': 'Zone',
@@ -318,6 +334,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Sicherung in Google Drive fehlgeschlagen.',
     'config.restoreFromFileLabel': 'DB aus Datei wiederherstellen',
     'config.incrementSchemeTitle': 'Inkrement-Schema',
+    'config.incrementSchemeDescription':
+      'Doppelte Progression: Du trainierst innerhalb eines Wiederholungsbereichs bei gleichbleibendem Gewicht. Sobald jeder Satz die Obergrenze erreicht hat, steigt das Gewicht, und du beginnst wieder am unteren Ende.',
+    'config.incrementSchemeLowerReps': 'Untere Wiederholungsgrenze',
+    'config.incrementSchemeUpperReps': 'Obere Wiederholungsgrenze',
+    'config.incrementSchemeModeAllSets': 'Jede Einheit eine Wiederholung zu jedem Satz hinzufügen',
+    'config.incrementSchemeModeOneTotalRep': 'Jede Einheit eine Wiederholung insgesamt hinzufügen',
+    'config.repGoalTitle': 'Wiederholungsziel-System',
+    'config.repGoalDescription':
+      'Wiederholungsziel-System: Du trainierst jeden Arbeitssatz nah ans Muskelversagen und zählst die Wiederholungen zusammen. Sobald die Summe aller Arbeitssätze das Wiederholungsziel übertrifft, steigt das Gewicht in der nächsten Einheit.',
+    'config.repGoalTotalRepGoalLabel': 'Wiederholungsziel gesamt',
+    'config.waveProgressionTitle': 'Wellen-Progression',
+    'config.waveProgressionDescription':
+      'Wellen-Progression: In jeder Einheit steigt das Gewicht, während das Wiederholungsziel sinkt. Sobald das Wiederholungsziel die Untergrenze erreicht, beginnt die nächste Welle wieder an der Obergrenze, mit einem Gewicht, das eine Steigerung über dem Start der vorherigen Welle liegt.',
+    'config.waveProgressionInitialRepsLabel': 'Anfangswiederholungen',
+    'config.waveProgressionFinalRepsLabel': 'Endwiederholungen',
+    'config.waveProgressionDecrementLabel': 'Wiederholungsreduktion pro Einheit',
 
     'trainingZones.title': 'Trainingszonen (Ausdauersport)',
     'trainingZones.zoneColumn': 'Zone',
@@ -481,6 +513,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Error al respaldar en Google Drive.',
     'config.restoreFromFileLabel': 'Restaurar BD desde archivo',
     'config.incrementSchemeTitle': 'Esquema de incremento',
+    'config.incrementSchemeDescription':
+      'Progresión doble: entrenas dentro de un rango de repeticiones con un peso fijo. En cuanto cada serie alcanza el límite superior, el peso sube y vuelves a empezar desde el límite inferior.',
+    'config.incrementSchemeLowerReps': 'Rango inferior de repeticiones',
+    'config.incrementSchemeUpperReps': 'Rango superior de repeticiones',
+    'config.incrementSchemeModeAllSets': 'Añadir una repetición a cada serie por sesión',
+    'config.incrementSchemeModeOneTotalRep': 'Añadir una repetición total por sesión',
+    'config.repGoalTitle': 'Sistema de meta de repeticiones',
+    'config.repGoalDescription':
+      'Sistema de meta de repeticiones: llevas cada serie de trabajo cerca del fallo muscular y sumas las repeticiones. En cuanto la suma de todas las series de trabajo supera la meta de repeticiones, el peso sube en la siguiente sesión.',
+    'config.repGoalTotalRepGoalLabel': 'Meta total de repeticiones',
+    'config.waveProgressionTitle': 'Progresión ondulante',
+    'config.waveProgressionDescription':
+      'Progresión ondulante: en cada sesión el peso sube y el objetivo de repeticiones baja. En cuanto el objetivo de repeticiones llega al límite inferior, la siguiente ola empieza de nuevo en el límite superior, con un peso un incremento por encima de donde empezó la ola anterior.',
+    'config.waveProgressionInitialRepsLabel': 'Repeticiones iniciales',
+    'config.waveProgressionFinalRepsLabel': 'Repeticiones finales',
+    'config.waveProgressionDecrementLabel': 'Reducción de repeticiones por sesión',
 
     'trainingZones.title': 'Zonas de entrenamiento (deportes de resistencia)',
     'trainingZones.zoneColumn': 'Zona',
@@ -644,6 +692,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Falha ao salvar no Google Drive.',
     'config.restoreFromFileLabel': 'Restaurar BD a partir de arquivo',
     'config.incrementSchemeTitle': 'Esquema de incremento',
+    'config.incrementSchemeDescription':
+      'Progressão dupla: você treina dentro de uma faixa de repetições com um peso fixo. Assim que cada série atinge o limite superior, o peso aumenta e você recomeça no limite inferior.',
+    'config.incrementSchemeLowerReps': 'Faixa inferior de repetições',
+    'config.incrementSchemeUpperReps': 'Faixa superior de repetições',
+    'config.incrementSchemeModeAllSets': 'Adicionar uma repetição a cada série por sessão',
+    'config.incrementSchemeModeOneTotalRep': 'Adicionar uma repetição total por sessão',
+    'config.repGoalTitle': 'Sistema de meta de repetições',
+    'config.repGoalDescription':
+      'Sistema de meta de repetições: você leva cada série de trabalho perto da falha e soma as repetições. Assim que a soma de todas as séries de trabalho ultrapassa a meta de repetições, o peso aumenta na próxima sessão.',
+    'config.repGoalTotalRepGoalLabel': 'Meta total de repetições',
+    'config.waveProgressionTitle': 'Progressão ondulatória',
+    'config.waveProgressionDescription':
+      'Progressão ondulatória: a cada sessão o peso sobe e a meta de repetições desce. Assim que a meta de repetições atinge o limite inferior, a próxima onda recomeça no limite superior, com um peso um incremento acima de onde a onda anterior começou.',
+    'config.waveProgressionInitialRepsLabel': 'Repetições iniciais',
+    'config.waveProgressionFinalRepsLabel': 'Repetições finais',
+    'config.waveProgressionDecrementLabel': 'Redução de repetições por sessão',
 
     'trainingZones.title': 'Zonas de treino (esportes de resistência)',
     'trainingZones.zoneColumn': 'Zona',
@@ -807,6 +871,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Backup su Google Drive non riuscito.',
     'config.restoreFromFileLabel': 'Ripristina DB da file',
     'config.incrementSchemeTitle': 'Schema di incremento',
+    'config.incrementSchemeDescription':
+      'Progressione doppia: alleni all\'interno di un intervallo di ripetizioni con un peso fisso. Non appena ogni serie raggiunge il limite superiore, il peso aumenta e ricominci dal limite inferiore.',
+    'config.incrementSchemeLowerReps': 'Limite inferiore delle ripetizioni',
+    'config.incrementSchemeUpperReps': 'Limite superiore delle ripetizioni',
+    'config.incrementSchemeModeAllSets': 'Aggiungi una ripetizione a ogni serie per sessione',
+    'config.incrementSchemeModeOneTotalRep': 'Aggiungi una ripetizione totale per sessione',
+    'config.repGoalTitle': 'Sistema obiettivo ripetizioni',
+    'config.repGoalDescription':
+      'Sistema obiettivo ripetizioni: porti ogni serie di lavoro vicino al cedimento e sommi le ripetizioni. Non appena la somma di tutte le serie di lavoro supera l\'obiettivo di ripetizioni, il peso aumenta nella sessione successiva.',
+    'config.repGoalTotalRepGoalLabel': 'Obiettivo ripetizioni totale',
+    'config.waveProgressionTitle': 'Progressione a onde',
+    'config.waveProgressionDescription':
+      'Progressione a onde: a ogni sessione il peso sale e l\'obiettivo di ripetizioni scende. Non appena l\'obiettivo di ripetizioni raggiunge il limite inferiore, la prossima onda riparte dal limite superiore, con un peso di un incremento superiore a quello di partenza dell\'onda precedente.',
+    'config.waveProgressionInitialRepsLabel': 'Ripetizioni iniziali',
+    'config.waveProgressionFinalRepsLabel': 'Ripetizioni finali',
+    'config.waveProgressionDecrementLabel': 'Riduzione ripetizioni per sessione',
 
     'trainingZones.title': 'Zone di allenamento (sport di resistenza)',
     'trainingZones.zoneColumn': 'Zona',
@@ -970,6 +1050,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Back-up naar Google Drive mislukt.',
     'config.restoreFromFileLabel': 'DB uit bestand herstellen',
     'config.incrementSchemeTitle': 'Increment-schema',
+    'config.incrementSchemeDescription':
+      'Dubbele progressie: je traint binnen een herhalingsbereik met een vast gewicht. Zodra elke set de bovengrens bereikt, gaat het gewicht omhoog en begin je weer bij de ondergrens.',
+    'config.incrementSchemeLowerReps': 'Onderste herhalingsbereik',
+    'config.incrementSchemeUpperReps': 'Bovenste herhalingsbereik',
+    'config.incrementSchemeModeAllSets': 'Elke sessie een herhaling toevoegen aan elke set',
+    'config.incrementSchemeModeOneTotalRep': 'Elke sessie in totaal één herhaling toevoegen',
+    'config.repGoalTitle': 'Herhalingsdoel-systeem',
+    'config.repGoalDescription':
+      'Herhalingsdoel-systeem: je traint elke werkset dicht bij spierfalen en telt de herhalingen op. Zodra de som van alle werksets het herhalingsdoel overschrijdt, gaat het gewicht omhoog in de volgende sessie.',
+    'config.repGoalTotalRepGoalLabel': 'Totaal herhalingsdoel',
+    'config.waveProgressionTitle': 'Golfprogressie',
+    'config.waveProgressionDescription':
+      'Golfprogressie: elke sessie gaat het gewicht omhoog en het herhalingsdoel omlaag. Zodra het herhalingsdoel de ondergrens bereikt, begint de volgende golf weer bij de bovengrens, met een gewicht dat één stap hoger ligt dan het begin van de vorige golf.',
+    'config.waveProgressionInitialRepsLabel': 'Beginherhalingen',
+    'config.waveProgressionFinalRepsLabel': 'Eindherhalingen',
+    'config.waveProgressionDecrementLabel': 'Herhalingsafname per sessie',
 
     'trainingZones.title': 'Trainingszones (duursport)',
     'trainingZones.zoneColumn': 'Zone',
@@ -1133,6 +1229,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Kopia zapasowa w Google Drive nie powiodła się.',
     'config.restoreFromFileLabel': 'Przywróć bazę z pliku',
     'config.incrementSchemeTitle': 'Schemat przyrostu',
+    'config.incrementSchemeDescription':
+      'Podwójna progresja: trenujesz w zakresie powtórzeń przy stałym ciężarze. Gdy każda seria osiągnie górną granicę, ciężar rośnie, a ty zaczynasz od nowa od dolnej granicy.',
+    'config.incrementSchemeLowerReps': 'Dolny zakres powtórzeń',
+    'config.incrementSchemeUpperReps': 'Górny zakres powtórzeń',
+    'config.incrementSchemeModeAllSets': 'Dodawaj powtórzenie do każdej serii co sesję',
+    'config.incrementSchemeModeOneTotalRep': 'Dodawaj jedno powtórzenie łącznie co sesję',
+    'config.repGoalTitle': 'System celu powtórzeń',
+    'config.repGoalDescription':
+      'System celu powtórzeń: każdą serię roboczą wykonujesz blisko odmowy mięśniowej i sumujesz powtórzenia. Gdy suma wszystkich serii roboczych przekroczy cel powtórzeń, ciężar rośnie w kolejnej sesji.',
+    'config.repGoalTotalRepGoalLabel': 'Łączny cel powtórzeń',
+    'config.waveProgressionTitle': 'Progresja falowa',
+    'config.waveProgressionDescription':
+      'Progresja falowa: w każdej sesji ciężar rośnie, a cel powtórzeń maleje. Gdy cel powtórzeń osiągnie dolną granicę, kolejna fala zaczyna się od nowa od górnej granicy, z ciężarem o jeden przyrost wyższym niż początek poprzedniej fali.',
+    'config.waveProgressionInitialRepsLabel': 'Powtórzenia początkowe',
+    'config.waveProgressionFinalRepsLabel': 'Powtórzenia końcowe',
+    'config.waveProgressionDecrementLabel': 'Redukcja powtórzeń na sesję',
 
     'trainingZones.title': 'Strefy treningowe (sporty wytrzymałościowe)',
     'trainingZones.zoneColumn': 'Strefa',
@@ -1296,6 +1408,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'Не удалось выполнить резервное копирование в Google Диск.',
     'config.restoreFromFileLabel': 'Восстановить БД из файла',
     'config.incrementSchemeTitle': 'Схема прироста',
+    'config.incrementSchemeDescription':
+      'Двойная прогрессия: вы тренируетесь в диапазоне повторений с фиксированным весом. Как только каждый подход достигает верхней границы, вес увеличивается, и вы начинаете заново с нижней границы.',
+    'config.incrementSchemeLowerReps': 'Нижняя граница повторений',
+    'config.incrementSchemeUpperReps': 'Верхняя граница повторений',
+    'config.incrementSchemeModeAllSets': 'Добавлять повторение к каждому подходу за тренировку',
+    'config.incrementSchemeModeOneTotalRep': 'Добавлять одно повторение всего за тренировку',
+    'config.repGoalTitle': 'Система целевых повторений',
+    'config.repGoalDescription':
+      'Система целевых повторений: каждый рабочий подход выполняется почти до отказа, а повторения суммируются. Как только сумма всех рабочих подходов превышает целевое количество повторений, в следующей тренировке вес увеличивается.',
+    'config.repGoalTotalRepGoalLabel': 'Общая цель повторений',
+    'config.waveProgressionTitle': 'Волновая прогрессия',
+    'config.waveProgressionDescription':
+      'Волновая прогрессия: в каждой тренировке вес увеличивается, а целевое число повторений снижается. Как только целевое число повторений достигает нижней границы, новая волна начинается заново с верхней границы, с весом на один шаг выше начала предыдущей волны.',
+    'config.waveProgressionInitialRepsLabel': 'Начальные повторения',
+    'config.waveProgressionFinalRepsLabel': 'Конечные повторения',
+    'config.waveProgressionDecrementLabel': 'Снижение повторений за тренировку',
 
     'trainingZones.title': 'Тренировочные зоны (циклические виды спорта)',
     'trainingZones.zoneColumn': 'Зона',
@@ -1459,6 +1587,22 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.driveBackupError': 'A Google Drive-ra történő mentés sikertelen.',
     'config.restoreFromFileLabel': 'Adatbázis visszaállítása fájlból',
     'config.incrementSchemeTitle': 'Növekményi séma',
+    'config.incrementSchemeDescription':
+      'Dupla progresszió: egy ismétlésszám-tartományon belül edzel állandó súllyal. Amint minden szett eléri a felső határt, a súly nő, és újra az alsó határtól kezdesz.',
+    'config.incrementSchemeLowerReps': 'Alsó ismétlésszám-határ',
+    'config.incrementSchemeUpperReps': 'Felső ismétlésszám-határ',
+    'config.incrementSchemeModeAllSets': 'Edzésenként egy ismétlés hozzáadása minden szetthez',
+    'config.incrementSchemeModeOneTotalRep': 'Edzésenként összesen egy ismétlés hozzáadása',
+    'config.repGoalTitle': 'Ismétléscél-rendszer',
+    'config.repGoalDescription':
+      'Ismétléscél-rendszer: minden munkaszettet közel a kimerülésig végzel, és összeadod az ismétléseket. Amint az összes munkaszett összege meghaladja az ismétléscélt, a következő edzésen nő a súly.',
+    'config.repGoalTotalRepGoalLabel': 'Összes ismétléscél',
+    'config.waveProgressionTitle': 'Hullám progresszió',
+    'config.waveProgressionDescription':
+      'Hullám progresszió: minden edzésen nő a súly, és csökken az ismétléscél. Amint az ismétléscél eléri az alsó határt, a következő hullám újra a felső határnál kezdődik, az előző hullám kezdő súlyánál egy növekménnyel magasabb súllyal.',
+    'config.waveProgressionInitialRepsLabel': 'Kezdő ismétlésszám',
+    'config.waveProgressionFinalRepsLabel': 'Végső ismétlésszám',
+    'config.waveProgressionDecrementLabel': 'Ismétlésszám csökkentése edzésenként',
 
     'trainingZones.title': 'Edzési zónák (állóképességi sportok)',
     'trainingZones.zoneColumn': 'Zóna',

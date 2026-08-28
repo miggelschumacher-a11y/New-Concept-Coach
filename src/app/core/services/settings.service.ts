@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IndexedDbService, STORES } from './indexed-db.service';
+import { DoubleProgressionMode } from '../models/training-plan.model';
 
 export type WeightUnit = 'kg' | 'lbs';
 export type DateFormat = 'dd.MM.yyyy' | 'MM/dd/yyyy';
@@ -12,6 +13,22 @@ export interface AppSettings {
   language: Language;
   dateOfBirth?: string;
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
+  // Default Double Progression increment scheme (Config page). Copied into a
+  // plan exercise's own config the first time it's switched to
+  // DOUBLE_PROGRESSION, then editable per exercise from there on.
+  doubleProgressionLowerReps: number;
+  doubleProgressionUpperReps: number;
+  doubleProgressionMode: DoubleProgressionMode;
+  // Default Rep Goal System total (Config page). Copied into a plan
+  // exercise's own config the first time it's switched to REP_GOAL, then
+  // editable per exercise from there on.
+  repGoalTotalRepGoal: number;
+  // Default Wave Progression rep range/decrement (Config page). Copied into
+  // a plan exercise's own config the first time it's switched to
+  // WAVE_PROGRESSION, then editable per exercise from there on.
+  waveProgressionInitialReps: number;
+  waveProgressionFinalReps: number;
+  waveProgressionRepsDecrement: number;
 }
 
 export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
@@ -33,7 +50,14 @@ const DEFAULT_SETTINGS: AppSettings = {
   weightUnit: 'kg',
   dateFormat: 'dd.MM.yyyy',
   language: 'en',
-  finishedSessionReplenishMode: 'always'
+  finishedSessionReplenishMode: 'always',
+  doubleProgressionLowerReps: 8,
+  doubleProgressionUpperReps: 10,
+  doubleProgressionMode: 'ADD_TO_ALL_SETS',
+  repGoalTotalRepGoal: 25,
+  waveProgressionInitialReps: 8,
+  waveProgressionFinalReps: 6,
+  waveProgressionRepsDecrement: 1
 };
 
 type SettingsRecord = AppSettings & { id: string };

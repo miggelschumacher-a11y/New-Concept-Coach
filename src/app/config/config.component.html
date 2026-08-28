@@ -193,6 +193,111 @@
     <mat-expansion-panel-header>
       <mat-panel-title><mat-icon class="label-icon">trending_up</mat-icon>{{ 'config.incrementSchemeTitle' | translate }}</mat-panel-title>
     </mat-expansion-panel-header>
+
+    <p class="increment-scheme-description">{{ 'config.incrementSchemeDescription' | translate }}</p>
+
+    <div class="increment-scheme-form">
+      <mat-form-field appearance="outline" class="rep-range-field">
+        <mat-label>{{ 'config.incrementSchemeLowerReps' | translate }}</mat-label>
+        <input
+          matInput
+          type="text"
+          inputmode="numeric"
+          [value]="doubleProgressionLowerReps"
+          (input)="onRepRangeInput($event)"
+          (change)="onDoubleProgressionLowerRepsChange($any($event.target).value)"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="rep-range-field">
+        <mat-label>{{ 'config.incrementSchemeUpperReps' | translate }}</mat-label>
+        <input
+          matInput
+          type="text"
+          inputmode="numeric"
+          [value]="doubleProgressionUpperReps"
+          (input)="onRepRangeInput($event)"
+          (change)="onDoubleProgressionUpperRepsChange($any($event.target).value)"
+        />
+      </mat-form-field>
+
+      <mat-radio-group [(ngModel)]="doubleProgressionMode" (change)="onDoubleProgressionModeChange()" class="increment-scheme-mode">
+        <mat-radio-button value="ADD_TO_ALL_SETS">{{ 'config.incrementSchemeModeAllSets' | translate }}</mat-radio-button>
+        <mat-radio-button value="ADD_ONE_TOTAL_REP">{{ 'config.incrementSchemeModeOneTotalRep' | translate }}</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+
+<mat-accordion class="increment-scheme-accordion">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title><mat-icon class="label-icon">trending_up</mat-icon>{{ 'config.repGoalTitle' | translate }}</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <p class="increment-scheme-description">{{ 'config.repGoalDescription' | translate }}</p>
+
+    <div class="increment-scheme-form">
+      <mat-form-field appearance="outline" class="rep-range-field">
+        <mat-label>{{ 'config.repGoalTotalRepGoalLabel' | translate }}</mat-label>
+        <input
+          matInput
+          type="text"
+          inputmode="numeric"
+          [value]="repGoalTotalRepGoal"
+          (input)="onRepRangeInput($event)"
+          (change)="onRepGoalTotalRepGoalChange($any($event.target).value)"
+        />
+      </mat-form-field>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+
+<mat-accordion class="increment-scheme-accordion">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title><mat-icon class="label-icon">trending_up</mat-icon>{{ 'config.waveProgressionTitle' | translate }}</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <p class="increment-scheme-description">{{ 'config.waveProgressionDescription' | translate }}</p>
+
+    <div class="increment-scheme-form">
+      <mat-form-field appearance="outline" class="rep-range-field">
+        <mat-label>{{ 'config.waveProgressionInitialRepsLabel' | translate }}</mat-label>
+        <input
+          matInput
+          type="text"
+          inputmode="numeric"
+          [value]="waveProgressionInitialReps"
+          (input)="onRepRangeInput($event)"
+          (change)="onWaveProgressionInitialRepsChange($any($event.target).value)"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="rep-range-field">
+        <mat-label>{{ 'config.waveProgressionFinalRepsLabel' | translate }}</mat-label>
+        <input
+          matInput
+          type="text"
+          inputmode="numeric"
+          [value]="waveProgressionFinalReps"
+          (input)="onRepRangeInput($event)"
+          (change)="onWaveProgressionFinalRepsChange($any($event.target).value)"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="rep-range-field">
+        <mat-label>{{ 'config.waveProgressionDecrementLabel' | translate }}</mat-label>
+        <input
+          matInput
+          type="text"
+          inputmode="numeric"
+          [value]="waveProgressionRepsDecrement"
+          (input)="onRepRangeInput($event)"
+          (change)="onWaveProgressionRepsDecrementChange($any($event.target).value)"
+        />
+      </mat-form-field>
+    </div>
   </mat-expansion-panel>
 </mat-accordion>
 

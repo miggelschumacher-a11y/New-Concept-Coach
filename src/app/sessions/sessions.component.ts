@@ -16,14 +16,21 @@ import { SettingsService } from '../core/services/settings.service';
 import { TranslationService } from '../core/services/translation.service';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { TierLineProgressionService } from '../core/services/tier-line-progression.service';
+import { DoubleProgressionService } from '../core/services/double-progression.service';
+import { RepGoalService } from '../core/services/rep-goal.service';
+import { WaveProgressionService } from '../core/services/wave-progression.service';
 import { BodyWeightService } from '../core/services/body-weight.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
-import { TrainingPlan, TierLinePlanSession, TierLinePlanExercise } from '../core/models/training-plan.model';
+import { TrainingPlan, TierLinePlanSession, TierLinePlanExercise, WaveProgressionConfig } from '../core/models/training-plan.model';
 import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core/models/tier-line-progression.model';
+import { DoubleProgressionState } from '../core/models/double-progression.model';
+import { RepGoalState } from '../core/models/rep-goal.model';
+import { WaveProgressionState } from '../core/models/wave-progression.model';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
+import { computePrescribedReps } from '../core/utils/double-progression.util';
 import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
 import { parseRepsRange } from '../core/utils/reps-range.util';
 import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/body-weight-lookup.util';
@@ -81,6 +88,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
   pausedAttemptFieldKey: string | null = null;
   private pausedAttemptTimeoutId?: ReturnType<typeof setTimeout>;
   private readonly progressionStates = new Map<string, TierLineProgressionState>();
+  private readonly doubleProgressionStates = new Map<string, DoubleProgressionState>();
+  private readonly repGoalStates = new Map<string, RepGoalState>();
+  private readonly waveProgressionStates = new Map<string, WaveProgressionState>();
 
   bodyWeightEntries: BodyWeightEntry[] = [];
   private readonly confirmedBodyWeightFallbackSessionIds = new Set<string>();
@@ -96,6 +106,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly translationService: TranslationService,
     private readonly trainingPlansService: TrainingPlansService,
     private readonly tierLineProgressionService: TierLineProgressionService,
+    private readonly doubleProgressionService: DoubleProgressionService,
+    private readonly repGoalService: RepGoalService,
+    private readonly waveProgressionService: WaveProgressionService,
     private readonly bodyWeightService: BodyWeightService,
     private readonly datePipe: DatePipe
   ) {}
@@ -308,6 +321,132 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async getOrInitDoubleProgressionState(exerciseId: string): Promise<DoubleProgressionState> {
+    const cached = this.doubleProgressionStates.get(exerciseId);
+    if (cached) {
+      return cached;
+    }
+    const existing = await this.doubleProgressionService.getState(exerciseId);
+    const state = existing ?? (await this.doubleProgressionService.initState(exerciseId, 0));
+    this.doubleProgressionStates.set(exerciseId, state);
+    return state;
+  }
+
+  private async recordDoubleProgressionProgress(session: TrainingSession): Promise<void> {
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    if (!plan || plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION) {
+      return;
+    }
+    for (const sessionExercise of session.exercises) {
+      const config = plan.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
+      if (config?.exerciseType !== 'DOUBLE_PROGRESSION' || !config.doubleProgression) {
+        continue;
+      }
+      const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+      // Same "attempted vs. untouched" distinction as recordTierLineProgress:
+      // reps are pre-filled with the prescription, so weight is what tells
+      // apart a genuine result from a set nobody actually logged.
+      if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+        continue;
+      }
+      const achievedReps = workingSets.map((set) => set.reps);
+      const lastSetWeight = workingSets[workingSets.length - 1].weight;
+      const category =
+        this.exercises.find((exercise) => exercise.id === sessionExercise.exerciseId)?.weightCategory ?? 'UPPER_BODY';
+      const next = await this.doubleProgressionService.recordSessionResult(
+        sessionExercise.exerciseId,
+        config.doubleProgression,
+        { achievedReps, lastSetWeight },
+        category
+      );
+      this.doubleProgressionStates.set(sessionExercise.exerciseId, next);
+    }
+  }
+
+  private async getOrInitRepGoalState(exerciseId: string): Promise<RepGoalState> {
+    const cached = this.repGoalStates.get(exerciseId);
+    if (cached) {
+      return cached;
+    }
+    const existing = await this.repGoalService.getState(exerciseId);
+    const state = existing ?? (await this.repGoalService.initState(exerciseId, 0));
+    this.repGoalStates.set(exerciseId, state);
+    return state;
+  }
+
+  private async recordRepGoalProgress(session: TrainingSession): Promise<void> {
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    if (!plan || plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION) {
+      return;
+    }
+    for (const sessionExercise of session.exercises) {
+      const config = plan.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
+      if (config?.exerciseType !== 'REP_GOAL' || !config.repGoal) {
+        continue;
+      }
+      const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+      // Same "attempted vs. untouched" distinction as recordTierLineProgress:
+      // weight is prefilled from the tracked state, reps are what the user
+      // actually logs, so an untouched exercise still has every rep at 0.
+      if (workingSets.length === 0 || workingSets.every((set) => set.reps === 0)) {
+        continue;
+      }
+      const totalReps = workingSets.reduce((sum, set) => sum + set.reps, 0);
+      const lastSetWeight = workingSets[workingSets.length - 1].weight;
+      const category =
+        this.exercises.find((exercise) => exercise.id === sessionExercise.exerciseId)?.weightCategory ?? 'UPPER_BODY';
+      const next = await this.repGoalService.recordSessionResult(
+        sessionExercise.exerciseId,
+        config.repGoal,
+        { totalReps, lastSetWeight },
+        category
+      );
+      this.repGoalStates.set(sessionExercise.exerciseId, next);
+    }
+  }
+
+  private async getOrInitWaveProgressionState(
+    exerciseId: string,
+    config: WaveProgressionConfig
+  ): Promise<WaveProgressionState> {
+    const cached = this.waveProgressionStates.get(exerciseId);
+    if (cached) {
+      return cached;
+    }
+    const existing = await this.waveProgressionService.getState(exerciseId);
+    const state = existing ?? (await this.waveProgressionService.initState(exerciseId, config.initialReps, 0));
+    this.waveProgressionStates.set(exerciseId, state);
+    return state;
+  }
+
+  private async recordWaveProgressionProgress(session: TrainingSession): Promise<void> {
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    if (!plan || plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION) {
+      return;
+    }
+    for (const sessionExercise of session.exercises) {
+      const config = plan.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
+      if (config?.exerciseType !== 'WAVE_PROGRESSION' || !config.waveProgression) {
+        continue;
+      }
+      const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+      if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+        continue;
+      }
+      const achievedReps = workingSets.map((set) => set.reps);
+      const lastSetWeight = workingSets[workingSets.length - 1].weight;
+      const category =
+        this.exercises.find((exercise) => exercise.id === sessionExercise.exerciseId)?.weightCategory ?? 'UPPER_BODY';
+      const next = await this.waveProgressionService.recordSessionResult(
+        sessionExercise.exerciseId,
+        config.waveProgression,
+        { achievedReps, lastSetWeight },
+        category
+      );
+      this.waveProgressionStates.set(sessionExercise.exerciseId, next);
+    }
+  }
+
   isPaused(session: TrainingSession): boolean {
     return !session.finished && !session.timerRunning;
   }
@@ -488,24 +627,56 @@ export class SessionsComponent implements OnInit, OnDestroy {
             };
           })
         )
-      : plan.exerciseIds.map((exerciseId) => {
-          const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
-          if (!config) {
-            return { exerciseId, sets: [], countWarmupSets: true, countCooldownSets: true };
-          }
-          const buildSets = (count: number, type: SetType) =>
-            Array.from({ length: count }, () => ({ id: crypto.randomUUID(), reps: 0, weight: 0, type }));
-          return {
-            exerciseId,
-            sets: [
-              ...buildSets(config.warmupSets, 'warmup'),
-              ...buildSets(config.workingSets, 'working'),
-              ...buildSets(config.cooldownSets, 'cooldown')
-            ],
-            countWarmupSets: true,
-            countCooldownSets: true
-          };
-        });
+      : await Promise.all(
+          plan.exerciseIds.map(async (exerciseId) => {
+            const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
+            if (!config) {
+              return { exerciseId, sets: [], countWarmupSets: true, countCooldownSets: true };
+            }
+            const buildSets = (count: number, type: SetType) =>
+              Array.from({ length: count }, () => ({ id: crypto.randomUUID(), reps: 0, weight: 0, type }));
+
+            let workingSets: SessionExercise['sets'];
+            if (config.exerciseType === 'DOUBLE_PROGRESSION' && config.doubleProgression) {
+              const state = await this.getOrInitDoubleProgressionState(exerciseId);
+              const prescribedReps = computePrescribedReps(config.doubleProgression, state.repsAddedThisCycle, config.workingSets);
+              workingSets = prescribedReps.map((reps) => ({
+                id: crypto.randomUUID(),
+                reps,
+                weight: state.currentWeight,
+                type: 'working' as SetType
+              }));
+            } else if (config.exerciseType === 'REP_GOAL' && config.repGoal) {
+              // No prescribed reps per set - each working set is pushed close
+              // to failure and logged freely; only the tracked weight carries
+              // over from session to session.
+              const state = await this.getOrInitRepGoalState(exerciseId);
+              workingSets = Array.from({ length: config.workingSets }, () => ({
+                id: crypto.randomUUID(),
+                reps: 0,
+                weight: state.currentWeight,
+                type: 'working' as SetType
+              }));
+            } else if (config.exerciseType === 'WAVE_PROGRESSION' && config.waveProgression) {
+              const state = await this.getOrInitWaveProgressionState(exerciseId, config.waveProgression);
+              workingSets = Array.from({ length: config.workingSets }, () => ({
+                id: crypto.randomUUID(),
+                reps: state.currentReps,
+                weight: state.currentWeight,
+                type: 'working' as SetType
+              }));
+            } else {
+              workingSets = buildSets(config.workingSets, 'working');
+            }
+
+            return {
+              exerciseId,
+              sets: [...buildSets(config.warmupSets, 'warmup'), ...workingSets, ...buildSets(config.cooldownSets, 'cooldown')],
+              countWarmupSets: true,
+              countCooldownSets: true
+            };
+          })
+        );
     return {
       id: crypto.randomUUID(),
       name,
@@ -623,6 +794,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session.finished = true;
     await this.persist(session);
     await this.recordTierLineProgress(session);
+    await this.recordDoubleProgressionProgress(session);
+    await this.recordRepGoalProgress(session);
+    await this.recordWaveProgressionProgress(session);
 
     const mode = this.settingsService.getSettings().finishedSessionReplenishMode;
     if (mode === 'always') {

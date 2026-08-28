@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatRadioModule } from '@angular/material/radio';
 import {
   SettingsService,
   WeightUnit,
@@ -17,6 +18,7 @@ import {
   LANGUAGE_DATE_FORMATS,
   FinishedSessionReplenishMode
 } from '../core/services/settings.service';
+import { DoubleProgressionMode } from '../core/models/training-plan.model';
 import { IndexedDbService } from '../core/services/indexed-db.service';
 import { DriveBackupFile, GoogleDriveService } from '../core/services/google-drive.service';
 import { LANGUAGES } from '../core/services/translation.service';
@@ -41,6 +43,7 @@ const BODY_WEIGHT_MAX = 300;
     MatIconModule,
     MatTooltipModule,
     MatExpansionModule,
+    MatRadioModule,
     DatePipe,
     DecimalPipe,
     TranslatePipe
@@ -56,6 +59,13 @@ export class ConfigComponent implements OnInit {
   language: Language;
   dateOfBirth: string;
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
+  doubleProgressionLowerReps: number;
+  doubleProgressionUpperReps: number;
+  doubleProgressionMode: DoubleProgressionMode;
+  repGoalTotalRepGoal: number;
+  waveProgressionInitialReps: number;
+  waveProgressionFinalReps: number;
+  waveProgressionRepsDecrement: number;
   statusMessageKey: string | null = null;
   pendingDriveBackupJson: string | null = null;
   driveFileName = '';
@@ -77,6 +87,13 @@ export class ConfigComponent implements OnInit {
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
+    this.doubleProgressionLowerReps = settings.doubleProgressionLowerReps;
+    this.doubleProgressionUpperReps = settings.doubleProgressionUpperReps;
+    this.doubleProgressionMode = settings.doubleProgressionMode;
+    this.repGoalTotalRepGoal = settings.repGoalTotalRepGoal;
+    this.waveProgressionInitialReps = settings.waveProgressionInitialReps;
+    this.waveProgressionFinalReps = settings.waveProgressionFinalReps;
+    this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
   }
 
   async ngOnInit(): Promise<void> {
@@ -87,6 +104,13 @@ export class ConfigComponent implements OnInit {
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
+    this.doubleProgressionLowerReps = settings.doubleProgressionLowerReps;
+    this.doubleProgressionUpperReps = settings.doubleProgressionUpperReps;
+    this.doubleProgressionMode = settings.doubleProgressionMode;
+    this.repGoalTotalRepGoal = settings.repGoalTotalRepGoal;
+    this.waveProgressionInitialReps = settings.waveProgressionInitialReps;
+    this.waveProgressionFinalReps = settings.waveProgressionFinalReps;
+    this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
     this.bodyWeightEntries = await this.bodyWeightService.getAll();
   }
 
@@ -166,6 +190,53 @@ export class ConfigComponent implements OnInit {
 
   async onFinishedSessionReplenishModeChange(): Promise<void> {
     await this.settingsService.updateSettings({ finishedSessionReplenishMode: this.finishedSessionReplenishMode });
+  }
+
+  onRepRangeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/\D/g, '').slice(0, 3);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  private clampReps(value: string): number {
+    const parsed = parseInt(value, 10);
+    return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 100) : 1;
+  }
+
+  async onDoubleProgressionLowerRepsChange(value: string): Promise<void> {
+    this.doubleProgressionLowerReps = this.clampReps(value);
+    await this.settingsService.updateSettings({ doubleProgressionLowerReps: this.doubleProgressionLowerReps });
+  }
+
+  async onDoubleProgressionUpperRepsChange(value: string): Promise<void> {
+    this.doubleProgressionUpperReps = this.clampReps(value);
+    await this.settingsService.updateSettings({ doubleProgressionUpperReps: this.doubleProgressionUpperReps });
+  }
+
+  async onDoubleProgressionModeChange(): Promise<void> {
+    await this.settingsService.updateSettings({ doubleProgressionMode: this.doubleProgressionMode });
+  }
+
+  async onRepGoalTotalRepGoalChange(value: string): Promise<void> {
+    this.repGoalTotalRepGoal = this.clampReps(value);
+    await this.settingsService.updateSettings({ repGoalTotalRepGoal: this.repGoalTotalRepGoal });
+  }
+
+  async onWaveProgressionInitialRepsChange(value: string): Promise<void> {
+    this.waveProgressionInitialReps = this.clampReps(value);
+    await this.settingsService.updateSettings({ waveProgressionInitialReps: this.waveProgressionInitialReps });
+  }
+
+  async onWaveProgressionFinalRepsChange(value: string): Promise<void> {
+    this.waveProgressionFinalReps = this.clampReps(value);
+    await this.settingsService.updateSettings({ waveProgressionFinalReps: this.waveProgressionFinalReps });
+  }
+
+  async onWaveProgressionRepsDecrementChange(value: string): Promise<void> {
+    this.waveProgressionRepsDecrement = this.clampReps(value);
+    await this.settingsService.updateSettings({ waveProgressionRepsDecrement: this.waveProgressionRepsDecrement });
   }
 
   async startDriveBackup(): Promise<void> {

@@ -194,6 +194,9 @@
                     <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
                     <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
                     <mat-option value="TIME_BASED">Time-Based</mat-option>
+                    <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
+                    <mat-option value="REP_GOAL">Rep Goal System</mat-option>
+                    <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
                   </mat-select>
                 </mat-form-field>
 
@@ -326,6 +329,111 @@
                           (change)="updatePlanExerciseWorkingSets(plan, exerciseId, $any($event.target).value)"
                         />
                       </mat-form-field>
+
+                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'DOUBLE_PROGRESSION' && planExerciseConfig(plan, exerciseId).doubleProgression; as doubleProgression) {
+                        <div class="double-progression-fields">
+                          <mat-form-field appearance="outline" class="rep-range-field">
+                            <mat-label>{{ 'config.incrementSchemeLowerReps' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="numeric"
+                              class="plan-sets-input"
+                              [value]="doubleProgression.lowerReps"
+                              [disabled]="!!plan.isDefault"
+                              (input)="onPlanExerciseSetsInput($event)"
+                              (change)="updateDoubleProgressionLowerReps(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+
+                          <mat-form-field appearance="outline" class="rep-range-field">
+                            <mat-label>{{ 'config.incrementSchemeUpperReps' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="numeric"
+                              class="plan-sets-input"
+                              [value]="doubleProgression.upperReps"
+                              [disabled]="!!plan.isDefault"
+                              (input)="onPlanExerciseSetsInput($event)"
+                              (change)="updateDoubleProgressionUpperReps(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+
+                          <mat-radio-group
+                            [ngModel]="doubleProgression.mode"
+                            name="doubleProgressionMode-{{ exerciseId }}"
+                            [disabled]="!!plan.isDefault"
+                            (change)="updateDoubleProgressionMode(plan, exerciseId, $event.value)"
+                            class="double-progression-mode"
+                          >
+                            <mat-radio-button value="ADD_TO_ALL_SETS">{{ 'config.incrementSchemeModeAllSets' | translate }}</mat-radio-button>
+                            <mat-radio-button value="ADD_ONE_TOTAL_REP">{{ 'config.incrementSchemeModeOneTotalRep' | translate }}</mat-radio-button>
+                          </mat-radio-group>
+                        </div>
+                      }
+
+                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'REP_GOAL' && planExerciseConfig(plan, exerciseId).repGoal; as repGoal) {
+                        <mat-form-field appearance="outline" class="rep-range-field">
+                          <mat-label>{{ 'config.repGoalTotalRepGoalLabel' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="numeric"
+                            class="plan-sets-input"
+                            [value]="repGoal.totalRepGoal"
+                            [disabled]="!!plan.isDefault"
+                            (input)="onPlanExerciseSetsInput($event)"
+                            (change)="updateRepGoalTotalRepGoal(plan, exerciseId, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      }
+
+                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WAVE_PROGRESSION' && planExerciseConfig(plan, exerciseId).waveProgression; as waveProgression) {
+                        <div class="double-progression-fields">
+                          <mat-form-field appearance="outline" class="rep-range-field">
+                            <mat-label>{{ 'config.waveProgressionInitialRepsLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="numeric"
+                              class="plan-sets-input"
+                              [value]="waveProgression.initialReps"
+                              [disabled]="!!plan.isDefault"
+                              (input)="onPlanExerciseSetsInput($event)"
+                              (change)="updateWaveProgressionInitialReps(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+
+                          <mat-form-field appearance="outline" class="rep-range-field">
+                            <mat-label>{{ 'config.waveProgressionFinalRepsLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="numeric"
+                              class="plan-sets-input"
+                              [value]="waveProgression.finalReps"
+                              [disabled]="!!plan.isDefault"
+                              (input)="onPlanExerciseSetsInput($event)"
+                              (change)="updateWaveProgressionFinalReps(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+
+                          <mat-form-field appearance="outline" class="rep-range-field">
+                            <mat-label>{{ 'config.waveProgressionDecrementLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="numeric"
+                              class="plan-sets-input"
+                              [value]="waveProgression.repsDecrement"
+                              [disabled]="!!plan.isDefault"
+                              (input)="onPlanExerciseSetsInput($event)"
+                              (change)="updateWaveProgressionRepsDecrement(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+                        </div>
+                      }
                     }
                   </mat-expansion-panel>
 

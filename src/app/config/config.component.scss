@@ -7,6 +7,28 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
+.increment-scheme-description {
+  color: lightgrey;
+  margin-top: 0;
+}
+
+.increment-scheme-form {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.rep-range-field {
+  width: 9rem;
+}
+
+.increment-scheme-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .settings-form {
   display: flex;
   gap: 1rem;

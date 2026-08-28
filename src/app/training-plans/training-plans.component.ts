@@ -11,6 +11,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 import { TrainingPlansService } from '../core/services/training-plans.service';
@@ -22,7 +23,8 @@ import {
   TierLinePlanExercise,
   PlanExerciseConfig,
   PlanExerciseType,
-  PercentageWeek
+  PercentageWeek,
+  DoubleProgressionMode
 } from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
@@ -100,6 +102,7 @@ const DEFAULT_PERCENTAGE_WEEKS: PercentageWeek[] = [
     MatExpansionModule,
     MatTooltipModule,
     MatCheckboxModule,
+    MatRadioModule,
     MatDialogModule,
     NgTemplateOutlet,
     TranslatePipe
@@ -358,6 +361,27 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     if (exerciseType === 'PERCENTAGE_BASED' && !config.percentageWeeks) {
       patch.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
     }
+    // Global-with-override: the exercise's own rep range/mode starts as a copy
+    // of the Config-level default, then can be edited independently per exercise.
+    if (exerciseType === 'DOUBLE_PROGRESSION' && !config.doubleProgression) {
+      const settings = this.settingsService.getSettings();
+      patch.doubleProgression = {
+        lowerReps: settings.doubleProgressionLowerReps,
+        upperReps: settings.doubleProgressionUpperReps,
+        mode: settings.doubleProgressionMode
+      };
+    }
+    if (exerciseType === 'REP_GOAL' && !config.repGoal) {
+      patch.repGoal = { totalRepGoal: this.settingsService.getSettings().repGoalTotalRepGoal };
+    }
+    if (exerciseType === 'WAVE_PROGRESSION' && !config.waveProgression) {
+      const settings = this.settingsService.getSettings();
+      patch.waveProgression = {
+        initialReps: settings.waveProgressionInitialReps,
+        finalReps: settings.waveProgressionFinalReps,
+        repsDecrement: settings.waveProgressionRepsDecrement
+      };
+    }
     await this.updateConfig(plan, exerciseId, patch);
   }
 
@@ -428,6 +452,62 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     isAmrap: boolean
   ): Promise<void> {
     await this.updatePercentageSet(plan, exerciseId, weekIndex, setIndex, { isAmrap });
+  }
+
+  private async updateDoubleProgression(
+    plan: TrainingPlan,
+    exerciseId: string,
+    patch: Partial<{ lowerReps: number; upperReps: number; mode: DoubleProgressionMode }>
+  ): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    if (!config.doubleProgression) {
+      return;
+    }
+    await this.updateConfig(plan, exerciseId, { doubleProgression: { ...config.doubleProgression, ...patch } });
+  }
+
+  async updateDoubleProgressionLowerReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    await this.updateDoubleProgression(plan, exerciseId, { lowerReps: this.clampSets(value) });
+  }
+
+  async updateDoubleProgressionUpperReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    await this.updateDoubleProgression(plan, exerciseId, { upperReps: this.clampSets(value) });
+  }
+
+  async updateDoubleProgressionMode(plan: TrainingPlan, exerciseId: string, mode: DoubleProgressionMode): Promise<void> {
+    await this.updateDoubleProgression(plan, exerciseId, { mode });
+  }
+
+  async updateRepGoalTotalRepGoal(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    if (!config.repGoal) {
+      return;
+    }
+    await this.updateConfig(plan, exerciseId, { repGoal: { totalRepGoal: this.clampSets(value) } });
+  }
+
+  private async updateWaveProgression(
+    plan: TrainingPlan,
+    exerciseId: string,
+    patch: Partial<{ initialReps: number; finalReps: number; repsDecrement: number }>
+  ): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    if (!config.waveProgression) {
+      return;
+    }
+    await this.updateConfig(plan, exerciseId, { waveProgression: { ...config.waveProgression, ...patch } });
+  }
+
+  async updateWaveProgressionInitialReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    await this.updateWaveProgression(plan, exerciseId, { initialReps: this.clampSets(value) });
+  }
+
+  async updateWaveProgressionFinalReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    await this.updateWaveProgression(plan, exerciseId, { finalReps: this.clampSets(value) });
+  }
+
+  async updateWaveProgressionRepsDecrement(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    await this.updateWaveProgression(plan, exerciseId, { repsDecrement: this.clampSets(value) });
   }
 
   percentageSetWeight(exerciseId: string, percentage: number): number | null {

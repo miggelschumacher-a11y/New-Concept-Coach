@@ -10,7 +10,7 @@ import { buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
 import { buildDefaultHstPlan } from '../data/default-hst-plan';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 24;
+const DB_VERSION = 27;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -28,7 +28,10 @@ export const STORES = {
   sessions: 'sessions',
   settings: 'settings',
   tierLineProgression: 'tierLineProgression',
-  bodyWeightEntries: 'bodyWeightEntries'
+  bodyWeightEntries: 'bodyWeightEntries',
+  doubleProgression: 'doubleProgression',
+  repGoalProgression: 'repGoalProgression',
+  waveProgression: 'waveProgression'
 } as const;
 
 const STORE_KEY_PATHS: Partial<Record<string, string>> = {
