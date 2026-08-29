@@ -1,3 +1,5 @@
+import { PlanExerciseType, IncrementScheme } from './training-plan.model';
+
 export type SetType = 'warmup' | 'working' | 'cooldown';
 
 export interface ExerciseSet {
@@ -12,6 +14,17 @@ export interface SessionExercise {
   sets: ExerciseSet[];
   countWarmupSets: boolean;
   countCooldownSets: boolean;
+  // Optional and treated as true when absent, so sessions saved before this
+  // field existed keep showing their warmup/cooldown panels unchanged.
+  showWarmupSets?: boolean;
+  showCooldownSets?: boolean;
+  // Session-local snapshot of the plan exercise's type/scheme at the time
+  // the session was generated - editable from within the session itself
+  // without touching the source training plan. Purely informational: it
+  // doesn't regenerate this session's already-built sets or wire up any
+  // auto-progression tracking.
+  exerciseType?: PlanExerciseType;
+  incrementScheme?: IncrementScheme;
   minReps?: number;
   minWeight?: number;
 }

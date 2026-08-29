@@ -23,7 +23,14 @@ import { LinearProgressionService } from '../core/services/linear-progression.se
 import { BodyWeightService } from '../core/services/body-weight.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
-import { TrainingPlan, TierLinePlanSession, TierLinePlanExercise, WaveProgressionConfig } from '../core/models/training-plan.model';
+import {
+  TrainingPlan,
+  TierLinePlanSession,
+  TierLinePlanExercise,
+  WaveProgressionConfig,
+  PlanExerciseType,
+  IncrementScheme
+} from '../core/models/training-plan.model';
 import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core/models/tier-line-progression.model';
 import { DoubleProgressionState } from '../core/models/double-progression.model';
 import { RepGoalState } from '../core/models/rep-goal.model';
@@ -168,7 +175,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // Defends against legacy session records from an older data model that
     // predates the `exercises` field — without this, one such record throws
     // on `.length` access and breaks rendering of the entire session list.
-    this.sessions = sessions.map((session) => ({ ...session, exercises: session.exercises ?? [] }));
+    // Also backfills showWarmupSets/showCooldownSets (added later than
+    // exercises itself) so records saved before they existed keep showing
+    // both panels, matching the pre-existing default behavior.
+    this.sessions = sessions.map((session) => ({
+      ...session,
+      exercises: (session.exercises ?? []).map((sessionExercise) => ({
+        showWarmupSets: true,
+        showCooldownSets: true,
+        ...sessionExercise
+      }))
+    }));
   }
 
   async loadBodyWeightEntries(): Promise<void> {
@@ -211,6 +228,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return false;
     }
     return !!this.findPlanExercise(session, exerciseId);
+  }
+
+  // A manually-created session (no plan) always allows editing these - a
+  // plan-generated session hides them for TierLine-methodology plans
+  // (tier/stage based, no exerciseType concept) and default (read-only)
+  // plans, since neither has a real WEIGHT_BASED/PERCENTAGE_BASED/TIME_BASED
+  // exerciseType to have started from.
+  canEditExerciseTypeInSession(session: TrainingSession): boolean {
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    if (!plan) {
+      return true;
+    }
+    return plan.methodology !== TrainingMethodology.TIER_LINE_PROGRESSION && !plan.isDefault;
   }
 
   exerciseTierLabelKey(session: TrainingSession, exerciseId: string): string | null {
@@ -258,20 +288,47 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.weightInfoPosition = null;
   }
 
+  private exerciseSettingsInfoOpenKey: string | null = null;
+  exerciseSettingsInfoPosition: { top: number; left: number } | null = null;
+
+  toggleExerciseSettingsInfo(sessionId: string, exerciseId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    const key = `${sessionId}:${exerciseId}`;
+    if (this.exerciseSettingsInfoOpenKey === key) {
+      this.closeExerciseSettingsInfo();
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const popupWidth = 280;
+    this.exerciseSettingsInfoPosition = {
+      top: rect.bottom + 8,
+      left: Math.max(8, rect.right - popupWidth)
+    };
+    this.exerciseSettingsInfoOpenKey = key;
+  }
+
+  isExerciseSettingsInfoOpen(sessionId: string, exerciseId: string): boolean {
+    return this.exerciseSettingsInfoOpenKey === `${sessionId}:${exerciseId}`;
+  }
+
+  private closeExerciseSettingsInfo(): void {
+    this.exerciseSettingsInfoOpenKey = null;
+    this.exerciseSettingsInfoPosition = null;
+  }
+
   // Closes an open popup on any other click in the app (a different button,
   // an input, a panel toggle, etc.). Registered on the capture phase so it
   // runs before target handlers that call stopPropagation() elsewhere in
   // this component (e.g. the delete-confirm buttons) — a bubble-phase
   // listener would never see those clicks.
   private readonly handleDocumentClick = (event: MouseEvent): void => {
-    if (!this.weightInfoOpenKey) {
-      return;
-    }
     const target = event.target as HTMLElement | null;
-    if (target?.closest('.weight-info-trigger')) {
-      return;
+    if (this.weightInfoOpenKey && !target?.closest('.weight-info-trigger')) {
+      this.closeWeightInfo();
     }
-    this.closeWeightInfo();
+    if (this.exerciseSettingsInfoOpenKey && !target?.closest('.exercise-settings-info-trigger')) {
+      this.closeExerciseSettingsInfo();
+    }
   };
 
   private async getOrInitProgressionState(planExercise: TierLinePlanExercise): Promise<TierLineProgressionState> {
@@ -575,6 +632,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
       })),
       countWarmupSets: sessionExercise.countWarmupSets,
       countCooldownSets: sessionExercise.countCooldownSets,
+      showWarmupSets: sessionExercise.showWarmupSets,
+      showCooldownSets: sessionExercise.showCooldownSets,
+      exerciseType: sessionExercise.exerciseType,
+      incrementScheme: sessionExercise.incrementScheme,
       minReps: sessionExercise.minReps,
       minWeight: sessionExercise.minWeight
     }));
@@ -651,7 +712,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
                   type: 'working' as SetType
                 })),
                 countWarmupSets: true,
-                countCooldownSets: true
+                countCooldownSets: true,
+                showWarmupSets: true,
+                showCooldownSets: true
               };
             }
             // planExercise.targetReps may be a range ('8-12'); a session set
@@ -666,7 +729,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 type: 'working' as SetType
               })),
               countWarmupSets: true,
-              countCooldownSets: true
+              countCooldownSets: true,
+              showWarmupSets: true,
+              showCooldownSets: true
             };
           })
         )
@@ -674,7 +739,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
           plan.exerciseIds.map(async (exerciseId) => {
             const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
             if (!config) {
-              return { exerciseId, sets: [], countWarmupSets: true, countCooldownSets: true };
+              return {
+                exerciseId,
+                sets: [],
+                countWarmupSets: true,
+                countCooldownSets: true,
+                showWarmupSets: true,
+                showCooldownSets: true
+              };
             }
             const buildSets = (count: number, type: SetType) =>
               Array.from({ length: count }, () => ({ id: crypto.randomUUID(), reps: 0, weight: 0, type }));
@@ -729,7 +801,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
               exerciseId,
               sets: [...buildSets(config.warmupSets, 'warmup'), ...workingSets, ...buildSets(config.cooldownSets, 'cooldown')],
               countWarmupSets: true,
-              countCooldownSets: true
+              countCooldownSets: true,
+              showWarmupSets: true,
+              showCooldownSets: true,
+              exerciseType: config.exerciseType,
+              incrementScheme: config.incrementScheme
             };
           })
         );
@@ -873,7 +949,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
           exerciseId,
           sets: [],
           countWarmupSets: true,
-          countCooldownSets: true
+          countCooldownSets: true,
+          showWarmupSets: true,
+          showCooldownSets: true,
+          // Matches Training Plans' own default for a freshly added exercise.
+          exerciseType: 'WEIGHT_BASED',
+          incrementScheme: 'LINEAR_PROGRESSION'
         }
     );
     await this.persist(session);
@@ -903,6 +984,29 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   setsByType(sessionExercise: SessionExercise, type: SetType): ExerciseSet[] {
     return sessionExercise.sets.filter((set) => set.type === type);
+  }
+
+  showSetType(sessionExercise: SessionExercise, type: SetType): boolean {
+    if (type === 'warmup') {
+      return sessionExercise.showWarmupSets !== false;
+    }
+    if (type === 'cooldown') {
+      return sessionExercise.showCooldownSets !== false;
+    }
+    return true;
+  }
+
+  // Sessions saved before exerciseType/incrementScheme existed (or generated
+  // from a plan exercise whose config never set one) leave the field
+  // undefined - default the *display* to Weight-Based/None without writing
+  // anything, so the Increment Scheme dropdown still appears rather than
+  // staying hidden until the user happens to reselect Weight-Based manually.
+  sessionExerciseTypeDisplay(sessionExercise: SessionExercise): PlanExerciseType {
+    return sessionExercise.exerciseType ?? 'WEIGHT_BASED';
+  }
+
+  sessionIncrementSchemeDisplay(sessionExercise: SessionExercise): IncrementScheme {
+    return sessionExercise.incrementScheme ?? 'NONE';
   }
 
   private countedSets(sessionExercise: SessionExercise): ExerciseSet[] {
@@ -979,6 +1083,24 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async onCountingPreferenceChange(session: TrainingSession): Promise<void> {
+    await this.persist(session);
+  }
+
+  async updateSessionExerciseType(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    exerciseType: PlanExerciseType
+  ): Promise<void> {
+    sessionExercise.exerciseType = exerciseType;
+    await this.persist(session);
+  }
+
+  async updateSessionIncrementScheme(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    incrementScheme: IncrementScheme
+  ): Promise<void> {
+    sessionExercise.incrementScheme = incrementScheme;
     await this.persist(session);
   }
 

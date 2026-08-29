@@ -155,15 +155,37 @@ mat-expansion-panel mat-checkbox {
   margin: 0.75rem 0 0.25rem;
 }
 
-.count-sets-row {
-  display: flex;
+.exercise-settings-info-trigger {
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
 }
 
-.count-sets-row mat-checkbox {
-  margin: 0.75rem 0 0.25rem;
+.exercise-settings-info-popup {
+  position: fixed;
+  z-index: 1000;
+  width: 300px;
+  background: linear-gradient(145deg, #3d4058, #24263a);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  transform: perspective(700px) rotateX(4deg);
+  transform-origin: top right;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.45),
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.exercise-settings-info-popup mat-checkbox {
+  display: block;
+  margin: 0.25rem 0;
+}
+
+.exercise-settings-info-field {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
 }
 
 .set-type-accordion {

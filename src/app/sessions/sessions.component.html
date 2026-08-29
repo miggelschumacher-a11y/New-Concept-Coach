@@ -363,6 +363,88 @@
                       <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ 'exercises.oneRepMax' | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
                     >
                   </mat-panel-title>
+                  <div class="exercise-settings-info-trigger">
+                    <button
+                      mat-icon-button
+                      (click)="toggleExerciseSettingsInfo(session.id, sessionExercise.exerciseId, $event)"
+                      [matTooltip]="'sessions.exerciseSettingsInfoButton' | translate"
+                      [attr.aria-label]="'sessions.exerciseSettingsInfoButton' | translate"
+                    >
+                      <mat-icon>info</mat-icon>
+                    </button>
+                    @if (isExerciseSettingsInfoOpen(session.id, sessionExercise.exerciseId) && exerciseSettingsInfoPosition) {
+                      <div
+                        class="exercise-settings-info-popup"
+                        [style.top.px]="exerciseSettingsInfoPosition.top"
+                        [style.left.px]="exerciseSettingsInfoPosition.left"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <mat-checkbox
+                          [(ngModel)]="sessionExercise.countWarmupSets"
+                          name="countWarmup-{{ sessionExercise.exerciseId }}"
+                          (change)="onCountingPreferenceChange(session)"
+                        >
+                          <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
+                        </mat-checkbox>
+
+                        <mat-checkbox
+                          [(ngModel)]="sessionExercise.countCooldownSets"
+                          name="countCooldown-{{ sessionExercise.exerciseId }}"
+                          (change)="onCountingPreferenceChange(session)"
+                        >
+                          <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
+                        </mat-checkbox>
+
+                        <mat-checkbox
+                          [(ngModel)]="sessionExercise.showWarmupSets"
+                          name="showWarmup-{{ sessionExercise.exerciseId }}"
+                          (change)="onCountingPreferenceChange(session)"
+                        >
+                          <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}
+                        </mat-checkbox>
+
+                        <mat-checkbox
+                          [(ngModel)]="sessionExercise.showCooldownSets"
+                          name="showCooldown-{{ sessionExercise.exerciseId }}"
+                          (change)="onCountingPreferenceChange(session)"
+                        >
+                          <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
+                        </mat-checkbox>
+
+                        @if (canEditExerciseTypeInSession(session)) {
+                          <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                            <mat-label>Select Exercise-Type</mat-label>
+                            <mat-select
+                              [ngModel]="sessionExerciseTypeDisplay(sessionExercise)"
+                              name="sessionExerciseType-{{ sessionExercise.exerciseId }}"
+                              (selectionChange)="updateSessionExerciseType(session, sessionExercise, $event.value)"
+                            >
+                              <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                              <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                              <mat-option value="TIME_BASED">Time-Based</mat-option>
+                            </mat-select>
+                          </mat-form-field>
+
+                          @if (sessionExerciseTypeDisplay(sessionExercise) === 'WEIGHT_BASED') {
+                            <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                              <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
+                              <mat-select
+                                [ngModel]="sessionIncrementSchemeDisplay(sessionExercise)"
+                                name="sessionIncrementScheme-{{ sessionExercise.exerciseId }}"
+                                (selectionChange)="updateSessionIncrementScheme(session, sessionExercise, $event.value)"
+                              >
+                                <mat-option value="NONE">None</mat-option>
+                                <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
+                                <mat-option value="REP_GOAL">Rep Goal System</mat-option>
+                                <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
+                                <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
                   @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
                     <div class="weight-info-trigger">
                       <button
@@ -394,28 +476,9 @@
                   }
                 </mat-expansion-panel-header>
 
-                <div class="count-sets-row">
-                  <mat-checkbox
-                    [(ngModel)]="sessionExercise.countWarmupSets"
-                    name="countWarmup-{{ sessionExercise.exerciseId }}"
-                    [disabled]="isPaused(session)"
-                    (change)="onCountingPreferenceChange(session)"
-                  >
-                    <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
-                  </mat-checkbox>
-
-                  <mat-checkbox
-                    [(ngModel)]="sessionExercise.countCooldownSets"
-                    name="countCooldown-{{ sessionExercise.exerciseId }}"
-                    [disabled]="isPaused(session)"
-                    (change)="onCountingPreferenceChange(session)"
-                  >
-                    <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
-                  </mat-checkbox>
-                </div>
-
                 <mat-accordion multi class="set-type-accordion">
                   @for (setType of setTypes; track setType.value) {
+                    @if (showSetType(sessionExercise, setType.value)) {
                     <mat-expansion-panel>
                       <mat-expansion-panel-header>
                         <mat-panel-title>
@@ -510,6 +573,7 @@
                         <mat-icon>add</mat-icon>
                       </button>
                     </mat-expansion-panel>
+                    }
                   }
                 </mat-accordion>
               </mat-expansion-panel>
