@@ -23,6 +23,7 @@ import {
   TierLinePlanExercise,
   PlanExerciseConfig,
   PlanExerciseType,
+  IncrementScheme,
   PercentageWeek,
   DoubleProgressionMode
 } from '../core/models/training-plan.model';
@@ -53,7 +54,8 @@ const DEFAULT_WARMUP_SETS = 0;
 const DEFAULT_WORKING_SETS = 3;
 const DEFAULT_COOLDOWN_SETS = 0;
 const PLAN_EXERCISE_SETS_MAX = 100;
-const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'LINEAR_PROGRESSION';
+const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
+const DEFAULT_INCREMENT_SCHEME: IncrementScheme = 'LINEAR_PROGRESSION';
 const DEFAULT_LINEAR_PROGRESSION_TARGET_REPS = '5';
 const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = true;
 
@@ -293,17 +295,18 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.load();
   }
 
-  // DEFAULT_EXERCISE_TYPE is LINEAR_PROGRESSION, which - unlike the other
-  // progression schemes - has no Config-level default to copy on first
-  // switch, so its config has to be seeded right here instead.
+  // Linear Progression has no Config-level default to copy on first switch
+  // (unlike the other three schemes), so if it's still DEFAULT_INCREMENT_SCHEME
+  // its config needs seeding right here instead.
   private defaultExerciseConfig(exerciseId: string): PlanExerciseConfig {
     return {
       exerciseId,
       exerciseType: DEFAULT_EXERCISE_TYPE,
+      incrementScheme: DEFAULT_INCREMENT_SCHEME,
       warmupSets: DEFAULT_WARMUP_SETS,
       workingSets: DEFAULT_WORKING_SETS,
       cooldownSets: DEFAULT_COOLDOWN_SETS,
-      ...(DEFAULT_EXERCISE_TYPE === 'LINEAR_PROGRESSION'
+      ...(DEFAULT_INCREMENT_SCHEME === 'LINEAR_PROGRESSION'
         ? {
             linearProgression: {
               targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS,
@@ -370,9 +373,19 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     if (exerciseType === 'PERCENTAGE_BASED' && !config.percentageWeeks) {
       patch.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
     }
+    await this.updateConfig(plan, exerciseId, patch);
+  }
+
+  async updatePlanExerciseIncrementScheme(
+    plan: TrainingPlan,
+    exerciseId: string,
+    incrementScheme: IncrementScheme
+  ): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const patch: Partial<PlanExerciseConfig> = { incrementScheme };
     // Global-with-override: the exercise's own rep range/mode starts as a copy
     // of the Config-level default, then can be edited independently per exercise.
-    if (exerciseType === 'DOUBLE_PROGRESSION' && !config.doubleProgression) {
+    if (incrementScheme === 'DOUBLE_PROGRESSION' && !config.doubleProgression) {
       const settings = this.settingsService.getSettings();
       patch.doubleProgression = {
         lowerReps: settings.doubleProgressionLowerReps,
@@ -380,10 +393,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
         mode: settings.doubleProgressionMode
       };
     }
-    if (exerciseType === 'REP_GOAL' && !config.repGoal) {
+    if (incrementScheme === 'REP_GOAL' && !config.repGoal) {
       patch.repGoal = { totalRepGoal: this.settingsService.getSettings().repGoalTotalRepGoal };
     }
-    if (exerciseType === 'WAVE_PROGRESSION' && !config.waveProgression) {
+    if (incrementScheme === 'WAVE_PROGRESSION' && !config.waveProgression) {
       const settings = this.settingsService.getSettings();
       patch.waveProgression = {
         initialReps: settings.waveProgressionInitialReps,
@@ -392,7 +405,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       };
     }
     // No Config-level default for this one - it's set directly per exercise.
-    if (exerciseType === 'LINEAR_PROGRESSION' && !config.linearProgression) {
+    if (incrementScheme === 'LINEAR_PROGRESSION' && !config.linearProgression) {
       patch.linearProgression = {
         targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS,
         lowerBoundSufficient: DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT

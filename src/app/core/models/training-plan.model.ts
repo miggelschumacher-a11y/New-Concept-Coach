@@ -16,14 +16,13 @@ export interface TierLinePlanSession {
   exercises: TierLinePlanExercise[];
 }
 
-export type PlanExerciseType =
-  | 'WEIGHT_BASED'
-  | 'PERCENTAGE_BASED'
-  | 'TIME_BASED'
-  | 'DOUBLE_PROGRESSION'
-  | 'REP_GOAL'
-  | 'WAVE_PROGRESSION'
-  | 'LINEAR_PROGRESSION';
+export type PlanExerciseType = 'WEIGHT_BASED' | 'PERCENTAGE_BASED' | 'TIME_BASED';
+
+// Layered on top of a WEIGHT_BASED exercise - orthogonal to PlanExerciseType,
+// not a value of it, since e.g. Percentage-Based already has its own
+// progression built into %1RM and doesn't combine with these. 'NONE' means
+// a plain weight-based exercise with no automatic tracking.
+export type IncrementScheme = 'NONE' | 'DOUBLE_PROGRESSION' | 'REP_GOAL' | 'WAVE_PROGRESSION' | 'LINEAR_PROGRESSION';
 
 // 'ADD_TO_ALL_SETS': every set gains a rep each session, in lockstep.
 // 'ADD_ONE_TOTAL_REP': only one set gains a rep each session, distributed
@@ -81,6 +80,8 @@ export interface PercentageWeek {
 export interface PlanExerciseConfig {
   exerciseId: string;
   exerciseType?: PlanExerciseType;
+  // Only meaningful when exerciseType is WEIGHT_BASED.
+  incrementScheme?: IncrementScheme;
   // Each 0-100.
   warmupSets: number;
   workingSets: number;
@@ -88,13 +89,13 @@ export interface PlanExerciseConfig {
   // Only used when exerciseType is PERCENTAGE_BASED - a wave of weeks, each
   // with its own set-by-set %1RM/reps/AMRAP, e.g. a 5/3/1 style cycle.
   percentageWeeks?: PercentageWeek[];
-  // Only used when exerciseType is DOUBLE_PROGRESSION.
+  // Only used when incrementScheme is DOUBLE_PROGRESSION.
   doubleProgression?: DoubleProgressionConfig;
-  // Only used when exerciseType is REP_GOAL.
+  // Only used when incrementScheme is REP_GOAL.
   repGoal?: RepGoalConfig;
-  // Only used when exerciseType is WAVE_PROGRESSION.
+  // Only used when incrementScheme is WAVE_PROGRESSION.
   waveProgression?: WaveProgressionConfig;
-  // Only used when exerciseType is LINEAR_PROGRESSION.
+  // Only used when incrementScheme is LINEAR_PROGRESSION.
   linearProgression?: LinearProgressionConfig;
 }
 

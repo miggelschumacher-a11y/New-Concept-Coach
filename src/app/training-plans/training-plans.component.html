@@ -196,22 +196,25 @@
                         <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
                         <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
                         <mat-option value="TIME_BASED">Time-Based</mat-option>
-                        <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
                       </mat-select>
                     </mat-form-field>
 
-                    <mat-form-field appearance="outline" class="exercise-type-field">
-                      <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
-                      <mat-select
-                        [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
-                        name="incrementScheme-{{ exerciseId }}"
-                        (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
-                      >
-                        <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
-                        <mat-option value="REP_GOAL">Rep Goal System</mat-option>
-                        <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
-                      </mat-select>
-                    </mat-form-field>
+                    @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                      <mat-form-field appearance="outline" class="exercise-type-field">
+                        <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
+                        <mat-select
+                          [ngModel]="planExerciseConfig(plan, exerciseId).incrementScheme"
+                          name="incrementScheme-{{ exerciseId }}"
+                          (selectionChange)="updatePlanExerciseIncrementScheme(plan, exerciseId, $event.value)"
+                        >
+                          <mat-option value="NONE">None</mat-option>
+                          <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
+                          <mat-option value="REP_GOAL">Rep Goal System</mat-option>
+                          <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
+                          <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    }
                   </div>
                 }
 
@@ -351,7 +354,8 @@
                         />
                       </mat-form-field>
 
-                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'DOUBLE_PROGRESSION' && planExerciseConfig(plan, exerciseId).doubleProgression; as doubleProgression) {
+                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                      @if (planExerciseConfig(plan, exerciseId).incrementScheme === 'DOUBLE_PROGRESSION' && planExerciseConfig(plan, exerciseId).doubleProgression; as doubleProgression) {
                         <div class="double-progression-fields">
                           <mat-form-field appearance="outline" class="rep-range-field">
                             <mat-label>{{ 'config.incrementSchemeLowerReps' | translate }}</mat-label>
@@ -394,7 +398,7 @@
                         </div>
                       }
 
-                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'REP_GOAL' && planExerciseConfig(plan, exerciseId).repGoal; as repGoal) {
+                      @if (planExerciseConfig(plan, exerciseId).incrementScheme === 'REP_GOAL' && planExerciseConfig(plan, exerciseId).repGoal; as repGoal) {
                         <mat-form-field appearance="outline" class="rep-range-field">
                           <mat-label>{{ 'config.repGoalTotalRepGoalLabel' | translate }}</mat-label>
                           <input
@@ -410,7 +414,7 @@
                         </mat-form-field>
                       }
 
-                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WAVE_PROGRESSION' && planExerciseConfig(plan, exerciseId).waveProgression; as waveProgression) {
+                      @if (planExerciseConfig(plan, exerciseId).incrementScheme === 'WAVE_PROGRESSION' && planExerciseConfig(plan, exerciseId).waveProgression; as waveProgression) {
                         <div class="double-progression-fields">
                           <mat-form-field appearance="outline" class="rep-range-field">
                             <mat-label>{{ 'config.waveProgressionInitialRepsLabel' | translate }}</mat-label>
@@ -456,7 +460,7 @@
                         </div>
                       }
 
-                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'LINEAR_PROGRESSION' && planExerciseConfig(plan, exerciseId).linearProgression; as linearProgression) {
+                      @if (planExerciseConfig(plan, exerciseId).incrementScheme === 'LINEAR_PROGRESSION' && planExerciseConfig(plan, exerciseId).linearProgression; as linearProgression) {
                         <div class="double-progression-fields">
                           <mat-form-field appearance="outline" class="rep-range-field">
                             <mat-label>{{ 'trainingPlans.repsAbbreviation' | translate }}</mat-label>
@@ -482,6 +486,7 @@
                             </mat-checkbox>
                           }
                         </div>
+                      }
                       }
                     }
                   </mat-expansion-panel>

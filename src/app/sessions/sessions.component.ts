@@ -343,7 +343,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     for (const sessionExercise of session.exercises) {
       const config = plan.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
-      if (config?.exerciseType !== 'DOUBLE_PROGRESSION' || !config.doubleProgression) {
+      if (config?.exerciseType !== 'WEIGHT_BASED' || config.incrementScheme !== 'DOUBLE_PROGRESSION' || !config.doubleProgression) {
         continue;
       }
       const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
@@ -385,7 +385,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     for (const sessionExercise of session.exercises) {
       const config = plan.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
-      if (config?.exerciseType !== 'REP_GOAL' || !config.repGoal) {
+      if (config?.exerciseType !== 'WEIGHT_BASED' || config.incrementScheme !== 'REP_GOAL' || !config.repGoal) {
         continue;
       }
       const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
@@ -430,7 +430,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     for (const sessionExercise of session.exercises) {
       const config = plan.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
-      if (config?.exerciseType !== 'WAVE_PROGRESSION' || !config.waveProgression) {
+      if (config?.exerciseType !== 'WEIGHT_BASED' || config.incrementScheme !== 'WAVE_PROGRESSION' || !config.waveProgression) {
         continue;
       }
       const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
@@ -469,7 +469,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     for (const sessionExercise of session.exercises) {
       const config = plan.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
-      if (config?.exerciseType !== 'LINEAR_PROGRESSION' || !config.linearProgression) {
+      if (config?.exerciseType !== 'WEIGHT_BASED' || config.incrementScheme !== 'LINEAR_PROGRESSION' || !config.linearProgression) {
         continue;
       }
       const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
@@ -679,8 +679,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
             const buildSets = (count: number, type: SetType) =>
               Array.from({ length: count }, () => ({ id: crypto.randomUUID(), reps: 0, weight: 0, type }));
 
+            const hasIncrementScheme = config.exerciseType === 'WEIGHT_BASED';
             let workingSets: SessionExercise['sets'];
-            if (config.exerciseType === 'DOUBLE_PROGRESSION' && config.doubleProgression) {
+            if (hasIncrementScheme && config.incrementScheme === 'DOUBLE_PROGRESSION' && config.doubleProgression) {
               const state = await this.getOrInitDoubleProgressionState(exerciseId);
               const prescribedReps = computePrescribedReps(config.doubleProgression, state.repsAddedThisCycle, config.workingSets);
               workingSets = prescribedReps.map((reps) => ({
@@ -689,7 +690,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 weight: state.currentWeight,
                 type: 'working' as SetType
               }));
-            } else if (config.exerciseType === 'REP_GOAL' && config.repGoal) {
+            } else if (hasIncrementScheme && config.incrementScheme === 'REP_GOAL' && config.repGoal) {
               // No prescribed reps per set - each working set is pushed close
               // to failure and logged freely; only the tracked weight carries
               // over from session to session.
@@ -700,7 +701,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 weight: state.currentWeight,
                 type: 'working' as SetType
               }));
-            } else if (config.exerciseType === 'WAVE_PROGRESSION' && config.waveProgression) {
+            } else if (hasIncrementScheme && config.incrementScheme === 'WAVE_PROGRESSION' && config.waveProgression) {
               const state = await this.getOrInitWaveProgressionState(exerciseId, config.waveProgression);
               workingSets = Array.from({ length: config.workingSets }, () => ({
                 id: crypto.randomUUID(),
@@ -708,7 +709,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 weight: state.currentWeight,
                 type: 'working' as SetType
               }));
-            } else if (config.exerciseType === 'LINEAR_PROGRESSION' && config.linearProgression) {
+            } else if (hasIncrementScheme && config.incrementScheme === 'LINEAR_PROGRESSION' && config.linearProgression) {
               const state = await this.getOrInitLinearProgressionState(exerciseId);
               // Prefilled with the range's lower bound regardless of
               // lowerBoundSufficient - that flag only affects what counts as
