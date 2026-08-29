@@ -270,16 +270,16 @@
           <p class="finish-blocked-message">{{ 'sessions.finishRequiresName' | translate }}</p>
         }
 
-        @if (pausedAttemptFieldKey === session.id + ':notes') {
-          <p class="paused-field-error">{{ 'sessions.pausedHint' | translate }}</p>
-        }
-        <mat-form-field appearance="outline" class="notes-field" [class.paused-field]="isPaused(session)">
-          <mat-label><mat-icon class="label-icon">description</mat-icon>{{ 'sessions.notes' | translate }}</mat-label>
+        <mat-form-field appearance="outline" class="notes-field">
+          <mat-label>
+            <mat-icon class="label-icon">description</mat-icon>{{ 'sessions.notes' | translate }}
+            <span class="notes-char-count">({{ 500 - (session.notes?.length ?? 0) }}/500)</span>
+          </mat-label>
           <input
             matInput
+            maxlength="500"
             name="notes-{{ session.id }}"
             [(ngModel)]="session.notes"
-            (focus)="notePausedInputAttempt(session, $event, session.id + ':notes')"
             (blur)="updateSessionNotes(session)"
           />
         </mat-form-field>
