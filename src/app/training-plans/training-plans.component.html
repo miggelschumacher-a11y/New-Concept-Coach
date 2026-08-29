@@ -84,6 +84,54 @@
             <p class="plan-description-full">{{ planDescription(plan) }}</p>
           }
           <p class="plan-description-full">{{ 'trainingPlans.defaultPlanHint' | translate }}</p>
+
+          @if (isDefault531Plan(plan)) {
+            <div class="increment-example">
+              <h3 class="increment-example-title">
+                <mat-icon class="label-icon">trending_up</mat-icon>{{ 'trainingPlans.plan531IncrementExampleTitle' | translate }}
+              </h3>
+              <p class="increment-example-intro">{{ 'trainingPlans.plan531IncrementExampleIntro' | translate }}</p>
+              <div class="increment-example-table-wrapper">
+                <table class="increment-example-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'trainingPlans.weekLabel' | translate }}</th>
+                      <th>{{ 'trainingPlans.plan531IncrementExampleSet1' | translate }}</th>
+                      <th>{{ 'trainingPlans.plan531IncrementExampleSet2' | translate }}</th>
+                      <th>{{ 'trainingPlans.plan531IncrementExampleSet3' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{ 'trainingPlans.weekLabel' | translate }} 1</td>
+                      <td>65% → 65 kg × 5</td>
+                      <td>75% → 75 kg × 5</td>
+                      <td>85% → 85 kg × 5+ ({{ 'trainingPlans.amrapLabel' | translate }})</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'trainingPlans.weekLabel' | translate }} 2</td>
+                      <td>70% → 70 kg × 3</td>
+                      <td>80% → 80 kg × 3</td>
+                      <td>90% → 90 kg × 3+ ({{ 'trainingPlans.amrapLabel' | translate }})</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'trainingPlans.weekLabel' | translate }} 3</td>
+                      <td>75% → 75 kg × 5</td>
+                      <td>85% → 85 kg × 3</td>
+                      <td>95% → 95 kg × 1+ ({{ 'trainingPlans.amrapLabel' | translate }})</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'trainingPlans.weekLabel' | translate }} 4 ({{ 'trainingPlans.plan531IncrementExampleDeload' | translate }})</td>
+                      <td>40% → 40 kg × 5</td>
+                      <td>50% → 50 kg × 5</td>
+                      <td>60% → 60 kg × 5</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="increment-example-note">{{ 'trainingPlans.plan531IncrementExampleNote' | translate }}</p>
+            </div>
+          }
         } @else if (editingPlanId === plan.id) {
           <form class="entry-form" (ngSubmit)="confirmEditPlan(plan)">
             <mat-form-field appearance="outline">

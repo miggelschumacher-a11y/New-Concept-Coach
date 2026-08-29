@@ -166,6 +166,14 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return key ? this.translationService.translate(key) : plan.description ?? '';
   }
 
+  // 5/3/1 is the only default plan with a worked increment example so far -
+  // its percentage-of-1RM progression is less self-explanatory than the
+  // other schemes, since there's no visible "weight goes up" step anywhere
+  // in the UI itself.
+  isDefault531Plan(plan: TrainingPlan): boolean {
+    return plan.id === DEFAULT_531_PLAN_ID;
+  }
+
   // Same pattern as the TierLine info popup on the Training Sessions page:
   // fixed positioning computed from the button's own rect, rather than
   // absolute positioning within the header, because mat-expansion-panel

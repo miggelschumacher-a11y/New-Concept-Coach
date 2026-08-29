@@ -61,6 +61,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'This is a default plan. It cannot be edited or deleted — copy it to create your own editable version.',
     'trainingPlans.plan531Description':
       '5/3/1 by Jim Wendler: a 4-week cycle (3 build-up weeks + a deload week) for squat, bench press, deadlift, and overhead press, based on percentages of your 1RM.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Increment Example',
+    'trainingPlans.plan531IncrementExampleIntro': 'Example based on a 1RM of 100 kg:',
+    'trainingPlans.plan531IncrementExampleSet1': 'Set 1',
+    'trainingPlans.plan531IncrementExampleSet2': 'Set 2',
+    'trainingPlans.plan531IncrementExampleSet3': 'Set 3 (Top Set)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Deload',
+    'trainingPlans.plan531IncrementExampleNote':
+      'There\'s no automatic weight increase between sessions here - the percentages are recalculated from the exercise\'s current 1RM. Progression comes from that 1RM going up (entered manually, or estimated automatically from actually logged reps and weight), which raises every percentage in the next 4-week cycle.',
     'trainingPlans.plan5x5Description':
       'Classic 5x5 strength training: linear weight progression on squat, bench press, deadlift, overhead press, and barbell row — 5 sets of 5 reps (deadlift 1x5).',
     'trainingPlans.planGzclpDescription':
@@ -248,6 +256,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'Dies ist ein Standardplan. Er kann nicht bearbeitet oder gelöscht werden – kopiere ihn, um eine eigene bearbeitbare Version zu erstellen.',
     'trainingPlans.plan531Description':
       '5/3/1 von Jim Wendler: 4-Wochen-Zyklus (3 Aufbauwochen + Deload-Woche) für Squat, Bankdrücken, Kreuzheben und Overhead-Press, basierend auf Prozentsätzen des 1RM.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Increment-Beispiel',
+    'trainingPlans.plan531IncrementExampleIntro': 'Beispiel bei einem 1RM von 100 kg:',
+    'trainingPlans.plan531IncrementExampleSet1': 'Satz 1',
+    'trainingPlans.plan531IncrementExampleSet2': 'Satz 2',
+    'trainingPlans.plan531IncrementExampleSet3': 'Satz 3 (Top-Satz)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Deload',
+    'trainingPlans.plan531IncrementExampleNote':
+      'Hier gibt es keine automatische Gewichtssteigerung zwischen den Einheiten – die Prozentsätze werden aus dem aktuellen 1RM der Übung neu berechnet. Die Progression entsteht dadurch, dass sich dieses 1RM erhöht (manuell eingetragen oder automatisch aus tatsächlich geloggten Wiederholungen und Gewichten geschätzt), wodurch sich im nächsten 4-Wochen-Zyklus alle Prozentsätze mit anheben.',
     'trainingPlans.plan5x5Description':
       'Klassisches 5×5-Krafttraining: lineare Gewichtssteigerung auf Kniebeuge, Bankdrücken, Kreuzheben, Overhead-Press und Rudern – 5 Sätze à 5 Wiederholungen (Kreuzheben 1×5).',
     'trainingPlans.planGzclpDescription':
@@ -435,6 +451,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'Este es un plan predeterminado. No se puede editar ni eliminar; cópialo para crear tu propia versión editable.',
     'trainingPlans.plan531Description':
       '5/3/1 de Jim Wendler: un ciclo de 4 semanas (3 semanas de progresión + una semana de descarga) para sentadilla, press de banca, peso muerto y press militar, basado en porcentajes de tu 1RM.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Ejemplo de incremento',
+    'trainingPlans.plan531IncrementExampleIntro': 'Ejemplo basado en un 1RM de 100 kg:',
+    'trainingPlans.plan531IncrementExampleSet1': 'Serie 1',
+    'trainingPlans.plan531IncrementExampleSet2': 'Serie 2',
+    'trainingPlans.plan531IncrementExampleSet3': 'Serie 3 (serie top)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Descarga',
+    'trainingPlans.plan531IncrementExampleNote':
+      'Aquí no hay un aumento de peso automático entre sesiones: los porcentajes se recalculan a partir del 1RM actual del ejercicio. La progresión surge de que ese 1RM aumente (introducido manualmente o estimado automáticamente a partir de las repeticiones y el peso realmente registrados), lo que eleva todos los porcentajes en el siguiente ciclo de 4 semanas.',
     'trainingPlans.plan5x5Description':
       'Entrenamiento de fuerza clásico 5x5: progresión lineal de peso en sentadilla, press de banca, peso muerto, press militar y remo con barra — 5 series de 5 repeticiones (peso muerto 1x5).',
     'trainingPlans.planGzclpDescription':
@@ -622,6 +646,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'Este é um plano padrão. Não pode ser editado nem excluído — copie-o para criar sua própria versão editável.',
     'trainingPlans.plan531Description':
       '5/3/1 de Jim Wendler: um ciclo de 4 semanas (3 semanas de progressão + uma semana de deload) para agachamento, supino, levantamento terra e desenvolvimento militar, baseado em percentuais do seu 1RM.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Exemplo de incremento',
+    'trainingPlans.plan531IncrementExampleIntro': 'Exemplo baseado em um 1RM de 100 kg:',
+    'trainingPlans.plan531IncrementExampleSet1': 'Série 1',
+    'trainingPlans.plan531IncrementExampleSet2': 'Série 2',
+    'trainingPlans.plan531IncrementExampleSet3': 'Série 3 (série principal)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Descarga',
+    'trainingPlans.plan531IncrementExampleNote':
+      'Aqui não há aumento automático de peso entre as sessões – os percentuais são recalculados a partir do 1RM atual do exercício. A progressão vem do aumento desse 1RM (inserido manualmente ou estimado automaticamente a partir das repetições e do peso realmente registrados), o que eleva todos os percentuais no próximo ciclo de 4 semanas.',
     'trainingPlans.plan5x5Description':
       'Treino de força clássico 5x5: progressão linear de carga em agachamento, supino, levantamento terra, desenvolvimento militar e remada curvada — 5 séries de 5 repetições (levantamento terra 1x5).',
     'trainingPlans.planGzclpDescription':
@@ -809,6 +841,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'Questo è un piano predefinito. Non può essere modificato o eliminato: copialo per creare la tua versione modificabile.',
     'trainingPlans.plan531Description':
       '5/3/1 di Jim Wendler: un ciclo di 4 settimane (3 settimane di progressione + una settimana di scarico) per squat, panca piana, stacco da terra e military press, basato su percentuali del tuo 1RM.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Esempio di incremento',
+    'trainingPlans.plan531IncrementExampleIntro': 'Esempio basato su un 1RM di 100 kg:',
+    'trainingPlans.plan531IncrementExampleSet1': 'Serie 1',
+    'trainingPlans.plan531IncrementExampleSet2': 'Serie 2',
+    'trainingPlans.plan531IncrementExampleSet3': 'Serie 3 (serie top)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Scarico',
+    'trainingPlans.plan531IncrementExampleNote':
+      'Qui non c\'è un aumento automatico del peso tra le sessioni: le percentuali vengono ricalcolate a partire dall\'1RM attuale dell\'esercizio. La progressione nasce dall\'aumento di questo 1RM (inserito manualmente o stimato automaticamente dalle ripetizioni e dal peso effettivamente registrati), il che alza tutte le percentuali nel ciclo di 4 settimane successivo.',
     'trainingPlans.plan5x5Description':
       'Allenamento di forza classico 5x5: progressione lineare del carico su squat, panca piana, stacco da terra, military press e rematore con bilanciere — 5 serie da 5 ripetizioni (stacco da terra 1x5).',
     'trainingPlans.planGzclpDescription':
@@ -996,6 +1036,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'Dit is een standaardplan. Het kan niet worden bewerkt of verwijderd — kopieer het om je eigen bewerkbare versie te maken.',
     'trainingPlans.plan531Description':
       '5/3/1 van Jim Wendler: een cyclus van 4 weken (3 opbouwweken + een deload-week) voor squat, bankdrukken, deadlift en overhead press, gebaseerd op percentages van je 1RM.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Increment-voorbeeld',
+    'trainingPlans.plan531IncrementExampleIntro': 'Voorbeeld op basis van een 1RM van 100 kg:',
+    'trainingPlans.plan531IncrementExampleSet1': 'Set 1',
+    'trainingPlans.plan531IncrementExampleSet2': 'Set 2',
+    'trainingPlans.plan531IncrementExampleSet3': 'Set 3 (topset)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Deload',
+    'trainingPlans.plan531IncrementExampleNote':
+      'Hier is geen automatische gewichtstoename tussen sessies – de percentages worden herberekend op basis van de huidige 1RM van de oefening. De progressie ontstaat doordat die 1RM stijgt (handmatig ingevoerd of automatisch geschat uit daadwerkelijk gelogde herhalingen en gewicht), waardoor alle percentages in de volgende cyclus van 4 weken meestijgen.',
     'trainingPlans.plan5x5Description':
       'Klassieke 5x5-krachttraining: lineaire gewichtsopbouw op squat, bankdrukken, deadlift, overhead press en barbell row — 5 sets van 5 reps (deadlift 1x5).',
     'trainingPlans.planGzclpDescription':
@@ -1183,6 +1231,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'To jest plan domyślny. Nie można go edytować ani usunąć — skopiuj go, aby utworzyć własną edytowalną wersję.',
     'trainingPlans.plan531Description':
       '5/3/1 według Jima Wendlera: 4-tygodniowy cykl (3 tygodnie budowania + tydzień deload) dla przysiadu, wyciskania na ławce, martwego ciągu i wyciskania nad głowę, oparty na procentach twojego 1RM.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Przykład progresji',
+    'trainingPlans.plan531IncrementExampleIntro': 'Przykład dla 1RM wynoszącego 100 kg:',
+    'trainingPlans.plan531IncrementExampleSet1': 'Seria 1',
+    'trainingPlans.plan531IncrementExampleSet2': 'Seria 2',
+    'trainingPlans.plan531IncrementExampleSet3': 'Seria 3 (seria główna)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Deload',
+    'trainingPlans.plan531IncrementExampleNote':
+      'Tutaj nie ma automatycznego wzrostu ciężaru między sesjami – procenty są przeliczane na podstawie aktualnego 1RM ćwiczenia. Progresja wynika ze wzrostu tego 1RM (wpisanego ręcznie lub oszacowanego automatycznie na podstawie faktycznie zarejestrowanych powtórzeń i ciężaru), co podnosi wszystkie procenty w kolejnym 4-tygodniowym cyklu.',
     'trainingPlans.plan5x5Description':
       'Klasyczny trening siłowy 5x5: liniowy progres obciążenia na przysiadzie, wyciskaniu na ławce, martwym ciągu, wyciskaniu nad głowę i wiosłowaniu sztangą — 5 serii po 5 powtórzeń (martwy ciąg 1x5).',
     'trainingPlans.planGzclpDescription':
@@ -1370,6 +1426,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'Это план по умолчанию. Его нельзя редактировать или удалить — скопируйте его, чтобы создать свою редактируемую версию.',
     'trainingPlans.plan531Description':
       '5/3/1 по методике Джима Вендлера: 4-недельный цикл (3 недели наращивания + неделя разгрузки) для приседаний, жима лёжа, становой тяги и жима стоя, основанный на процентах от вашего 1ПМ.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Пример прогрессии',
+    'trainingPlans.plan531IncrementExampleIntro': 'Пример на основе 1ПМ 100 кг:',
+    'trainingPlans.plan531IncrementExampleSet1': 'Подход 1',
+    'trainingPlans.plan531IncrementExampleSet2': 'Подход 2',
+    'trainingPlans.plan531IncrementExampleSet3': 'Подход 3 (основной подход)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Разгрузка',
+    'trainingPlans.plan531IncrementExampleNote':
+      'Здесь нет автоматического увеличения веса между тренировками — проценты пересчитываются от текущего 1ПМ упражнения. Прогрессия достигается за счёт роста этого 1ПМ (введённого вручную или рассчитанного автоматически по фактически зафиксированным повторениям и весу), что поднимает все проценты в следующем 4-недельном цикле.',
     'trainingPlans.plan5x5Description':
       'Классическая силовая программа 5×5: линейный рост весов в приседаниях, жиме лёжа, становой тяге, жиме стоя и тяге штанги в наклоне — 5 подходов по 5 повторений (становая тяга 1×5).',
     'trainingPlans.planGzclpDescription':
@@ -1557,6 +1621,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.defaultPlanHint': 'Ez egy alapértelmezett terv. Nem szerkeszthető és nem törölhető – másold le, hogy saját szerkeszthető verziót hozz létre.',
     'trainingPlans.plan531Description':
       '5/3/1 Jim Wendlertől: 4 hetes ciklus (3 felépítő hét + egy deload hét) guggolásra, fekvenyomásra, felhúzásra és vállból nyomásra, az 1RM százalékai alapján.',
+    'trainingPlans.plan531IncrementExampleTitle': 'Növekményi példa',
+    'trainingPlans.plan531IncrementExampleIntro': 'Példa 100 kg-os 1RM alapján:',
+    'trainingPlans.plan531IncrementExampleSet1': '1. szett',
+    'trainingPlans.plan531IncrementExampleSet2': '2. szett',
+    'trainingPlans.plan531IncrementExampleSet3': '3. szett (fő szett)',
+    'trainingPlans.plan531IncrementExampleDeload': 'Deload',
+    'trainingPlans.plan531IncrementExampleNote':
+      'Itt nincs automatikus súlynövekedés az edzések között – a százalékok mindig a gyakorlat aktuális 1RM-jéből számolódnak újra. A fejlődés abból ered, hogy ez az 1RM nő (kézzel megadva, vagy automatikusan becsülve a ténylegesen rögzített ismétlésekből és súlyból), ami a következő 4 hetes ciklusban minden százalékot megemel.',
     'trainingPlans.plan5x5Description':
       'Klasszikus 5x5-ös erőedzés: lineáris súlynövelés guggolásban, fekvenyomásban, felhúzásban, vállból nyomásban és rúdhúzásban — 5x5 ismétlés (felhúzás 1x5).',
     'trainingPlans.planGzclpDescription':

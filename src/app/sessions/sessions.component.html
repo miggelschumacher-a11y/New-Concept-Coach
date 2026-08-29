@@ -425,22 +425,20 @@
                             </mat-select>
                           </mat-form-field>
 
-                          @if (sessionExerciseTypeDisplay(sessionExercise) === 'WEIGHT_BASED') {
-                            <mat-form-field appearance="outline" class="exercise-settings-info-field">
-                              <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
-                              <mat-select
-                                [ngModel]="sessionIncrementSchemeDisplay(sessionExercise)"
-                                name="sessionIncrementScheme-{{ sessionExercise.exerciseId }}"
-                                (selectionChange)="updateSessionIncrementScheme(session, sessionExercise, $event.value)"
-                              >
-                                <mat-option value="NONE">None</mat-option>
-                                <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
-                                <mat-option value="REP_GOAL">Rep Goal System</mat-option>
-                                <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
-                                <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
-                              </mat-select>
-                            </mat-form-field>
-                          }
+                          <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                            <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
+                            <mat-select
+                              [ngModel]="sessionIncrementSchemeDisplay(sessionExercise)"
+                              name="sessionIncrementScheme-{{ sessionExercise.exerciseId }}"
+                              (selectionChange)="updateSessionIncrementScheme(session, sessionExercise, $event.value)"
+                            >
+                              <mat-option value="NONE">None</mat-option>
+                              <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
+                              <mat-option value="REP_GOAL">Rep Goal System</mat-option>
+                              <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
+                              <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                            </mat-select>
+                          </mat-form-field>
                         }
                       </div>
                     }
