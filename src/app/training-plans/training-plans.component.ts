@@ -183,9 +183,15 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return plan.id === DEFAULT_5X5_PLAN_ID;
   }
 
-  // Same rationale as 5/3/1 and 5x5. GZCLP is excluded here on purpose: it
-  // uses TierLineProgression, which already explains its own weight step
-  // per exercise via the tier-line-info panel below.
+  // Unlike the plans above, GZCLP already tracks progression automatically
+  // (TierLineProgression) and explains its own weight step per exercise via
+  // the tier-line-info panel below. This section instead walks through what
+  // that automation actually does across sessions, including the stage
+  // change (5x3+ -> 6x2+ -> 10x1+) that the per-exercise panel doesn't show.
+  isDefaultGzclpPlan(plan: TrainingPlan): boolean {
+    return plan.id === DEFAULT_GZCLP_PLAN_ID;
+  }
+
   isDefaultGreyskullPlan(plan: TrainingPlan): boolean {
     return plan.id === DEFAULT_GREYSKULL_PLAN_ID;
   }

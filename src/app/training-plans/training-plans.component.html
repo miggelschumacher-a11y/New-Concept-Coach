@@ -372,6 +372,60 @@
               <p class="increment-example-note">{{ 'trainingPlans.planNsunsIncrementExampleNote' | translate }}</p>
             </div>
           }
+
+          @if (isDefaultGzclpPlan(plan)) {
+            <div class="increment-example">
+              <h3 class="increment-example-title">
+                <mat-icon class="label-icon">trending_up</mat-icon>{{ 'trainingPlans.plan531IncrementExampleTitle' | translate }}
+              </h3>
+              <p class="increment-example-intro">{{ 'trainingPlans.planGzclpIncrementExampleIntro' | translate }}</p>
+              <div class="increment-example-table-wrapper">
+                <table class="increment-example-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'trainingPlans.plan5x5IncrementExampleSession' | translate }}</th>
+                      <th>Squat (T1)</th>
+                      <th>{{ 'trainingPlans.plan5x5IncrementExampleResult' | translate }}</th>
+                      <th>{{ 'trainingPlans.plan5x5IncrementExampleNextWeight' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleSession' | translate }} 1</td>
+                      <td>5×3+ &#64; 60 kg → 5</td>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleSuccess' | translate }}</td>
+                      <td>62.5 kg</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleSession' | translate }} 2</td>
+                      <td>5×3+ &#64; 62.5 kg → 4</td>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleSuccess' | translate }}</td>
+                      <td>65 kg</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleSession' | translate }} 3</td>
+                      <td>5×3+ &#64; 65 kg → 2</td>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleFail' | translate }}</td>
+                      <td>65 kg</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleSession' | translate }} 4</td>
+                      <td>5×3+ &#64; 65 kg → 1</td>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleFail' | translate }}</td>
+                      <td>65 kg</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleSession' | translate }} 5</td>
+                      <td>6×2+ &#64; 65 kg → 3</td>
+                      <td>{{ 'trainingPlans.plan5x5IncrementExampleSuccess' | translate }}</td>
+                      <td>67.5 kg</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="increment-example-note">{{ 'trainingPlans.planGzclpIncrementExampleNote' | translate }}</p>
+            </div>
+          }
         } @else if (editingPlanId === plan.id) {
           <form class="entry-form" (ngSubmit)="confirmEditPlan(plan)">
             <mat-form-field appearance="outline">
