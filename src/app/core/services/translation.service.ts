@@ -52,6 +52,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'weeks',
     'trainingPlans.weekLabel': 'Week',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Load',
     'trainingPlans.oneRepMaxMissing': 'No 1RM set',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'Lower bound is enough to trigger the increase',
     'trainingPlans.editPlan': 'Edit plan',
@@ -71,16 +72,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'There\'s no automatic weight increase between sessions here - the percentages are recalculated from the exercise\'s current 1RM. Progression comes from that 1RM going up (entered manually, or estimated automatically from actually logged reps and weight), which raises every percentage in the next 4-week cycle.',
     'trainingPlans.plan5x5Description':
       'Classic 5x5 strength training: linear weight progression on squat, bench press, deadlift, overhead press, and barbell row — 5 sets of 5 reps (deadlift 1x5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'The classic 5x5 method has no automatic weight increase built in here (shows as "None") - it\'s a manual linear-progression convention: hit every rep in every set and the weight goes up next session; miss a rep and it repeats. Example for the squat (5 sets of 5, lower-body increment of 2.5 kg, starting at 60 kg):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Session',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Result',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Success',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Failed',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Next Weight',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'Bench Press, Barbell Row, and Overhead Press follow the same pattern with the upper-body increment of 1 kg instead; the Deadlift is a single set of 5 at the lower-body increment. To have the app track this automatically, copy this plan (it\'s read-only) and set each exercise\'s Increment Scheme to Linear Progression with a target of 5 reps.',
     'trainingPlans.planGzclpDescription':
       'GZCLP by Cody Lefever: a foundational 4-day tier-based plan (T1/T2/T3). Trains 4x per week in the Day A1 - B1 - A2 - B2 rotation, with squat, bench press, deadlift, and overhead press alternating between T1 (main lift, 5x3+) and T2 (secondary lift, 3x10) roles. Lat pull-downs run as a constant T3 accessory (3x15).',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP by John Sheaffer: 3x per week linear progression on squat, bench press, chin-ups, overhead press, and deadlift — 2 sets of 5 plus an AMRAP (as-many-reps-as-possible) top set each session (deadlift 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'GreySkull LP also shows as "None" here - it\'s a manual linear-progression convention like 5x5, but built around an AMRAP (as-many-reps-as-possible) top set: hit 5 or more reps on that last set and the weight goes up next session (2.5 kg lower-body / 1 kg upper-body); fall short and you repeat the same weight; fall short twice in a row and you deload by 10%. Example for the squat (2 sets of 5 plus an AMRAP set, lower-body increment, starting at 60 kg):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'Bench Press and Overhead Press follow the same pattern with the upper-body increment of 1 kg instead; the Deadlift is a single top set at the lower-body increment, and Chin-Ups use bodyweight so the kg step doesn\'t apply the same way. To have the app track the AMRAP-driven increase automatically, copy this plan (it\'s read-only) and set each exercise\'s Increment Scheme to Linear Progression with a target of 5 reps - the 10% deload rule isn\'t automated, so you\'d apply that step yourself.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: a higher-volume take on Wendler\'s 5/3/1, created by the Reddit user nSuns. Each session, squat, bench press, deadlift, and overhead press are trained for 9 sets based on percentages of your training max, ending in an AMRAP (as-many-reps-as-possible) top set.',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'nSuns also shows as "None" here (it\'s percentage-based, like 5/3/1) - unlike Wendler\'s plan there\'s no multi-week wave: every session runs the same 9-set scheme against your training max, ending in an AMRAP (as-many-reps-as-possible) top set. Example based on a 1RM of 100 kg:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'There\'s no automatic weight increase between sessions here - the percentages are recalculated from the exercise\'s current 1RM (or training max), same as 5/3/1. Progression comes from that max going up, which raises every percentage the next time you train that lift. Many nSuns runners base the max off the AMRAP set\'s estimated performance rather than a fixed test max - this app\'s automatically estimated 1RM (shown next to each exercise) can be used for that.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty by Mike Mentzer: high-intensity training (HIT) — a single all-out set taken to complete muscular failure per exercise, with infrequent, brief sessions covering the major compound lifts.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'Heavy Duty also shows as "None" here - it\'s a single all-out set per exercise taken to complete muscular failure, with sessions spaced further apart to allow full recovery. The manual convention: pick a target rep count (e.g. 8) and go to failure; reach the target and the weight goes up next session (1 kg upper-body / 2.5 kg lower-body); fall short and you repeat the same weight. Example for the bench press, starting at 60 kg:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'Squat, Overhead Press, and Deadlift follow the same pattern with the lower-body increment of 2.5 kg instead; Chin-Ups and Triceps-Push-Down use bodyweight or an isolation load, so the kg step doesn\'t apply the same way. To have the app track this automatically, copy this plan (it\'s read-only) and set each exercise\'s Increment Scheme to Linear Progression with your chosen target rep count.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) by Bryan Haycock: progressive-load training through 15/10/5 rep-range phases (2 sets per exercise), followed by a break to let your muscles reset before the next cycle (strategic deconditioning) — applied here to squat, bench press, deadlift, overhead press, and barbell row.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'HST also shows as "None" here (it\'s percentage-based, like 5/3/1) - progression comes from cycling through three rep-range phases against your training max rather than adding weight session to session. Haycock\'s original design runs each phase for about two weeks before moving to the next; this app models one recurring week per phase. Example based on a 1RM of 100 kg:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'The classic HST cycle also includes a brief 5-rep-or-lower finishing phase and a planned 1-2 week deconditioning break before the next cycle - neither of which this app tracks automatically. Raise the 1RM used to calculate these percentages yourself once you start a new cycle.',
     'trainingPlans.noExercisesHint': 'No exercises available yet. Add some in Exercises first.',
     'trainingPlans.tierT1': 'T1 – Main',
     'trainingPlans.tierT2': 'T2 – Secondary',
@@ -247,6 +273,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'Wochen',
     'trainingPlans.weekLabel': 'Woche',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Last',
     'trainingPlans.oneRepMaxMissing': 'Kein 1RM hinterlegt',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'Untere Grenze reicht für die Steigerung',
     'trainingPlans.editPlan': 'Plan bearbeiten',
@@ -266,16 +293,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Hier gibt es keine automatische Gewichtssteigerung zwischen den Einheiten – die Prozentsätze werden aus dem aktuellen 1RM der Übung neu berechnet. Die Progression entsteht dadurch, dass sich dieses 1RM erhöht (manuell eingetragen oder automatisch aus tatsächlich geloggten Wiederholungen und Gewichten geschätzt), wodurch sich im nächsten 4-Wochen-Zyklus alle Prozentsätze mit anheben.',
     'trainingPlans.plan5x5Description':
       'Klassisches 5×5-Krafttraining: lineare Gewichtssteigerung auf Kniebeuge, Bankdrücken, Kreuzheben, Overhead-Press und Rudern – 5 Sätze à 5 Wiederholungen (Kreuzheben 1×5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'Die klassische 5x5-Methode hat hier keine automatische Gewichtssteigerung hinterlegt (zeigt „None" an) – sie folgt einer manuellen linearen Progression: Schaffst du jede Wiederholung in jedem Satz, steigt das Gewicht in der nächsten Einheit; verfehlst du eine Wiederholung, wiederholt sie sich. Beispiel für die Kniebeuge (5 Sätze à 5 Wiederholungen, Unterkörper-Steigerung von 2,5 kg, Start bei 60 kg):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Einheit',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Ergebnis',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Erfolg',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Fehlgeschlagen',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Nächstes Gewicht',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'Bankdrücken, Langhantelrudern und Overhead-Press folgen demselben Muster mit der Oberkörper-Steigerung von 1 kg; Kreuzheben ist ein einzelner Satz mit 5 Wiederholungen bei der Unterkörper-Steigerung. Damit die App das automatisch trackt, kopiere diesen Plan (er ist schreibgeschützt) und stelle bei jeder Übung im Increment-Schema „Linear Progression" mit einer Mindestwiederholungszahl von 5 ein.',
     'trainingPlans.planGzclpDescription':
       'GZCLP von Cody Lefever: ein grundlegender 4-Tage-Plan nach dem Tier-Prinzip (T1/T2/T3). Trainiert 4x pro Woche in der Rotation Tag A1 - B1 - A2 - B2, wobei sich Kniebeuge, Bankdrücken, Kreuzheben und Schulterdrücken als T1 (Hauptübung, 5x3+) und T2 (Nebenübung, 3x10) abwechseln. Lat-Pull-Downs laufen als konstante T3-Zusatzübung (3x15) mit.',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP von John Sheaffer: 3x wöchentliche lineare Progression auf Kniebeuge, Bankdrücken, Klimmzüge, Overhead-Press und Kreuzheben – 2 Sätze à 5 Wiederholungen plus ein AMRAP-Topsatz pro Einheit (Kreuzheben 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'GreySkull LP zeigt hier ebenfalls „None" an – wie bei 5x5 handelt es sich um eine manuelle lineare Progression, hier aber rund um einen AMRAP-Topsatz (so viele Wiederholungen wie möglich) aufgebaut: Schaffst du 5 oder mehr Wiederholungen in diesem letzten Satz, steigt das Gewicht in der nächsten Einheit (2,5 kg Unterkörper / 1 kg Oberkörper); verfehlst du das Ziel, wiederholt sich das Gewicht; verfehlst du es zweimal in Folge, deloadest du um 10 %. Beispiel für die Kniebeuge (2 Sätze à 5 plus ein AMRAP-Satz, Unterkörper-Steigerung, Start bei 60 kg):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'Bankdrücken und Overhead-Press folgen demselben Muster mit der Oberkörper-Steigerung von 1 kg; Kreuzheben ist ein einzelner Topsatz mit der Unterkörper-Steigerung, und Klimmzüge nutzen das Körpergewicht, wodurch die kg-Steigerung nicht gleich greift. Damit die App die AMRAP-gesteuerte Steigerung automatisch trackt, kopiere diesen Plan (er ist schreibgeschützt) und stelle bei jeder Übung im Increment-Schema „Linear Progression" mit einer Mindestwiederholungszahl von 5 ein – die 10-%-Deload-Regel ist nicht automatisiert, die müsstest du selbst anwenden.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: eine höher-volumige Variante von Wendlers 5/3/1, entwickelt vom Reddit-Nutzer nSuns. Squat, Bankdrücken, Kreuzheben und Overhead-Press werden jede Einheit über 9 Sätze nach Prozentsätzen des Trainingsmax trainiert, mit einem abschließenden AMRAP-Topsatz.',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'nSuns zeigt hier ebenfalls „None" an (es ist prozentbasiert, wie 5/3/1) – anders als bei Wendlers Plan gibt es keine mehrwöchige Welle: Jede Einheit läuft nach demselben 9-Satz-Schema gegen dein Trainingsmax und endet mit einem AMRAP-Topsatz (so viele Wiederholungen wie möglich). Beispiel bei einem 1RM von 100 kg:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'Hier gibt es keine automatische Gewichtssteigerung zwischen den Einheiten – die Prozentsätze werden aus dem aktuellen 1RM (bzw. Trainingsmax) der Übung neu berechnet, genau wie bei 5/3/1. Die Progression entsteht dadurch, dass dieses Max steigt, wodurch sich beim nächsten Training dieser Übung alle Prozentsätze mit anheben. Viele nSuns-Trainierende leiten ihr Max aus der geschätzten Leistung des AMRAP-Satzes ab statt aus einem festen Testmax – das automatisch geschätzte 1RM der App (neben jeder Übung angezeigt) lässt sich dafür nutzen.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty nach Mike Mentzer: High Intensity Training (HIT) – ein einziger maximaler Satz bis zum vollständigen Muskelversagen pro Übung, in seltenen, kurzen Einheiten über die wichtigsten Grundübungen.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'Heavy Duty zeigt hier ebenfalls „None" an – es ist ein einziger maximaler Satz pro Übung bis zum vollständigen Muskelversagen, bei größeren Pausen zwischen den Einheiten für vollständige Erholung. Die manuelle Konvention: Wähle eine Ziel-Wiederholungszahl (z. B. 8) und gehe bis zum Versagen; erreichst du das Ziel, steigt das Gewicht in der nächsten Einheit (1 kg Oberkörper / 2,5 kg Unterkörper); verfehlst du es, wiederholt sich das Gewicht. Beispiel für das Bankdrücken, Start bei 60 kg:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'Kniebeuge, Overhead-Press und Kreuzheben folgen demselben Muster mit der Unterkörper-Steigerung von 2,5 kg; Klimmzüge und Trizeps-Pushdowns nutzen Körpergewicht oder eine Isolationsbelastung, wodurch die kg-Steigerung nicht gleich greift. Damit die App das automatisch trackt, kopiere diesen Plan (er ist schreibgeschützt) und stelle bei jeder Übung im Increment-Schema „Linear Progression" mit deiner gewählten Ziel-Wiederholungszahl ein.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) nach Bryan Haycock: progressives Lasttraining über 15/10/5-Wiederholungsphasen (2 Sätze pro Übung), gefolgt von einer Pause zur Regeneration der Muskulatur vor dem nächsten Zyklus (Strategic Deconditioning) – angewendet auf Kniebeuge, Bankdrücken, Kreuzheben, Overhead-Press und Rudern.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'HST zeigt hier ebenfalls „None" an (es ist prozentbasiert, wie 5/3/1) – die Progression entsteht durch den Wechsel dreier Wiederholungsphasen gegen dein Trainingsmax, nicht durch eine Gewichtssteigerung von Einheit zu Einheit. In Haycocks Originaldesign läuft jede Phase etwa zwei Wochen, bevor zur nächsten gewechselt wird; diese App bildet eine wiederkehrende Woche pro Phase ab. Beispiel bei einem 1RM von 100 kg:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'Der klassische HST-Zyklus enthält außerdem eine kurze Abschlussphase mit 5 oder weniger Wiederholungen sowie eine geplante 1–2-wöchige Pause zur Regeneration vor dem nächsten Zyklus (Strategic Deconditioning) – beides trackt die App nicht automatisch. Erhöhe das für diese Prozentsätze verwendete 1RM selbst, sobald du einen neuen Zyklus beginnst.',
     'trainingPlans.noExercisesHint': 'Noch keine Übungen vorhanden. Bitte zuerst unter Übungen anlegen.',
     'trainingPlans.tierT1': 'T1 – Hauptübung',
     'trainingPlans.tierT2': 'T2 – Nebenübung',
@@ -442,6 +494,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'semanas',
     'trainingPlans.weekLabel': 'Semana',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Carga',
     'trainingPlans.oneRepMaxMissing': 'Sin 1RM establecido',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'El límite inferior es suficiente para el incremento',
     'trainingPlans.editPlan': 'Editar plan',
@@ -461,16 +514,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Aquí no hay un aumento de peso automático entre sesiones: los porcentajes se recalculan a partir del 1RM actual del ejercicio. La progresión surge de que ese 1RM aumente (introducido manualmente o estimado automáticamente a partir de las repeticiones y el peso realmente registrados), lo que eleva todos los porcentajes en el siguiente ciclo de 4 semanas.',
     'trainingPlans.plan5x5Description':
       'Entrenamiento de fuerza clásico 5x5: progresión lineal de peso en sentadilla, press de banca, peso muerto, press militar y remo con barra — 5 series de 5 repeticiones (peso muerto 1x5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'El método clásico 5x5 no tiene aquí un aumento de peso automático (aparece como «None») — sigue una progresión lineal manual: si completas cada repetición en cada serie, el peso sube en la siguiente sesión; si fallas una repetición, se repite. Ejemplo para la sentadilla (5 series de 5, incremento de tren inferior de 2,5 kg, empezando en 60 kg):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Sesión',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Resultado',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Éxito',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Fallo',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Próximo peso',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'El press de banca, el remo con barra y el press militar siguen el mismo patrón con el incremento de tren superior de 1 kg; el peso muerto es una sola serie de 5 con el incremento de tren inferior. Para que la app lo registre automáticamente, copia este plan (es de solo lectura) y configura el esquema de incremento de cada ejercicio en Progresión lineal con un objetivo de 5 repeticiones.',
     'trainingPlans.planGzclpDescription':
       'GZCLP de Cody Lefever: un plan básico de 4 días basado en niveles (T1/T2/T3). Entrena 4 veces por semana en la rotación Día A1 - B1 - A2 - B2, alternando sentadilla, press de banca, peso muerto y press militar entre los roles T1 (ejercicio principal, 5x3+) y T2 (secundario, 3x10). Los jalones al pecho se mantienen como accesorio T3 constante (3x15).',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP de John Sheaffer: progresión lineal 3 veces por semana en sentadilla, press de banca, dominadas, press militar y peso muerto — 2 series de 5 más una serie final AMRAP (máximas repeticiones posibles) por sesión (peso muerto 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'GreySkull LP también aparece aquí como «None» - es una progresión lineal manual como el 5x5, pero construida en torno a una serie final AMRAP (máximas repeticiones posibles): si logras 5 o más repeticiones en esa última serie, el peso sube en la siguiente sesión (2,5 kg tren inferior / 1 kg tren superior); si te quedas corto, repites el mismo peso; si te quedas corto dos veces seguidas, haces una descarga del 10 %. Ejemplo para la sentadilla (2 series de 5 más una serie AMRAP, incremento de tren inferior, empezando en 60 kg):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'El press de banca y el press militar siguen el mismo patrón con el incremento de tren superior de 1 kg; el peso muerto es una única serie final con el incremento de tren inferior, y las dominadas usan el peso corporal, por lo que el paso en kg no aplica igual. Para que la app registre automáticamente el aumento impulsado por el AMRAP, copia este plan (es de solo lectura) y configura el esquema de incremento de cada ejercicio en Progresión lineal con un objetivo de 5 repeticiones - la regla de descarga del 10 % no está automatizada, tendrías que aplicarla tú mismo.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: una variante de mayor volumen del 5/3/1 de Wendler, creada por el usuario de Reddit nSuns. En cada sesión, sentadilla, press de banca, peso muerto y press militar se entrenan durante 9 series según porcentajes de tu máximo de entrenamiento, terminando en una serie final AMRAP (máximas repeticiones posibles).',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'nSuns también aparece aquí como «None» (es un plan basado en porcentajes, como el 5/3/1) - a diferencia del plan de Wendler, no hay una ola de varias semanas: cada sesión sigue el mismo esquema de 9 series contra tu máximo de entrenamiento, terminando en una serie final AMRAP (máximas repeticiones posibles). Ejemplo basado en un 1RM de 100 kg:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'Aquí no hay un aumento de peso automático entre sesiones - los porcentajes se recalculan a partir del 1RM (o máximo de entrenamiento) actual del ejercicio, igual que en 5/3/1. La progresión surge de que ese máximo aumente, lo que eleva todos los porcentajes la próxima vez que entrenes ese ejercicio. Muchos usuarios de nSuns basan su máximo en el rendimiento estimado de la serie AMRAP en lugar de un máximo de prueba fijo - el 1RM estimado automáticamente por la app (mostrado junto a cada ejercicio) puede usarse para eso.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty de Mike Mentzer: entrenamiento de alta intensidad (HIT) — una única serie máxima hasta el fallo muscular completo por ejercicio, en sesiones breves y poco frecuentes que cubren los principales ejercicios básicos.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'Heavy Duty también aparece aquí como «None» - es una única serie máxima por ejercicio llevada al fallo muscular completo, con sesiones más espaciadas para permitir una recuperación completa. La convención manual: elige un número de repeticiones objetivo (p. ej. 8) y ve al fallo; si alcanzas el objetivo, el peso sube en la siguiente sesión (1 kg tren superior / 2,5 kg tren inferior); si te quedas corto, repites el mismo peso. Ejemplo para el press de banca, empezando en 60 kg:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'La sentadilla, el press militar y el peso muerto siguen el mismo patrón con el incremento de tren inferior de 2,5 kg; las dominadas y las extensiones de tríceps en polea usan el peso corporal o una carga de aislamiento, por lo que el paso en kg no aplica igual. Para que la app lo registre automáticamente, copia este plan (es de solo lectura) y configura el esquema de incremento de cada ejercicio en Progresión lineal con el número de repeticiones objetivo que elijas.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) de Bryan Haycock: entrenamiento de carga progresiva mediante fases de 15/10/5 repeticiones (2 series por ejercicio), seguido de un descanso para que tus músculos se regeneren antes del siguiente ciclo (desacondicionamiento estratégico) — aplicado aquí a sentadilla, press de banca, peso muerto, press militar y remo con barra.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'HST también aparece aquí como «None» (es un plan basado en porcentajes, como el 5/3/1) - la progresión surge de recorrer tres fases de rango de repeticiones contra tu máximo de entrenamiento, en lugar de aumentar el peso sesión a sesión. En el diseño original de Haycock, cada fase dura unas dos semanas antes de pasar a la siguiente; esta app modela una semana recurrente por fase. Ejemplo basado en un 1RM de 100 kg:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'El ciclo clásico de HST también incluye una breve fase final de 5 repeticiones o menos y una pausa de desacondicionamiento planificada de 1-2 semanas antes del siguiente ciclo - ninguna de las cuales registra esta app automáticamente. Aumenta tú mismo el 1RM usado para calcular estos porcentajes al empezar un nuevo ciclo.',
     'trainingPlans.noExercisesHint': 'Aún no hay ejercicios disponibles. Añade algunos primero en Ejercicios.',
     'trainingPlans.tierT1': 'T1 – Principal',
     'trainingPlans.tierT2': 'T2 – Secundario',
@@ -637,6 +715,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'semanas',
     'trainingPlans.weekLabel': 'Semana',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Carga',
     'trainingPlans.oneRepMaxMissing': 'Nenhum 1RM definido',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'O limite inferior é suficiente para o aumento',
     'trainingPlans.editPlan': 'Editar plano',
@@ -656,16 +735,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Aqui não há aumento automático de peso entre as sessões – os percentuais são recalculados a partir do 1RM atual do exercício. A progressão vem do aumento desse 1RM (inserido manualmente ou estimado automaticamente a partir das repetições e do peso realmente registrados), o que eleva todos os percentuais no próximo ciclo de 4 semanas.',
     'trainingPlans.plan5x5Description':
       'Treino de força clássico 5x5: progressão linear de carga em agachamento, supino, levantamento terra, desenvolvimento militar e remada curvada — 5 séries de 5 repetições (levantamento terra 1x5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'O método clássico 5x5 não tem aqui um aumento automático de peso (aparece como «None») — segue uma progressão linear manual: se você completar cada repetição em cada série, o peso aumenta na próxima sessão; se falhar uma repetição, ela se repete. Exemplo para o agachamento (5 séries de 5, incremento de membros inferiores de 2,5 kg, começando em 60 kg):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Sessão',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Resultado',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Sucesso',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Falhou',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Próximo peso',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'Supino, remada curvada e desenvolvimento militar seguem o mesmo padrão com o incremento de membros superiores de 1 kg; o levantamento terra é uma única série de 5 com o incremento de membros inferiores. Para que o app registre isso automaticamente, copie este plano (ele é somente leitura) e defina o esquema de incremento de cada exercício como Progressão linear com uma meta de 5 repetições.',
     'trainingPlans.planGzclpDescription':
       'GZCLP de Cody Lefever: um plano básico de 4 dias baseado em níveis (T1/T2/T3). Treina 4x por semana na rotação Dia A1 - B1 - A2 - B2, alternando agachamento, supino, levantamento terra e desenvolvimento militar entre as funções T1 (exercício principal, 5x3+) e T2 (secundário, 3x10). A puxada na polia alta é o acessório T3 constante (3x15).',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP de John Sheaffer: progressão linear 3x por semana em agachamento, supino, barra fixa, desenvolvimento militar e levantamento terra — 2 séries de 5 mais uma série final AMRAP (máximo de repetições possível) por sessão (levantamento terra 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'O GreySkull LP também aparece aqui como «None» - é uma progressão linear manual como o 5x5, mas construída em torno de uma série final AMRAP (máximo de repetições possível): se você alcançar 5 ou mais repetições nessa última série, o peso aumenta na próxima sessão (2,5 kg membros inferiores / 1 kg membros superiores); se ficar abaixo, repete o mesmo peso; se ficar abaixo duas vezes seguidas, você faz um deload de 10%. Exemplo para o agachamento (2 séries de 5 mais uma série AMRAP, incremento de membros inferiores, começando em 60 kg):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'Supino e desenvolvimento militar seguem o mesmo padrão com o incremento de membros superiores de 1 kg; o levantamento terra é uma única série final com o incremento de membros inferiores, e a barra fixa usa o peso corporal, então o incremento em kg não se aplica da mesma forma. Para que o app registre esse aumento guiado pelo AMRAP automaticamente, copie este plano (ele é somente leitura) e defina o esquema de incremento de cada exercício como Progressão linear com uma meta de 5 repetições - a regra de deload de 10% não é automatizada, você precisaria aplicá-la você mesmo.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: uma variante de maior volume do 5/3/1 de Wendler, criada pelo usuário do Reddit nSuns. Em cada sessão, agachamento, supino, levantamento terra e desenvolvimento militar são treinados em 9 séries com base em percentuais do seu máximo de treino, terminando em uma série final AMRAP (máximo de repetições possível).',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'O nSuns também aparece aqui como «None» (é baseado em percentuais, como o 5/3/1) - diferente do plano de Wendler, não há uma onda de várias semanas: cada sessão segue o mesmo esquema de 9 séries contra o seu máximo de treino, terminando em uma série final AMRAP (máximo de repetições possível). Exemplo baseado em um 1RM de 100 kg:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'Aqui não há aumento automático de peso entre as sessões - os percentuais são recalculados a partir do 1RM (ou máximo de treino) atual do exercício, assim como no 5/3/1. A progressão vem do aumento desse máximo, o que eleva todos os percentuais na próxima vez que você treinar esse exercício. Muitos praticantes de nSuns baseiam o máximo no desempenho estimado da série AMRAP em vez de um máximo de teste fixo - o 1RM estimado automaticamente pelo app (mostrado ao lado de cada exercício) pode ser usado para isso.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty de Mike Mentzer: treino de alta intensidade (HIT) — uma única série máxima até a falha muscular completa por exercício, em sessões breves e pouco frequentes que cobrem os principais exercícios básicos.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'O Heavy Duty também aparece aqui como «None» - é uma única série máxima por exercício levada à falha muscular completa, com sessões mais espaçadas para permitir a recuperação total. A convenção manual: escolha um número de repetições alvo (por exemplo, 8) e vá até a falha; ao atingir a meta, o peso aumenta na próxima sessão (1 kg membros superiores / 2,5 kg membros inferiores); se ficar abaixo, repete o mesmo peso. Exemplo para o supino, começando em 60 kg:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'Agachamento, desenvolvimento militar e levantamento terra seguem o mesmo padrão com o incremento de membros inferiores de 2,5 kg; barra fixa e tríceps na polia usam peso corporal ou uma carga de isolamento, então o incremento em kg não se aplica da mesma forma. Para que o app registre isso automaticamente, copie este plano (ele é somente leitura) e defina o esquema de incremento de cada exercício como Progressão linear com o número de repetições alvo que você escolher.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) de Bryan Haycock: treino de carga progressiva por meio de fases de 15/10/5 repetições (2 séries por exercício), seguido de uma pausa para que seus músculos se recuperem antes do próximo ciclo (descondicionamento estratégico) — aplicado aqui a agachamento, supino, levantamento terra, desenvolvimento militar e remada curvada.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'O HST também aparece aqui como «None» (é baseado em percentuais, como o 5/3/1) - a progressão vem de percorrer três fases de faixa de repetições contra o seu máximo de treino, em vez de aumentar o peso sessão a sessão. No design original de Haycock, cada fase dura cerca de duas semanas antes de passar para a próxima; este app modela uma semana recorrente por fase. Exemplo baseado em um 1RM de 100 kg:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'O ciclo clássico de HST também inclui uma breve fase final de 5 repetições ou menos e uma pausa de descondicionamento planejada de 1 a 2 semanas antes do próximo ciclo - nenhuma das quais este app registra automaticamente. Aumente você mesmo o 1RM usado para calcular esses percentuais ao começar um novo ciclo.',
     'trainingPlans.noExercisesHint': 'Ainda não há exercícios disponíveis. Adicione alguns primeiro em Exercícios.',
     'trainingPlans.tierT1': 'T1 – Principal',
     'trainingPlans.tierT2': 'T2 – Secundário',
@@ -832,6 +936,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'settimane',
     'trainingPlans.weekLabel': 'Settimana',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Carico',
     'trainingPlans.oneRepMaxMissing': 'Nessun 1RM impostato',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'Il limite inferiore è sufficiente per l\'aumento',
     'trainingPlans.editPlan': 'Modifica piano',
@@ -851,16 +956,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Qui non c\'è un aumento automatico del peso tra le sessioni: le percentuali vengono ricalcolate a partire dall\'1RM attuale dell\'esercizio. La progressione nasce dall\'aumento di questo 1RM (inserito manualmente o stimato automaticamente dalle ripetizioni e dal peso effettivamente registrati), il che alza tutte le percentuali nel ciclo di 4 settimane successivo.',
     'trainingPlans.plan5x5Description':
       'Allenamento di forza classico 5x5: progressione lineare del carico su squat, panca piana, stacco da terra, military press e rematore con bilanciere — 5 serie da 5 ripetizioni (stacco da terra 1x5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'Il classico metodo 5x5 non prevede qui un aumento automatico del peso (mostra «None») — segue una progressione lineare manuale: se completi ogni ripetizione in ogni serie, il peso aumenta nella sessione successiva; se manchi una ripetizione, si ripete. Esempio per lo squat (5 serie da 5, incremento per il treno inferiore di 2,5 kg, partendo da 60 kg):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Sessione',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Risultato',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Riuscita',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Fallita',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Peso successivo',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'Panca piana, rematore con bilanciere e military press seguono lo stesso schema con l\'incremento per il treno superiore di 1 kg; lo stacco da terra è una singola serie da 5 con l\'incremento per il treno inferiore. Perché l\'app lo tracci automaticamente, copia questo piano (è di sola lettura) e imposta lo schema di incremento di ogni esercizio su Progressione lineare con un obiettivo di 5 ripetizioni.',
     'trainingPlans.planGzclpDescription':
       'GZCLP di Cody Lefever: un piano base di 4 giorni basato sui tier (T1/T2/T3). Allena 4 volte a settimana nella rotazione Giorno A1 - B1 - A2 - B2, alternando squat, panca piana, stacco da terra e military press tra i ruoli T1 (esercizio principale, 5x3+) e T2 (secondario, 3x10). Il lat machine funge da accessorio T3 costante (3x15).',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP di John Sheaffer: progressione lineare 3 volte a settimana su squat, panca piana, trazioni alla sbarra, military press e stacco da terra — 2 serie da 5 più una serie finale AMRAP (massime ripetizioni possibili) a sessione (stacco da terra 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'Anche GreySkull LP qui mostra «None» - è una progressione lineare manuale come il 5x5, ma costruita attorno a una serie finale AMRAP (massime ripetizioni possibili): se raggiungi 5 o più ripetizioni in quell\'ultima serie, il peso aumenta nella sessione successiva (2,5 kg treno inferiore / 1 kg treno superiore); se non ci arrivi, ripeti lo stesso peso; se non ci arrivi due volte di fila, fai uno scarico del 10%. Esempio per lo squat (2 serie da 5 più una serie AMRAP, incremento per il treno inferiore, partendo da 60 kg):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'Panca piana e military press seguono lo stesso schema con l\'incremento per il treno superiore di 1 kg; lo stacco da terra è una singola serie finale con l\'incremento per il treno inferiore, e le trazioni alla sbarra usano il peso corporeo, quindi l\'incremento in kg non si applica allo stesso modo. Perché l\'app tracci automaticamente questo aumento guidato dall\'AMRAP, copia questo piano (è di sola lettura) e imposta lo schema di incremento di ogni esercizio su Progressione lineare con un obiettivo di 5 ripetizioni - la regola dello scarico del 10% non è automatizzata, dovresti applicarla tu stesso.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: una variante ad alto volume del 5/3/1 di Wendler, creata dall\'utente Reddit nSuns. Ogni sessione, squat, panca piana, stacco da terra e military press vengono allenati per 9 serie basate su percentuali del tuo massimale di allenamento, terminando con una serie finale AMRAP (massime ripetizioni possibili).',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'Anche nSuns qui mostra «None» (è basato su percentuali, come il 5/3/1) - a differenza del piano di Wendler, non c\'è un\'onda di più settimane: ogni sessione segue lo stesso schema da 9 serie contro il tuo massimale di allenamento, terminando con una serie finale AMRAP (massime ripetizioni possibili). Esempio basato su un 1RM di 100 kg:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'Qui non c\'è un aumento automatico del peso tra le sessioni - le percentuali vengono ricalcolate a partire dall\'1RM (o massimale di allenamento) attuale dell\'esercizio, come nel 5/3/1. La progressione nasce dall\'aumento di questo massimale, il che alza tutte le percentuali la prossima volta che alleni quell\'esercizio. Molti praticanti di nSuns basano il massimale sulla prestazione stimata della serie AMRAP invece che su un massimale di test fisso - l\'1RM stimato automaticamente dall\'app (mostrato accanto a ogni esercizio) può essere usato per questo.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty di Mike Mentzer: allenamento ad alta intensità (HIT) — una singola serie massimale fino al cedimento muscolare completo per esercizio, in sessioni brevi e poco frequenti che coprono i principali esercizi fondamentali.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'Anche Heavy Duty qui mostra «None» - è una singola serie massimale per esercizio portata al cedimento muscolare completo, con sessioni più distanziate per consentire un recupero completo. La convenzione manuale: scegli un numero di ripetizioni obiettivo (ad esempio 8) e vai al cedimento; se raggiungi l\'obiettivo, il peso aumenta nella sessione successiva (1 kg treno superiore / 2,5 kg treno inferiore); se non ci arrivi, ripeti lo stesso peso. Esempio per la panca piana, partendo da 60 kg:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'Squat, military press e stacco da terra seguono lo stesso schema con l\'incremento per il treno inferiore di 2,5 kg; trazioni alla sbarra e french press ai cavi usano il peso corporeo o un carico di isolamento, quindi l\'incremento in kg non si applica allo stesso modo. Perché l\'app lo tracci automaticamente, copia questo piano (è di sola lettura) e imposta lo schema di incremento di ogni esercizio su Progressione lineare con il numero di ripetizioni obiettivo che scegli.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) di Bryan Haycock: allenamento a carico progressivo attraverso fasi di 15/10/5 ripetizioni (2 serie per esercizio), seguito da una pausa per far riposare i muscoli prima del ciclo successivo (decondizionamento strategico) — applicato qui a squat, panca piana, stacco da terra, military press e rematore con bilanciere.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'Anche HST qui mostra «None» (è basato su percentuali, come il 5/3/1) - la progressione nasce dal passare attraverso tre fasi di range di ripetizioni contro il tuo massimale di allenamento, invece di aumentare il peso sessione dopo sessione. Nel design originale di Haycock, ogni fase dura circa due settimane prima di passare alla successiva; questa app modella una settimana ricorrente per fase. Esempio basato su un 1RM di 100 kg:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'Il ciclo classico di HST include anche una breve fase finale da 5 ripetizioni o meno e una pausa di decondizionamento pianificata di 1-2 settimane prima del ciclo successivo - nessuna delle due è tracciata automaticamente da questa app. Aumenta tu stesso l\'1RM usato per calcolare queste percentuali quando inizi un nuovo ciclo.',
     'trainingPlans.noExercisesHint': 'Nessun esercizio disponibile. Aggiungine prima alcuni in Esercizi.',
     'trainingPlans.tierT1': 'T1 – Principale',
     'trainingPlans.tierT2': 'T2 – Secondario',
@@ -1027,6 +1157,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'weken',
     'trainingPlans.weekLabel': 'Week',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Belasting',
     'trainingPlans.oneRepMaxMissing': 'Geen 1RM ingesteld',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'Ondergrens is voldoende voor de verhoging',
     'trainingPlans.editPlan': 'Plan bewerken',
@@ -1046,16 +1177,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Hier is geen automatische gewichtstoename tussen sessies – de percentages worden herberekend op basis van de huidige 1RM van de oefening. De progressie ontstaat doordat die 1RM stijgt (handmatig ingevoerd of automatisch geschat uit daadwerkelijk gelogde herhalingen en gewicht), waardoor alle percentages in de volgende cyclus van 4 weken meestijgen.',
     'trainingPlans.plan5x5Description':
       'Klassieke 5x5-krachttraining: lineaire gewichtsopbouw op squat, bankdrukken, deadlift, overhead press en barbell row — 5 sets van 5 reps (deadlift 1x5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'De klassieke 5x5-methode heeft hier geen automatische gewichtstoename ingebouwd (toont „None") – het volgt een handmatige lineaire progressie: haal je elke herhaling in elke set, dan gaat het gewicht omhoog in de volgende sessie; mis je een herhaling, dan wordt deze herhaald. Voorbeeld voor de squat (5 sets van 5, onderlichaam-verhoging van 2,5 kg, startend op 60 kg):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Sessie',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Resultaat',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Geslaagd',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Mislukt',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Volgend gewicht',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'Bankdrukken, barbell row en overhead press volgen hetzelfde patroon met de bovenlichaam-verhoging van 1 kg; deadlift is één set van 5 met de onderlichaam-verhoging. Om dit automatisch te laten bijhouden door de app, kopieer dit plan (het is alleen-lezen) en stel voor elke oefening het increment-schema in op Lineaire progressie met een doel van 5 herhalingen.',
     'trainingPlans.planGzclpDescription':
       'GZCLP van Cody Lefever: een basisplan van 4 dagen volgens het tier-principe (T1/T2/T3). Traint 4x per week in de rotatie Dag A1 - B1 - A2 - B2, waarbij squat, bankdrukken, deadlift en overhead press afwisselen tussen de rollen T1 (hoofdoefening, 5x3+) en T2 (secundair, 3x10). Lat pulldowns lopen als constante T3-accessoire mee (3x15).',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP van John Sheaffer: 3x per week lineaire progressie op squat, bankdrukken, pull-ups, overhead press en deadlift — 2 sets van 5 plus een AMRAP-topset (zoveel mogelijk herhalingen) per sessie (deadlift 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'GreySkull LP toont hier ook „None" – het is een handmatige lineaire progressie zoals 5x5, maar opgebouwd rond een AMRAP-topset (zoveel mogelijk herhalingen): haal je 5 of meer herhalingen in die laatste set, dan gaat het gewicht omhoog in de volgende sessie (2,5 kg onderlichaam / 1 kg bovenlichaam); haal je dat niet, dan herhaal je hetzelfde gewicht; haal je het twee keer op rij niet, dan deload je met 10%. Voorbeeld voor de squat (2 sets van 5 plus een AMRAP-set, onderlichaam-verhoging, startend op 60 kg):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'Bankdrukken en overhead press volgen hetzelfde patroon met de bovenlichaam-verhoging van 1 kg; deadlift is een enkele topset met de onderlichaam-verhoging, en pull-ups gebruiken lichaamsgewicht, waardoor de kg-stap niet op dezelfde manier geldt. Om deze AMRAP-gestuurde toename automatisch te laten bijhouden door de app, kopieer dit plan (het is alleen-lezen) en stel voor elke oefening het increment-schema in op Lineaire progressie met een doel van 5 herhalingen – de 10%-deloadregel is niet geautomatiseerd, die pas je zelf toe.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: een variant met hoger volume van Wendlers 5/3/1, gemaakt door Reddit-gebruiker nSuns. Elke sessie worden squat, bankdrukken, deadlift en overhead press getraind over 9 sets op basis van percentages van je trainingsmax, eindigend in een AMRAP-topset (zoveel mogelijk herhalingen).',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'nSuns toont hier ook „None" (het is percentagegebaseerd, zoals 5/3/1) – anders dan bij Wendlers plan is er geen meerweekse golf: elke sessie volgt hetzelfde 9-sets-schema tegen je trainingsmax, eindigend in een AMRAP-topset (zoveel mogelijk herhalingen). Voorbeeld op basis van een 1RM van 100 kg:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'Hier is geen automatische gewichtstoename tussen sessies – de percentages worden herberekend op basis van de huidige 1RM (of trainingsmax) van de oefening, net als bij 5/3/1. De progressie ontstaat doordat dat max stijgt, waardoor alle percentages omhoog gaan de volgende keer dat je die oefening traint. Veel nSuns-beoefenaars baseren hun max op de geschatte prestatie van de AMRAP-set in plaats van een vaste testmax – de automatisch geschatte 1RM van de app (getoond naast elke oefening) kan daarvoor worden gebruikt.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty naar Mike Mentzer: high intensity training (HIT) — één maximale set tot volledig spierfalen per oefening, in korte, weinig frequente sessies die de belangrijkste basisoefeningen behandelen.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'Heavy Duty toont hier ook „None" – het is één maximale set per oefening tot volledig spierfalen, met sessies die verder uit elkaar liggen voor volledig herstel. De handmatige conventie: kies een doelaantal herhalingen (bijv. 8) en ga tot falen; haal je het doel, dan gaat het gewicht omhoog in de volgende sessie (1 kg bovenlichaam / 2,5 kg onderlichaam); haal je het niet, dan herhaal je hetzelfde gewicht. Voorbeeld voor bankdrukken, startend op 60 kg:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'Squat, overhead press en deadlift volgen hetzelfde patroon met de onderlichaam-verhoging van 2,5 kg; pull-ups en triceps pushdowns gebruiken lichaamsgewicht of een isolatiebelasting, waardoor de kg-stap niet op dezelfde manier geldt. Om dit automatisch te laten bijhouden door de app, kopieer dit plan (het is alleen-lezen) en stel voor elke oefening het increment-schema in op Lineaire progressie met het door jou gekozen doelaantal herhalingen.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) van Bryan Haycock: progressieve belastingstraining via 15/10/5-herhalingsfasen (2 sets per oefening), gevolgd door een pauze zodat je spieren kunnen herstellen vóór de volgende cyclus (strategische deconditionering) — hier toegepast op squat, bankdrukken, deadlift, overhead press en barbell row.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'HST toont hier ook „None" (het is percentagegebaseerd, zoals 5/3/1) – de progressie komt voort uit het doorlopen van drie herhalingsbereik-fasen tegen je trainingsmax, in plaats van gewicht toe te voegen per sessie. In Haycocks oorspronkelijke ontwerp duurt elke fase ongeveer twee weken voordat je naar de volgende gaat; deze app modelleert één terugkerende week per fase. Voorbeeld op basis van een 1RM van 100 kg:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'De klassieke HST-cyclus bevat ook een korte afsluitende fase van 5 herhalingen of minder en een geplande deconditioneringspauze van 1-2 weken voor de volgende cyclus – geen van beide wordt automatisch bijgehouden door deze app. Verhoog zelf de 1RM die wordt gebruikt om deze percentages te berekenen zodra je aan een nieuwe cyclus begint.',
     'trainingPlans.noExercisesHint': 'Nog geen oefeningen beschikbaar. Voeg er eerst een toe bij Oefeningen.',
     'trainingPlans.tierT1': 'T1 – Hoofd',
     'trainingPlans.tierT2': 'T2 – Secundair',
@@ -1222,6 +1378,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'tygodnie',
     'trainingPlans.weekLabel': 'Tydzień',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Obciążenie',
     'trainingPlans.oneRepMaxMissing': 'Brak ustawionego 1RM',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'Dolna granica wystarcza do zwiększenia',
     'trainingPlans.editPlan': 'Edytuj plan',
@@ -1241,16 +1398,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Tutaj nie ma automatycznego wzrostu ciężaru między sesjami – procenty są przeliczane na podstawie aktualnego 1RM ćwiczenia. Progresja wynika ze wzrostu tego 1RM (wpisanego ręcznie lub oszacowanego automatycznie na podstawie faktycznie zarejestrowanych powtórzeń i ciężaru), co podnosi wszystkie procenty w kolejnym 4-tygodniowym cyklu.',
     'trainingPlans.plan5x5Description':
       'Klasyczny trening siłowy 5x5: liniowy progres obciążenia na przysiadzie, wyciskaniu na ławce, martwym ciągu, wyciskaniu nad głowę i wiosłowaniu sztangą — 5 serii po 5 powtórzeń (martwy ciąg 1x5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'Klasyczna metoda 5x5 nie ma tutaj wbudowanego automatycznego zwiększania ciężaru (pokazuje „None") – opiera się na ręcznej progresji liniowej: jeśli wykonasz każde powtórzenie w każdej serii, ciężar rośnie w kolejnej sesji; jeśli nie uda się powtórzenie, powtarza się. Przykład dla przysiadu (5 serii po 5, przyrost dla dolnej części ciała 2,5 kg, start od 60 kg):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Sesja',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Wynik',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Sukces',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Niepowodzenie',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Następny ciężar',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'Wyciskanie na ławce, wiosłowanie sztangą i wyciskanie nad głowę mają ten sam wzorzec z przyrostem dla górnej części ciała 1 kg; martwy ciąg to pojedyncza seria 5 powtórzeń z przyrostem dla dolnej części ciała. Aby aplikacja śledziła to automatycznie, skopiuj ten plan (jest tylko do odczytu) i ustaw dla każdego ćwiczenia schemat przyrostu na Progresja liniowa z celem 5 powtórzeń.',
     'trainingPlans.planGzclpDescription':
       'GZCLP autorstwa Cody\'ego Lefevera: podstawowy 4-dniowy plan oparty na systemie poziomów (T1/T2/T3). Trening 4x w tygodniu w rotacji Dzień A1 - B1 - A2 - B2, gdzie przysiad, wyciskanie na ławce, martwy ciąg i wyciskanie nad głowę zmieniają się między rolami T1 (ćwiczenie główne, 5x3+) i T2 (pomocnicze, 3x10). Ściąganie drążka wysokiego to stały dodatek T3 (3x15).',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP autorstwa Johna Sheaffera: liniowy progres 3x w tygodniu na przysiadzie, wyciskaniu na ławce, podciąganiu, wyciskaniu nad głowę i martwym ciągu — 2 serie po 5 powtórzeń plus finałowa seria AMRAP (maksymalna liczba powtórzeń) na sesję (martwy ciąg 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'GreySkull LP również pokazuje tutaj „None" – to ręczna progresja liniowa jak w 5x5, ale zbudowana wokół finałowej serii AMRAP (maksymalna liczba powtórzeń): jeśli wykonasz 5 lub więcej powtórzeń w tej ostatniej serii, ciężar rośnie w kolejnej sesji (2,5 kg dla dolnej części ciała / 1 kg dla górnej); jeśli się nie uda, powtarzasz ten sam ciężar; jeśli nie uda się dwa razy z rzędu, robisz deload o 10%. Przykład dla przysiadu (2 serie po 5 plus seria AMRAP, przyrost dla dolnej części ciała, start od 60 kg):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'Wyciskanie na ławce i wyciskanie nad głowę mają ten sam wzorzec z przyrostem dla górnej części ciała 1 kg; martwy ciąg to pojedyncza finałowa seria z przyrostem dla dolnej części ciała, a podciąganie wykorzystuje ciężar ciała, więc przyrost w kg nie działa tak samo. Aby aplikacja automatycznie śledziła ten wzrost napędzany przez AMRAP, skopiuj ten plan (jest tylko do odczytu) i ustaw dla każdego ćwiczenia schemat przyrostu na Progresja liniowa z celem 5 powtórzeń – zasada deloadu o 10% nie jest zautomatyzowana, musisz zastosować ten krok samodzielnie.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: wersja o wyższej objętości Wendlerowskiego 5/3/1, stworzona przez użytkownika Reddita nSuns. Podczas każdej sesji przysiad, wyciskanie na ławce, martwy ciąg i wyciskanie nad głowę są trenowane przez 9 serii opartych na procentach twojego maksimum treningowego, kończąc finałową serią AMRAP (maksymalna liczba powtórzeń).',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'nSuns również pokazuje tutaj „None" (jest to plan procentowy, jak 5/3/1) – w przeciwieństwie do planu Wendlera nie ma tu wielotygodniowej fali: każda sesja przebiega według tego samego schematu 9 serii względem twojego maksimum treningowego, kończąc się finałową serią AMRAP (maksymalna liczba powtórzeń). Przykład dla 1RM wynoszącego 100 kg:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'Tutaj nie ma automatycznego wzrostu ciężaru między sesjami – procenty są przeliczane na podstawie aktualnego 1RM (lub maksimum treningowego) ćwiczenia, tak jak w 5/3/1. Progresja wynika ze wzrostu tego maksimum, co podnosi wszystkie procenty przy następnym treningu tego ćwiczenia. Wielu trenujących nSuns opiera swoje maksimum na szacowanym wyniku serii AMRAP zamiast na stałym maksimum testowym – automatycznie szacowane 1RM aplikacji (pokazywane przy każdym ćwiczeniu) można wykorzystać właśnie do tego.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty według Mike\'a Mentzera: trening wysokiej intensywności (HIT) — jedna maksymalna seria do całkowitego zmęczenia mięśniowego na ćwiczenie, w krótkich, rzadkich sesjach obejmujących najważniejsze ćwiczenia podstawowe.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'Heavy Duty również pokazuje tutaj „None" – to pojedyncza maksymalna seria na ćwiczenie, wykonywana do całkowitego zmęczenia mięśniowego, z sesjami bardziej rozłożonymi w czasie, aby umożliwić pełną regenerację. Ręczna konwencja: wybierz docelową liczbę powtórzeń (np. 8) i idź do zmęczenia; jeśli osiągniesz cel, ciężar rośnie w kolejnej sesji (1 kg dla górnej części ciała / 2,5 kg dla dolnej); jeśli się nie uda, powtarzasz ten sam ciężar. Przykład dla wyciskania na ławce, start od 60 kg:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'Przysiad, wyciskanie nad głowę i martwy ciąg mają ten sam wzorzec z przyrostem dla dolnej części ciała 2,5 kg; podciąganie i prostowanie ramion na wyciągu wykorzystują ciężar ciała lub obciążenie izolacyjne, więc przyrost w kg nie działa tak samo. Aby aplikacja automatycznie to śledziła, skopiuj ten plan (jest tylko do odczytu) i ustaw dla każdego ćwiczenia schemat przyrostu na Progresja liniowa z wybraną przez siebie docelową liczbą powtórzeń.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) autorstwa Bryana Haycocka: trening progresywnego obciążenia w fazach 15/10/5 powtórzeń (2 serie na ćwiczenie), po którym następuje przerwa pozwalająca mięśniom zregenerować się przed kolejnym cyklem (strategiczne dekondycjonowanie) — zastosowany tutaj do przysiadu, wyciskania na ławce, martwego ciągu, wyciskania nad głowę i wiosłowania sztangą.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'HST również pokazuje tutaj „None" (jest to plan procentowy, jak 5/3/1) – progresja wynika z przechodzenia przez trzy fazy zakresu powtórzeń względem twojego maksimum treningowego, a nie z dodawania ciężaru sesja po sesji. W oryginalnym projekcie Haycocka każda faza trwa około dwóch tygodni, zanim przejdzie się do kolejnej; ta aplikacja modeluje jeden powtarzający się tydzień na fazę. Przykład dla 1RM wynoszącego 100 kg:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'Klasyczny cykl HST zawiera również krótką fazę końcową z 5 lub mniejszą liczbą powtórzeń oraz zaplanowaną 1-2-tygodniową przerwę dekondycjonującą przed kolejnym cyklem – żadnej z nich ta aplikacja nie śledzi automatycznie. Zwiększ samodzielnie 1RM używany do obliczania tych procentów, gdy zaczynasz nowy cykl.',
     'trainingPlans.noExercisesHint': 'Brak dostępnych ćwiczeń. Dodaj je najpierw w sekcji Ćwiczenia.',
     'trainingPlans.tierT1': 'T1 – Główne',
     'trainingPlans.tierT2': 'T2 – Drugorzędne',
@@ -1417,6 +1599,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'недели',
     'trainingPlans.weekLabel': 'Неделя',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Нагрузка',
     'trainingPlans.oneRepMaxMissing': '1ПМ не задан',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'Нижней границы достаточно для увеличения',
     'trainingPlans.editPlan': 'Редактировать план',
@@ -1436,16 +1619,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Здесь нет автоматического увеличения веса между тренировками — проценты пересчитываются от текущего 1ПМ упражнения. Прогрессия достигается за счёт роста этого 1ПМ (введённого вручную или рассчитанного автоматически по фактически зафиксированным повторениям и весу), что поднимает все проценты в следующем 4-недельном цикле.',
     'trainingPlans.plan5x5Description':
       'Классическая силовая программа 5×5: линейный рост весов в приседаниях, жиме лёжа, становой тяге, жиме стоя и тяге штанги в наклоне — 5 подходов по 5 повторений (становая тяга 1×5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'Классический метод 5×5 здесь не имеет встроенного автоматического увеличения веса (отображается как «None») — он следует ручной линейной прогрессии: если вы выполняете каждое повторение в каждом подходе, вес увеличивается в следующей тренировке; если повторение не удалось, оно повторяется. Пример для приседаний (5 подходов по 5, прирост для нижней части тела 2,5 кг, начиная с 60 кг):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Тренировка',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Результат',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Успех',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Неудача',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Следующий вес',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'Жим лёжа, тяга штанги в наклоне и жим стоя следуют той же схеме с приростом для верхней части тела 1 кг; становая тяга — это один подход из 5 повторений с приростом для нижней части тела. Чтобы приложение отслеживало это автоматически, скопируйте этот план (он доступен только для чтения) и установите для каждого упражнения схему прироста «Линейная прогрессия» с целью 5 повторений.',
     'trainingPlans.planGzclpDescription':
       'GZCLP от Коди Лефевера: базовая 4-дневная программа по принципу уровней (T1/T2/T3). Тренировки 4 раза в неделю по ротации День A1 - B1 - A2 - B2, где приседания, жим лёжа, становая тяга и жим стоя чередуются между ролями T1 (основное упражнение, 5x3+) и T2 (вспомогательное, 3x10). Тяга верхнего блока идёт постоянным дополнением T3 (3x15).',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP от Джона Шеффера: линейная прогрессия 3 раза в неделю в приседаниях, жиме лёжа, подтягиваниях, жиме стоя и становой тяге — 2 подхода по 5 повторений плюс финальный AMRAP-подход (максимум повторений) за тренировку (становая тяга 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'GreySkull LP здесь тоже отображается как «None» – это ручная линейная прогрессия, как в 5x5, но построенная вокруг финального AMRAP-подхода (максимум повторений): если вы выполняете 5 или больше повторений в этом последнем подходе, вес увеличивается в следующей тренировке (2,5 кг для нижней части тела / 1 кг для верхней); если не удалось, вы повторяете тот же вес; если не удалось два раза подряд, вы делаете разгрузку на 10%. Пример для приседаний (2 подхода по 5 плюс AMRAP-подход, прирост для нижней части тела, начиная с 60 кг):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'Жим лёжа и жим стоя следуют той же схеме с приростом для верхней части тела 1 кг; становая тяга — это единственный финальный подход с приростом для нижней части тела, а подтягивания используют вес тела, поэтому шаг в кг применяется иначе. Чтобы приложение отслеживало этот AMRAP-прирост автоматически, скопируйте этот план (он доступен только для чтения) и установите для каждого упражнения схему прироста «Линейная прогрессия» с целью 5 повторений – правило разгрузки на 10% не автоматизировано, этот шаг нужно применять самостоятельно.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: вариант программы Вендлера 5/3/1 с большим объёмом, созданный пользователем Reddit nSuns. На каждой тренировке приседания, жим лёжа, становая тяга и жим стоя выполняются на 9 подходов по процентам от вашего тренировочного максимума, завершаясь финальным AMRAP-подходом (максимум повторений).',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'nSuns здесь тоже отображается как «None» (это программа на основе процентов, как 5/3/1) – в отличие от плана Вендлера, здесь нет многонедельной волны: каждая тренировка проходит по одной и той же схеме из 9 подходов относительно вашего тренировочного максимума и завершается финальным AMRAP-подходом (максимум повторений). Пример на основе 1ПМ 100 кг:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'Здесь нет автоматического увеличения веса между тренировками – проценты пересчитываются от текущего 1ПМ (или тренировочного максимума) упражнения, так же как в 5/3/1. Прогрессия достигается за счёт роста этого максимума, что поднимает все проценты при следующей тренировке этого упражнения. Многие спортсмены, тренирующиеся по nSuns, определяют свой максимум по оценочному результату AMRAP-подхода, а не по фиксированному тестовому максимуму – автоматически оцениваемый 1ПМ приложения (отображаемый рядом с каждым упражнением) можно использовать именно для этого.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty от Майка Ментцера: высокоинтенсивный тренинг (HIT) — один максимальный подход до полного мышечного отказа на упражнение, в коротких, редких тренировках, охватывающих основные базовые упражнения.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'Heavy Duty здесь тоже отображается как «None» – это один максимальный подход на упражнение до полного мышечного отказа, с более редкими тренировками для полного восстановления. Ручная конвенция: выберите целевое количество повторений (например, 8) и идите до отказа; если цель достигнута, вес увеличивается в следующей тренировке (1 кг для верхней части тела / 2,5 кг для нижней); если не удалось, вы повторяете тот же вес. Пример для жима лёжа, начиная с 60 кг:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'Приседания, жим стоя и становая тяга следуют той же схеме с приростом для нижней части тела 2,5 кг; подтягивания и разгибания рук на блоке используют вес тела или изолирующую нагрузку, поэтому шаг в кг применяется иначе. Чтобы приложение отслеживало это автоматически, скопируйте этот план (он доступен только для чтения) и установите для каждого упражнения схему прироста «Линейная прогрессия» с выбранным вами целевым количеством повторений.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) от Брайана Хейкока: тренинг с прогрессивной нагрузкой через фазы по 15/10/5 повторений (2 подхода на упражнение), за которыми следует перерыв для восстановления мышц перед следующим циклом (стратегическое снижение тренированности) — применён здесь к приседаниям, жиму лёжа, становой тяге, жиму стоя и тяге штанги в наклоне.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'HST здесь тоже отображается как «None» (это программа на основе процентов, как 5/3/1) – прогрессия достигается за счёт прохождения трёх фаз диапазона повторений относительно вашего тренировочного максимума, а не за счёт увеличения веса от тренировки к тренировке. В оригинальном дизайне Хейкока каждая фаза длится около двух недель, прежде чем перейти к следующей; это приложение моделирует одну повторяющуюся неделю на фазу. Пример на основе 1ПМ 100 кг:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'Классический цикл HST также включает короткую завершающую фазу с 5 или меньшим числом повторений и запланированный перерыв на детренированность в 1-2 недели перед следующим циклом – ни то, ни другое это приложение не отслеживает автоматически. Увеличивайте 1ПМ, используемый для расчёта этих процентов, самостоятельно, когда начинаете новый цикл.',
     'trainingPlans.noExercisesHint': 'Пока нет доступных упражнений. Сначала добавьте их в разделе Упражнения.',
     'trainingPlans.tierT1': 'T1 – Основное',
     'trainingPlans.tierT2': 'T2 – Вторичное',
@@ -1612,6 +1820,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weeksWord': 'hét',
     'trainingPlans.weekLabel': 'Hét',
     'trainingPlans.amrapLabel': 'AMRAP',
+    'trainingPlans.loadLabel': 'Terhelés',
     'trainingPlans.oneRepMaxMissing': 'Nincs beállítva 1RM',
     'trainingPlans.linearProgressionLowerBoundSufficient': 'Az alsó határ elég a növeléshez',
     'trainingPlans.editPlan': 'Terv szerkesztése',
@@ -1631,16 +1840,41 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Itt nincs automatikus súlynövekedés az edzések között – a százalékok mindig a gyakorlat aktuális 1RM-jéből számolódnak újra. A fejlődés abból ered, hogy ez az 1RM nő (kézzel megadva, vagy automatikusan becsülve a ténylegesen rögzített ismétlésekből és súlyból), ami a következő 4 hetes ciklusban minden százalékot megemel.',
     'trainingPlans.plan5x5Description':
       'Klasszikus 5x5-ös erőedzés: lineáris súlynövelés guggolásban, fekvenyomásban, felhúzásban, vállból nyomásban és rúdhúzásban — 5x5 ismétlés (felhúzás 1x5).',
+    'trainingPlans.plan5x5IncrementExampleIntro':
+      'A klasszikus 5x5 módszerhez itt nincs beépített automatikus súlynövekedés („None" jelenik meg) – kézi lineáris progressziót követ: ha minden ismétlést teljesítesz minden szettben, a súly nő a következő edzésen; ha egy ismétlés nem sikerül, megismétlődik. Példa a guggolásra (5 szett 5 ismétléssel, alsótest-növekmény 2,5 kg, 60 kg-ról indulva):',
+    'trainingPlans.plan5x5IncrementExampleSession': 'Edzés',
+    'trainingPlans.plan5x5IncrementExampleResult': 'Eredmény',
+    'trainingPlans.plan5x5IncrementExampleSuccess': 'Sikeres',
+    'trainingPlans.plan5x5IncrementExampleFail': 'Sikertelen',
+    'trainingPlans.plan5x5IncrementExampleNextWeight': 'Következő súly',
+    'trainingPlans.plan5x5IncrementExampleNote':
+      'A fekvenyomás, a rúdevezés és a vállból nyomás ugyanezt a mintát követi a felsőtest-növekménnyel (1 kg); a felhúzás egyetlen 5 ismétléses szett az alsótest-növekménnyel. Ahhoz, hogy az alkalmazás ezt automatikusan kövesse, másold le ezt a tervet (csak olvasható), és állítsd be minden gyakorlatnál a növekményi sémát Lineáris progresszióra 5 ismétléses céllal.',
     'trainingPlans.planGzclpDescription':
       'GZCLP Cody Lefevertől: alapvető 4 napos, szintalapú terv (T1/T2/T3). Heti 4x edzés A1 - B1 - A2 - B2 napok rotációjában, ahol a guggolás, fekvenyomás, felhúzás és vállból nyomás váltakozik a T1 (fő gyakorlat, 5x3+) és T2 (kiegészítő, 3x10) szerepek között. A húzódzkodó gép állandó T3 kiegészítő gyakorlatként szerepel (3x15).',
     'trainingPlans.planGreyskullDescription':
       'GreySkull LP John Sheaffertől: heti 3x lineáris progresszió guggolásban, fekvenyomásban, húzódzkodásban, vállból nyomásban és felhúzásban — 2x5 ismétlés plusz egy záró AMRAP szett (maximális ismétlésszám) edzésenként (felhúzás 1x5).',
+    'trainingPlans.planGreyskullIncrementExampleIntro':
+      'A GreySkull LP itt is „None"-ként jelenik meg – ez egy kézi lineáris progresszió, mint az 5x5, de egy záró AMRAP szett (maximális ismétlésszám) köré épül: ha 5 vagy több ismétlést teljesítesz ebben az utolsó szettben, a súly nő a következő edzésen (2,5 kg alsótest / 1 kg felsőtest); ha nem sikerül, ugyanazt a súlyt ismétled; ha kétszer egymás után nem sikerül, 10%-os deloadot csinálsz. Példa a guggolásra (2x5 ismétlés plusz egy AMRAP szett, alsótest-növekmény, 60 kg-ról indulva):',
+    'trainingPlans.planGreyskullIncrementExampleNote':
+      'A fekvenyomás és a vállból nyomás ugyanezt a mintát követi a felsőtest-növekménnyel (1 kg); a felhúzás egyetlen záró szett az alsótest-növekménnyel, a húzódzkodás pedig testsúlyt használ, így a kg-lépés nem érvényesül ugyanúgy. Ahhoz, hogy az alkalmazás ezt az AMRAP-vezérelt növekedést automatikusan kövesse, másold le ezt a tervet (csak olvasható), és állítsd be minden gyakorlatnál a növekményi sémát Lineáris progresszióra 5 ismétléses céllal – a 10%-os deload szabály nincs automatizálva, ezt neked kell alkalmaznod.',
     'trainingPlans.planNsunsDescription':
       'nSuns 5/3/1: Wendler 5/3/1-jének nagyobb volumenű változata, amelyet a Reddit-felhasználó nSuns hozott létre. Minden edzésen a guggolás, fekvenyomás, felhúzás és vállból nyomás 9 szetten keresztül, az edzési maximum százalékai alapján történik, egy záró AMRAP szettel.',
+    'trainingPlans.planNsunsIncrementExampleIntro':
+      'Az nSuns itt is „None"-ként jelenik meg (ez egy százalékalapú terv, mint az 5/3/1) – Wendler tervétől eltérően itt nincs többhetes hullám: minden edzés ugyanazt a 9 szettes sémát követi az edzési maximumhoz képest, egy záró AMRAP szettel (maximális ismétlésszám) végződve. Példa 100 kg-os 1RM alapján:',
+    'trainingPlans.planNsunsIncrementExampleNote':
+      'Itt nincs automatikus súlynövekedés az edzések között – a százalékok a gyakorlat aktuális 1RM-jéből (vagy edzési maximumából) számolódnak újra, ugyanúgy, mint az 5/3/1-nél. A fejlődés abból ered, hogy ez a maximum nő, ami a gyakorlat következő edzésekor minden százalékot megemel. Sok nSuns-t futó a maximumát az AMRAP szett becsült teljesítményére alapozza egy fix tesztmaximum helyett – az alkalmazás automatikusan becsült 1RM-je (minden gyakorlat mellett megjelenítve) erre használható.',
     'trainingPlans.planHeavyDutyDescription':
       'Heavy Duty Mike Mentzer nyomán: nagy intenzitású edzés (HIT) — egyetlen maximális szett a teljes izomkimerülésig gyakorlatonként, ritka, rövid edzéseken, amelyek a legfontosabb alapgyakorlatokat fedik le.',
+    'trainingPlans.planHeavyDutyIncrementExampleIntro':
+      'A Heavy Duty itt is „None"-ként jelenik meg – ez egy egyetlen maximális szett gyakorlatonként, a teljes izomkimerülésig végezve, ritkább edzésekkel a teljes regenerálódás érdekében. A kézi konvenció: válassz egy cél ismétlésszámot (pl. 8), és menj kimerülésig; ha eléred a célt, a súly nő a következő edzésen (1 kg felsőtest / 2,5 kg alsótest); ha nem sikerül, ugyanazt a súlyt ismétled. Példa a fekvenyomásra, 60 kg-ról indulva:',
+    'trainingPlans.planHeavyDutyIncrementExampleNote':
+      'A guggolás, a vállból nyomás és a felhúzás ugyanezt a mintát követi az alsótest-növekménnyel (2,5 kg); a húzódzkodás és a tricepsz lehúzás testsúlyt vagy izoláló terhelést használ, így a kg-lépés nem érvényesül ugyanúgy. Ahhoz, hogy az alkalmazás ezt automatikusan kövesse, másold le ezt a tervet (csak olvasható), és állítsd be minden gyakorlatnál a növekményi sémát Lineáris progresszióra a választott cél ismétlésszámmal.',
     'trainingPlans.planHstDescription':
       'HST (Hypertrophic Specific Training) Bryan Haycocktól: progresszív terhelésű edzés 15/10/5 ismétlésszámú fázisokon keresztül (2 szett gyakorlatonként), amelyet egy pihenő követ, hogy az izmok regenerálódjanak a következő ciklus előtt (stratégiai dekondicionálás) — itt guggolásra, fekvenyomásra, felhúzásra, vállból nyomásra és rúdhúzásra alkalmazva.',
+    'trainingPlans.planHstIncrementExampleIntro':
+      'A HST itt is „None"-ként jelenik meg (ez egy százalékalapú terv, mint az 5/3/1) – a fejlődés három ismétlési tartomány-fázis váltogatásából ered az edzési maximumhoz képest, nem pedig az edzésenkénti súlynöveléséből. Haycock eredeti tervében minden fázis körülbelül két hétig tart, mielőtt a következőre váltanál; ez az alkalmazás egy ismétlődő hetet modellez fázisonként. Példa 100 kg-os 1RM alapján:',
+    'trainingPlans.planHstIncrementExampleNote':
+      'A klasszikus HST-ciklus egy rövid, 5 vagy kevesebb ismétléses záró fázist is tartalmaz, valamint egy tervezett 1-2 hetes dekondicionálási szünetet a következő ciklus előtt – ezek egyikét sem követi automatikusan ez az alkalmazás. Az új ciklus kezdésekor magadnak kell megnövelned az ezekhez a százalékokhoz használt 1RM-et.',
     'trainingPlans.noExercisesHint': 'Még nincsenek elérhető gyakorlatok. Először adj hozzá néhányat a Gyakorlatok oldalon.',
     'trainingPlans.tierT1': 'T1 – Fő gyakorlat',
     'trainingPlans.tierT2': 'T2 – Másodlagos',

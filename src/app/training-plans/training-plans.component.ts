@@ -174,6 +174,34 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return plan.id === DEFAULT_531_PLAN_ID;
   }
 
+  // Same rationale as 5/3/1: 5x5's linear progression convention (add
+  // weight when you hit every rep, repeat when you don't) has no visible
+  // step anywhere in the UI, since the plan itself has no Increment Scheme
+  // set - it's purely a manual convention unless the user opts into Linear
+  // Progression themselves.
+  isDefault5x5Plan(plan: TrainingPlan): boolean {
+    return plan.id === DEFAULT_5X5_PLAN_ID;
+  }
+
+  // Same rationale as 5/3/1 and 5x5. GZCLP is excluded here on purpose: it
+  // uses TierLineProgression, which already explains its own weight step
+  // per exercise via the tier-line-info panel below.
+  isDefaultGreyskullPlan(plan: TrainingPlan): boolean {
+    return plan.id === DEFAULT_GREYSKULL_PLAN_ID;
+  }
+
+  isDefaultNsunsPlan(plan: TrainingPlan): boolean {
+    return plan.id === DEFAULT_NSUNS_PLAN_ID;
+  }
+
+  isDefaultHeavyDutyPlan(plan: TrainingPlan): boolean {
+    return plan.id === DEFAULT_HEAVYDUTY_PLAN_ID;
+  }
+
+  isDefaultHstPlan(plan: TrainingPlan): boolean {
+    return plan.id === DEFAULT_HST_PLAN_ID;
+  }
+
   // Same pattern as the TierLine info popup on the Training Sessions page:
   // fixed positioning computed from the button's own rect, rather than
   // absolute positioning within the header, because mat-expansion-panel
