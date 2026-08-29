@@ -275,13 +275,14 @@
             <mat-icon class="label-icon">description</mat-icon>{{ 'sessions.notes' | translate }}
             <span class="notes-char-count">({{ 500 - (session.notes?.length ?? 0) }}/500)</span>
           </mat-label>
-          <input
+          <textarea
             matInput
             maxlength="500"
+            rows="3"
             name="notes-{{ session.id }}"
             [(ngModel)]="session.notes"
             (blur)="updateSessionNotes(session)"
-          />
+          ></textarea>
         </mat-form-field>
 
         <form class="exercise-form">
