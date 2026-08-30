@@ -329,6 +329,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.exerciseSettingsInfoOpenKey && !target?.closest('.exercise-settings-info-trigger')) {
       this.closeExerciseSettingsInfo();
     }
+    if (this.repsEditSetId && !target?.closest('.reps-edit-trigger')) {
+      this.closeRepsEdit();
+    }
   };
 
   private async getOrInitProgressionState(planExercise: TierLinePlanExercise): Promise<TierLineProgressionState> {
@@ -551,7 +554,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return !session.finished && !session.timerRunning;
   }
 
-  notePausedInputAttempt(session: TrainingSession, event: FocusEvent, fieldKey: string): void {
+  notePausedInputAttempt(session: TrainingSession, event: Event, fieldKey: string): void {
     if (!this.isPaused(session)) {
       return;
     }
@@ -708,6 +711,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 sets: Array.from({ length: scheme.sets }, () => ({
                   id: crypto.randomUUID(),
                   reps: scheme.targetReps,
+                  targetReps: scheme.targetReps,
                   weight: state.currentWeight,
                   type: 'working' as SetType
                 })),
@@ -725,6 +729,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               sets: Array.from({ length: planExercise.sets }, () => ({
                 id: crypto.randomUUID(),
                 reps: targetReps,
+                targetReps,
                 weight: this.defaultWeight(planExercise.exerciseId, 'working'),
                 type: 'working' as SetType
               })),
@@ -764,6 +769,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               workingSets = prescribedReps.map((reps) => ({
                 id: crypto.randomUUID(),
                 reps,
+                targetReps: reps,
                 weight: state.currentWeight,
                 type: 'working' as SetType
               }));
@@ -783,6 +789,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               workingSets = Array.from({ length: config.workingSets }, () => ({
                 id: crypto.randomUUID(),
                 reps: state.currentReps,
+                targetReps: state.currentReps,
                 weight: state.currentWeight,
                 type: 'working' as SetType
               }));
@@ -795,6 +802,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               workingSets = Array.from({ length: config.workingSets }, () => ({
                 id: crypto.randomUUID(),
                 reps: targetReps,
+                targetReps,
                 weight: state.currentWeight,
                 type: 'working' as SetType
               }));
@@ -1030,6 +1038,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.countedSets(sessionExercise).length;
   }
 
+  // null while any set is still open; once every set is done, 'success' if
+  // each one's achieved reps met its target (sets without a target - e.g.
+  // Rep Goal System sets, which are logged freely - can't fail), otherwise
+  // 'fail'.
+  exerciseCompletionStatus(sessionExercise: SessionExercise): 'success' | 'fail' | null {
+    const sets = sessionExercise.sets;
+    if (sets.length === 0 || !sets.every((set) => set.done)) {
+      return null;
+    }
+    const allMet = sets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
+    return allMet ? 'success' : 'fail';
+  }
+
   private exerciseWeightLifted(sessionExercise: SessionExercise): number {
     return this.countedSets(sessionExercise).reduce((sum, set) => sum + set.reps * set.weight, 0);
   }
@@ -1142,36 +1163,80 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onRepsChange(
-    session: TrainingSession,
-    sessionExercise: SessionExercise,
-    set: ExerciseSet,
-    value: string
-  ): Promise<void> {
-    const parsed = parseInt(value, 10);
-    set.reps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 10000) : 0;
-    await this.persist(session);
-    await this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
+  // Reps circle interaction: a short press (<500ms) toggles the set done/not
+  // done using its current reps value; a long press (>=500ms) opens a popup
+  // to change the reps before confirming it as done.
+  private static readonly LONG_PRESS_MS = 500;
+  private pressTimeouts = new Map<string, number>();
+
+  onSetPressStart(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, event: PointerEvent): void {
+    if (this.isPaused(session)) {
+      this.notePausedInputAttempt(session, event, set.id);
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const timeoutId = window.setTimeout(() => {
+      this.pressTimeouts.delete(set.id);
+      this.openRepsEdit(sessionExercise, set, rect);
+    }, SessionsComponent.LONG_PRESS_MS);
+    this.pressTimeouts.set(set.id, timeoutId);
   }
 
-  onWeightInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d*[.,]?\d{0,2}/)?.[0] ?? '';
-    if (sanitized !== input.value) {
-      input.value = sanitized;
+  onSetPressEnd(session: TrainingSession, set: ExerciseSet): void {
+    const timeoutId = this.pressTimeouts.get(set.id);
+    if (timeoutId === undefined) {
+      // Long press already fired and opened the edit popup - nothing further
+      // to do on release.
+      return;
+    }
+    clearTimeout(timeoutId);
+    this.pressTimeouts.delete(set.id);
+    set.done = !set.done;
+    void this.persist(session);
+  }
+
+  onSetPressCancel(set: ExerciseSet): void {
+    const timeoutId = this.pressTimeouts.get(set.id);
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+      this.pressTimeouts.delete(set.id);
     }
   }
 
-  async onWeightChange(
-    session: TrainingSession,
-    sessionExercise: SessionExercise,
-    set: ExerciseSet,
-    value: string
-  ): Promise<void> {
-    const parsed = parseFloat(value.replace(',', '.'));
-    set.weight = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : 0;
-    await this.persist(session);
-    await this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
+  private repsEditSetId: string | null = null;
+  repsEditPosition: { top: number; left: number } | null = null;
+  repsEditValue = '';
+
+  private openRepsEdit(sessionExercise: SessionExercise, set: ExerciseSet, rect: DOMRect): void {
+    const popupWidth = 140;
+    this.repsEditPosition = {
+      top: rect.bottom + 8,
+      left: Math.max(8, rect.left + rect.width / 2 - popupWidth / 2)
+    };
+    this.repsEditValue = set.reps === 0 ? this.repsPlaceholder(sessionExercise, set.type) : String(set.reps);
+    this.repsEditSetId = set.id;
+  }
+
+  isRepsEditOpen(setId: string): boolean {
+    return this.repsEditSetId === setId;
+  }
+
+  confirmRepsEdit(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
+    const parsed = parseInt(this.repsEditValue, 10);
+    set.reps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 10000) : set.reps;
+    set.done = true;
+    this.closeRepsEdit();
+    void this.persist(session);
+    void this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
+  }
+
+  discardRepsEdit(): void {
+    this.closeRepsEdit();
+  }
+
+  private closeRepsEdit(): void {
+    this.repsEditSetId = null;
+    this.repsEditPosition = null;
   }
 
   exerciseOneRepMax(exerciseId: string): number | undefined {
@@ -1212,14 +1277,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return String(lastSet.reps);
     }
     return sessionExercise.minReps !== undefined ? String(sessionExercise.minReps) : '0';
-  }
-
-  weightPlaceholder(sessionExercise: SessionExercise, type: SetType): string {
-    const lastSet = this.lastExecutedSetOfType(sessionExercise.exerciseId, type);
-    if (lastSet) {
-      return lastSet.weight.toFixed(2);
-    }
-    return sessionExercise.minWeight !== undefined ? sessionExercise.minWeight.toFixed(2) : '0.00';
   }
 
   private async updateEstimatedOneRepMax(exerciseId: string, set: ExerciseSet): Promise<void> {

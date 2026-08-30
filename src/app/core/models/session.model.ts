@@ -7,6 +7,12 @@ export interface ExerciseSet {
   reps: number;
   weight: number;
   type: SetType;
+  done?: boolean;
+  // The prescribed rep count this set was generated with, if any (from a
+  // progression scheme or a plan's target range). Kept alongside `reps` so
+  // editing the achieved reps doesn't lose what was actually required to
+  // judge the set a success.
+  targetReps?: number;
 }
 
 export interface SessionExercise {

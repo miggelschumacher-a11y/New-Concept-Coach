@@ -363,6 +363,13 @@
                       >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
                       <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ 'exercises.oneRepMax' | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
                     >
+                    @if (exerciseCompletionStatus(sessionExercise); as status) {
+                      @if (status === 'success') {
+                        <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">check_circle</mat-icon>
+                      } @else {
+                        <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
+                      }
+                    }
                   </mat-panel-title>
                   <div class="exercise-settings-info-trigger">
                     <button
@@ -488,15 +495,6 @@
                         </mat-panel-title>
                       </mat-expansion-panel-header>
 
-                      @if (setsByType(sessionExercise, setType.value).length > 0) {
-                        <div class="set-row set-row-header">
-                          <span class="set-delete-spacer"></span>
-                          <span class="set-index"></span>
-                          <span class="set-col-label set-col-label-reps">{{ 'sessions.reps' | translate }}</span>
-                          <span class="set-col-label">{{ weightUnitLabel }}</span>
-                        </div>
-                      }
-
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
                         @if (pausedAttemptFieldKey === set.id) {
                           <p class="paused-field-error">{{ 'sessions.pausedHint' | translate }}</p>
@@ -537,29 +535,59 @@
                             </button>
                           }
                           <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
-                          <input
-                            type="text"
-                            inputmode="numeric"
-                            class="set-reps-circle"
-                            [placeholder]="repsPlaceholder(sessionExercise, setType.value)"
-                            [value]="set.reps === 0 ? '' : set.reps"
-                            name="reps-{{ set.id }}"
-                            [class.paused-field]="isPaused(session)"
-                            (focus)="notePausedInputAttempt(session, $event, set.id)"
-                            (input)="onRepsInput($event)"
-                            (change)="onRepsChange(session, sessionExercise, set, $any($event.target).value)"
-                          />
-                          <input
-                            type="text"
-                            inputmode="decimal"
-                            [placeholder]="weightPlaceholder(sessionExercise, setType.value)"
-                            [value]="set.weight === 0 ? '' : set.weight.toFixed(2)"
-                            name="weight-{{ set.id }}"
-                            [class.paused-field]="isPaused(session)"
-                            (focus)="notePausedInputAttempt(session, $event, set.id)"
-                            (input)="onWeightInput($event)"
-                            (change)="onWeightChange(session, sessionExercise, set, $any($event.target).value)"
-                          />
+                          <div class="set-reps-weight reps-edit-trigger">
+                            <button
+                              type="button"
+                              class="set-reps-circle"
+                              [class.set-reps-done]="set.done"
+                              [class.paused-field]="isPaused(session)"
+                              [matTooltip]="'sessions.repsCircleHint' | translate"
+                              (pointerdown)="onSetPressStart(session, sessionExercise, set, $event)"
+                              (pointerup)="onSetPressEnd(session, set)"
+                              (pointerleave)="onSetPressCancel(set)"
+                              (pointercancel)="onSetPressCancel(set)"
+                              (contextmenu)="$event.preventDefault()"
+                            >
+                              {{ set.reps === 0 ? repsPlaceholder(sessionExercise, setType.value) : set.reps }}
+                            </button>
+                            <span class="set-weight-display">{{ set.weight.toFixed(2) }} {{ weightUnitLabel }}</span>
+                            @if (isRepsEditOpen(set.id) && repsEditPosition) {
+                              <div
+                                class="reps-edit-popup"
+                                [style.top.px]="repsEditPosition.top"
+                                [style.left.px]="repsEditPosition.left"
+                                (click)="$event.stopPropagation()"
+                              >
+                                <input
+                                  type="text"
+                                  inputmode="numeric"
+                                  class="reps-edit-input"
+                                  [(ngModel)]="repsEditValue"
+                                  name="reps-edit-{{ set.id }}"
+                                  (input)="onRepsInput($event)"
+                                />
+                                <div class="reps-edit-actions">
+                                  <button
+                                    mat-icon-button
+                                    color="primary"
+                                    (click)="confirmRepsEdit(session, sessionExercise, set)"
+                                    [matTooltip]="'common.save' | translate"
+                                    [attr.aria-label]="'common.save' | translate"
+                                  >
+                                    <mat-icon>check</mat-icon>
+                                  </button>
+                                  <button
+                                    mat-icon-button
+                                    (click)="discardRepsEdit()"
+                                    [matTooltip]="'sessions.confirmCancel' | translate"
+                                    [attr.aria-label]="'sessions.confirmCancel' | translate"
+                                  >
+                                    <mat-icon>close</mat-icon>
+                                  </button>
+                                </div>
+                              </div>
+                            }
+                          </div>
                         </div>
                       }
 
