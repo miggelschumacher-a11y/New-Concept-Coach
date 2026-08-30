@@ -492,7 +492,7 @@
                         <div class="set-row set-row-header">
                           <span class="set-delete-spacer"></span>
                           <span class="set-index"></span>
-                          <span class="set-col-label">{{ 'sessions.reps' | translate }}</span>
+                          <span class="set-col-label set-col-label-reps">{{ 'sessions.reps' | translate }}</span>
                           <span class="set-col-label">{{ weightUnitLabel }}</span>
                         </div>
                       }
@@ -540,6 +540,7 @@
                           <input
                             type="text"
                             inputmode="numeric"
+                            class="set-reps-circle"
                             [placeholder]="repsPlaceholder(sessionExercise, setType.value)"
                             [value]="set.reps === 0 ? '' : set.reps"
                             name="reps-{{ set.id }}"

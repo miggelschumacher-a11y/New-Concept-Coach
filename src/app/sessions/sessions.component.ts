@@ -626,8 +626,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       exerciseId: sessionExercise.exerciseId,
       sets: sessionExercise.sets.map((set) => ({
         id: crypto.randomUUID(),
-        reps: 0,
-        weight: 0,
+        reps: this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
+        weight: this.defaultWeight(sessionExercise.exerciseId, set.type, sessionExercise.minWeight),
         type: set.type
       })),
       countWarmupSets: sessionExercise.countWarmupSets,
@@ -725,7 +725,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               sets: Array.from({ length: planExercise.sets }, () => ({
                 id: crypto.randomUUID(),
                 reps: targetReps,
-                weight: 0,
+                weight: this.defaultWeight(planExercise.exerciseId, 'working'),
                 type: 'working' as SetType
               })),
               countWarmupSets: true,
@@ -749,7 +749,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
               };
             }
             const buildSets = (count: number, type: SetType) =>
-              Array.from({ length: count }, () => ({ id: crypto.randomUUID(), reps: 0, weight: 0, type }));
+              Array.from({ length: count }, () => ({
+                id: crypto.randomUUID(),
+                reps: this.defaultReps(exerciseId, type),
+                weight: this.defaultWeight(exerciseId, type),
+                type
+              }));
 
             const hasIncrementScheme = config.exerciseType === 'WEIGHT_BASED';
             let workingSets: SessionExercise['sets'];
@@ -1105,7 +1110,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async addSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {
-    sessionExercise.sets = [...sessionExercise.sets, { id: crypto.randomUUID(), reps: 0, weight: 0, type }];
+    const reps = this.defaultReps(sessionExercise.exerciseId, type, sessionExercise.minReps);
+    const weight = this.defaultWeight(sessionExercise.exerciseId, type, sessionExercise.minWeight);
+    sessionExercise.sets = [...sessionExercise.sets, { id: crypto.randomUUID(), reps, weight, type }];
     await this.persist(session);
   }
 
@@ -1183,6 +1190,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
       }
     }
     return undefined;
+  }
+
+  // Same source as the placeholder shown once a field is cleared back to
+  // empty: the last logged set of this type, falling back to the
+  // configured minimum. Used to prefill new sets with a real, editable
+  // value instead of leaving the fields at 0.
+  private defaultReps(exerciseId: string, type: SetType, minReps?: number): number {
+    const lastSet = this.lastExecutedSetOfType(exerciseId, type);
+    return lastSet ? lastSet.reps : (minReps ?? 0);
+  }
+
+  private defaultWeight(exerciseId: string, type: SetType, minWeight?: number): number {
+    const lastSet = this.lastExecutedSetOfType(exerciseId, type);
+    return lastSet ? lastSet.weight : (minWeight ?? 0);
   }
 
   repsPlaceholder(sessionExercise: SessionExercise, type: SetType): string {
