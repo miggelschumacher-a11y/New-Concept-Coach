@@ -1181,8 +1181,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   // The total load of the set as currently entered (not yet necessarily
-  // confirmed), shown next to the complete button so it's visible before
-  // committing to it.
+  // confirmed), shown in the weight field's own label so it's visible
+  // before committing to it.
   setVolume(set: ExerciseSet): number {
     const buffer = this.fieldBuffer(set);
     const reps = parseInt(buffer.reps, 10);

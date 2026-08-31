@@ -556,7 +556,7 @@
                               />
                             </mat-form-field>
                             <mat-form-field appearance="outline" class="set-field set-field-weight">
-                              <mat-label>{{ weightUnitLabel }}</mat-label>
+                              <mat-label>{{ weightUnitLabel }} ({{ setVolume(set).toFixed(2) }})</mat-label>
                               <input
                                 matInput
                                 type="text"
@@ -569,7 +569,6 @@
                                 (input)="onWeightFieldInput($event)"
                               />
                             </mat-form-field>
-                            <span class="set-volume">{{ setVolume(set).toFixed(2) }} {{ weightUnitLabel }}</span>
                             <button
                               mat-icon-button
                               class="set-complete-btn"
