@@ -94,8 +94,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
   pendingDeleteSessionId: string | null = null;
   pendingReplenishSession: TrainingSession | null = null;
   finishBlockedSessionId: string | null = null;
-  pausedAttemptFieldKey: string | null = null;
-  private pausedAttemptTimeoutId?: ReturnType<typeof setTimeout>;
   private readonly progressionStates = new Map<string, TierLineProgressionState>();
   private readonly doubleProgressionStates = new Map<string, DoubleProgressionState>();
   private readonly repGoalStates = new Map<string, RepGoalState>();
@@ -164,8 +162,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.timerTickerId) {
       clearInterval(this.timerTickerId);
     }
-    if (this.pausedAttemptTimeoutId) {
-      clearTimeout(this.pausedAttemptTimeoutId);
+    if (this.doneAttemptTimeoutId) {
+      clearTimeout(this.doneAttemptTimeoutId);
     }
     document.removeEventListener('click', this.handleDocumentClick, true);
   }
@@ -328,9 +326,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     if (this.exerciseSettingsInfoOpenKey && !target?.closest('.exercise-settings-info-trigger')) {
       this.closeExerciseSettingsInfo();
-    }
-    if (this.setEditId && !target?.closest('.set-edit-trigger')) {
-      this.closeSetEdit();
     }
   };
 
@@ -554,17 +549,24 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return !session.finished && !session.timerRunning;
   }
 
-  notePausedInputAttempt(session: TrainingSession, event: Event, fieldKey: string): void {
-    if (!this.isPaused(session)) {
+  doneAttemptFieldKey: string | null = null;
+  private doneAttemptTimeoutId?: ReturnType<typeof setTimeout>;
+
+  // Reps and weight are readonly (not disabled) once a set is done, so
+  // focusing them still fires - which is exactly what lets us catch the
+  // attempt here, blur it back out, and surface a hint instead of just
+  // silently ignoring the keystrokes.
+  noteDoneEditAttempt(set: ExerciseSet, event: Event): void {
+    if (!set.done) {
       return;
     }
     (event.target as HTMLElement).blur();
-    this.pausedAttemptFieldKey = fieldKey;
-    if (this.pausedAttemptTimeoutId) {
-      clearTimeout(this.pausedAttemptTimeoutId);
+    this.doneAttemptFieldKey = set.id;
+    if (this.doneAttemptTimeoutId) {
+      clearTimeout(this.doneAttemptTimeoutId);
     }
-    this.pausedAttemptTimeoutId = setTimeout(() => {
-      this.pausedAttemptFieldKey = null;
+    this.doneAttemptTimeoutId = setTimeout(() => {
+      this.doneAttemptFieldKey = null;
     }, 2500);
   }
 
@@ -1160,7 +1162,37 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  onRepsInput(event: Event): void {
+  // Reps and weight are edited directly in the set row via a small per-set
+  // text buffer, so typing doesn't touch the persisted set until the user
+  // explicitly confirms it - matching the reps circle interaction this
+  // replaced, where a value only became "done" on deliberate confirmation.
+  private fieldBuffers = new Map<string, { reps: string; weight: string }>();
+
+  fieldBuffer(set: ExerciseSet): { reps: string; weight: string } {
+    let buffer = this.fieldBuffers.get(set.id);
+    if (!buffer) {
+      // Prefill with the target reps (the top of the range, if there is
+      // one) so hitting the target needs no typing at all - just confirm.
+      const reps = !set.done && set.targetReps !== undefined ? (set.targetRepsMax ?? set.targetReps) : set.reps;
+      buffer = { reps: String(reps), weight: set.weight.toFixed(2) };
+      this.fieldBuffers.set(set.id, buffer);
+    }
+    return buffer;
+  }
+
+  // The total load of the set as currently entered (not yet necessarily
+  // confirmed), shown next to the complete button so it's visible before
+  // committing to it.
+  setVolume(set: ExerciseSet): number {
+    const buffer = this.fieldBuffer(set);
+    const reps = parseInt(buffer.reps, 10);
+    const weight = parseFloat(buffer.weight.replace(',', '.'));
+    const validReps = Number.isFinite(reps) ? reps : 0;
+    const validWeight = Number.isFinite(weight) ? weight : 0;
+    return Math.round(validReps * validWeight * 100) / 100;
+  }
+
+  onRepsFieldInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const sanitized = input.value.replace(/\D/g, '').slice(0, 5);
     if (sanitized !== input.value) {
@@ -1168,122 +1200,34 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onWeightEditInput(event: Event): void {
+  onWeightFieldInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d*[.,]?\d{0,2}/)?.[0] ?? '';
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
     if (sanitized !== input.value) {
       input.value = sanitized;
     }
   }
 
-  // Reps circle interaction: a short press (<500ms) toggles the set done/not
-  // done using its current reps value, unless shortPressShouldEdit() says
-  // that value can't be trusted as-is - then it opens the same popup a long
-  // press (>=500ms) always opens, to change the reps before confirming done.
-  private static readonly LONG_PRESS_MS = 500;
-  private pressState = new Map<string, { timeoutId: number; rect: DOMRect }>();
-
-  onSetPressStart(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, event: PointerEvent): void {
+  completeSet(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
     if (this.isPaused(session)) {
-      this.notePausedInputAttempt(session, event, set.id);
       return;
     }
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const timeoutId = window.setTimeout(() => {
-      this.pressState.delete(set.id);
-      this.openSetEdit(sessionExercise, set, rect);
-    }, SessionsComponent.LONG_PRESS_MS);
-    this.pressState.set(set.id, { timeoutId, rect });
-  }
-
-  onSetPressEnd(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
-    const state = this.pressState.get(set.id);
-    if (!state) {
-      // Long press already fired and opened the edit popup - nothing further
-      // to do on release.
-      return;
-    }
-    clearTimeout(state.timeoutId);
-    this.pressState.delete(set.id);
-    if (this.shortPressShouldEdit(set)) {
-      this.openSetEdit(sessionExercise, set, state.rect);
-      return;
-    }
-    set.done = !set.done;
-    void this.persist(session);
-  }
-
-  onSetPressCancel(set: ExerciseSet): void {
-    const state = this.pressState.get(set.id);
-    if (state) {
-      clearTimeout(state.timeoutId);
-      this.pressState.delete(set.id);
-    }
-  }
-
-  // A short tap normally just toggles done using whatever reps value is
-  // already showing. Once a set is already done, a tap always just undoes
-  // that (never reopens the popup) - it's only while a set is still open
-  // that its current value might not be trustworthy yet: for an AMRAP set
-  // there's no sensible default for "as many as possible", so it always
-  // opens the edit popup; a ranged (non-AMRAP) target only needs that while
-  // its reps haven't yet reached the top of the range, since once they have
-  // there's nothing left to clarify.
-  private shortPressShouldEdit(set: ExerciseSet): boolean {
-    if (set.done) {
-      return false;
-    }
-    if (set.isAmrap) {
-      return true;
-    }
-    return set.targetRepsMax !== undefined && set.targetRepsMax !== set.targetReps && set.reps < set.targetRepsMax;
-  }
-
-  private setEditId: string | null = null;
-  setEditPosition: { top: number; left: number } | null = null;
-  repsEditValue = '';
-  weightEditValue = '';
-
-  private openSetEdit(sessionExercise: SessionExercise, set: ExerciseSet, rect: DOMRect): void {
-    const popupWidth = 180;
-    this.setEditPosition = {
-      top: rect.bottom + 8,
-      left: Math.max(8, rect.left + rect.width / 2 - popupWidth / 2)
-    };
-    this.repsEditValue = set.reps === 0 ? this.repsPlaceholder(sessionExercise, set.type) : String(set.reps);
-    this.weightEditValue = set.weight.toFixed(2);
-    this.setEditId = set.id;
-  }
-
-  isSetEditOpen(setId: string): boolean {
-    return this.setEditId === setId;
-  }
-
-  confirmSetEdit(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
-    const parsedReps = parseInt(this.repsEditValue, 10);
+    const buffer = this.fieldBuffer(set);
+    const parsedReps = parseInt(buffer.reps, 10);
     set.reps = Number.isFinite(parsedReps) ? Math.min(Math.max(parsedReps, 0), 10000) : set.reps;
-    const parsedWeight = parseFloat(this.weightEditValue.replace(',', '.'));
-    set.weight = Number.isFinite(parsedWeight) ? Math.round(Math.min(Math.max(parsedWeight, 0), 10000) * 100) / 100 : set.weight;
+    const parsedWeight = parseFloat(buffer.weight.replace(',', '.'));
+    set.weight = Number.isFinite(parsedWeight) ? Math.round(Math.min(Math.max(parsedWeight, 0), 9999) * 100) / 100 : set.weight;
     set.done = true;
-    this.closeSetEdit();
+    this.fieldBuffers.delete(set.id);
     void this.persist(session);
     void this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
-  }
-
-  discardSetEdit(): void {
-    this.closeSetEdit();
   }
 
   resetSet(session: TrainingSession, set: ExerciseSet): void {
     set.done = false;
     set.reps = 0;
-    this.closeSetEdit();
+    this.fieldBuffers.delete(set.id);
     void this.persist(session);
-  }
-
-  private closeSetEdit(): void {
-    this.setEditId = null;
-    this.setEditPosition = null;
   }
 
   exerciseOneRepMax(exerciseId: string): number | undefined {
@@ -1318,48 +1262,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return lastSet ? lastSet.weight : (minWeight ?? 0);
   }
 
-  repsPlaceholder(sessionExercise: SessionExercise, type: SetType): string {
-    const lastSet = this.lastExecutedSetOfType(sessionExercise.exerciseId, type);
-    if (lastSet) {
-      return String(lastSet.reps);
-    }
-    return sessionExercise.minReps !== undefined ? String(sessionExercise.minReps) : '0';
-  }
-
-  // What the reps circle shows: the achieved reps once the set is done;
-  // otherwise the reps still to be reached - as a range when the target was
-  // a from-to range, with a trailing "+" for an AMRAP top set.
-  repsCircleDisplay(sessionExercise: SessionExercise, set: ExerciseSet, type: SetType): string {
-    if (set.done) {
-      return String(set.reps);
-    }
+  // Shown next to the reps field for as long as a target exists, so it stays
+  // visible as a point of reference even once the set is done - as a range
+  // when the target was a from-to range, with a trailing "+" for an AMRAP
+  // top set.
+  targetRepsHint(set: ExerciseSet): string | null {
     if (set.targetReps === undefined) {
-      return set.reps === 0 ? this.repsPlaceholder(sessionExercise, type) : String(set.reps);
+      return null;
     }
-    return this.formattedTargetReps(set);
-  }
-
-  // 'targetReps' is guaranteed defined by both call sites below.
-  private formattedTargetReps(set: ExerciseSet): string {
     const base =
       set.targetRepsMax !== undefined && set.targetRepsMax !== set.targetReps
         ? `${set.targetReps}-${set.targetRepsMax}`
         : String(set.targetReps);
     return set.isAmrap ? `${base}+` : base;
-  }
-
-  // Shown above the circle only once a set is done and its target was AMRAP
-  // or a range - a plain fixed target isn't worth repeating since it's
-  // exactly what the circle already showed while the set was still open.
-  doneTargetLabel(set: ExerciseSet): string | null {
-    if (!set.done || set.targetReps === undefined) {
-      return null;
-    }
-    const isRange = set.targetRepsMax !== undefined && set.targetRepsMax !== set.targetReps;
-    if (!set.isAmrap && !isRange) {
-      return null;
-    }
-    return this.formattedTargetReps(set);
   }
 
   setMetTarget(set: ExerciseSet): boolean {

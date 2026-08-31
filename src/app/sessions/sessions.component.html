@@ -496,8 +496,8 @@
                       </mat-expansion-panel-header>
 
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
-                        @if (pausedAttemptFieldKey === set.id) {
-                          <p class="paused-field-error">{{ 'sessions.pausedHint' | translate }}</p>
+                        @if (doneAttemptFieldKey === set.id) {
+                          <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                         }
                         <div class="set-row">
                           @if (pendingDeleteSetId === set.id) {
@@ -535,87 +535,62 @@
                             </button>
                           }
                           <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
-                          <div class="set-reps-weight set-edit-trigger">
-                            @if (doneTargetLabel(set); as targetLabel) {
-                              <span class="set-target-label">{{ targetLabel }}</span>
-                            }
+                          <div class="set-fields">
+                            <mat-form-field appearance="outline" class="set-field" [class.set-field-reps-target]="targetRepsHint(set)">
+                              <mat-label>
+                                {{ 'sessions.reps' | translate }}
+                                @if (targetRepsHint(set); as targetHint) {
+                                  &nbsp;({{ targetHint }})
+                                }
+                              </mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="numeric"
+                                [(ngModel)]="fieldBuffer(set).reps"
+                                name="reps-{{ set.id }}"
+                                [readonly]="set.done"
+                                [disabled]="isPaused(session)"
+                                (focus)="noteDoneEditAttempt(set, $event)"
+                                (input)="onRepsFieldInput($event)"
+                              />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="set-field set-field-weight">
+                              <mat-label>{{ weightUnitLabel }}</mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="decimal"
+                                [(ngModel)]="fieldBuffer(set).weight"
+                                name="weight-{{ set.id }}"
+                                [readonly]="set.done"
+                                [disabled]="isPaused(session)"
+                                (focus)="noteDoneEditAttempt(set, $event)"
+                                (input)="onWeightFieldInput($event)"
+                              />
+                            </mat-form-field>
+                            <span class="set-volume">{{ setVolume(set).toFixed(2) }} {{ weightUnitLabel }}</span>
                             <button
-                              type="button"
-                              class="set-reps-circle"
-                              [class.set-reps-done]="set.done && setMetTarget(set)"
-                              [class.set-reps-fail]="set.done && !setMetTarget(set)"
-                              [class.paused-field]="isPaused(session)"
-                              [matTooltip]="'sessions.repsCircleHint' | translate"
-                              (pointerdown)="onSetPressStart(session, sessionExercise, set, $event)"
-                              (pointerup)="onSetPressEnd(session, sessionExercise, set)"
-                              (pointerleave)="onSetPressCancel(set)"
-                              (pointercancel)="onSetPressCancel(set)"
-                              (contextmenu)="$event.preventDefault()"
+                              mat-icon-button
+                              class="set-complete-btn"
+                              [class.set-complete-success]="set.done && setMetTarget(set)"
+                              [class.set-complete-fail]="set.done && !setMetTarget(set)"
+                              [disabled]="isPaused(session)"
+                              (click)="completeSet(session, sessionExercise, set)"
+                              [matTooltip]="'sessions.completeSet' | translate"
+                              [attr.aria-label]="'sessions.completeSet' | translate"
                             >
-                              {{ repsCircleDisplay(sessionExercise, set, setType.value) }}
+                              <mat-icon>check_circle</mat-icon>
                             </button>
-                            <span class="set-weight-display">{{ set.weight.toFixed(2) }} {{ weightUnitLabel }}</span>
-                            @if (isSetEditOpen(set.id) && setEditPosition) {
-                              <div
-                                class="set-edit-popup"
-                                [style.top.px]="setEditPosition.top"
-                                [style.left.px]="setEditPosition.left"
-                                (click)="$event.stopPropagation()"
+                            @if (set.done) {
+                              <button
+                                mat-icon-button
+                                (click)="resetSet(session, set)"
+                                [matTooltip]="'sessions.resetSet' | translate"
+                                [attr.aria-label]="'sessions.resetSet' | translate"
                               >
-                                <div class="set-edit-fields">
-                                  <mat-form-field appearance="outline" class="set-edit-field">
-                                    <mat-label>{{ 'sessions.reps' | translate }}</mat-label>
-                                    <input
-                                      matInput
-                                      type="text"
-                                      inputmode="numeric"
-                                      [(ngModel)]="repsEditValue"
-                                      name="reps-edit-{{ set.id }}"
-                                      (input)="onRepsInput($event)"
-                                    />
-                                  </mat-form-field>
-                                  <mat-form-field appearance="outline" class="set-edit-field">
-                                    <mat-label>{{ weightUnitLabel }}</mat-label>
-                                    <input
-                                      matInput
-                                      type="text"
-                                      inputmode="decimal"
-                                      [(ngModel)]="weightEditValue"
-                                      name="weight-edit-{{ set.id }}"
-                                      (input)="onWeightEditInput($event)"
-                                    />
-                                  </mat-form-field>
-                                </div>
-                                <div class="set-edit-actions">
-                                  @if (set.done) {
-                                    <button
-                                      mat-icon-button
-                                      (click)="resetSet(session, set)"
-                                      [matTooltip]="'sessions.resetSet' | translate"
-                                      [attr.aria-label]="'sessions.resetSet' | translate"
-                                    >
-                                      <mat-icon>restart_alt</mat-icon>
-                                    </button>
-                                  }
-                                  <button
-                                    mat-icon-button
-                                    color="primary"
-                                    (click)="confirmSetEdit(session, sessionExercise, set)"
-                                    [matTooltip]="'common.save' | translate"
-                                    [attr.aria-label]="'common.save' | translate"
-                                  >
-                                    <mat-icon>check</mat-icon>
-                                  </button>
-                                  <button
-                                    mat-icon-button
-                                    (click)="discardSetEdit()"
-                                    [matTooltip]="'sessions.confirmCancel' | translate"
-                                    [attr.aria-label]="'sessions.confirmCancel' | translate"
-                                  >
-                                    <mat-icon>close</mat-icon>
-                                  </button>
-                                </div>
-                              </div>
+                                <mat-icon>restart_alt</mat-icon>
+                              </button>
                             }
                           </div>
                         </div>
