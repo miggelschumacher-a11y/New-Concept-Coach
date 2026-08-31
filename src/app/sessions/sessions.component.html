@@ -551,7 +551,7 @@
                                 name="reps-{{ set.id }}"
                                 [readonly]="set.done"
                                 [disabled]="isPaused(session)"
-                                (focus)="noteDoneEditAttempt(set, $event)"
+                                (focus)="onSetFieldFocus(set, $event)"
                                 (input)="onRepsFieldInput($event)"
                               />
                             </mat-form-field>
@@ -570,7 +570,7 @@
                                 name="weight-{{ set.id }}"
                                 [readonly]="set.done"
                                 [disabled]="isPaused(session)"
-                                (focus)="noteDoneEditAttempt(set, $event)"
+                                (focus)="onSetFieldFocus(set, $event)"
                                 (input)="onWeightFieldInput($event)"
                                 (blur)="onWeightFieldBlur(sessionExercise, set)"
                               />

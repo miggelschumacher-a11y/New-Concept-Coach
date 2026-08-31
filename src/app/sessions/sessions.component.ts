@@ -555,12 +555,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // Reps and weight are readonly (not disabled) once a set is done, so
   // focusing them still fires - which is exactly what lets us catch the
   // attempt here, blur it back out, and surface a hint instead of just
-  // silently ignoring the keystrokes.
-  noteDoneEditAttempt(set: ExerciseSet, event: Event): void {
+  // silently ignoring the keystrokes. While the set is still open, entering
+  // either field instead selects its whole value so typing overwrites it
+  // right away.
+  onSetFieldFocus(set: ExerciseSet, event: Event): void {
+    const input = event.target as HTMLInputElement;
     if (!set.done) {
+      input.select();
       return;
     }
-    (event.target as HTMLElement).blur();
+    input.blur();
     this.doneAttemptFieldKey = set.id;
     if (this.doneAttemptTimeoutId) {
       clearTimeout(this.doneAttemptTimeoutId);
