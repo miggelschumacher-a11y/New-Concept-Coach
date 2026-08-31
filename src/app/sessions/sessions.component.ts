@@ -1078,6 +1078,74 @@ export class SessionsComponent implements OnInit, OnDestroy {
     } else if (mode === 'ask') {
       this.pendingReplenishSession = session;
     }
+    // Runs after replenishing (not before), so in "always" mode the sweep
+    // also covers the session just created here - not only other, older
+    // pending ones already sitting in the list.
+    await this.refreshUpcomingSessionsWeights(session);
+  }
+
+  // The record*Progress calls above only advance the tracked progression
+  // state - they never touch any OTHER session already sitting pending.
+  // Without this, a plan day bulk-created earlier alongside the one just
+  // finished (e.g. GZCLP's A2 created in the same batch as A1) keeps
+  // showing the stale weight it was built with, even though the exercise
+  // they share just advanced. Only not-yet-done working sets are touched -
+  // untouched prescriptions get the fresh weight, logged results don't.
+  private async refreshUpcomingSessionsWeights(finishedSession: TrainingSession): Promise<void> {
+    const exerciseIds = new Set(finishedSession.exercises.map((sessionExercise) => sessionExercise.exerciseId));
+    for (const session of this.sessions) {
+      if (session.finished || session.id === finishedSession.id) {
+        continue;
+      }
+      let changed = false;
+      for (const sessionExercise of session.exercises) {
+        if (!exerciseIds.has(sessionExercise.exerciseId)) {
+          continue;
+        }
+        const newWeight = this.isTierLineProgressionExercise(session, sessionExercise.exerciseId)
+          ? this.currentTierLineWeight(session, sessionExercise.exerciseId)
+          : this.currentSchemeWeight(sessionExercise);
+        if (newWeight === undefined) {
+          continue;
+        }
+        for (const set of sessionExercise.sets) {
+          if (set.type === 'working' && !set.done && set.weight !== newWeight) {
+            set.weight = newWeight;
+            changed = true;
+          }
+        }
+      }
+      if (changed) {
+        await this.persist(session);
+      }
+    }
+  }
+
+  private currentTierLineWeight(session: TrainingSession, exerciseId: string): number | undefined {
+    const planExercise = this.findPlanExercise(session, exerciseId);
+    if (!planExercise) {
+      return undefined;
+    }
+    return this.progressionStates.get(this.progressionKey(exerciseId, planExercise.tier))?.currentWeight;
+  }
+
+  private currentSchemeWeight(sessionExercise: SessionExercise): number | undefined {
+    if (sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
+      return undefined;
+    }
+    const exerciseId = sessionExercise.exerciseId;
+    switch (sessionExercise.incrementScheme) {
+      case 'DOUBLE_PROGRESSION':
+        return this.doubleProgressionStates.get(exerciseId)?.currentWeight;
+      case 'REP_GOAL':
+        return this.repGoalStates.get(exerciseId)?.currentWeight;
+      case 'WAVE_PROGRESSION':
+        return this.waveProgressionStates.get(exerciseId)?.currentWeight;
+      case 'LINEAR_PROGRESSION':
+        return this.linearProgressionStates.get(exerciseId)?.currentWeight;
+      default:
+        return undefined;
+    }
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {
@@ -1509,5 +1577,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     await this.replenishSession(session);
+    // "ask" mode defers replenishment past confirmFinishSession's own sweep,
+    // so the session created here needs its own pass to be covered too.
+    await this.refreshUpcomingSessionsWeights(session);
   }
 }
