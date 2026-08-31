@@ -556,7 +556,12 @@
                               />
                             </mat-form-field>
                             <mat-form-field appearance="outline" class="set-field set-field-weight">
-                              <mat-label>{{ weightUnitLabel }} ({{ setVolume(set).toFixed(2) }})</mat-label>
+                              <mat-label>
+                                {{ weightUnitLabel }}
+                                @if (set.done) {
+                                  &nbsp;({{ setVolume(set).toFixed(2) }})
+                                }
+                              </mat-label>
                               <input
                                 matInput
                                 type="text"
@@ -567,6 +572,7 @@
                                 [disabled]="isPaused(session)"
                                 (focus)="noteDoneEditAttempt(set, $event)"
                                 (input)="onWeightFieldInput($event)"
+                                (blur)="onWeightFieldBlur(sessionExercise, set)"
                               />
                             </mat-form-field>
                             <button

@@ -1180,9 +1180,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return buffer;
   }
 
-  // The total load of the set as currently entered (not yet necessarily
-  // confirmed), shown in the weight field's own label so it's visible
-  // before committing to it.
+  // The total load of a done set, shown in the weight field's own label.
   setVolume(set: ExerciseSet): number {
     const buffer = this.fieldBuffer(set);
     const reps = parseInt(buffer.reps, 10);
@@ -1205,6 +1203,30 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
     if (sanitized !== input.value) {
       input.value = sanitized;
+    }
+  }
+
+  // Leaving a weight field fills the same weight into every other not-yet-
+  // done set of the same type (warm-up/working/cooldown) in this exercise
+  // that still has no weight of its own (0), so a shared weight only needs
+  // to be typed once per group of sets without clobbering ones already set.
+  onWeightFieldBlur(sessionExercise: SessionExercise, set: ExerciseSet): void {
+    if (set.done) {
+      return;
+    }
+    const weight = parseFloat(this.fieldBuffer(set).weight.replace(',', '.'));
+    if (!Number.isFinite(weight) || weight <= 0) {
+      return;
+    }
+    for (const other of sessionExercise.sets) {
+      if (other.id === set.id || other.type !== set.type || other.done) {
+        continue;
+      }
+      const otherWeight = parseFloat(this.fieldBuffer(other).weight.replace(',', '.'));
+      if (Number.isFinite(otherWeight) && otherWeight !== 0) {
+        continue;
+      }
+      this.fieldBuffer(other).weight = weight.toFixed(2);
     }
   }
 
