@@ -28,7 +28,10 @@ import {
   TrainingPlan,
   TierLinePlanSession,
   TierLinePlanExercise,
+  DoubleProgressionConfig,
+  RepGoalConfig,
   WaveProgressionConfig,
+  LinearProgressionConfig,
   PlanExerciseType,
   IncrementScheme
 } from '../core/models/training-plan.model';
@@ -624,6 +627,109 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Manual (non-plan) sessions have no exerciseConfigs to read a scheme's
+  // settings from - unlike a plan exercise, a SessionExercise only carries
+  // exerciseType/incrementScheme (plus minReps for Linear). So this mirrors
+  // the four record*Progress methods above, but for Double/Rep Goal/Wave it
+  // sources the scheme's config from the same Settings-page defaults a new
+  // plan exercise would be seeded with, and for Linear from the exercise's
+  // own minReps (the session-level equivalent of a plan's target reps).
+  private async recordManualProgressionProgress(session: TrainingSession): Promise<void> {
+    if (session.trainingPlanId) {
+      return;
+    }
+    const settings = this.settingsService.getSettings();
+    for (const sessionExercise of session.exercises) {
+      if (sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
+        continue;
+      }
+      const exerciseId = sessionExercise.exerciseId;
+      const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+      const category = this.exercises.find((exercise) => exercise.id === exerciseId)?.weightCategory ?? 'UPPER_BODY';
+      const lastSetWeight = workingSets.length > 0 ? workingSets[workingSets.length - 1].weight : 0;
+
+      switch (sessionExercise.incrementScheme) {
+        case 'DOUBLE_PROGRESSION': {
+          if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+            continue;
+          }
+          await this.getOrInitDoubleProgressionState(exerciseId);
+          const config: DoubleProgressionConfig = {
+            lowerReps: settings.doubleProgressionLowerReps,
+            upperReps: settings.doubleProgressionUpperReps,
+            mode: settings.doubleProgressionMode
+          };
+          const achievedReps = workingSets.map((set) => set.reps);
+          const next = await this.doubleProgressionService.recordSessionResult(
+            exerciseId,
+            config,
+            { achievedReps, lastSetWeight },
+            category
+          );
+          this.doubleProgressionStates.set(exerciseId, next);
+          break;
+        }
+        case 'REP_GOAL': {
+          if (workingSets.length === 0 || workingSets.every((set) => set.reps === 0)) {
+            continue;
+          }
+          await this.getOrInitRepGoalState(exerciseId);
+          const config: RepGoalConfig = { totalRepGoal: settings.repGoalTotalRepGoal };
+          const totalReps = workingSets.reduce((sum, set) => sum + set.reps, 0);
+          const next = await this.repGoalService.recordSessionResult(
+            exerciseId,
+            config,
+            { totalReps, lastSetWeight },
+            category
+          );
+          this.repGoalStates.set(exerciseId, next);
+          break;
+        }
+        case 'WAVE_PROGRESSION': {
+          if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+            continue;
+          }
+          const config: WaveProgressionConfig = {
+            initialReps: settings.waveProgressionInitialReps,
+            finalReps: settings.waveProgressionFinalReps,
+            repsDecrement: settings.waveProgressionRepsDecrement
+          };
+          await this.getOrInitWaveProgressionState(exerciseId, config);
+          const achievedReps = workingSets.map((set) => set.reps);
+          const next = await this.waveProgressionService.recordSessionResult(
+            exerciseId,
+            config,
+            { achievedReps, lastSetWeight },
+            category
+          );
+          this.waveProgressionStates.set(exerciseId, next);
+          break;
+        }
+        case 'LINEAR_PROGRESSION': {
+          if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+            continue;
+          }
+          await this.getOrInitLinearProgressionState(exerciseId);
+          const config: LinearProgressionConfig = {
+            targetReps: String(sessionExercise.minReps ?? 5),
+            lowerBoundSufficient: true
+          };
+          const achievedReps = workingSets.map((set) => set.reps);
+          const next = await this.linearProgressionService.recordSessionResult(
+            exerciseId,
+            config,
+            { achievedReps, lastSetWeight },
+            category
+          );
+          this.linearProgressionStates.set(exerciseId, next);
+          break;
+        }
+        default:
+          break;
+      }
+    }
+  }
+
   isPaused(session: TrainingSession): boolean {
     return !session.finished && !session.timerRunning;
   }
@@ -1071,6 +1177,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.recordRepGoalProgress(session);
     await this.recordWaveProgressionProgress(session);
     await this.recordLinearProgressionProgress(session);
+    await this.recordManualProgressionProgress(session);
 
     const mode = this.settingsService.getSettings().finishedSessionReplenishMode;
     if (mode === 'always') {
@@ -1349,6 +1456,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
     incrementScheme: IncrementScheme
   ): Promise<void> {
     sessionExercise.incrementScheme = incrementScheme;
+    await this.persist(session);
+  }
+
+  // Linear Progression has no Config-level default (unlike the other three
+  // schemes) - a plan exercise sets its target reps directly, and this is
+  // the session-level equivalent for a manual session's exercise.
+  async updateSessionMinReps(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    sessionExercise.minReps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 100) : undefined;
     await this.persist(session);
   }
 
