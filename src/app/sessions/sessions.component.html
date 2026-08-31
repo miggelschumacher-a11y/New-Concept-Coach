@@ -365,7 +365,7 @@
                     >
                     @if (exerciseCompletionStatus(sessionExercise); as status) {
                       @if (status === 'success') {
-                        <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">check_circle</mat-icon>
+                        <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">thumb_up</mat-icon>
                       } @else {
                         <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
                       }
@@ -536,19 +536,23 @@
                           }
                           <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
                           <div class="set-reps-weight reps-edit-trigger">
+                            @if (doneTargetLabel(set); as targetLabel) {
+                              <span class="set-target-label">{{ targetLabel }}</span>
+                            }
                             <button
                               type="button"
                               class="set-reps-circle"
-                              [class.set-reps-done]="set.done"
+                              [class.set-reps-done]="set.done && setMetTarget(set)"
+                              [class.set-reps-fail]="set.done && !setMetTarget(set)"
                               [class.paused-field]="isPaused(session)"
                               [matTooltip]="'sessions.repsCircleHint' | translate"
                               (pointerdown)="onSetPressStart(session, sessionExercise, set, $event)"
-                              (pointerup)="onSetPressEnd(session, set)"
+                              (pointerup)="onSetPressEnd(session, sessionExercise, set)"
                               (pointerleave)="onSetPressCancel(set)"
                               (pointercancel)="onSetPressCancel(set)"
                               (contextmenu)="$event.preventDefault()"
                             >
-                              {{ set.reps === 0 ? repsPlaceholder(sessionExercise, setType.value) : set.reps }}
+                              {{ repsCircleDisplay(sessionExercise, set, setType.value) }}
                             </button>
                             <span class="set-weight-display">{{ set.weight.toFixed(2) }} {{ weightUnitLabel }}</span>
                             @if (isRepsEditOpen(set.id) && repsEditPosition) {
@@ -567,6 +571,16 @@
                                   (input)="onRepsInput($event)"
                                 />
                                 <div class="reps-edit-actions">
+                                  @if (set.done) {
+                                    <button
+                                      mat-icon-button
+                                      (click)="resetSet(session, set)"
+                                      [matTooltip]="'sessions.resetSet' | translate"
+                                      [attr.aria-label]="'sessions.resetSet' | translate"
+                                    >
+                                      <mat-icon>restart_alt</mat-icon>
+                                    </button>
+                                  }
                                   <button
                                     mat-icon-button
                                     color="primary"

@@ -708,10 +708,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
               const scheme = TIER_LINE_SCHEME[state.tier][state.stage];
               return {
                 exerciseId: planExercise.exerciseId,
-                sets: Array.from({ length: scheme.sets }, () => ({
+                sets: Array.from({ length: scheme.sets }, (_, index) => ({
                   id: crypto.randomUUID(),
                   reps: scheme.targetReps,
                   targetReps: scheme.targetReps,
+                  isAmrap: scheme.isAmrapLastSet && index === scheme.sets - 1,
                   weight: state.currentWeight,
                   type: 'working' as SetType
                 })),
@@ -721,15 +722,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 showCooldownSets: true
               };
             }
-            // planExercise.targetReps may be a range ('8-12'); a session set
-            // always holds a single number, so the lower bound is used.
-            const targetReps = parseRepsRange(planExercise.targetReps).min;
+            // planExercise.targetReps may be a range ('8-12'); a session set's
+            // achieved reps always holds a single number, so the lower bound
+            // is used there, while the upper bound (if any) is kept in
+            // targetRepsMax so the full range can still be shown.
+            const targetRepsRange = parseRepsRange(planExercise.targetReps);
             return {
               exerciseId: planExercise.exerciseId,
               sets: Array.from({ length: planExercise.sets }, () => ({
                 id: crypto.randomUUID(),
-                reps: targetReps,
-                targetReps,
+                reps: targetRepsRange.min,
+                targetReps: targetRepsRange.min,
+                targetRepsMax: targetRepsRange.max !== targetRepsRange.min ? targetRepsRange.max : undefined,
                 weight: this.defaultWeight(planExercise.exerciseId, 'working'),
                 type: 'working' as SetType
               })),
@@ -798,11 +802,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
               // Prefilled with the range's lower bound regardless of
               // lowerBoundSufficient - that flag only affects what counts as
               // a success, not what's prescribed going in.
-              const targetReps = parseRepsRange(config.linearProgression.targetReps).min;
+              const targetRepsRange = parseRepsRange(config.linearProgression.targetReps);
               workingSets = Array.from({ length: config.workingSets }, () => ({
                 id: crypto.randomUUID(),
-                reps: targetReps,
-                targetReps,
+                reps: targetRepsRange.min,
+                targetReps: targetRepsRange.min,
+                targetRepsMax: targetRepsRange.max !== targetRepsRange.min ? targetRepsRange.max : undefined,
                 weight: state.currentWeight,
                 type: 'working' as SetType
               }));
@@ -1164,10 +1169,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   // Reps circle interaction: a short press (<500ms) toggles the set done/not
-  // done using its current reps value; a long press (>=500ms) opens a popup
-  // to change the reps before confirming it as done.
+  // done using its current reps value, unless shortPressShouldEdit() says
+  // that value can't be trusted as-is - then it opens the same popup a long
+  // press (>=500ms) always opens, to change the reps before confirming done.
   private static readonly LONG_PRESS_MS = 500;
-  private pressTimeouts = new Map<string, number>();
+  private pressState = new Map<string, { timeoutId: number; rect: DOMRect }>();
 
   onSetPressStart(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, event: PointerEvent): void {
     if (this.isPaused(session)) {
@@ -1176,31 +1182,53 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const timeoutId = window.setTimeout(() => {
-      this.pressTimeouts.delete(set.id);
+      this.pressState.delete(set.id);
       this.openRepsEdit(sessionExercise, set, rect);
     }, SessionsComponent.LONG_PRESS_MS);
-    this.pressTimeouts.set(set.id, timeoutId);
+    this.pressState.set(set.id, { timeoutId, rect });
   }
 
-  onSetPressEnd(session: TrainingSession, set: ExerciseSet): void {
-    const timeoutId = this.pressTimeouts.get(set.id);
-    if (timeoutId === undefined) {
+  onSetPressEnd(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
+    const state = this.pressState.get(set.id);
+    if (!state) {
       // Long press already fired and opened the edit popup - nothing further
       // to do on release.
       return;
     }
-    clearTimeout(timeoutId);
-    this.pressTimeouts.delete(set.id);
+    clearTimeout(state.timeoutId);
+    this.pressState.delete(set.id);
+    if (this.shortPressShouldEdit(set)) {
+      this.openRepsEdit(sessionExercise, set, state.rect);
+      return;
+    }
     set.done = !set.done;
     void this.persist(session);
   }
 
   onSetPressCancel(set: ExerciseSet): void {
-    const timeoutId = this.pressTimeouts.get(set.id);
-    if (timeoutId !== undefined) {
-      clearTimeout(timeoutId);
-      this.pressTimeouts.delete(set.id);
+    const state = this.pressState.get(set.id);
+    if (state) {
+      clearTimeout(state.timeoutId);
+      this.pressState.delete(set.id);
     }
+  }
+
+  // A short tap normally just toggles done using whatever reps value is
+  // already showing. Once a set is already done, a tap always just undoes
+  // that (never reopens the popup) - it's only while a set is still open
+  // that its current value might not be trustworthy yet: for an AMRAP set
+  // there's no sensible default for "as many as possible", so it always
+  // opens the edit popup; a ranged (non-AMRAP) target only needs that while
+  // its reps haven't yet reached the top of the range, since once they have
+  // there's nothing left to clarify.
+  private shortPressShouldEdit(set: ExerciseSet): boolean {
+    if (set.done) {
+      return false;
+    }
+    if (set.isAmrap) {
+      return true;
+    }
+    return set.targetRepsMax !== undefined && set.targetRepsMax !== set.targetReps && set.reps < set.targetRepsMax;
   }
 
   private repsEditSetId: string | null = null;
@@ -1232,6 +1260,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   discardRepsEdit(): void {
     this.closeRepsEdit();
+  }
+
+  resetSet(session: TrainingSession, set: ExerciseSet): void {
+    set.done = false;
+    set.reps = 0;
+    this.closeRepsEdit();
+    void this.persist(session);
   }
 
   private closeRepsEdit(): void {
@@ -1277,6 +1312,46 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return String(lastSet.reps);
     }
     return sessionExercise.minReps !== undefined ? String(sessionExercise.minReps) : '0';
+  }
+
+  // What the reps circle shows: the achieved reps once the set is done;
+  // otherwise the reps still to be reached - as a range when the target was
+  // a from-to range, with a trailing "+" for an AMRAP top set.
+  repsCircleDisplay(sessionExercise: SessionExercise, set: ExerciseSet, type: SetType): string {
+    if (set.done) {
+      return String(set.reps);
+    }
+    if (set.targetReps === undefined) {
+      return set.reps === 0 ? this.repsPlaceholder(sessionExercise, type) : String(set.reps);
+    }
+    return this.formattedTargetReps(set);
+  }
+
+  // 'targetReps' is guaranteed defined by both call sites below.
+  private formattedTargetReps(set: ExerciseSet): string {
+    const base =
+      set.targetRepsMax !== undefined && set.targetRepsMax !== set.targetReps
+        ? `${set.targetReps}-${set.targetRepsMax}`
+        : String(set.targetReps);
+    return set.isAmrap ? `${base}+` : base;
+  }
+
+  // Shown above the circle only once a set is done and its target was AMRAP
+  // or a range - a plain fixed target isn't worth repeating since it's
+  // exactly what the circle already showed while the set was still open.
+  doneTargetLabel(set: ExerciseSet): string | null {
+    if (!set.done || set.targetReps === undefined) {
+      return null;
+    }
+    const isRange = set.targetRepsMax !== undefined && set.targetRepsMax !== set.targetReps;
+    if (!set.isAmrap && !isRange) {
+      return null;
+    }
+    return this.formattedTargetReps(set);
+  }
+
+  setMetTarget(set: ExerciseSet): boolean {
+    return set.targetReps === undefined || set.reps >= set.targetReps;
   }
 
   private async updateEstimatedOneRepMax(exerciseId: string, set: ExerciseSet): Promise<void> {

@@ -13,6 +13,11 @@ export interface ExerciseSet {
   // editing the achieved reps doesn't lose what was actually required to
   // judge the set a success.
   targetReps?: number;
+  // Set when the plan's target was actually a from-to range (e.g. '8-12') -
+  // targetReps holds the lower bound, this the upper bound.
+  targetRepsMax?: number;
+  // True for a tier-line scheme's AMRAP top set (as-many-reps-as-possible).
+  isAmrap?: boolean;
 }
 
 export interface SessionExercise {
