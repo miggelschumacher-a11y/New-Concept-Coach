@@ -16,7 +16,12 @@ const DB_NAME = 'trainings-app-db';
 // trigger onupgradeneeded to self-heal that. Forcing everyone through one
 // more upgrade re-runs the "create any store not already present" loop
 // below, which fixes those installs too.
-const DB_VERSION = 29;
+// Jumped straight to 32 (skipping 30/31) because a live-reload during local
+// testing briefly pushed those version numbers to an already-open real
+// browser tab sharing this dev server, bumping its on-disk DB past 29 -
+// IndexedDB never opens at a version lower than what's already stored, so
+// this has to clear whatever the highest such leak reached.
+const DB_VERSION = 32;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
