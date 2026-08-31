@@ -10,7 +10,13 @@ import { buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
 import { buildDefaultHstPlan } from '../data/default-hst-plan';
 
 const DB_NAME = 'trainings-app-db';
-const DB_VERSION = 28;
+// Bumped from 28 with no new store/content of its own - some installs ended
+// up stuck at 28 with linearProgression missing (its own bump's upgrade
+// transaction never completed there), and a same-version reopen can't
+// trigger onupgradeneeded to self-heal that. Forcing everyone through one
+// more upgrade re-runs the "create any store not already present" loop
+// below, which fixes those installs too.
+const DB_VERSION = 29;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -197,7 +203,20 @@ export class IndexedDbService {
         }
       };
 
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        const db = request.result;
+        // A long-lived tab (this app's dev server hot-reloads code without a
+        // full page refresh, so a tab can stay open across many schema
+        // bumps) keeps this exact connection object even after a later
+        // version adds a new store elsewhere - without closing it here,
+        // every future open() for that newer version stays stuck "blocked"
+        // forever, and this connection's own transaction() calls keep
+        // throwing NotFoundError for any store added since it was opened.
+        // Closing lets the newer open() proceed; getStore()'s callers still
+        // need a fresh page load to pick up a new dbPromise pointing at it.
+        db.onversionchange = () => db.close();
+        resolve(db);
+      };
       request.onerror = () => reject(request.error);
     });
   }
