@@ -1077,15 +1077,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const existingByExerciseId = new Map(
       session.exercises.map((sessionExercise) => [sessionExercise.exerciseId, sessionExercise])
     );
+    // A freshly added exercise starts with whatever the session's own
+    // options currently hold (default true/true/true/true until the user
+    // has touched the session-options popup, its actual values afterward),
+    // rather than always hardcoding true regardless of that setting.
+    const sessionSettings = this.sessionSettingsBuffer(session);
     session.exercises = exerciseIds.map(
       (exerciseId) =>
         existingByExerciseId.get(exerciseId) ?? {
           exerciseId,
           sets: [],
-          countWarmupSets: true,
-          countCooldownSets: true,
-          showWarmupSets: true,
-          showCooldownSets: true,
+          countWarmupSets: sessionSettings.countWarmupSets,
+          countCooldownSets: sessionSettings.countCooldownSets,
+          showWarmupSets: sessionSettings.showWarmupSets,
+          showCooldownSets: sessionSettings.showCooldownSets,
           // Matches Training Plans' own default for a freshly added exercise.
           exerciseType: 'WEIGHT_BASED',
           incrementScheme: 'LINEAR_PROGRESSION'
