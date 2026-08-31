@@ -535,7 +535,7 @@
                             </button>
                           }
                           <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
-                          <div class="set-reps-weight reps-edit-trigger">
+                          <div class="set-reps-weight set-edit-trigger">
                             @if (doneTargetLabel(set); as targetLabel) {
                               <span class="set-target-label">{{ targetLabel }}</span>
                             }
@@ -555,22 +555,38 @@
                               {{ repsCircleDisplay(sessionExercise, set, setType.value) }}
                             </button>
                             <span class="set-weight-display">{{ set.weight.toFixed(2) }} {{ weightUnitLabel }}</span>
-                            @if (isRepsEditOpen(set.id) && repsEditPosition) {
+                            @if (isSetEditOpen(set.id) && setEditPosition) {
                               <div
-                                class="reps-edit-popup"
-                                [style.top.px]="repsEditPosition.top"
-                                [style.left.px]="repsEditPosition.left"
+                                class="set-edit-popup"
+                                [style.top.px]="setEditPosition.top"
+                                [style.left.px]="setEditPosition.left"
                                 (click)="$event.stopPropagation()"
                               >
-                                <input
-                                  type="text"
-                                  inputmode="numeric"
-                                  class="reps-edit-input"
-                                  [(ngModel)]="repsEditValue"
-                                  name="reps-edit-{{ set.id }}"
-                                  (input)="onRepsInput($event)"
-                                />
-                                <div class="reps-edit-actions">
+                                <div class="set-edit-fields">
+                                  <mat-form-field appearance="outline" class="set-edit-field">
+                                    <mat-label>{{ 'sessions.reps' | translate }}</mat-label>
+                                    <input
+                                      matInput
+                                      type="text"
+                                      inputmode="numeric"
+                                      [(ngModel)]="repsEditValue"
+                                      name="reps-edit-{{ set.id }}"
+                                      (input)="onRepsInput($event)"
+                                    />
+                                  </mat-form-field>
+                                  <mat-form-field appearance="outline" class="set-edit-field">
+                                    <mat-label>{{ weightUnitLabel }}</mat-label>
+                                    <input
+                                      matInput
+                                      type="text"
+                                      inputmode="decimal"
+                                      [(ngModel)]="weightEditValue"
+                                      name="weight-edit-{{ set.id }}"
+                                      (input)="onWeightEditInput($event)"
+                                    />
+                                  </mat-form-field>
+                                </div>
+                                <div class="set-edit-actions">
                                   @if (set.done) {
                                     <button
                                       mat-icon-button
@@ -584,7 +600,7 @@
                                   <button
                                     mat-icon-button
                                     color="primary"
-                                    (click)="confirmRepsEdit(session, sessionExercise, set)"
+                                    (click)="confirmSetEdit(session, sessionExercise, set)"
                                     [matTooltip]="'common.save' | translate"
                                     [attr.aria-label]="'common.save' | translate"
                                   >
@@ -592,7 +608,7 @@
                                   </button>
                                   <button
                                     mat-icon-button
-                                    (click)="discardRepsEdit()"
+                                    (click)="discardSetEdit()"
                                     [matTooltip]="'sessions.confirmCancel' | translate"
                                     [attr.aria-label]="'sessions.confirmCancel' | translate"
                                   >

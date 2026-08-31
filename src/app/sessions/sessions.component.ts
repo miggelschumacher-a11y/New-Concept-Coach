@@ -329,8 +329,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.exerciseSettingsInfoOpenKey && !target?.closest('.exercise-settings-info-trigger')) {
       this.closeExerciseSettingsInfo();
     }
-    if (this.repsEditSetId && !target?.closest('.reps-edit-trigger')) {
-      this.closeRepsEdit();
+    if (this.setEditId && !target?.closest('.set-edit-trigger')) {
+      this.closeSetEdit();
     }
   };
 
@@ -1168,6 +1168,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  onWeightEditInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d*[.,]?\d{0,2}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
   // Reps circle interaction: a short press (<500ms) toggles the set done/not
   // done using its current reps value, unless shortPressShouldEdit() says
   // that value can't be trusted as-is - then it opens the same popup a long
@@ -1183,7 +1191,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const timeoutId = window.setTimeout(() => {
       this.pressState.delete(set.id);
-      this.openRepsEdit(sessionExercise, set, rect);
+      this.openSetEdit(sessionExercise, set, rect);
     }, SessionsComponent.LONG_PRESS_MS);
     this.pressState.set(set.id, { timeoutId, rect });
   }
@@ -1198,7 +1206,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     clearTimeout(state.timeoutId);
     this.pressState.delete(set.id);
     if (this.shortPressShouldEdit(set)) {
-      this.openRepsEdit(sessionExercise, set, state.rect);
+      this.openSetEdit(sessionExercise, set, state.rect);
       return;
     }
     set.done = !set.done;
@@ -1231,47 +1239,51 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return set.targetRepsMax !== undefined && set.targetRepsMax !== set.targetReps && set.reps < set.targetRepsMax;
   }
 
-  private repsEditSetId: string | null = null;
-  repsEditPosition: { top: number; left: number } | null = null;
+  private setEditId: string | null = null;
+  setEditPosition: { top: number; left: number } | null = null;
   repsEditValue = '';
+  weightEditValue = '';
 
-  private openRepsEdit(sessionExercise: SessionExercise, set: ExerciseSet, rect: DOMRect): void {
-    const popupWidth = 140;
-    this.repsEditPosition = {
+  private openSetEdit(sessionExercise: SessionExercise, set: ExerciseSet, rect: DOMRect): void {
+    const popupWidth = 180;
+    this.setEditPosition = {
       top: rect.bottom + 8,
       left: Math.max(8, rect.left + rect.width / 2 - popupWidth / 2)
     };
     this.repsEditValue = set.reps === 0 ? this.repsPlaceholder(sessionExercise, set.type) : String(set.reps);
-    this.repsEditSetId = set.id;
+    this.weightEditValue = set.weight.toFixed(2);
+    this.setEditId = set.id;
   }
 
-  isRepsEditOpen(setId: string): boolean {
-    return this.repsEditSetId === setId;
+  isSetEditOpen(setId: string): boolean {
+    return this.setEditId === setId;
   }
 
-  confirmRepsEdit(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
-    const parsed = parseInt(this.repsEditValue, 10);
-    set.reps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 10000) : set.reps;
+  confirmSetEdit(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
+    const parsedReps = parseInt(this.repsEditValue, 10);
+    set.reps = Number.isFinite(parsedReps) ? Math.min(Math.max(parsedReps, 0), 10000) : set.reps;
+    const parsedWeight = parseFloat(this.weightEditValue.replace(',', '.'));
+    set.weight = Number.isFinite(parsedWeight) ? Math.round(Math.min(Math.max(parsedWeight, 0), 10000) * 100) / 100 : set.weight;
     set.done = true;
-    this.closeRepsEdit();
+    this.closeSetEdit();
     void this.persist(session);
     void this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
   }
 
-  discardRepsEdit(): void {
-    this.closeRepsEdit();
+  discardSetEdit(): void {
+    this.closeSetEdit();
   }
 
   resetSet(session: TrainingSession, set: ExerciseSet): void {
     set.done = false;
     set.reps = 0;
-    this.closeRepsEdit();
+    this.closeSetEdit();
     void this.persist(session);
   }
 
-  private closeRepsEdit(): void {
-    this.repsEditSetId = null;
-    this.repsEditPosition = null;
+  private closeSetEdit(): void {
+    this.setEditId = null;
+    this.setEditPosition = null;
   }
 
   exerciseOneRepMax(exerciseId: string): number | undefined {

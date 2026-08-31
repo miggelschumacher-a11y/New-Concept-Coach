@@ -295,15 +295,15 @@ mat-expansion-panel mat-checkbox {
   margin-top: 0.3rem;
 }
 
-.reps-edit-popup {
+.set-edit-popup {
   position: fixed;
   z-index: 1000;
   display: flex;
-  align-items: center;
-  gap: 0.35rem;
+  flex-direction: column;
+  gap: 0.5rem;
   background: linear-gradient(145deg, #3d4058, #24263a);
   border-radius: 10px;
-  padding: 0.5rem 0.6rem;
+  padding: 0.6rem;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.35),
     0 8px 16px rgba(0, 0, 0, 0.45),
@@ -311,18 +311,20 @@ mat-expansion-panel mat-checkbox {
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.reps-edit-input {
-  box-sizing: border-box;
-  width: 4rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  color: rgba(255, 255, 255, 0.95);
-  padding: 0.35rem 0.5rem;
-  font-size: 1rem;
+.set-edit-fields {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.set-edit-field {
+  width: 5.5rem;
+}
+
+.set-edit-field input {
   text-align: center;
 }
 
-.reps-edit-actions {
+.set-edit-actions {
   display: flex;
+  justify-content: center;
 }
