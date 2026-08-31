@@ -10,6 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -69,6 +70,7 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
     MatCardModule,
     MatExpansionModule,
     MatCheckboxModule,
+    DragDropModule,
     MatTooltipModule,
     DatePipe,
     TranslatePipe
@@ -1123,6 +1125,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async removeExerciseFromSession(session: TrainingSession, exerciseId: string): Promise<void> {
     session.exercises = session.exercises.filter((sessionExercise) => sessionExercise.exerciseId !== exerciseId);
+    await this.persist(session);
+  }
+
+  async dropExercise(session: TrainingSession, event: CdkDragDrop<SessionExercise[]>): Promise<void> {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    moveItemInArray(session.exercises, event.previousIndex, event.currentIndex);
     await this.persist(session);
   }
 

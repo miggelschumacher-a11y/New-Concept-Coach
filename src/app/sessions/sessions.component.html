@@ -365,9 +365,15 @@
         </form>
 
         @if (session.exercises.length > 0) {
-          <mat-accordion multi class="exercise-accordion">
+          <mat-accordion
+            multi
+            class="exercise-accordion"
+            cdkDropList
+            [cdkDropListDisabled]="!canEditExerciseTypeInSession(session)"
+            (cdkDropListDropped)="dropExercise(session, $event)"
+          >
             @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
-              <mat-expansion-panel>
+              <mat-expansion-panel cdkDrag [cdkDragDisabled]="!canEditExerciseTypeInSession(session)">
                 <mat-expansion-panel-header>
                   <div class="header-delete-action">
                     @if (isPendingDeleteExercise(session, sessionExercise.exerciseId)) {
@@ -405,6 +411,17 @@
                       </button>
                     }
                   </div>
+                  @if (canEditExerciseTypeInSession(session)) {
+                    <div
+                      class="exercise-drag-handle"
+                      cdkDragHandle
+                      (click)="$event.stopPropagation()"
+                      [matTooltip]="'sessions.dragToReorder' | translate"
+                      [attr.aria-label]="'sessions.dragToReorder' | translate"
+                    >
+                      <mat-icon>drag_indicator</mat-icon>
+                    </div>
+                  }
                   <mat-panel-title>
                     {{ exerciseName(sessionExercise.exerciseId) }}
                     @if (exerciseTierLabelKey(session, sessionExercise.exerciseId); as tierLabelKey) {
