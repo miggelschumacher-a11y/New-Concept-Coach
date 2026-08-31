@@ -734,8 +734,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   private async buildManualReplenishment(sourceSession: TrainingSession): Promise<TrainingSession> {
     const now = new Date();
-    const sessionWord = this.translationService.translate('sessions.defaultName');
-    const name = `${sessionWord} ${this.datePipe.transform(now, this.dateFormat)}`;
+    const name = sourceSession.name;
     const exercises: SessionExercise[] = await Promise.all(
       sourceSession.exercises.map(async (sessionExercise) => ({
         exerciseId: sessionExercise.exerciseId,
