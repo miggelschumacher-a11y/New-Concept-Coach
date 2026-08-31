@@ -445,6 +445,7 @@
                           [(ngModel)]="sessionExercise.countWarmupSets"
                           name="countWarmup-{{ sessionExercise.exerciseId }}"
                           (change)="onCountingPreferenceChange(session, sessionExercise, 'countWarmupSets')"
+                          [matTooltip]="'sessions.exerciseCountWarmupTooltip' | translate"
                         >
                           <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
                         </mat-checkbox>
@@ -453,6 +454,7 @@
                           [(ngModel)]="sessionExercise.countCooldownSets"
                           name="countCooldown-{{ sessionExercise.exerciseId }}"
                           (change)="onCountingPreferenceChange(session, sessionExercise, 'countCooldownSets')"
+                          [matTooltip]="'sessions.exerciseCountCooldownTooltip' | translate"
                         >
                           <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
                         </mat-checkbox>
@@ -461,6 +463,7 @@
                           [(ngModel)]="sessionExercise.showWarmupSets"
                           name="showWarmup-{{ sessionExercise.exerciseId }}"
                           (change)="onCountingPreferenceChange(session, sessionExercise, 'showWarmupSets')"
+                          [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate"
                         >
                           <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}
                         </mat-checkbox>
@@ -469,6 +472,7 @@
                           [(ngModel)]="sessionExercise.showCooldownSets"
                           name="showCooldown-{{ sessionExercise.exerciseId }}"
                           (change)="onCountingPreferenceChange(session, sessionExercise, 'showCooldownSets')"
+                          [matTooltip]="'sessions.exerciseShowCooldownTooltip' | translate"
                         >
                           <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
                         </mat-checkbox>
