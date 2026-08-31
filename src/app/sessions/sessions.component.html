@@ -440,7 +440,7 @@
                         <mat-checkbox
                           [(ngModel)]="sessionExercise.countWarmupSets"
                           name="countWarmup-{{ sessionExercise.exerciseId }}"
-                          (change)="onCountingPreferenceChange(session)"
+                          (change)="onCountingPreferenceChange(session, sessionExercise, 'countWarmupSets')"
                         >
                           <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
                         </mat-checkbox>
@@ -448,7 +448,7 @@
                         <mat-checkbox
                           [(ngModel)]="sessionExercise.countCooldownSets"
                           name="countCooldown-{{ sessionExercise.exerciseId }}"
-                          (change)="onCountingPreferenceChange(session)"
+                          (change)="onCountingPreferenceChange(session, sessionExercise, 'countCooldownSets')"
                         >
                           <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
                         </mat-checkbox>
@@ -456,7 +456,7 @@
                         <mat-checkbox
                           [(ngModel)]="sessionExercise.showWarmupSets"
                           name="showWarmup-{{ sessionExercise.exerciseId }}"
-                          (change)="onCountingPreferenceChange(session)"
+                          (change)="onCountingPreferenceChange(session, sessionExercise, 'showWarmupSets')"
                         >
                           <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}
                         </mat-checkbox>
@@ -464,7 +464,7 @@
                         <mat-checkbox
                           [(ngModel)]="sessionExercise.showCooldownSets"
                           name="showCooldown-{{ sessionExercise.exerciseId }}"
-                          (change)="onCountingPreferenceChange(session)"
+                          (change)="onCountingPreferenceChange(session, sessionExercise, 'showCooldownSets')"
                         >
                           <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
                         </mat-checkbox>

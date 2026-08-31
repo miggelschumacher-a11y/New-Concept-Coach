@@ -1190,7 +1190,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.declinedBodyWeightFallbackSessionIds.add(session.id);
   }
 
-  async onCountingPreferenceChange(session: TrainingSession): Promise<void> {
+  // Unchecking a per-exercise counting/showing option also unchecks that
+  // same option in the session-level popup's buffer, so the session popup
+  // never keeps showing a setting as on once at least one exercise no
+  // longer has it.
+  async onCountingPreferenceChange(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    field: 'countWarmupSets' | 'countCooldownSets' | 'showWarmupSets' | 'showCooldownSets'
+  ): Promise<void> {
+    if (sessionExercise[field] === false) {
+      this.sessionSettingsBuffer(session)[field] = false;
+    }
     await this.persist(session);
   }
 
