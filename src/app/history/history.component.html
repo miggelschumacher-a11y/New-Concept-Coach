@@ -1,0 +1,120 @@
+<h2><mat-icon class="label-icon">history</mat-icon>{{ 'history.title' | translate }}</h2>
+
+@if (finishedSessions.length === 0) {
+  <p>{{ 'history.empty' | translate }}</p>
+} @else {
+  <mat-accordion multi class="session-accordion">
+    @for (session of finishedSessions; track session.id) {
+      <mat-expansion-panel class="session-card">
+        <mat-expansion-panel-header>
+          <div class="header-delete-action">
+            @if (pendingDeleteSessionId === session.id) {
+              <div class="confirm-dialog" (click)="$event.stopPropagation()">
+                <span class="finish-confirm-label">{{ 'sessions.confirmDeleteSessionQuestion' | translate }}</span>
+                <div class="confirm-dialog-actions">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    (click)="confirmDeleteSession(session.id); $event.stopPropagation()"
+                    [matTooltip]="'sessions.confirmYesDelete' | translate"
+                    [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                  >
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="cancelDeleteSession(); $event.stopPropagation()"
+                    [matTooltip]="'sessions.confirmCancel' | translate"
+                    [attr.aria-label]="'sessions.confirmCancel' | translate"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="requestDeleteSession(session.id); $event.stopPropagation()"
+                [matTooltip]="'common.delete' | translate"
+                [attr.aria-label]="'common.delete' | translate"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </div>
+          <mat-panel-title class="session-name-title">{{ session.name }}</mat-panel-title>
+          <mat-panel-description>
+            {{ session.date | date: dateFormat }}
+            @if (session.exercises.length > 0) {
+              · {{ 'sessions.weightLifted' | translate }}: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}
+            }
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="name-row">
+          <span class="session-duration"><mat-icon class="label-icon">timer</mat-icon>{{ 'history.duration' | translate }}: {{ sessionDuration(session) }}</span>
+          @if (sessionBodyWeight(session); as bodyWeight) {
+            <span class="session-body-weight">{{ 'sessions.bodyWeight' | translate }}: {{ bodyWeight }} {{ weightUnitLabel }}</span>
+          }
+        </div>
+
+        @if (session.notes) {
+          <p class="history-notes"><mat-icon class="label-icon">description</mat-icon>{{ session.notes }}</p>
+        }
+
+        @if (session.exercises.length === 0) {
+          <p>{{ 'history.noExercises' | translate }}</p>
+        } @else {
+          <mat-accordion multi class="exercise-accordion">
+            @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ exerciseName(sessionExercise.exerciseId) }}
+                    <span class="set-count"
+                      >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
+                      <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>)</span
+                    >
+                    @if (exerciseCompletionStatus(sessionExercise); as status) {
+                      @if (status === 'success') {
+                        <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">thumb_up</mat-icon>
+                      } @else {
+                        <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
+                      }
+                    }
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                @for (setType of setTypes; track setType.value) {
+                  @if (setsByType(sessionExercise, setType.value).length > 0) {
+                    <div class="history-set-type">
+                      <span class="history-set-type-label"><mat-icon class="label-icon">{{ setType.icon }}</mat-icon>{{ setType.labelKey | translate }}</span>
+                      @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
+                        <div class="history-set-row">
+                          <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
+                          <span
+                            >{{ set.reps }} {{ 'sessions.reps' | translate }}@if (targetRepsHint(set); as targetHint) {
+                              ({{ targetHint }})
+                            }</span
+                          >
+                          <span>{{ set.weight }} {{ weightUnitLabel }}</span>
+                          <mat-icon
+                            class="history-set-status"
+                            [class.set-complete-success]="set.done && setMetTarget(set)"
+                            [class.set-complete-fail]="set.done && !setMetTarget(set)"
+                            >{{ set.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon
+                          >
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        }
+      </mat-expansion-panel>
+    }
+  </mat-accordion>
+}

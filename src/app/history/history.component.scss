@@ -1,0 +1,103 @@
+.session-accordion .session-card {
+  margin-bottom: 1.5rem;
+}
+
+.session-name-title {
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.session-card mat-panel-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.header-delete-action {
+  order: -1;
+  flex: 0 0 auto;
+}
+
+.finish-confirm-label {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+  align-self: center;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0;
+}
+
+.session-body-weight,
+.session-duration {
+  color: lightgrey;
+}
+
+.history-notes {
+  color: lightgrey;
+  white-space: pre-line;
+}
+
+.exercise-accordion {
+  margin-top: 1rem;
+}
+
+.set-count {
+  margin-left: 0.5rem;
+  color: lightgrey;
+  font-weight: normal;
+}
+
+.exercise-status-icon {
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.exercise-status-success {
+  color: #4caf50;
+}
+
+.exercise-status-fail {
+  color: #ff8a80;
+}
+
+.history-set-type {
+  margin: 0.75rem 0;
+}
+
+.history-set-type-label {
+  color: lightgrey;
+  font-weight: 500;
+}
+
+.history-set-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.35rem 0 0.35rem 1.5rem;
+}
+
+.set-index {
+  min-width: 4.5rem;
+  color: lightgrey;
+}
+
+.history-set-status {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.history-set-status.set-complete-success {
+  color: #4caf50;
+}
+
+.history-set-status.set-complete-fail {
+  color: #d32f2f;
+}

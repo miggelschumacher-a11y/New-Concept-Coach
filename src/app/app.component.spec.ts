@@ -22,8 +22,8 @@ describe('AppComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const links = Array.from(compiled.querySelectorAll('a'));
     const ariaLabels = links.map((a) => a.getAttribute('aria-label'));
-    expect(ariaLabels).toEqual(['Training Sessions', 'Training Plans', 'Exercises', 'Configuration']);
+    expect(ariaLabels).toEqual(['Training Sessions', 'History', 'Training Plans', 'Exercises', 'Configuration']);
     const icons = links.map((a) => a.querySelector('mat-icon')?.textContent?.trim());
-    expect(icons).toEqual(['fitness_center', 'assignment', 'directions_run', 'settings']);
+    expect(icons).toEqual(['fitness_center', 'history', 'assignment', 'directions_run', 'settings']);
   });
 });

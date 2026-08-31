@@ -19,6 +19,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Training Plans',
     'nav.exercises': 'Exercises',
     'nav.config': 'Configuration',
+    'nav.history': 'History',
 
     'common.add': 'Add',
     'common.delete': 'Delete',
@@ -178,6 +179,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.finishRequiresName': 'Enter a name to save the session.',
     'sessions.pausedHint': 'Paused. Resume to edit this session.',
 
+    'history.title': 'Training History',
+    'history.empty': 'No finished sessions yet.',
+    'history.noExercises': 'No exercises in this session.',
+    'history.duration': 'Duration',
+
     'config.title': 'Configuration',
     'config.weightUnit': 'Weight Unit',
     'config.dateFormat': 'Date Format',
@@ -258,6 +264,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Trainingspläne',
     'nav.exercises': 'Übungen',
     'nav.config': 'Konfiguration',
+    'nav.history': 'Verlauf',
 
     'common.add': 'Hinzufügen',
     'common.delete': 'Löschen',
@@ -417,6 +424,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.finishRequiresName': 'Gib einen Namen ein, um die Session zu speichern.',
     'sessions.pausedHint': 'Pausiert. Zum Bearbeiten fortsetzen.',
 
+    'history.title': 'Trainingsverlauf',
+    'history.empty': 'Noch keine beendeten Sessions.',
+    'history.noExercises': 'Keine Übungen in dieser Session.',
+    'history.duration': 'Dauer',
+
     'config.title': 'Konfiguration',
     'config.weightUnit': 'Gewichtseinheit',
     'config.dateFormat': 'Datumsformat',
@@ -497,6 +509,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Planes de entrenamiento',
     'nav.exercises': 'Ejercicios',
     'nav.config': 'Configuración',
+    'nav.history': 'Historial',
 
     'common.add': 'Añadir',
     'common.delete': 'Eliminar',
@@ -656,6 +669,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.finishRequiresName': 'Introduce un nombre para guardar la sesión.',
     'sessions.pausedHint': 'En pausa. Reanuda para editar esta sesión.',
 
+    'history.title': 'Historial de entrenamiento',
+    'history.empty': 'Aún no hay sesiones finalizadas.',
+    'history.noExercises': 'No hay ejercicios en esta sesión.',
+    'history.duration': 'Duración',
+
     'config.title': 'Configuración',
     'config.weightUnit': 'Unidad de peso',
     'config.dateFormat': 'Formato de fecha',
@@ -736,6 +754,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Planos de treino',
     'nav.exercises': 'Exercícios',
     'nav.config': 'Configuração',
+    'nav.history': 'Histórico',
 
     'common.add': 'Adicionar',
     'common.delete': 'Excluir',
@@ -895,6 +914,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.finishRequiresName': 'Insira um nome para salvar a sessão.',
     'sessions.pausedHint': 'Pausada. Retome para editar esta sessão.',
 
+    'history.title': 'Histórico de treino',
+    'history.empty': 'Ainda não há sessões concluídas.',
+    'history.noExercises': 'Nenhum exercício nesta sessão.',
+    'history.duration': 'Duração',
+
     'config.title': 'Configuração',
     'config.weightUnit': 'Unidade de peso',
     'config.dateFormat': 'Formato de data',
@@ -975,6 +999,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Piani di allenamento',
     'nav.exercises': 'Esercizi',
     'nav.config': 'Configurazione',
+    'nav.history': 'Cronologia',
 
     'common.add': 'Aggiungi',
     'common.delete': 'Elimina',
@@ -1134,6 +1159,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.finishRequiresName': 'Inserisci un nome per salvare la sessione.',
     'sessions.pausedHint': 'In pausa. Riprendi per modificare questa sessione.',
 
+    'history.title': 'Cronologia allenamenti',
+    'history.empty': 'Nessuna sessione conclusa ancora.',
+    'history.noExercises': 'Nessun esercizio in questa sessione.',
+    'history.duration': 'Durata',
+
     'config.title': 'Configurazione',
     'config.weightUnit': 'Unità di peso',
     'config.dateFormat': 'Formato data',
@@ -1214,6 +1244,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Trainingsplannen',
     'nav.exercises': 'Oefeningen',
     'nav.config': 'Configuratie',
+    'nav.history': 'Geschiedenis',
 
     'common.add': 'Toevoegen',
     'common.delete': 'Verwijderen',
@@ -1373,6 +1404,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.finishRequiresName': 'Voer een naam in om de sessie op te slaan.',
     'sessions.pausedHint': 'Gepauzeerd. Hervat om deze sessie te bewerken.',
 
+    'history.title': 'Trainingsgeschiedenis',
+    'history.empty': 'Nog geen afgeronde sessies.',
+    'history.noExercises': 'Geen oefeningen in deze sessie.',
+    'history.duration': 'Duur',
+
     'config.title': 'Configuratie',
     'config.weightUnit': 'Gewichtseenheid',
     'config.dateFormat': 'Datumnotatie',
@@ -1453,6 +1489,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Plany treningowe',
     'nav.exercises': 'Ćwiczenia',
     'nav.config': 'Konfiguracja',
+    'nav.history': 'Historia',
 
     'common.add': 'Dodaj',
     'common.delete': 'Usuń',
@@ -1612,6 +1649,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.finishRequiresName': 'Wprowadź nazwę, aby zapisać sesję.',
     'sessions.pausedHint': 'Wstrzymano. Wznów, aby edytować tę sesję.',
 
+    'history.title': 'Historia treningów',
+    'history.empty': 'Brak jeszcze zakończonych sesji.',
+    'history.noExercises': 'Brak ćwiczeń w tej sesji.',
+    'history.duration': 'Czas trwania',
+
     'config.title': 'Konfiguracja',
     'config.weightUnit': 'Jednostka wagi',
     'config.dateFormat': 'Format daty',
@@ -1692,6 +1734,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Планы тренировок',
     'nav.exercises': 'Упражнения',
     'nav.config': 'Настройки',
+    'nav.history': 'История',
 
     'common.add': 'Добавить',
     'common.delete': 'Удалить',
@@ -1851,6 +1894,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.finishRequiresName': 'Введите название, чтобы сохранить тренировку.',
     'sessions.pausedHint': 'На паузе. Возобновите, чтобы редактировать эту тренировку.',
 
+    'history.title': 'История тренировок',
+    'history.empty': 'Пока нет завершённых тренировок.',
+    'history.noExercises': 'В этой тренировке нет упражнений.',
+    'history.duration': 'Продолжительность',
+
     'config.title': 'Настройки',
     'config.weightUnit': 'Единица веса',
     'config.dateFormat': 'Формат даты',
@@ -1931,6 +1979,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'nav.trainingPlans': 'Edzéstervek',
     'nav.exercises': 'Gyakorlatok',
     'nav.config': 'Beállítások',
+    'nav.history': 'Előzmények',
 
     'common.add': 'Hozzáadás',
     'common.delete': 'Törlés',
@@ -2089,6 +2138,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmNo': 'Nem',
     'sessions.finishRequiresName': 'Adj meg egy nevet az edzés mentéséhez.',
     'sessions.pausedHint': 'Szüneteltetve. Folytatás a szerkesztéshez.',
+
+    'history.title': 'Edzési előzmények',
+    'history.empty': 'Még nincs befejezett edzés.',
+    'history.noExercises': 'Nincs gyakorlat ebben az edzésben.',
+    'history.duration': 'Időtartam',
 
     'config.title': 'Beállítások',
     'config.weightUnit': 'Súlyegység',
