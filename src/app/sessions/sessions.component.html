@@ -154,6 +154,56 @@
               {{ 'sessions.weightLifted' | translate }}: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}
             }
           </mat-panel-description>
+          <div class="session-settings-info-trigger">
+            <button
+              mat-icon-button
+              (click)="toggleSessionSettingsInfo(session, $event)"
+              [matTooltip]="'sessions.sessionSettingsInfoButton' | translate"
+              [attr.aria-label]="'sessions.sessionSettingsInfoButton' | translate"
+            >
+              <mat-icon>tune</mat-icon>
+            </button>
+            @if (isSessionSettingsInfoOpen(session.id) && sessionSettingsInfoPosition) {
+              <div
+                class="exercise-settings-info-popup"
+                [style.top.px]="sessionSettingsInfoPosition.top"
+                [style.left.px]="sessionSettingsInfoPosition.left"
+                (click)="$event.stopPropagation()"
+              >
+                <mat-checkbox
+                  [(ngModel)]="sessionSettingsBuffer(session).countWarmupSets"
+                  name="sessionCountWarmup-{{ session.id }}"
+                  (change)="onSessionCountingPreferenceChange(session)"
+                >
+                  <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [(ngModel)]="sessionSettingsBuffer(session).countCooldownSets"
+                  name="sessionCountCooldown-{{ session.id }}"
+                  (change)="onSessionCountingPreferenceChange(session)"
+                >
+                  <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [(ngModel)]="sessionSettingsBuffer(session).showWarmupSets"
+                  name="sessionShowWarmup-{{ session.id }}"
+                  (change)="onSessionCountingPreferenceChange(session)"
+                >
+                  <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}
+                </mat-checkbox>
+
+                <mat-checkbox
+                  [(ngModel)]="sessionSettingsBuffer(session).showCooldownSets"
+                  name="sessionShowCooldown-{{ session.id }}"
+                  (change)="onSessionCountingPreferenceChange(session)"
+                >
+                  <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
+                </mat-checkbox>
+              </div>
+            }
+          </div>
         </mat-expansion-panel-header>
 
         <div class="name-row">

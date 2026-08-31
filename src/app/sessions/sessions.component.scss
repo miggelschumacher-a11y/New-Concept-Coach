@@ -150,7 +150,8 @@ mat-expansion-panel mat-checkbox {
   margin: 0.75rem 0 0.25rem;
 }
 
-.exercise-settings-info-trigger {
+.exercise-settings-info-trigger,
+.session-settings-info-trigger {
   position: relative;
   display: inline-flex;
   align-items: center;

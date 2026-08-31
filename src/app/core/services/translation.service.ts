@@ -31,6 +31,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Minimum Weight',
     'sessions.tierLineInfoButton': 'Progression info',
     'sessions.exerciseSettingsInfoButton': 'Exercise options',
+    'sessions.sessionSettingsInfoButton': 'Session options',
     'sessions.tierLineSuccessLabel': 'Weight increase on success:',
     'sessions.tierLineFailLabel': "If the target reps aren't reached:",
     'sessions.tierLineFailExplanation':
@@ -261,6 +262,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Minimum Gewicht',
     'sessions.tierLineInfoButton': 'Progressions-Info',
     'sessions.exerciseSettingsInfoButton': 'Übungsoptionen',
+    'sessions.sessionSettingsInfoButton': 'Session-Optionen',
     'sessions.tierLineSuccessLabel': 'Die Gewichtssteigerung bei Erfolg:',
     'sessions.tierLineFailLabel': 'Bei Nichterreichen der Zielwiederholungen:',
     'sessions.tierLineFailExplanation':
@@ -491,6 +493,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Peso mínimo',
     'sessions.tierLineInfoButton': 'Info de progresión',
     'sessions.exerciseSettingsInfoButton': 'Opciones del ejercicio',
+    'sessions.sessionSettingsInfoButton': 'Opciones de la sesión',
     'sessions.tierLineSuccessLabel': 'Aumento de peso en caso de éxito:',
     'sessions.tierLineFailLabel': 'Si no se alcanzan las repeticiones objetivo:',
     'sessions.tierLineFailExplanation':
@@ -721,6 +724,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Peso mínimo',
     'sessions.tierLineInfoButton': 'Informações de progressão',
     'sessions.exerciseSettingsInfoButton': 'Opções do exercício',
+    'sessions.sessionSettingsInfoButton': 'Opções da sessão',
     'sessions.tierLineSuccessLabel': 'Aumento de peso em caso de sucesso:',
     'sessions.tierLineFailLabel': 'Se as repetições-alvo não forem atingidas:',
     'sessions.tierLineFailExplanation':
@@ -951,6 +955,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Peso minimo',
     'sessions.tierLineInfoButton': 'Info progressione',
     'sessions.exerciseSettingsInfoButton': 'Opzioni dell\'esercizio',
+    'sessions.sessionSettingsInfoButton': 'Opzioni della sessione',
     'sessions.tierLineSuccessLabel': 'Aumento del peso in caso di successo:',
     'sessions.tierLineFailLabel': 'Se non si raggiungono le ripetizioni target:',
     'sessions.tierLineFailExplanation':
@@ -1181,6 +1186,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Minimum gewicht',
     'sessions.tierLineInfoButton': 'Progressie-info',
     'sessions.exerciseSettingsInfoButton': 'Oefenopties',
+    'sessions.sessionSettingsInfoButton': 'Sessieopties',
     'sessions.tierLineSuccessLabel': 'Gewichtstoename bij succes:',
     'sessions.tierLineFailLabel': 'Bij niet halen van het doelaantal herhalingen:',
     'sessions.tierLineFailExplanation':
@@ -1411,6 +1417,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Minimalny ciężar',
     'sessions.tierLineInfoButton': 'Informacje o progresji',
     'sessions.exerciseSettingsInfoButton': 'Opcje ćwiczenia',
+    'sessions.sessionSettingsInfoButton': 'Opcje sesji',
     'sessions.tierLineSuccessLabel': 'Zwiększenie ciężaru przy sukcesie:',
     'sessions.tierLineFailLabel': 'Przy nieosiągnięciu docelowej liczby powtórzeń:',
     'sessions.tierLineFailExplanation':
@@ -1641,6 +1648,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Минимальный вес',
     'sessions.tierLineInfoButton': 'Информация о прогрессии',
     'sessions.exerciseSettingsInfoButton': 'Настройки упражнения',
+    'sessions.sessionSettingsInfoButton': 'Настройки сессии',
     'sessions.tierLineSuccessLabel': 'Увеличение веса при успехе:',
     'sessions.tierLineFailLabel': 'При недостижении целевого числа повторений:',
     'sessions.tierLineFailExplanation':
@@ -1871,6 +1879,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.minWeight': 'Minimum súly',
     'sessions.tierLineInfoButton': 'Progressziós infó',
     'sessions.exerciseSettingsInfoButton': 'Gyakorlat beállításai',
+    'sessions.sessionSettingsInfoButton': 'Munkamenet beállításai',
     'sessions.tierLineSuccessLabel': 'Súlynövelés siker esetén:',
     'sessions.tierLineFailLabel': 'Ha a célismétlésszám nem teljesül:',
     'sessions.tierLineFailExplanation':

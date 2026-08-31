@@ -314,6 +314,74 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.exerciseSettingsInfoPosition = null;
   }
 
+  // Same popup as the per-exercise one, but its four checkboxes apply to
+  // every exercise in the session at once instead of a single one. There's
+  // no single canonical value across exercises to reflect, so the popup
+  // works off its own buffer - seeded from the first exercise's settings
+  // (or true, the same default showSetType() falls back to) - which is
+  // what actually gets pushed to every exercise on change.
+  private sessionSettingsInfoOpenKey: string | null = null;
+  sessionSettingsInfoPosition: { top: number; left: number } | null = null;
+  private sessionSettingsBuffers = new Map<
+    string,
+    { countWarmupSets: boolean; countCooldownSets: boolean; showWarmupSets: boolean; showCooldownSets: boolean }
+  >();
+
+  toggleSessionSettingsInfo(session: TrainingSession, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.sessionSettingsInfoOpenKey === session.id) {
+      this.closeSessionSettingsInfo();
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const popupWidth = 280;
+    this.sessionSettingsInfoPosition = {
+      top: rect.bottom + 8,
+      left: Math.max(8, rect.right - popupWidth)
+    };
+    this.sessionSettingsInfoOpenKey = session.id;
+  }
+
+  isSessionSettingsInfoOpen(sessionId: string): boolean {
+    return this.sessionSettingsInfoOpenKey === sessionId;
+  }
+
+  private closeSessionSettingsInfo(): void {
+    this.sessionSettingsInfoOpenKey = null;
+    this.sessionSettingsInfoPosition = null;
+  }
+
+  sessionSettingsBuffer(session: TrainingSession): {
+    countWarmupSets: boolean;
+    countCooldownSets: boolean;
+    showWarmupSets: boolean;
+    showCooldownSets: boolean;
+  } {
+    let buffer = this.sessionSettingsBuffers.get(session.id);
+    if (!buffer) {
+      const first = session.exercises[0];
+      buffer = {
+        countWarmupSets: first?.countWarmupSets ?? true,
+        countCooldownSets: first?.countCooldownSets ?? true,
+        showWarmupSets: first?.showWarmupSets ?? true,
+        showCooldownSets: first?.showCooldownSets ?? true
+      };
+      this.sessionSettingsBuffers.set(session.id, buffer);
+    }
+    return buffer;
+  }
+
+  async onSessionCountingPreferenceChange(session: TrainingSession): Promise<void> {
+    const buffer = this.sessionSettingsBuffer(session);
+    for (const sessionExercise of session.exercises) {
+      sessionExercise.countWarmupSets = buffer.countWarmupSets;
+      sessionExercise.countCooldownSets = buffer.countCooldownSets;
+      sessionExercise.showWarmupSets = buffer.showWarmupSets;
+      sessionExercise.showCooldownSets = buffer.showCooldownSets;
+    }
+    await this.persist(session);
+  }
+
   // Closes an open popup on any other click in the app (a different button,
   // an input, a panel toggle, etc.). Registered on the capture phase so it
   // runs before target handlers that call stopPropagation() elsewhere in
@@ -326,6 +394,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     if (this.exerciseSettingsInfoOpenKey && !target?.closest('.exercise-settings-info-trigger')) {
       this.closeExerciseSettingsInfo();
+    }
+    if (this.sessionSettingsInfoOpenKey && !target?.closest('.session-settings-info-trigger')) {
+      this.closeSessionSettingsInfo();
     }
   };
 
