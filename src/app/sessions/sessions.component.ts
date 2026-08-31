@@ -688,37 +688,75 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sequence: -now.getTime(),
       exercises: [],
       timerElapsedMs: 0,
-      timerRunning: false,
-      startedAt: undefined,
+      timerRunning: true,
+      timerStartedAt: now.toISOString(),
+      startedAt: now.toISOString(),
       finished: false
     };
     this.unsavedSessionIds.add(session.id);
-    this.autoExpandedSessionIds.add(session.id);
     this.sessions = [...this.sessions, session];
     void this.persist(session);
   }
 
-  private buildManualReplenishment(sourceSession: TrainingSession): TrainingSession {
+  // The weight a replenished set starts at: for a working set on an exercise
+  // that has a weight-based increment scheme with an already-tracked
+  // progression state, that state's current weight (the same source
+  // buildSessionFromPlan uses) - otherwise the finished set being
+  // replenished keeps its own weight as-is. Never triggers initState here:
+  // without the plan's full scheme config a manual session can't derive a
+  // sensible starting weight, so an untracked exercise falls back too.
+  private async peekProgressionWeight(sessionExercise: SessionExercise, set: ExerciseSet): Promise<number> {
+    if (set.type !== 'working' || sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
+      return set.weight;
+    }
+    const exerciseId = sessionExercise.exerciseId;
+    switch (sessionExercise.incrementScheme) {
+      case 'DOUBLE_PROGRESSION': {
+        const state = this.doubleProgressionStates.get(exerciseId) ?? (await this.doubleProgressionService.getState(exerciseId));
+        return state?.currentWeight ?? set.weight;
+      }
+      case 'REP_GOAL': {
+        const state = this.repGoalStates.get(exerciseId) ?? (await this.repGoalService.getState(exerciseId));
+        return state?.currentWeight ?? set.weight;
+      }
+      case 'WAVE_PROGRESSION': {
+        const state = this.waveProgressionStates.get(exerciseId) ?? (await this.waveProgressionService.getState(exerciseId));
+        return state?.currentWeight ?? set.weight;
+      }
+      case 'LINEAR_PROGRESSION': {
+        const state = this.linearProgressionStates.get(exerciseId) ?? (await this.linearProgressionService.getState(exerciseId));
+        return state?.currentWeight ?? set.weight;
+      }
+      default:
+        return set.weight;
+    }
+  }
+
+  private async buildManualReplenishment(sourceSession: TrainingSession): Promise<TrainingSession> {
     const now = new Date();
     const sessionWord = this.translationService.translate('sessions.defaultName');
     const name = `${sessionWord} ${this.datePipe.transform(now, this.dateFormat)}`;
-    const exercises: SessionExercise[] = sourceSession.exercises.map((sessionExercise) => ({
-      exerciseId: sessionExercise.exerciseId,
-      sets: sessionExercise.sets.map((set) => ({
-        id: crypto.randomUUID(),
-        reps: this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
-        weight: this.defaultWeight(sessionExercise.exerciseId, set.type, sessionExercise.minWeight),
-        type: set.type
-      })),
-      countWarmupSets: sessionExercise.countWarmupSets,
-      countCooldownSets: sessionExercise.countCooldownSets,
-      showWarmupSets: sessionExercise.showWarmupSets,
-      showCooldownSets: sessionExercise.showCooldownSets,
-      exerciseType: sessionExercise.exerciseType,
-      incrementScheme: sessionExercise.incrementScheme,
-      minReps: sessionExercise.minReps,
-      minWeight: sessionExercise.minWeight
-    }));
+    const exercises: SessionExercise[] = await Promise.all(
+      sourceSession.exercises.map(async (sessionExercise) => ({
+        exerciseId: sessionExercise.exerciseId,
+        sets: await Promise.all(
+          sessionExercise.sets.map(async (set) => ({
+            id: crypto.randomUUID(),
+            reps: this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
+            weight: await this.peekProgressionWeight(sessionExercise, set),
+            type: set.type
+          }))
+        ),
+        countWarmupSets: sessionExercise.countWarmupSets,
+        countCooldownSets: sessionExercise.countCooldownSets,
+        showWarmupSets: sessionExercise.showWarmupSets,
+        showCooldownSets: sessionExercise.showCooldownSets,
+        exerciseType: sessionExercise.exerciseType,
+        incrementScheme: sessionExercise.incrementScheme,
+        minReps: sessionExercise.minReps,
+        minWeight: sessionExercise.minWeight
+      }))
+    );
     return {
       id: crypto.randomUUID(),
       name,
@@ -726,9 +764,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sequence: now.getTime(),
       exercises,
       timerElapsedMs: 0,
-      timerRunning: false,
-      timerStartedAt: undefined,
-      startedAt: undefined,
+      timerRunning: true,
+      timerStartedAt: now.toISOString(),
+      startedAt: now.toISOString(),
       finished: false
     };
   }
@@ -772,7 +810,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private async buildSessionFromPlan(
     plan: TrainingPlan,
     planSession: TierLinePlanSession | null,
-    sequence: number
+    sequence: number,
+    autoStart = false
   ): Promise<TrainingSession> {
     const now = new Date();
     const name = planSession ? `${plan.name} – ${planSession.name}` : plan.name;
@@ -913,9 +952,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sequence,
       exercises,
       timerElapsedMs: 0,
-      timerRunning: false,
-      timerStartedAt: undefined,
-      startedAt: undefined,
+      timerRunning: autoStart,
+      timerStartedAt: autoStart ? now.toISOString() : undefined,
+      startedAt: autoStart ? now.toISOString() : undefined,
       finished: false
     };
   }
@@ -923,7 +962,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private async replenishSession(sourceSession: TrainingSession): Promise<void> {
     const newSession = sourceSession.trainingPlanId
       ? await this.buildPlanReplenishment(sourceSession)
-      : this.buildManualReplenishment(sourceSession);
+      : await this.buildManualReplenishment(sourceSession);
     if (!newSession) {
       return;
     }
@@ -944,7 +983,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       // Day template no longer exists on the plan; nothing to replenish.
       return null;
     }
-    return this.buildSessionFromPlan(plan, planSession, Date.now());
+    return this.buildSessionFromPlan(plan, planSession, Date.now(), true);
   }
 
   private async persist(session: TrainingSession): Promise<void> {
@@ -1134,7 +1173,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   private exerciseWeightLifted(sessionExercise: SessionExercise): number {
-    return this.countedSets(sessionExercise).reduce((sum, set) => sum + set.reps * set.weight, 0);
+    return this.countedSets(sessionExercise)
+      .filter((set) => set.done)
+      .reduce((sum, set) => sum + set.reps * set.weight, 0);
   }
 
   totalWeightLifted(sessionExercise: SessionExercise): string {
