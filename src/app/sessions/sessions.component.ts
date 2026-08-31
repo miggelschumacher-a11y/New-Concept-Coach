@@ -371,13 +371,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return buffer;
   }
 
-  async onSessionCountingPreferenceChange(session: TrainingSession): Promise<void> {
-    const buffer = this.sessionSettingsBuffer(session);
+  // Not a toggle reflecting some current session-wide value (exercises can
+  // individually disagree, so there isn't one) - each button is a one-shot
+  // action that stamps every exercise's own option to true/false. Still
+  // updates the buffer too, since updateSessionExercises seeds a freshly
+  // added exercise from it.
+  async applySessionSettingToAllExercises(
+    session: TrainingSession,
+    field: 'countWarmupSets' | 'countCooldownSets' | 'showWarmupSets' | 'showCooldownSets',
+    value: boolean
+  ): Promise<void> {
+    this.sessionSettingsBuffer(session)[field] = value;
     for (const sessionExercise of session.exercises) {
-      sessionExercise.countWarmupSets = buffer.countWarmupSets;
-      sessionExercise.countCooldownSets = buffer.countCooldownSets;
-      sessionExercise.showWarmupSets = buffer.showWarmupSets;
-      sessionExercise.showCooldownSets = buffer.showCooldownSets;
+      sessionExercise[field] = value;
     }
     await this.persist(session);
   }
@@ -1453,6 +1459,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async updateSessionName(session: TrainingSession): Promise<void> {
     await this.persist(session);
+  }
+
+  onSessionNameFocus(event: Event): void {
+    (event.target as HTMLInputElement).select();
   }
 
   requestDeleteSession(id: string): void {

@@ -184,6 +184,28 @@ mat-expansion-panel mat-checkbox {
   margin-top: 0.5rem;
 }
 
+.session-settings-group {
+  margin: 0.65rem 0;
+  padding: 0;
+  border: none;
+
+  legend {
+    padding: 0 0 0.35rem;
+    color: rgba(255, 255, 255, 0.87);
+    font-size: 0.875rem;
+  }
+}
+
+.session-settings-actions {
+  display: flex;
+  gap: 0.5rem;
+
+  button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
 .set-type-accordion {
   margin-top: 0.5rem;
 }

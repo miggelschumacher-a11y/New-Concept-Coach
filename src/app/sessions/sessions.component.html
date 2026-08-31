@@ -170,41 +170,37 @@
                 [style.left.px]="sessionSettingsInfoPosition.left"
                 (click)="$event.stopPropagation()"
               >
-                <mat-checkbox
-                  [(ngModel)]="sessionSettingsBuffer(session).countWarmupSets"
-                  name="sessionCountWarmup-{{ session.id }}"
-                  (change)="onSessionCountingPreferenceChange(session)"
-                  [matTooltip]="'sessions.sessionCountWarmupTooltip' | translate"
-                >
-                  <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
-                </mat-checkbox>
+                <fieldset class="session-settings-group" [matTooltip]="'sessions.sessionCountWarmupTooltip' | translate">
+                  <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.sessionCountWarmupLegend' | translate }}</legend>
+                  <div class="session-settings-actions">
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'countWarmupSets', true)">{{ 'common.yes' | translate }}</button>
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'countWarmupSets', false)">{{ 'common.no' | translate }}</button>
+                  </div>
+                </fieldset>
 
-                <mat-checkbox
-                  [(ngModel)]="sessionSettingsBuffer(session).countCooldownSets"
-                  name="sessionCountCooldown-{{ session.id }}"
-                  (change)="onSessionCountingPreferenceChange(session)"
-                  [matTooltip]="'sessions.sessionCountCooldownTooltip' | translate"
-                >
-                  <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
-                </mat-checkbox>
+                <fieldset class="session-settings-group" [matTooltip]="'sessions.sessionCountCooldownTooltip' | translate">
+                  <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.sessionCountCooldownLegend' | translate }}</legend>
+                  <div class="session-settings-actions">
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'countCooldownSets', true)">{{ 'common.yes' | translate }}</button>
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'countCooldownSets', false)">{{ 'common.no' | translate }}</button>
+                  </div>
+                </fieldset>
 
-                <mat-checkbox
-                  [(ngModel)]="sessionSettingsBuffer(session).showWarmupSets"
-                  name="sessionShowWarmup-{{ session.id }}"
-                  (change)="onSessionCountingPreferenceChange(session)"
-                  [matTooltip]="'sessions.sessionShowWarmupTooltip' | translate"
-                >
-                  <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}
-                </mat-checkbox>
+                <fieldset class="session-settings-group" [matTooltip]="'sessions.sessionShowWarmupTooltip' | translate">
+                  <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.sessionShowWarmupLegend' | translate }}</legend>
+                  <div class="session-settings-actions">
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'showWarmupSets', true)">{{ 'common.yes' | translate }}</button>
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'showWarmupSets', false)">{{ 'common.no' | translate }}</button>
+                  </div>
+                </fieldset>
 
-                <mat-checkbox
-                  [(ngModel)]="sessionSettingsBuffer(session).showCooldownSets"
-                  name="sessionShowCooldown-{{ session.id }}"
-                  (change)="onSessionCountingPreferenceChange(session)"
-                  [matTooltip]="'sessions.sessionShowCooldownTooltip' | translate"
-                >
-                  <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
-                </mat-checkbox>
+                <fieldset class="session-settings-group" [matTooltip]="'sessions.sessionShowCooldownTooltip' | translate">
+                  <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.sessionShowCooldownLegend' | translate }}</legend>
+                  <div class="session-settings-actions">
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'showCooldownSets', true)">{{ 'common.yes' | translate }}</button>
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'showCooldownSets', false)">{{ 'common.no' | translate }}</button>
+                  </div>
+                </fieldset>
               </div>
             }
           </div>
@@ -220,6 +216,7 @@
               [(ngModel)]="session.name"
               #nameModel="ngModel"
               required
+              (focus)="onSessionNameFocus($event)"
               (blur)="updateSessionName(session)"
             />
             @if (nameModel.invalid && nameModel.touched) {
