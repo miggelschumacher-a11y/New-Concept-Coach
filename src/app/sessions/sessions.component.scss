@@ -203,6 +203,29 @@ mat-expansion-panel mat-checkbox {
   margin: 0.25rem 0;
 }
 
+// Grabbing this bar moves the whole popup (cdkDragHandle) - kept separate
+// from the popup's own content so dragging never fights with clicking the
+// buttons/checkboxes below it.
+.settings-info-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: -0.65rem -0.85rem 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px 10px 0 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  cursor: grab;
+  touch-action: none;
+
+  mat-icon {
+    font-size: 1.1em;
+    height: 1.1em;
+    width: 1.1em;
+  }
+}
+
 .exercise-settings-info-field {
   display: block;
   width: 100%;

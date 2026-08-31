@@ -169,7 +169,14 @@
                 [style.top.px]="sessionSettingsInfoPosition.top"
                 [style.left.px]="sessionSettingsInfoPosition.left"
                 (click)="$event.stopPropagation()"
+                cdkDrag
+                cdkDragBoundary="body"
               >
+                <div class="settings-info-popup-header" cdkDragHandle>
+                  <mat-icon>drag_indicator</mat-icon>
+                  <span>{{ 'sessions.sessionSettingsInfoButton' | translate }}</span>
+                </div>
+
                 <fieldset class="session-settings-group" [matTooltip]="'sessions.sessionCountWarmupTooltip' | translate">
                   <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.sessionCountWarmupLegend' | translate }}</legend>
                   <div class="session-settings-actions">
@@ -454,7 +461,14 @@
                         [style.top.px]="exerciseSettingsInfoPosition.top"
                         [style.left.px]="exerciseSettingsInfoPosition.left"
                         (click)="$event.stopPropagation()"
+                        cdkDrag
+                        cdkDragBoundary="body"
                       >
+                        <div class="settings-info-popup-header" cdkDragHandle>
+                          <mat-icon>drag_indicator</mat-icon>
+                          <span>{{ 'sessions.exerciseSettingsInfoButton' | translate }}</span>
+                        </div>
+
                         <mat-checkbox
                           [(ngModel)]="sessionExercise.countWarmupSets"
                           name="countWarmup-{{ sessionExercise.exerciseId }}"

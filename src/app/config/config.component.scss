@@ -7,6 +7,10 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
+.body-weight-accordion mat-expansion-panel-header .mat-content {
+  align-items: center;
+}
+
 .increment-scheme-description {
   color: lightgrey;
   margin-top: 0;
