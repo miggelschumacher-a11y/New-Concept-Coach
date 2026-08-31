@@ -1634,6 +1634,42 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return set.targetReps === undefined || set.reps >= set.targetReps;
   }
 
+  // Editable counterpart to targetRepsHint, for sets in non-default sessions
+  // where the user prescribes the target themselves instead of it coming
+  // from a plan. Same textual shape ("8-12", "10", "8-12+", "10+").
+  targetRepsInputValue(set: ExerciseSet): string {
+    return this.targetRepsHint(set) ?? '';
+  }
+
+  onTargetRepsFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}(-\d{0,3})?\+?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateTargetReps(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
+    const trimmed = value.trim();
+    if (trimmed === '') {
+      set.targetReps = undefined;
+      set.targetRepsMax = undefined;
+      set.isAmrap = undefined;
+      await this.persist(session);
+      return;
+    }
+    const match = trimmed.match(/^(\d{1,3})(?:-(\d{1,3}))?(\+)?$/);
+    if (!match) {
+      return;
+    }
+    const lower = Math.min(Math.max(parseInt(match[1], 10), 1), 999);
+    const upper = match[2] !== undefined ? Math.min(Math.max(parseInt(match[2], 10), 1), 999) : undefined;
+    set.targetReps = upper !== undefined ? Math.min(lower, upper) : lower;
+    set.targetRepsMax = upper !== undefined && upper !== lower ? Math.max(lower, upper) : undefined;
+    set.isAmrap = !!match[3];
+    await this.persist(session);
+  }
+
   private async updateEstimatedOneRepMax(exerciseId: string, set: ExerciseSet): Promise<void> {
     const oneRepMax = estimateOneRepMax(set.weight, set.reps);
     if (oneRepMax <= 0) {

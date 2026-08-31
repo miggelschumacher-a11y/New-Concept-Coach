@@ -637,6 +637,21 @@
                           }
                           <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
                           <div class="set-fields">
+                            @if (canEditExerciseTypeInSession(session)) {
+                              <mat-form-field appearance="outline" class="set-field set-field-target-reps-input">
+                                <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
+                                <input
+                                  matInput
+                                  type="text"
+                                  [value]="targetRepsInputValue(set)"
+                                  name="targetReps-{{ set.id }}"
+                                  [readonly]="set.done"
+                                  [disabled]="isPaused(session)"
+                                  (input)="onTargetRepsFieldInput($event)"
+                                  (change)="updateTargetReps(session, set, $any($event.target).value)"
+                                />
+                              </mat-form-field>
+                            }
                             <mat-form-field appearance="outline" class="set-field" [class.set-field-reps-target]="targetRepsHint(set)">
                               <mat-label>
                                 {{ 'sessions.reps' | translate }}
