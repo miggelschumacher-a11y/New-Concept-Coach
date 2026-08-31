@@ -21,7 +21,10 @@ const DB_NAME = 'trainings-app-db';
 // browser tab sharing this dev server, bumping its on-disk DB past 29 -
 // IndexedDB never opens at a version lower than what's already stored, so
 // this has to clear whatever the highest such leak reached.
-const DB_VERSION = 32;
+// 33: re-seeds GZCLP with its now-stable day-template ids (see
+// default-gzclp-plan.ts) - the reseed step below only runs on an actual
+// upgrade, so this needs its own bump to take effect for existing installs.
+const DB_VERSION = 33;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,

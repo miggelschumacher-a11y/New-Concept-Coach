@@ -26,8 +26,11 @@ export function buildDefaultGzclpPlan(exerciseIdByName: ReadonlyMap<string, stri
     sets: 3,
     targetReps: '15'
   };
+  // Fixed id (not a random UUID) - re-seeding this plan on every DB upgrade
+  // otherwise regenerated it each time, orphaning any existing session's
+  // planSessionId reference and silently breaking its replenishment.
   const day = (order: number, name: string, t1: string, t2: string) => ({
-    id: crypto.randomUUID(),
+    id: `${DEFAULT_GZCLP_PLAN_ID}-day-${order}`,
     name,
     order,
     exercises: [
