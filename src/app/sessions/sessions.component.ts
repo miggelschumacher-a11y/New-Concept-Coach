@@ -1794,12 +1794,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // done set of the same type (warm-up/working/cooldown) in this exercise
   // that still has no weight of its own (0), so a shared weight only needs
   // to be typed once per group of sets without clobbering ones already set.
+  // Also reformats the just-edited field itself to trailing-zero form (e.g.
+  // "82.5" -> "82.50"), matching every other weight field's display.
   onWeightFieldBlur(sessionExercise: SessionExercise, set: ExerciseSet): void {
     if (set.done) {
       return;
     }
     const weight = parseFloat(this.fieldBuffer(set).weight.replace(',', '.'));
-    if (!Number.isFinite(weight) || weight <= 0) {
+    if (!Number.isFinite(weight)) {
+      return;
+    }
+    this.fieldBuffer(set).weight = weight.toFixed(2);
+    if (weight <= 0) {
       return;
     }
     for (const other of sessionExercise.sets) {

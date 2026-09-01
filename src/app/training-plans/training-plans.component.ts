@@ -687,6 +687,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.updateSetTargets(plan, exerciseId, field, (targets) => targets.filter((_, i) => i !== index));
   }
 
+  // Leaving this field fills the same target into every other not-yet-
+  // prescribed row of the same list (warm-up/working/cooldown are separate
+  // lists, so this never crosses between them) - a shared target only needs
+  // to be typed once, without clobbering rows that already have their own.
   async updateSetTargetReps(
     plan: TrainingPlan,
     exerciseId: string,
@@ -694,11 +698,18 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     index: number,
     value: string
   ): Promise<void> {
+    const targetReps = value.trim();
     await this.updateSetTargets(plan, exerciseId, field, (targets) =>
-      targets.map((target, i) => (i === index ? { ...target, targetReps: value.trim() } : target))
+      targets.map((target, i) => {
+        if (i === index) {
+          return { ...target, targetReps };
+        }
+        return targetReps !== '' && target.targetReps === '' ? { ...target, targetReps } : target;
+      })
     );
   }
 
+  // Same fill-if-empty behavior as updateSetTargetReps above, for weight.
   async updateSetTargetWeight(
     plan: TrainingPlan,
     exerciseId: string,
@@ -709,7 +720,12 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const parsed = parseFloat(value.replace(',', '.'));
     const weight = Number.isFinite(parsed) ? Math.max(parsed, 0) : 0;
     await this.updateSetTargets(plan, exerciseId, field, (targets) =>
-      targets.map((target, i) => (i === index ? { ...target, weight } : target))
+      targets.map((target, i) => {
+        if (i === index) {
+          return { ...target, weight };
+        }
+        return weight > 0 && target.weight === 0 ? { ...target, weight } : target;
+      })
     );
   }
 
