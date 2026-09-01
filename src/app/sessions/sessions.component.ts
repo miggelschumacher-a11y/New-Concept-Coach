@@ -418,7 +418,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  // Holding a "Ziel-WDH"/weight set field's own mouse button down for
+  // Holding a "Ziel-WDH"/reps/weight set field's own mouse button down for
   // >500ms (without releasing) opens a popup offering to copy that field's
   // current value across the whole exercise's not-yet-done sets - same
   // popup as the analogous training-plan per-set fields. A quick click/type
@@ -432,7 +432,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private setFieldCopyContext: {
     session: TrainingSession;
     sessionExercise: SessionExercise;
-    kind: 'targetReps' | 'weight';
+    kind: 'targetReps' | 'reps' | 'weight';
     sourceValue: string;
   } | null = null;
 
@@ -440,7 +440,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     event: MouseEvent,
     session: TrainingSession,
     sessionExercise: SessionExercise,
-    kind: 'targetReps' | 'weight'
+    kind: 'targetReps' | 'reps' | 'weight'
   ): void {
     this.clearLongPressTimer();
     const triggerEl = event.currentTarget as HTMLInputElement;
@@ -468,7 +468,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private openSetFieldCopyPopup(
     session: TrainingSession,
     sessionExercise: SessionExercise,
-    kind: 'targetReps' | 'weight',
+    kind: 'targetReps' | 'reps' | 'weight',
     triggerEl: HTMLInputElement
   ): void {
     triggerEl.blur();
@@ -530,7 +530,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
           this.fieldBuffer(candidate).reps = String(targetRepsMax ?? targetReps);
         }
       }
-    } else {
+    } else if (kind === 'weight') {
       const weight = parseFloat(sourceValue.replace(',', '.'));
       if (!Number.isFinite(weight)) {
         return;
@@ -544,6 +544,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
           continue;
         }
         this.fieldBuffer(candidate).weight = weight.toFixed(2);
+      }
+    } else {
+      const reps = parseInt(sourceValue, 10);
+      if (!Number.isFinite(reps)) {
+        return;
+      }
+      for (const candidate of sessionExercise.sets) {
+        if (candidate.done) {
+          continue;
+        }
+        const currentReps = parseInt(this.fieldBuffer(candidate).reps, 10);
+        if (onlyUnset && Number.isFinite(currentReps) && currentReps !== 0) {
+          continue;
+        }
+        this.fieldBuffer(candidate).reps = String(reps);
       }
     }
 

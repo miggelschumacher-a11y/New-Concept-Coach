@@ -716,6 +716,9 @@
                                 [disabled]="isPaused(session)"
                                 (focus)="onSetFieldFocus(set, $event)"
                                 (input)="onRepsFieldInput($event)"
+                                (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'reps')"
+                                (mouseup)="onSetFieldMouseUp()"
+                                (mouseleave)="onSetFieldMouseLeave()"
                               />
                             </mat-form-field>
                             <mat-form-field appearance="outline" class="set-field set-field-weight">
