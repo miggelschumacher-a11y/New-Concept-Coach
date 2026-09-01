@@ -524,116 +524,103 @@
                     {{ exerciseName(exerciseId) }}
                     <span class="set-count">({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }})</span>
                   </mat-panel-title>
-                  @if (!plan.isDefault) {
-                    <div class="exercise-settings-trigger">
-                      <button
-                        mat-icon-button
-                        (click)="toggleExerciseSettings(plan, exerciseId, $event)"
-                        [matTooltip]="'sessions.exerciseSettingsInfoButton' | translate"
-                        [attr.aria-label]="'sessions.exerciseSettingsInfoButton' | translate"
-                      >
-                        <mat-icon>tune</mat-icon>
-                      </button>
-                      @if (isExerciseSettingsOpen(plan, exerciseId) && exerciseSettingsPosition) {
-                        <div
-                          class="exercise-settings-popup"
-                          attr.data-popup-key="exercise-settings-{{ plan.id }}:{{ exerciseId }}"
-                          [style.top.px]="exerciseSettingsPosition.top"
-                          [style.left.px]="exerciseSettingsPosition.left"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <mat-form-field
-                            appearance="outline"
-                            class="exercise-settings-field"
-                            [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
-                          >
-                            <mat-label>{{ 'trainingPlans.deloadAfterFailuresLabel' | translate }}</mat-label>
-                            <input
-                              matInput
-                              type="text"
-                              inputmode="numeric"
-                              [value]="planExerciseConfig(plan, exerciseId).deloadAfterFailures ?? ''"
-                              name="deloadAfterFailures-{{ plan.id }}-{{ exerciseId }}"
-                              (focus)="onDeloadFieldFocus($event)"
-                              (input)="onDeloadAfterFailuresFieldInput($event)"
-                              (change)="updatePlanExerciseDeloadAfterFailures(plan, exerciseId, $any($event.target).value)"
-                            />
-                          </mat-form-field>
-                          <mat-form-field
-                            appearance="outline"
-                            class="exercise-settings-field"
-                            [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
-                          >
-                            <mat-label>{{ 'trainingPlans.deloadPercentLabel' | translate }}</mat-label>
-                            <input
-                              matInput
-                              type="text"
-                              inputmode="decimal"
-                              [value]="deloadPercentDisplay(plan, exerciseId)"
-                              name="deloadPercent-{{ plan.id }}-{{ exerciseId }}"
-                              (focus)="onDeloadFieldFocus($event)"
-                              (input)="onDeloadPercentFieldInput($event)"
-                              (change)="updatePlanExerciseDeloadPercent(plan, exerciseId, $any($event.target).value)"
-                            />
-                          </mat-form-field>
-                          @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
-                            <mat-form-field
-                              appearance="outline"
-                              class="exercise-settings-field"
-                              [matTooltip]="'trainingPlans.weightIncrementTooltip' | translate"
-                            >
-                              <mat-label>{{ 'trainingPlans.weightIncrementLabel' | translate }}</mat-label>
-                              <input
-                                matInput
-                                type="text"
-                                inputmode="decimal"
-                                [placeholder]="tierLineWeightIncrement(exerciseId).toFixed(2)"
-                                [value]="weightIncrementDisplay(plan, exerciseId)"
-                                name="weightIncrement-{{ plan.id }}-{{ exerciseId }}"
-                                (focus)="onDeloadFieldFocus($event)"
-                                (input)="onWeightIncrementFieldInput($event)"
-                                (change)="updatePlanExerciseWeightIncrement(plan, exerciseId, $any($event.target).value)"
-                              />
-                            </mat-form-field>
-                          }
-                        </div>
-                      }
-                    </div>
-                  }
                 </mat-expansion-panel-header>
 
                 @if (!plan.isDefault) {
-                  <div class="exercise-type-row">
-                    <mat-form-field appearance="outline" class="exercise-type-field">
-                      <mat-label>Select Exercise-Type</mat-label>
-                      <mat-select
-                        [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
-                        name="exerciseType-{{ exerciseId }}"
-                        (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
-                      >
-                        <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
-                        <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
-                        <mat-option value="TIME_BASED">Time-Based</mat-option>
-                      </mat-select>
-                    </mat-form-field>
+                  <mat-accordion multi class="exercise-settings-accordion">
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
+                      </mat-expansion-panel-header>
 
-                    @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
-                      <mat-form-field appearance="outline" class="exercise-type-field">
-                        <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
-                        <mat-select
-                          [ngModel]="planExerciseConfig(plan, exerciseId).incrementScheme"
-                          name="incrementScheme-{{ exerciseId }}"
-                          (selectionChange)="updatePlanExerciseIncrementScheme(plan, exerciseId, $event.value)"
-                        >
-                          <mat-option value="NONE">None</mat-option>
-                          <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
-                          <mat-option value="REP_GOAL">Rep Goal System</mat-option>
-                          <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
-                          <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
-                        </mat-select>
+                      <div class="exercise-type-row">
+                        <mat-form-field appearance="outline" class="exercise-type-field">
+                          <mat-label>Select Exercise-Type</mat-label>
+                          <mat-select
+                            [ngModel]="planExerciseConfig(plan, exerciseId).exerciseType"
+                            name="exerciseType-{{ exerciseId }}"
+                            (selectionChange)="updatePlanExerciseType(plan, exerciseId, $event.value)"
+                          >
+                            <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                            <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                            <mat-option value="TIME_BASED">Time-Based</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+
+                        @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                          <mat-form-field appearance="outline" class="exercise-type-field">
+                            <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
+                            <mat-select
+                              [ngModel]="planExerciseConfig(plan, exerciseId).incrementScheme"
+                              name="incrementScheme-{{ exerciseId }}"
+                              (selectionChange)="updatePlanExerciseIncrementScheme(plan, exerciseId, $event.value)"
+                            >
+                              <mat-option value="NONE">None</mat-option>
+                              <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
+                              <mat-option value="REP_GOAL">Rep Goal System</mat-option>
+                              <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
+                              <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                        }
+                      </div>
+
+                      <mat-form-field
+                        appearance="outline"
+                        class="exercise-settings-field"
+                        [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                      >
+                        <mat-label>{{ 'trainingPlans.deloadAfterFailuresLabel' | translate }}</mat-label>
+                        <input
+                          matInput
+                          type="text"
+                          inputmode="numeric"
+                          [value]="planExerciseConfig(plan, exerciseId).deloadAfterFailures ?? ''"
+                          name="deloadAfterFailures-{{ plan.id }}-{{ exerciseId }}"
+                          (focus)="onDeloadFieldFocus($event)"
+                          (input)="onDeloadAfterFailuresFieldInput($event)"
+                          (change)="updatePlanExerciseDeloadAfterFailures(plan, exerciseId, $any($event.target).value)"
+                        />
                       </mat-form-field>
-                    }
-                  </div>
+                      <mat-form-field
+                        appearance="outline"
+                        class="exercise-settings-field"
+                        [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                      >
+                        <mat-label>{{ 'trainingPlans.deloadPercentLabel' | translate }}</mat-label>
+                        <input
+                          matInput
+                          type="text"
+                          inputmode="decimal"
+                          [value]="deloadPercentDisplay(plan, exerciseId)"
+                          name="deloadPercent-{{ plan.id }}-{{ exerciseId }}"
+                          (focus)="onDeloadFieldFocus($event)"
+                          (input)="onDeloadPercentFieldInput($event)"
+                          (change)="updatePlanExerciseDeloadPercent(plan, exerciseId, $any($event.target).value)"
+                        />
+                      </mat-form-field>
+                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                        <mat-form-field
+                          appearance="outline"
+                          class="exercise-settings-field"
+                          [matTooltip]="'trainingPlans.weightIncrementTooltip' | translate"
+                        >
+                          <mat-label>{{ 'trainingPlans.weightIncrementLabel' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="decimal"
+                            [placeholder]="tierLineWeightIncrement(exerciseId).toFixed(2)"
+                            [value]="weightIncrementDisplay(plan, exerciseId)"
+                            name="weightIncrement-{{ plan.id }}-{{ exerciseId }}"
+                            (focus)="onDeloadFieldFocus($event)"
+                            (input)="onWeightIncrementFieldInput($event)"
+                            (change)="updatePlanExerciseWeightIncrement(plan, exerciseId, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      }
+                    </mat-expansion-panel>
+                  </mat-accordion>
                 }
 
                 <mat-accordion multi class="set-type-accordion">

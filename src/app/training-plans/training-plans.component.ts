@@ -251,9 +251,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     if (this.descriptionInfoOpenPlanId && !target?.closest('.description-info-trigger')) {
       this.closeDescriptionInfo();
     }
-    if (this.exerciseSettingsOpenKey && !target?.closest('.exercise-settings-trigger')) {
-      this.closeExerciseSettings();
-    }
     if (this.setTargetCopyPopupKey && !target?.closest('.set-target-copy-popup')) {
       this.closeSetTargetCopyPopup();
     }
@@ -276,38 +273,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       position.left = Math.min(Math.max(margin, position.left), maxLeft);
       position.top = Math.min(Math.max(margin, position.top), maxTop);
     });
-  }
-
-  // Deload settings popup for a single exercise within a non-default plan -
-  // keyed by plan id + exercise id since the same exercise can appear across
-  // multiple plans with independent settings.
-  private exerciseSettingsOpenKey: string | null = null;
-  exerciseSettingsPosition: { top: number; left: number } | null = null;
-
-  toggleExerciseSettings(plan: TrainingPlan, exerciseId: string, event: MouseEvent): void {
-    event.stopPropagation();
-    const key = `${plan.id}:${exerciseId}`;
-    if (this.exerciseSettingsOpenKey === key) {
-      this.closeExerciseSettings();
-      return;
-    }
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const popupWidth = 260;
-    this.exerciseSettingsPosition = {
-      top: rect.bottom + 8,
-      left: Math.max(8, rect.right - popupWidth)
-    };
-    this.exerciseSettingsOpenKey = key;
-    this.fitPopupToViewport(`exercise-settings-${key}`, this.exerciseSettingsPosition);
-  }
-
-  isExerciseSettingsOpen(plan: TrainingPlan, exerciseId: string): boolean {
-    return this.exerciseSettingsOpenKey === `${plan.id}:${exerciseId}`;
-  }
-
-  private closeExerciseSettings(): void {
-    this.exerciseSettingsOpenKey = null;
-    this.exerciseSettingsPosition = null;
   }
 
   // Holding a "Ziel-WDH"/weight field's own mouse button down for >500ms

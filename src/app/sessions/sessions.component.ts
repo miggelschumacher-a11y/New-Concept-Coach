@@ -994,9 +994,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sequence: -now.getTime(),
       exercises: [],
       timerElapsedMs: 0,
-      timerRunning: true,
-      timerStartedAt: now.toISOString(),
-      startedAt: now.toISOString(),
+      timerRunning: false,
+      timerStartedAt: undefined,
+      startedAt: undefined,
       finished: false
     };
     this.unsavedSessionIds.add(session.id);
@@ -1089,9 +1089,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sequence: now.getTime(),
       exercises,
       timerElapsedMs: 0,
-      timerRunning: true,
-      timerStartedAt: now.toISOString(),
-      startedAt: now.toISOString(),
+      timerRunning: false,
+      timerStartedAt: undefined,
+      startedAt: undefined,
       finished: false
     };
   }
@@ -1135,8 +1135,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private async buildSessionFromPlan(
     plan: TrainingPlan,
     planSession: TierLinePlanSession | null,
-    sequence: number,
-    autoStart = false
+    sequence: number
   ): Promise<TrainingSession> {
     const now = new Date();
     const name = planSession ? `${plan.name} – ${planSession.name}` : plan.name;
@@ -1330,9 +1329,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sequence,
       exercises,
       timerElapsedMs: 0,
-      timerRunning: autoStart,
-      timerStartedAt: autoStart ? now.toISOString() : undefined,
-      startedAt: autoStart ? now.toISOString() : undefined,
+      timerRunning: false,
+      timerStartedAt: undefined,
+      startedAt: undefined,
       finished: false
     };
   }
@@ -1361,7 +1360,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       // Day template no longer exists on the plan; nothing to replenish.
       return null;
     }
-    return this.buildSessionFromPlan(plan, planSession, Date.now(), true);
+    return this.buildSessionFromPlan(plan, planSession, Date.now());
   }
 
   private async persist(session: TrainingSession): Promise<void> {
