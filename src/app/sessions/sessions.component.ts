@@ -849,26 +849,32 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return set.weight;
     }
     const exerciseId = sessionExercise.exerciseId;
+    let weight: number | undefined;
     switch (sessionExercise.incrementScheme) {
       case 'DOUBLE_PROGRESSION': {
         const state = this.doubleProgressionStates.get(exerciseId) ?? (await this.doubleProgressionService.getState(exerciseId));
-        return state?.currentWeight ?? set.weight;
+        weight = state?.currentWeight;
+        break;
       }
       case 'REP_GOAL': {
         const state = this.repGoalStates.get(exerciseId) ?? (await this.repGoalService.getState(exerciseId));
-        return state?.currentWeight ?? set.weight;
+        weight = state?.currentWeight;
+        break;
       }
       case 'WAVE_PROGRESSION': {
         const state = this.waveProgressionStates.get(exerciseId) ?? (await this.waveProgressionService.getState(exerciseId));
-        return state?.currentWeight ?? set.weight;
+        weight = state?.currentWeight;
+        break;
       }
       case 'LINEAR_PROGRESSION': {
         const state = this.linearProgressionStates.get(exerciseId) ?? (await this.linearProgressionService.getState(exerciseId));
-        return state?.currentWeight ?? set.weight;
+        weight = state?.currentWeight;
+        break;
       }
       default:
         return set.weight;
     }
+    return weight === undefined ? set.weight : this.applyManualDeload(sessionExercise, weight);
   }
 
   private async buildManualReplenishment(sourceSession: TrainingSession): Promise<TrainingSession> {
@@ -892,7 +898,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
         exerciseType: sessionExercise.exerciseType,
         incrementScheme: sessionExercise.incrementScheme,
         minReps: sessionExercise.minReps,
-        minWeight: sessionExercise.minWeight
+        minWeight: sessionExercise.minWeight,
+        deloadAfterFailures: sessionExercise.deloadAfterFailures,
+        deloadPercent: sessionExercise.deloadPercent
       }))
     );
     return {
@@ -1290,20 +1298,25 @@ export class SessionsComponent implements OnInit, OnDestroy {
       default:
         return undefined;
     }
-    if (weight === undefined || !session.trainingPlanId) {
+    if (weight === undefined) {
       return weight;
+    }
+    if (!session.trainingPlanId) {
+      return this.applyManualDeload(sessionExercise, weight);
     }
     const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
     return plan ? this.applyDeload(plan, exerciseId, weight) : weight;
   }
 
-  // Counts back through this plan's own finished sessions for exerciseId,
-  // most recent first, stopping at the first session that wasn't a clean
-  // failure (succeeded, or its working sets were never actually attempted -
-  // weight still at 0, same "untouched" signal used elsewhere in this file).
-  // Scoped to working sets only, since warmup/cooldown sets don't carry a
-  // pass/fail target relevant to a deload decision.
-  private consecutiveExerciseFailures(planId: string, exerciseId: string): number {
+  // Counts back through this plan's own finished sessions for exerciseId
+  // (or, when planId is undefined, every manual session's, since those
+  // aren't scoped to any plan), most recent first, stopping at the first
+  // session that wasn't a clean failure (succeeded, or its working sets
+  // were never actually attempted - weight still at 0, same "untouched"
+  // signal used elsewhere in this file). Scoped to working sets only, since
+  // warmup/cooldown sets don't carry a pass/fail target relevant to a
+  // deload decision.
+  private consecutiveExerciseFailures(planId: string | undefined, exerciseId: string): number {
     const finishedSessions = this.sessions
       .filter((session) => session.trainingPlanId === planId && session.finished)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -1338,10 +1351,25 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return weight;
     }
     const failures = this.consecutiveExerciseFailures(plan.id, exerciseId);
-    if (failures < config.deloadAfterFailures) {
+    return failures >= config.deloadAfterFailures ? this.reduceByPercent(weight, config.deloadPercent) : weight;
+  }
+
+  // Manual sessions have no plan to hold this config - the same two fields
+  // live directly on the session's own (editable, session-local) exercise
+  // settings instead, and the failure streak is counted across all manual
+  // sessions rather than scoped to one plan's.
+  private applyManualDeload(sessionExercise: SessionExercise, weight: number): number {
+    if (!sessionExercise.deloadAfterFailures || !sessionExercise.deloadPercent) {
       return weight;
     }
-    return Math.round(weight * (1 - config.deloadPercent / 100) * 100) / 100;
+    const failures = this.consecutiveExerciseFailures(undefined, sessionExercise.exerciseId);
+    return failures >= sessionExercise.deloadAfterFailures
+      ? this.reduceByPercent(weight, sessionExercise.deloadPercent)
+      : weight;
+  }
+
+  private reduceByPercent(weight: number, percent: number): number {
+    return Math.round(weight * (1 - percent / 100) * 100) / 100;
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {
@@ -1571,6 +1599,44 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async updateSessionMinReps(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const parsed = parseInt(value, 10);
     sessionExercise.minReps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 100) : undefined;
+    await this.persist(session);
+  }
+
+  onDeloadFieldFocus(event: Event): void {
+    (event.target as HTMLInputElement).select();
+  }
+
+  onDeloadAfterFailuresFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/\D/g, '').slice(0, 4);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  onDeloadPercentFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateSessionDeloadAfterFailures(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    sessionExercise.deloadAfterFailures = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 1000) : undefined;
+    await this.persist(session);
+  }
+
+  // Displayed with trailing zeros (e.g. "5.00"), same convention as the
+  // training-plans version of this field.
+  sessionDeloadPercentDisplay(sessionExercise: SessionExercise): string {
+    return sessionExercise.deloadPercent !== undefined ? sessionExercise.deloadPercent.toFixed(2) : '';
+  }
+
+  async updateSessionDeloadPercent(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    sessionExercise.deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : undefined;
     await this.persist(session);
   }
 

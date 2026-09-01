@@ -38,6 +38,11 @@ export interface SessionExercise {
   incrementScheme?: IncrementScheme;
   minReps?: number;
   minWeight?: number;
+  // Auto-deload safety net for manual (no trainingPlanId) sessions, same
+  // concept as PlanExerciseConfig's fields of the same name - see
+  // SessionsComponent.consecutiveExerciseFailures/applyManualDeload.
+  deloadAfterFailures?: number;
+  deloadPercent?: number;
 }
 
 export interface TrainingSession {

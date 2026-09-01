@@ -555,6 +555,42 @@
                               />
                             </mat-form-field>
                           }
+
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-info-field"
+                            [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                          >
+                            <mat-label>{{ 'trainingPlans.deloadAfterFailuresLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="numeric"
+                              [value]="sessionExercise.deloadAfterFailures ?? ''"
+                              name="sessionDeloadAfterFailures-{{ sessionExercise.exerciseId }}"
+                              (focus)="onDeloadFieldFocus($event)"
+                              (input)="onDeloadAfterFailuresFieldInput($event)"
+                              (change)="updateSessionDeloadAfterFailures(session, sessionExercise, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-info-field"
+                            [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                          >
+                            <mat-label>{{ 'trainingPlans.deloadPercentLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="decimal"
+                              [value]="sessionDeloadPercentDisplay(sessionExercise)"
+                              name="sessionDeloadPercent-{{ sessionExercise.exerciseId }}"
+                              (focus)="onDeloadFieldFocus($event)"
+                              (input)="onDeloadPercentFieldInput($event)"
+                              (change)="updateSessionDeloadPercent(session, sessionExercise, $any($event.target).value)"
+                            />
+                          </mat-form-field>
                         }
                       </div>
                     }
