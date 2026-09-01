@@ -92,7 +92,7 @@
                       <span class="history-set-type-label"><mat-icon class="label-icon">{{ setType.icon }}</mat-icon>{{ setType.labelKey | translate }}</span>
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
                         <div class="history-set-row">
-                          <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
+                          <span class="set-index">#{{ i + 1 }}</span>
                           <span
                             >{{ set.reps }} {{ 'sessions.reps' | translate }}@if (targetRepsHint(set); as targetHint) {
                               ({{ targetHint }})

@@ -72,6 +72,15 @@ body {
   gap: 0.75rem;
 }
 
+// The increment-scheme tooltip in the exercise options reuses the Config
+// page's full paragraph descriptions - Material's default ~200px tooltip
+// max-width turns those into a tall, narrow, hard-to-read column, so widen
+// just this one.
+.increment-scheme-tooltip,
+.increment-scheme-tooltip .mdc-tooltip__surface {
+  max-width: 320px;
+}
+
 // Inline icon that precedes a text label (nav link, heading, form-field
 // label, button, checkbox, ...). Sized relative to the surrounding text so
 // it scales with it instead of using mat-icon's fixed 24px default.

@@ -259,6 +259,28 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return WEIGHT_INCREMENT_BY_EXERCISE_TYPE[category];
   }
 
+  // The popup's own rect is only known once it has actually rendered (its
+  // height varies with content, e.g. the exercise-options popup grows once
+  // the Linear Progression minReps field appears) - so the initial position
+  // is a best guess anchored to the trigger button, corrected a tick later
+  // by measuring the real element (found via its data-popup-key, since
+  // these are duplicated per session/exercise in a @for loop) and clamping
+  // it fully inside the viewport.
+  private fitPopupToViewport(dataKey: string, position: { top: number; left: number }): void {
+    setTimeout(() => {
+      const el = document.querySelector(`[data-popup-key="${dataKey}"]`) as HTMLElement | null;
+      if (!el) {
+        return;
+      }
+      const margin = 8;
+      const rect = el.getBoundingClientRect();
+      const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
+      const maxTop = Math.max(margin, window.innerHeight - rect.height - margin);
+      position.left = Math.min(Math.max(margin, position.left), maxLeft);
+      position.top = Math.min(Math.max(margin, position.top), maxTop);
+    });
+  }
+
   private weightInfoOpenKey: string | null = null;
   weightInfoPosition: { top: number; left: number } | null = null;
 
@@ -280,6 +302,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       left: Math.max(8, rect.right - popupWidth)
     };
     this.weightInfoOpenKey = key;
+    this.fitPopupToViewport(`weight-info-${key}`, this.weightInfoPosition);
   }
 
   isWeightInfoOpen(sessionId: string, exerciseId: string): boolean {
@@ -308,6 +331,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       left: Math.max(8, rect.right - popupWidth)
     };
     this.exerciseSettingsInfoOpenKey = key;
+    this.fitPopupToViewport(`exercise-settings-${key}`, this.exerciseSettingsInfoPosition);
   }
 
   isExerciseSettingsInfoOpen(sessionId: string, exerciseId: string): boolean {
@@ -345,6 +369,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       left: Math.max(8, rect.right - popupWidth)
     };
     this.sessionSettingsInfoOpenKey = session.id;
+    this.fitPopupToViewport(`session-settings-${session.id}`, this.sessionSettingsInfoPosition);
   }
 
   isSessionSettingsInfoOpen(sessionId: string): boolean {
@@ -1338,6 +1363,23 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return sessionExercise.incrementScheme ?? 'NONE';
   }
 
+  // Reuses the Config page's own scheme descriptions rather than duplicating
+  // them for the tooltip, so the two stay in sync automatically.
+  incrementSchemeTooltipKey(sessionExercise: SessionExercise): string {
+    switch (this.sessionIncrementSchemeDisplay(sessionExercise)) {
+      case 'DOUBLE_PROGRESSION':
+        return 'config.incrementSchemeDescription';
+      case 'REP_GOAL':
+        return 'config.repGoalDescription';
+      case 'WAVE_PROGRESSION':
+        return 'config.waveProgressionDescription';
+      case 'LINEAR_PROGRESSION':
+        return 'config.linearProgressionDescription';
+      default:
+        return 'sessions.incrementSchemeNoneTooltip';
+    }
+  }
+
   private countedSets(sessionExercise: SessionExercise): ExerciseSet[] {
     return sessionExercise.sets.filter((set) => {
       if (set.type === 'warmup') {
@@ -1469,9 +1511,34 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async addSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {
-    const reps = this.defaultReps(sessionExercise.exerciseId, type, sessionExercise.minReps);
-    const weight = this.defaultWeight(sessionExercise.exerciseId, type, sessionExercise.minWeight);
-    sessionExercise.sets = [...sessionExercise.sets, { id: crypto.randomUUID(), reps, weight, type }];
+    // Prefers the exercise's own previous set of this type in this session -
+    // a much closer guess than defaultReps/defaultWeight's cross-session
+    // history lookup, which only kicks in for the very first set of a type.
+    const previousSet = [...sessionExercise.sets].reverse().find((candidate) => candidate.type === type);
+    let reps: number;
+    let weight: number;
+    if (previousSet) {
+      // Reads through the previous set's own field buffer rather than its
+      // model fields directly - reps/weight only land on the model once a
+      // set is confirmed done, so an in-progress previous set would
+      // otherwise still show 0 here even though the user has already typed
+      // (and can see) real values for it.
+      const buffer = this.fieldBuffer(previousSet);
+      const bufferedReps = parseInt(buffer.reps, 10);
+      const bufferedWeight = parseFloat(buffer.weight.replace(',', '.'));
+      reps = Number.isFinite(bufferedReps) ? bufferedReps : previousSet.reps;
+      weight = Number.isFinite(bufferedWeight) ? bufferedWeight : previousSet.weight;
+    } else {
+      reps = this.defaultReps(sessionExercise.exerciseId, type, sessionExercise.minReps);
+      weight = this.defaultWeight(sessionExercise.exerciseId, type, sessionExercise.minWeight);
+    }
+    const newSet: ExerciseSet = { id: crypto.randomUUID(), reps, weight, type };
+    if (previousSet?.targetReps !== undefined) {
+      newSet.targetReps = previousSet.targetReps;
+      newSet.targetRepsMax = previousSet.targetRepsMax;
+      newSet.isAmrap = previousSet.isAmrap;
+    }
+    sessionExercise.sets = [...sessionExercise.sets, newSet];
     await this.persist(session);
   }
 
@@ -1649,24 +1716,47 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateTargetReps(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
+  // Applies to every not-yet-done set of the exercise, not just the one just
+  // edited - a rep prescription describes the whole exercise, and sets
+  // already marked done keep whatever they were actually prescribed at the
+  // time. Also keeps minReps (Linear Progression's target - see
+  // recordManualProgressionProgress) in lockstep with the top of whatever
+  // was just typed here, since that's the same number a manual session's
+  // "hit the top of your range" target represents.
+  async updateTargetReps(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const trimmed = value.trim();
-    if (trimmed === '') {
-      set.targetReps = undefined;
-      set.targetRepsMax = undefined;
-      set.isAmrap = undefined;
-      await this.persist(session);
-      return;
+    let targetReps: number | undefined;
+    let targetRepsMax: number | undefined;
+    let isAmrap: boolean | undefined;
+
+    if (trimmed !== '') {
+      const match = trimmed.match(/^(\d{1,3})(?:-(\d{1,3}))?(\+)?$/);
+      if (!match) {
+        return;
+      }
+      const lower = Math.min(Math.max(parseInt(match[1], 10), 1), 999);
+      const upper = match[2] !== undefined ? Math.min(Math.max(parseInt(match[2], 10), 1), 999) : undefined;
+      targetReps = upper !== undefined ? Math.min(lower, upper) : lower;
+      targetRepsMax = upper !== undefined && upper !== lower ? Math.max(lower, upper) : undefined;
+      isAmrap = !!match[3];
+      sessionExercise.minReps = targetRepsMax ?? targetReps;
     }
-    const match = trimmed.match(/^(\d{1,3})(?:-(\d{1,3}))?(\+)?$/);
-    if (!match) {
-      return;
+
+    for (const candidate of sessionExercise.sets) {
+      if (candidate.done) {
+        continue;
+      }
+      candidate.targetReps = targetReps;
+      candidate.targetRepsMax = targetRepsMax;
+      candidate.isAmrap = isAmrap;
+      // Prefills the achieved-reps field with the top of the prescription -
+      // e.g. "8-12" or "10+" both prefill 10/12, so hitting the target needs
+      // no typing at all, just confirming the set.
+      if (targetReps !== undefined) {
+        this.fieldBuffer(candidate).reps = String(targetRepsMax ?? targetReps);
+      }
     }
-    const lower = Math.min(Math.max(parseInt(match[1], 10), 1), 999);
-    const upper = match[2] !== undefined ? Math.min(Math.max(parseInt(match[2], 10), 1), 999) : undefined;
-    set.targetReps = upper !== undefined ? Math.min(lower, upper) : lower;
-    set.targetRepsMax = upper !== undefined && upper !== lower ? Math.max(lower, upper) : undefined;
-    set.isAmrap = !!match[3];
+
     await this.persist(session);
   }
 

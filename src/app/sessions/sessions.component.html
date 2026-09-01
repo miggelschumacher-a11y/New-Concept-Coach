@@ -166,6 +166,7 @@
             @if (isSessionSettingsInfoOpen(session.id) && sessionSettingsInfoPosition) {
               <div
                 class="exercise-settings-info-popup"
+                attr.data-popup-key="session-settings-{{ session.id }}"
                 [style.top.px]="sessionSettingsInfoPosition.top"
                 [style.left.px]="sessionSettingsInfoPosition.left"
                 (click)="$event.stopPropagation()"
@@ -458,6 +459,7 @@
                     @if (isExerciseSettingsInfoOpen(session.id, sessionExercise.exerciseId) && exerciseSettingsInfoPosition) {
                       <div
                         class="exercise-settings-info-popup"
+                        attr.data-popup-key="exercise-settings-{{ session.id }}:{{ sessionExercise.exerciseId }}"
                         [style.top.px]="exerciseSettingsInfoPosition.top"
                         [style.left.px]="exerciseSettingsInfoPosition.left"
                         (click)="$event.stopPropagation()"
@@ -519,7 +521,12 @@
                             </mat-select>
                           </mat-form-field>
 
-                          <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-info-field"
+                            [matTooltip]="incrementSchemeTooltipKey(sessionExercise) | translate"
+                            matTooltipClass="increment-scheme-tooltip"
+                          >
                             <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
                             <mat-select
                               [ngModel]="sessionIncrementSchemeDisplay(sessionExercise)"
@@ -565,6 +572,7 @@
                       @if (isWeightInfoOpen(session.id, sessionExercise.exerciseId) && weightInfoPosition) {
                         <div
                           class="weight-info-popup"
+                          attr.data-popup-key="weight-info-{{ session.id }}:{{ sessionExercise.exerciseId }}"
                           [style.top.px]="weightInfoPosition.top"
                           [style.left.px]="weightInfoPosition.left"
                           (click)="$event.stopPropagation()"
@@ -635,7 +643,7 @@
                               <mat-icon>delete</mat-icon>
                             </button>
                           }
-                          <span class="set-index">{{ 'sessions.setLabel' | translate }} {{ i + 1 }}</span>
+                          <span class="set-index">#{{ i + 1 }}</span>
                           <div class="set-fields">
                             @if (canEditExerciseTypeInSession(session)) {
                               <mat-form-field appearance="outline" class="set-field set-field-target-reps-input">
@@ -648,7 +656,7 @@
                                   [readonly]="set.done"
                                   [disabled]="isPaused(session)"
                                   (input)="onTargetRepsFieldInput($event)"
-                                  (change)="updateTargetReps(session, set, $any($event.target).value)"
+                                  (change)="updateTargetReps(session, sessionExercise, $any($event.target).value)"
                                 />
                               </mat-form-field>
                             }
