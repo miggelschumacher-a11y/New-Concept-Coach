@@ -1053,9 +1053,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
         sets: await Promise.all(
           sessionExercise.sets.map(async (set) => ({
             id: crypto.randomUUID(),
-            reps: this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
+            // Carries the just-finished set's own target reps forward (same
+            // prescription, next session), same as addSet() already does for
+            // a manually added set - and prefills the achieved-reps field
+            // from that target's top (fieldBuffer()'s own convention), not
+            // from cross-session history, now that there's a real target to
+            // prefill from. Falls back to history when the set had no target.
+            reps:
+              set.targetReps !== undefined
+                ? (set.targetRepsMax ?? set.targetReps)
+                : this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
             weight: await this.peekProgressionWeight(sessionExercise, set),
-            type: set.type
+            type: set.type,
+            targetReps: set.targetReps,
+            targetRepsMax: set.targetRepsMax,
+            isAmrap: set.isAmrap
           }))
         ),
         countWarmupSets: sessionExercise.countWarmupSets,
