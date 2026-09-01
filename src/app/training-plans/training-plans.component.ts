@@ -58,6 +58,12 @@ const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
 const DEFAULT_INCREMENT_SCHEME: IncrementScheme = 'LINEAR_PROGRESSION';
 const DEFAULT_LINEAR_PROGRESSION_TARGET_REPS = '5';
 const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = false;
+// Flat fallback for weightIncrement when the field is left blank - no
+// longer the body-region-based WEIGHT_INCREMENT_BY_EXERCISE_TYPE default.
+const DEFAULT_WEIGHT_INCREMENT = 1;
+// Seeded on new exercise configs so percentIncrement isn't blank/0 (no
+// automatic increase) by default.
+const DEFAULT_PERCENT_INCREMENT = 5;
 
 type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTargets';
 
@@ -510,6 +516,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       warmupSetTargets: this.defaultWorkingSetTargets(DEFAULT_WARMUP_SETS),
       workingSetTargets: this.defaultWorkingSetTargets(DEFAULT_WORKING_SETS),
       cooldownSetTargets: this.defaultWorkingSetTargets(DEFAULT_COOLDOWN_SETS),
+      percentIncrement: DEFAULT_PERCENT_INCREMENT,
       ...(DEFAULT_INCREMENT_SCHEME === 'LINEAR_PROGRESSION'
         ? { linearProgression: { lowerBoundSufficient: DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT } }
         : {})
@@ -849,6 +856,30 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const parsed = parseFloat(value.replace(',', '.'));
     const weightIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
     await this.updateConfig(plan, exerciseId, { weightIncrement });
+  }
+
+  // Shown as the weight-increment field's own placeholder - the fallback
+  // actually applied (see sessions.component.ts) when the field is blank.
+  readonly defaultWeightIncrement = DEFAULT_WEIGHT_INCREMENT;
+
+  onPercentIncrementFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // Displayed with trailing zeros, matching the deload percent field.
+  percentIncrementDisplay(plan: TrainingPlan, exerciseId: string): string {
+    const percentIncrement = this.planExerciseConfig(plan, exerciseId).percentIncrement;
+    return percentIncrement !== undefined ? percentIncrement.toFixed(2) : '';
+  }
+
+  async updatePlanExercisePercentIncrement(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const percentIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
+    await this.updateConfig(plan, exerciseId, { percentIncrement });
   }
 
   private async updatePercentageSet(

@@ -54,6 +54,10 @@ function toDateTimeLocalValue(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+// Flat fallback for a plan exercise's weightIncrement when left blank - not
+// the body-region-based WEIGHT_INCREMENT_BY_EXERCISE_TYPE default.
+const DEFAULT_WEIGHT_INCREMENT = 1;
+
 export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
   { value: 'warmup', labelKey: 'sessions.warmupSets', icon: 'whatshot' },
   { value: 'working', labelKey: 'sessions.workingSets', icon: 'fitness_center' },
@@ -681,7 +685,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         config.doubleProgression,
         { achievedReps, lastSetWeight },
         category,
-        config.weightIncrement
+        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
       );
       this.doubleProgressionStates.set(sessionExercise.exerciseId, next);
     }
@@ -724,7 +728,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         config.repGoal,
         { totalReps, lastSetWeight },
         category,
-        config.weightIncrement
+        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
       );
       this.repGoalStates.set(sessionExercise.exerciseId, next);
     }
@@ -768,7 +772,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         config.waveProgression,
         { achievedReps, lastSetWeight },
         category,
-        config.weightIncrement
+        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
       );
       this.waveProgressionStates.set(sessionExercise.exerciseId, next);
     }
@@ -819,7 +823,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         success,
         { lastSetWeight },
         category,
-        config.weightIncrement
+        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
       );
       this.linearProgressionStates.set(sessionExercise.exerciseId, next);
     }
@@ -1291,9 +1295,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
               workingSets = workingSetTargets
                 ? buildTargetSets(workingSetTargets, 'working', (target) => this.applyDeload(plan, exerciseId, target.weight))
                 : buildSets(config.workingSets, 'working');
+            } else if (config.exerciseType === 'PERCENTAGE_BASED') {
+              // No tracked progression state of its own (and no working-set-
+              // target list either) - the working weight simply carries
+              // forward from history (like TIME_BASED), scaled up by the
+              // exercise's own percentIncrement for the next session, if set.
+              const percentIncrement = config.percentIncrement ?? 0;
+              workingSets = buildSets(config.workingSets, 'working').map((set) => ({
+                ...set,
+                weight: Math.round(set.weight * (1 + percentIncrement / 100) * 100) / 100
+              }));
             } else {
-              // Non-WEIGHT_BASED (TIME_BASED) - unaffected by the
-              // working-set-target list, still just a plain count.
+              // TIME_BASED - unaffected by the working-set-target list or
+              // any weight concept, still just a plain count.
               workingSets = buildSets(config.workingSets, 'working');
             }
 

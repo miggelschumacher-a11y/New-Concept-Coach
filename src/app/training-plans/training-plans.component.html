@@ -582,6 +582,49 @@
                           (change)="updatePlanExerciseDeloadAfterFailures(plan, exerciseId, $any($event.target).value)"
                         />
                       </mat-form-field>
+
+                      <div class="exercise-settings-row">
+                        @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-field"
+                            [matTooltip]="'trainingPlans.weightIncrementTooltip' | translate"
+                          >
+                            <mat-label>{{ 'trainingPlans.weightIncrementLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="decimal"
+                              [placeholder]="defaultWeightIncrement.toFixed(2)"
+                              [value]="weightIncrementDisplay(plan, exerciseId)"
+                              name="weightIncrement-{{ plan.id }}-{{ exerciseId }}"
+                              (focus)="onDeloadFieldFocus($event)"
+                              (input)="onWeightIncrementFieldInput($event)"
+                              (change)="updatePlanExerciseWeightIncrement(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+                        }
+                        @if (planExerciseConfig(plan, exerciseId).exerciseType === 'PERCENTAGE_BASED') {
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-field"
+                            [matTooltip]="'trainingPlans.percentIncrementTooltip' | translate"
+                          >
+                            <mat-label>{{ 'trainingPlans.percentIncrementLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="decimal"
+                              [value]="percentIncrementDisplay(plan, exerciseId)"
+                              name="percentIncrement-{{ plan.id }}-{{ exerciseId }}"
+                              (focus)="onDeloadFieldFocus($event)"
+                              (input)="onPercentIncrementFieldInput($event)"
+                              (change)="updatePlanExercisePercentIncrement(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+                        }
+                      </div>
+
                       <mat-form-field
                         appearance="outline"
                         class="exercise-settings-field"
@@ -599,26 +642,6 @@
                           (change)="updatePlanExerciseDeloadPercent(plan, exerciseId, $any($event.target).value)"
                         />
                       </mat-form-field>
-                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
-                        <mat-form-field
-                          appearance="outline"
-                          class="exercise-settings-field"
-                          [matTooltip]="'trainingPlans.weightIncrementTooltip' | translate"
-                        >
-                          <mat-label>{{ 'trainingPlans.weightIncrementLabel' | translate }}</mat-label>
-                          <input
-                            matInput
-                            type="text"
-                            inputmode="decimal"
-                            [placeholder]="tierLineWeightIncrement(exerciseId).toFixed(2)"
-                            [value]="weightIncrementDisplay(plan, exerciseId)"
-                            name="weightIncrement-{{ plan.id }}-{{ exerciseId }}"
-                            (focus)="onDeloadFieldFocus($event)"
-                            (input)="onWeightIncrementFieldInput($event)"
-                            (change)="updatePlanExerciseWeightIncrement(plan, exerciseId, $any($event.target).value)"
-                          />
-                        </mat-form-field>
-                      }
                     </mat-expansion-panel>
                   </mat-accordion>
                 }

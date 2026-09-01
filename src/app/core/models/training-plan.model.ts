@@ -128,10 +128,15 @@ export interface PlanExerciseConfig {
   // see SessionsComponent.consecutiveExerciseFailures/applyDeload.
   deloadAfterFailures?: number;
   deloadPercent?: number;
-  // Overrides the fixed body-region default (WEIGHT_INCREMENT_BY_EXERCISE_TYPE)
-  // for how much weight this exercise's working sets gain each time its
-  // incrementScheme records a success. Unset falls back to that default.
+  // Only used when exerciseType is WEIGHT_BASED - how much weight this
+  // exercise's working sets gain each time its incrementScheme records a
+  // success. Unset falls back to DEFAULT_WEIGHT_INCREMENT (1).
   weightIncrement?: number;
+  // Only used when exerciseType is PERCENTAGE_BASED - no tracked progression
+  // state of its own, so this simply scales up the working weight (carried
+  // forward from history) by this percentage each time a new session is
+  // generated for the exercise. Unset/0 means no automatic increase.
+  percentIncrement?: number;
 }
 
 export interface TrainingPlan {
