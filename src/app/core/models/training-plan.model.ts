@@ -55,13 +55,11 @@ export interface WaveProgressionConfig {
 }
 
 export interface LinearProgressionConfig {
-  // Plain number ('5') or a from-to range ('8-12'), each side 1-100. No
-  // global default - set directly per exercise.
-  targetReps: string;
-  // Only meaningful when targetReps is an actual range (min !== max):
-  // whether every working set reaching just the lower bound is enough to
-  // trigger a weight increase (true), or whether every set must reach the
-  // upper bound instead (false).
+  // Only meaningful when a working set's own target is an actual range
+  // (min !== max, see WorkingSetTarget): whether reaching just the lower
+  // bound is enough to trigger a weight increase (true), or whether the
+  // upper bound must be reached instead (false). Applies uniformly across
+  // every working set's own target.
   lowerBoundSufficient: boolean;
 }
 
@@ -77,6 +75,15 @@ export interface PercentageWeek {
   sets: PercentageSet[];
 }
 
+export interface WorkingSetTarget {
+  id: string;
+  // Same text format as a session set's own target-reps field: plain
+  // number ('10'), a from-to range ('8-12'), either optionally suffixed
+  // with '+' for AMRAP.
+  targetReps: string;
+  weight: number;
+}
+
 export interface PlanExerciseConfig {
   exerciseId: string;
   exerciseType?: PlanExerciseType;
@@ -84,8 +91,24 @@ export interface PlanExerciseConfig {
   incrementScheme?: IncrementScheme;
   // Each 0-100.
   warmupSets: number;
+  // Working-set count and per-set starting reps/weight for non-WEIGHT_BASED
+  // exercise types (TIME_BASED). WEIGHT_BASED exercises use
+  // workingSetTargets below instead - its length is their working-set count.
   workingSets: number;
   cooldownSets: number;
+  // Only used when exerciseType is WEIGHT_BASED - each working set's own
+  // starting target reps and weight, editable/addable/deletable like a
+  // session's own set list. Its length replaces workingSets as the working
+  // set count. Feeds the very first session generated (and the seed weight
+  // a tracked incrementScheme's state initializes from); once a scheme's
+  // own state exists, that scheme's own progression logic takes over as
+  // before - see SessionsComponent.buildSessionFromPlan.
+  workingSetTargets?: WorkingSetTarget[];
+  // Same idea as workingSetTargets, but for the warm-up/cooldown sets -
+  // WEIGHT_BASED only, no scheme/deload logic ever applies to these, just a
+  // literal per-set reps/weight prescription.
+  warmupSetTargets?: WorkingSetTarget[];
+  cooldownSetTargets?: WorkingSetTarget[];
   // Only used when exerciseType is PERCENTAGE_BASED - a wave of weeks, each
   // with its own set-by-set %1RM/reps/AMRAP, e.g. a 5/3/1 style cycle.
   percentageWeeks?: PercentageWeek[];
@@ -105,6 +128,10 @@ export interface PlanExerciseConfig {
   // see SessionsComponent.consecutiveExerciseFailures/applyDeload.
   deloadAfterFailures?: number;
   deloadPercent?: number;
+  // Overrides the fixed body-region default (WEIGHT_INCREMENT_BY_EXERCISE_TYPE)
+  // for how much weight this exercise's working sets gain each time its
+  // incrementScheme records a success. Unset falls back to that default.
+  weightIncrement?: number;
 }
 
 export interface TrainingPlan {

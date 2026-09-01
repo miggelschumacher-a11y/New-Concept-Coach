@@ -12,7 +12,8 @@ export function computeNextWaveProgressionState(
   state: WaveProgressionState,
   config: WaveProgressionConfig,
   result: WaveProgressionResult,
-  exerciseCategory: ExerciseWeightCategory
+  exerciseCategory: ExerciseWeightCategory,
+  incrementOverride?: number
 ): WaveProgressionState {
   const success = result.achievedReps.every((reps) => reps >= state.currentReps);
   if (!success) {
@@ -20,7 +21,7 @@ export function computeNextWaveProgressionState(
     return { ...state, lastUpdated: new Date() };
   }
 
-  const increment = WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory];
+  const increment = incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory];
 
   if (state.currentReps > config.finalReps) {
     // Still descending through this wave: weight climbs, reps step down.

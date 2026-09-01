@@ -40,7 +40,10 @@ export function computeNextDoubleProgressionState(
   state: DoubleProgressionState,
   config: DoubleProgressionConfig,
   result: DoubleProgressionResult,
-  exerciseCategory: ExerciseWeightCategory
+  exerciseCategory: ExerciseWeightCategory,
+  // Per-exercise override for the weight step on a successful cycle reset -
+  // falls back to the fixed body-region default when unset.
+  incrementOverride?: number
 ): DoubleProgressionState {
   const workingSets = result.achievedReps.length;
   const prescribedReps = computePrescribedReps(config, state.repsAddedThisCycle, workingSets);
@@ -59,7 +62,7 @@ export function computeNextDoubleProgressionState(
     // and increase the weight, building on what was actually lifted.
     return {
       ...state,
-      currentWeight: result.lastSetWeight + WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory],
+      currentWeight: result.lastSetWeight + (incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory]),
       repsAddedThisCycle: 0,
       lastUpdated: new Date()
     };

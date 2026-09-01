@@ -13,7 +13,8 @@ export function computeNextRepGoalState(
   state: RepGoalState,
   config: RepGoalConfig,
   result: RepGoalResult,
-  exerciseCategory: ExerciseWeightCategory
+  exerciseCategory: ExerciseWeightCategory,
+  incrementOverride?: number
 ): RepGoalState {
   if (result.totalReps <= config.totalRepGoal) {
     // Goal not surpassed: repeat the same weight next session.
@@ -21,7 +22,7 @@ export function computeNextRepGoalState(
   }
   return {
     ...state,
-    currentWeight: result.lastSetWeight + WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory],
+    currentWeight: result.lastSetWeight + (incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory]),
     lastUpdated: new Date()
   };
 }

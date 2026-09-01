@@ -25,12 +25,12 @@ import {
   PlanExerciseType,
   IncrementScheme,
   PercentageWeek,
-  DoubleProgressionMode
+  DoubleProgressionMode,
+  WorkingSetTarget
 } from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
-import { parseRepsRange } from '../core/utils/reps-range.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
 import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
@@ -58,6 +58,8 @@ const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
 const DEFAULT_INCREMENT_SCHEME: IncrementScheme = 'LINEAR_PROGRESSION';
 const DEFAULT_LINEAR_PROGRESSION_TARGET_REPS = '5';
 const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = true;
+
+type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTargets';
 
 // Classic Wendler 5/3/1: 3 waves building to a heavier AMRAP top set, then a
 // deload week. Seeded the first time an exercise is switched to
@@ -380,11 +382,22 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       name: plan.name + this.translationService.translate('trainingPlans.copySuffix'),
       exerciseConfigs: plan.exerciseConfigs?.map((config) => ({
         ...config,
-        percentageWeeks: config.percentageWeeks?.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }))
+        percentageWeeks: config.percentageWeeks?.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) })),
+        warmupSetTargets: config.warmupSetTargets?.map((target) => ({ ...target })),
+        workingSetTargets: config.workingSetTargets?.map((target) => ({ ...target })),
+        cooldownSetTargets: config.cooldownSetTargets?.map((target) => ({ ...target }))
       })),
       isDefault: false
     });
     await this.load();
+  }
+
+  private defaultWorkingSetTargets(count: number): WorkingSetTarget[] {
+    return Array.from({ length: count }, () => ({
+      id: crypto.randomUUID(),
+      targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS,
+      weight: 0
+    }));
   }
 
   // Linear Progression has no Config-level default to copy on first switch
@@ -398,13 +411,11 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       warmupSets: DEFAULT_WARMUP_SETS,
       workingSets: DEFAULT_WORKING_SETS,
       cooldownSets: DEFAULT_COOLDOWN_SETS,
+      warmupSetTargets: this.defaultWorkingSetTargets(DEFAULT_WARMUP_SETS),
+      workingSetTargets: this.defaultWorkingSetTargets(DEFAULT_WORKING_SETS),
+      cooldownSetTargets: this.defaultWorkingSetTargets(DEFAULT_COOLDOWN_SETS),
       ...(DEFAULT_INCREMENT_SCHEME === 'LINEAR_PROGRESSION'
-        ? {
-            linearProgression: {
-              targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS,
-              lowerBoundSufficient: DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT
-            }
-          }
+        ? { linearProgression: { lowerBoundSufficient: DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT } }
         : {})
     };
   }
@@ -428,17 +439,61 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Self-healing: a config saved before workingSetTargets existed (or one
+  // just switched to WEIGHT_BASED) gets a freshly-seeded list here rather
+  // than needing a one-off migration - same pattern as defaultExerciseConfig
+  // itself falling back for an exercise with no stored config at all. This
+  // returns a fresh object for display; writes always go through
+  // updateConfig, which persists its own patched copy separately.
+  // Deterministic IDs here, not defaultWorkingSetTargets()'s random ones:
+  // this runs on every template read (never persisted), so a stable id per
+  // index keeps @for's track expression stable across change-detection
+  // passes instead of re-creating the whole row list every check.
+  private selfHealSetTargets(exerciseId: string, field: SetTargetField, count: number): WorkingSetTarget[] {
+    return Array.from({ length: count }, (_, i) => ({
+      id: `${exerciseId}-${field}-${i}`,
+      targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS,
+      weight: 0
+    }));
+  }
+
+  // Self-healing: a config saved before warmup/working/cooldown set targets
+  // existed (or one just switched to WEIGHT_BASED) gets freshly-seeded lists
+  // here rather than needing a one-off migration - same pattern as
+  // defaultExerciseConfig itself falling back for an exercise with no stored
+  // config at all. This returns a fresh object for display; writes always go
+  // through updateConfig, which persists its own patched copy separately.
   planExerciseConfig(plan: TrainingPlan, exerciseId: string): PlanExerciseConfig {
-    return plan.exerciseConfigs?.find((config) => config.exerciseId === exerciseId) ?? this.defaultExerciseConfig(exerciseId);
+    const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId) ?? this.defaultExerciseConfig(exerciseId);
+    if (config.exerciseType !== 'WEIGHT_BASED') {
+      return config;
+    }
+    const healed: Partial<PlanExerciseConfig> = {};
+    if (!config.warmupSetTargets) {
+      healed.warmupSetTargets = this.selfHealSetTargets(exerciseId, 'warmupSetTargets', config.warmupSets);
+    }
+    if (!config.workingSetTargets) {
+      healed.workingSetTargets = this.selfHealSetTargets(exerciseId, 'workingSetTargets', config.workingSets || DEFAULT_WORKING_SETS);
+    }
+    if (!config.cooldownSetTargets) {
+      healed.cooldownSetTargets = this.selfHealSetTargets(exerciseId, 'cooldownSetTargets', config.cooldownSets);
+    }
+    return Object.keys(healed).length ? { ...config, ...healed } : config;
   }
 
   planExerciseTotalSets(plan: TrainingPlan, exerciseId: string): number {
     const config = this.planExerciseConfig(plan, exerciseId);
-    const workingSets =
-      config.exerciseType === 'PERCENTAGE_BASED' && config.percentageWeeks?.length
-        ? config.percentageWeeks[0].sets.length
-        : config.workingSets;
-    return config.warmupSets + workingSets + config.cooldownSets;
+    let warmupSets = config.warmupSets;
+    let workingSets = config.workingSets;
+    let cooldownSets = config.cooldownSets;
+    if (config.exerciseType === 'PERCENTAGE_BASED' && config.percentageWeeks?.length) {
+      workingSets = config.percentageWeeks[0].sets.length;
+    } else if (config.exerciseType === 'WEIGHT_BASED') {
+      warmupSets = config.warmupSetTargets?.length ?? 0;
+      workingSets = config.workingSetTargets?.length ?? 0;
+      cooldownSets = config.cooldownSetTargets?.length ?? 0;
+    }
+    return warmupSets + workingSets + cooldownSets;
   }
 
   // A plan whose percentage scheme repeats identically every session (e.g.
@@ -464,6 +519,17 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const patch: Partial<PlanExerciseConfig> = { exerciseType };
     if (exerciseType === 'PERCENTAGE_BASED' && !config.percentageWeeks) {
       patch.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
+    }
+    if (exerciseType === 'WEIGHT_BASED') {
+      if (!config.warmupSetTargets) {
+        patch.warmupSetTargets = this.defaultWorkingSetTargets(config.warmupSets);
+      }
+      if (!config.workingSetTargets) {
+        patch.workingSetTargets = this.defaultWorkingSetTargets(config.workingSets || DEFAULT_WORKING_SETS);
+      }
+      if (!config.cooldownSetTargets) {
+        patch.cooldownSetTargets = this.defaultWorkingSetTargets(config.cooldownSets);
+      }
     }
     await this.updateConfig(plan, exerciseId, patch);
   }
@@ -499,7 +565,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     // No Config-level default for this one - it's set directly per exercise.
     if (incrementScheme === 'LINEAR_PROGRESSION' && !config.linearProgression) {
       patch.linearProgression = {
-        targetReps: DEFAULT_LINEAR_PROGRESSION_TARGET_REPS,
         lowerBoundSufficient: DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT
       };
     }
@@ -570,6 +635,108 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async updatePlanExerciseCooldownSets(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
     await this.updateConfig(plan, exerciseId, { cooldownSets: this.clampSets(value) });
+  }
+
+  onWorkingSetTargetFieldFocus(event: Event): void {
+    (event.target as HTMLInputElement).select();
+  }
+
+  // Same format/sanitizer as a session's own target-reps field: digits, an
+  // optional dash range, then an optional trailing '+' for AMRAP.
+  onWorkingSetTargetRepsInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}(-\d{0,3})?\+?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  onWorkingSetTargetWeightInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  private async updateSetTargets(
+    plan: TrainingPlan,
+    exerciseId: string,
+    field: SetTargetField,
+    updater: (targets: WorkingSetTarget[]) => WorkingSetTarget[]
+  ): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const targets = updater(config[field] ?? []);
+    await this.updateConfig(plan, exerciseId, { [field]: targets });
+  }
+
+  async addSetTarget(plan: TrainingPlan, exerciseId: string, field: SetTargetField): Promise<void> {
+    // Copies the previous set's own target/weight, same convenience as
+    // adding a set in a session - only the very first set falls back to a
+    // blank prescription.
+    await this.updateSetTargets(plan, exerciseId, field, (targets) => {
+      const previous = targets[targets.length - 1];
+      return [
+        ...targets,
+        { id: crypto.randomUUID(), targetReps: previous?.targetReps ?? '', weight: previous?.weight ?? 0 }
+      ];
+    });
+  }
+
+  async removeSetTarget(plan: TrainingPlan, exerciseId: string, field: SetTargetField, index: number): Promise<void> {
+    await this.updateSetTargets(plan, exerciseId, field, (targets) => targets.filter((_, i) => i !== index));
+  }
+
+  async updateSetTargetReps(
+    plan: TrainingPlan,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    value: string
+  ): Promise<void> {
+    await this.updateSetTargets(plan, exerciseId, field, (targets) =>
+      targets.map((target, i) => (i === index ? { ...target, targetReps: value.trim() } : target))
+    );
+  }
+
+  async updateSetTargetWeight(
+    plan: TrainingPlan,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    value: string
+  ): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const weight = Number.isFinite(parsed) ? Math.max(parsed, 0) : 0;
+    await this.updateSetTargets(plan, exerciseId, field, (targets) =>
+      targets.map((target, i) => (i === index ? { ...target, weight } : target))
+    );
+  }
+
+  // Displayed with trailing zeros (e.g. "80.00"), matching the deload
+  // percent and weight-increment fields' convention.
+  setTargetWeightDisplay(target: WorkingSetTarget): string {
+    return target.weight.toFixed(2);
+  }
+
+  onWeightIncrementFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // Displayed with trailing zeros, matching the deload percent field.
+  weightIncrementDisplay(plan: TrainingPlan, exerciseId: string): string {
+    const weightIncrement = this.planExerciseConfig(plan, exerciseId).weightIncrement;
+    return weightIncrement !== undefined ? weightIncrement.toFixed(2) : '';
+  }
+
+  async updatePlanExerciseWeightIncrement(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const weightIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
+    await this.updateConfig(plan, exerciseId, { weightIncrement });
   }
 
   private async updatePercentageSet(
@@ -684,38 +851,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async updateWaveProgressionRepsDecrement(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
     await this.updateWaveProgression(plan, exerciseId, { repsDecrement: this.clampSets(value) });
-  }
-
-  onLinearProgressionTargetRepsInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitized = input.value.replace(/[^\d-]/g, '').slice(0, 7);
-    if (sanitized !== input.value) {
-      input.value = sanitized;
-    }
-  }
-
-  // A plain number ('5') behaves exactly as before; a range ('8-12') is only
-  // meaningful together with the lowerBoundSufficient checkbox, so that
-  // checkbox is only shown once a real range (min !== max) is entered.
-  isLinearProgressionRange(plan: TrainingPlan, exerciseId: string): boolean {
-    const config = this.planExerciseConfig(plan, exerciseId);
-    if (!config.linearProgression) {
-      return false;
-    }
-    const range = parseRepsRange(config.linearProgression.targetReps);
-    return range.min !== range.max;
-  }
-
-  async updateLinearProgressionTargetReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    const config = this.planExerciseConfig(plan, exerciseId);
-    if (!config.linearProgression) {
-      return;
-    }
-    const range = parseRepsRange(value);
-    const normalized = range.min === range.max ? `${range.min}` : `${range.min}-${range.max}`;
-    await this.updateConfig(plan, exerciseId, {
-      linearProgression: { ...config.linearProgression, targetReps: normalized }
-    });
   }
 
   async updateLinearProgressionLowerBoundSufficient(plan: TrainingPlan, exerciseId: string, checked: boolean): Promise<void> {

@@ -1,30 +1,30 @@
-import { LinearProgressionConfig } from '../models/training-plan.model';
 import { LinearProgressionState } from '../models/linear-progression.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from './tier-line-progression.util';
-import { parseRepsRange } from './reps-range.util';
 
 export interface LinearProgressionResult {
-  achievedReps: number[];
   lastSetWeight: number;
 }
 
+// Each working set now carries its own target-reps text (same as a plan's
+// working-set list and a session's own target-reps field), rather than one
+// shared range for the whole exercise - so whether the session succeeded is
+// decided by the caller (which has each set's own achieved-vs-target
+// comparison already) and handed in directly instead of recomputed here.
 export function computeNextLinearProgressionState(
   state: LinearProgressionState,
-  config: LinearProgressionConfig,
+  success: boolean,
   result: LinearProgressionResult,
-  exerciseCategory: ExerciseWeightCategory
+  exerciseCategory: ExerciseWeightCategory,
+  incrementOverride?: number
 ): LinearProgressionState {
-  const range = parseRepsRange(config.targetReps);
-  const requiredReps = config.lowerBoundSufficient ? range.min : range.max;
-  const success = result.achievedReps.every((reps) => reps >= requiredReps);
   if (!success) {
     // Repeat the same weight next session rather than advancing.
     return { ...state, lastUpdated: new Date() };
   }
   return {
     ...state,
-    currentWeight: result.lastSetWeight + WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory],
+    currentWeight: result.lastSetWeight + (incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory]),
     lastUpdated: new Date()
   };
 }

@@ -40,14 +40,15 @@ export class WaveProgressionService {
     exerciseId: string,
     config: WaveProgressionConfig,
     result: WaveProgressionResult,
-    exerciseCategory: ExerciseWeightCategory
+    exerciseCategory: ExerciseWeightCategory,
+    incrementOverride?: number
   ): Promise<WaveProgressionState> {
     return this.lock.acquire(async () => {
       const current = await this.db.get<WaveProgressionState>(STORES.waveProgression, exerciseId);
       if (!current) {
         throw new Error(`WaveProgressionService: no state initialized for exercise ${exerciseId}.`);
       }
-      const next = computeNextWaveProgressionState(current, config, result, exerciseCategory);
+      const next = computeNextWaveProgressionState(current, config, result, exerciseCategory, incrementOverride);
       await this.db.put(STORES.waveProgression, next);
       return next;
     });

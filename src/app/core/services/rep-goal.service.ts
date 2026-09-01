@@ -38,14 +38,15 @@ export class RepGoalService {
     exerciseId: string,
     config: RepGoalConfig,
     result: RepGoalResult,
-    exerciseCategory: ExerciseWeightCategory
+    exerciseCategory: ExerciseWeightCategory,
+    incrementOverride?: number
   ): Promise<RepGoalState> {
     return this.lock.acquire(async () => {
       const current = await this.db.get<RepGoalState>(STORES.repGoalProgression, exerciseId);
       if (!current) {
         throw new Error(`RepGoalService: no state initialized for exercise ${exerciseId}.`);
       }
-      const next = computeNextRepGoalState(current, config, result, exerciseCategory);
+      const next = computeNextRepGoalState(current, config, result, exerciseCategory, incrementOverride);
       await this.db.put(STORES.repGoalProgression, next);
       return next;
     });

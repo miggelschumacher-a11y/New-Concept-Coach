@@ -3,7 +3,6 @@ import { IndexedDbService, STORES } from './indexed-db.service';
 import { AsyncLock } from '../utils/async-lock.util';
 import { computeNextLinearProgressionState, LinearProgressionResult } from '../utils/linear-progression.util';
 import { LinearProgressionState } from '../models/linear-progression.model';
-import { LinearProgressionConfig } from '../models/training-plan.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
 
 @Injectable({ providedIn: 'root' })
@@ -36,16 +35,17 @@ export class LinearProgressionService {
 
   async recordSessionResult(
     exerciseId: string,
-    config: LinearProgressionConfig,
+    success: boolean,
     result: LinearProgressionResult,
-    exerciseCategory: ExerciseWeightCategory
+    exerciseCategory: ExerciseWeightCategory,
+    incrementOverride?: number
   ): Promise<LinearProgressionState> {
     return this.lock.acquire(async () => {
       const current = await this.db.get<LinearProgressionState>(STORES.linearProgression, exerciseId);
       if (!current) {
         throw new Error(`LinearProgressionService: no state initialized for exercise ${exerciseId}.`);
       }
-      const next = computeNextLinearProgressionState(current, config, result, exerciseCategory);
+      const next = computeNextLinearProgressionState(current, success, result, exerciseCategory, incrementOverride);
       await this.db.put(STORES.linearProgression, next);
       return next;
     });

@@ -74,6 +74,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Consecutive Failed Sessions',
     'trainingPlans.deloadPercentLabel': 'Weight Reduction (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Only working sets count toward this - warm-up and cooldown sets are ignored.',
+    'trainingPlans.weightIncrementLabel': 'Weight Increase',
+    'trainingPlans.weightIncrementTooltip': 'How much weight is added after a successful session. Overrides the default increment for this exercise type.',
     'trainingPlans.copySuffix': ' (Copy)',
     'trainingPlans.defaultPlanHint': 'This is a default plan. It cannot be edited or deleted — copy it to create your own editable version.',
     'trainingPlans.plan531Description':
@@ -331,6 +333,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Nicht erfolgreiche Einheiten in Folge',
     'trainingPlans.deloadPercentLabel': 'Gewichtsreduktion (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Nur Arbeitssätze werden dafür herangezogen - Aufwärm- und Cool-Down-Sätze werden ignoriert.',
+    'trainingPlans.weightIncrementLabel': 'Gewichtssteigerung',
+    'trainingPlans.weightIncrementTooltip': 'Wie viel Gewicht nach einer erfolgreichen Einheit hinzugefügt wird. Überschreibt die Standard-Steigerung für diesen Übungstyp.',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dies ist ein Standardplan. Er kann nicht bearbeitet oder gelöscht werden – kopiere ihn, um eine eigene bearbeitbare Version zu erstellen.',
     'trainingPlans.plan531Description':
@@ -588,6 +592,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Sesiones fallidas consecutivas',
     'trainingPlans.deloadPercentLabel': 'Reducción de peso (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Solo se tienen en cuenta las series de trabajo - las series de calentamiento y enfriamiento se ignoran.',
+    'trainingPlans.weightIncrementLabel': 'Aumento de peso',
+    'trainingPlans.weightIncrementTooltip': 'Cuánto peso se añade tras una sesión exitosa. Sustituye el incremento predeterminado para este tipo de ejercicio.',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Este es un plan predeterminado. No se puede editar ni eliminar; cópialo para crear tu propia versión editable.',
     'trainingPlans.plan531Description':
@@ -845,6 +851,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Sessões falhadas consecutivas',
     'trainingPlans.deloadPercentLabel': 'Redução de peso (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Apenas as séries de trabalho contam para isto - séries de aquecimento e desaquecimento são ignoradas.',
+    'trainingPlans.weightIncrementLabel': 'Aumento de peso',
+    'trainingPlans.weightIncrementTooltip': 'Quanto peso é adicionado após uma sessão bem-sucedida. Substitui o incremento padrão para este tipo de exercício.',
     'trainingPlans.copySuffix': ' (Cópia)',
     'trainingPlans.defaultPlanHint': 'Este é um plano padrão. Não pode ser editado nem excluído — copie-o para criar sua própria versão editável.',
     'trainingPlans.plan531Description':
@@ -1102,6 +1110,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Sessioni fallite consecutive',
     'trainingPlans.deloadPercentLabel': 'Riduzione del peso (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Vengono considerate solo le serie di lavoro - le serie di riscaldamento e defaticamento vengono ignorate.',
+    'trainingPlans.weightIncrementLabel': 'Aumento del peso',
+    'trainingPlans.weightIncrementTooltip': 'Quanto peso viene aggiunto dopo una sessione riuscita. Sostituisce l\'incremento predefinito per questo tipo di esercizio.',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Questo è un piano predefinito. Non può essere modificato o eliminato: copialo per creare la tua versione modificabile.',
     'trainingPlans.plan531Description':
@@ -1359,6 +1369,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Opeenvolgende mislukte sessies',
     'trainingPlans.deloadPercentLabel': 'Gewichtsvermindering (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Alleen working sets tellen hiervoor mee - warming-up en cooling-down sets worden genegeerd.',
+    'trainingPlans.weightIncrementLabel': 'Gewichtstoename',
+    'trainingPlans.weightIncrementTooltip': 'Hoeveel gewicht wordt toegevoegd na een succesvolle sessie. Overschrijft de standaardverhoging voor dit oefeningstype.',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dit is een standaardplan. Het kan niet worden bewerkt of verwijderd — kopieer het om je eigen bewerkbare versie te maken.',
     'trainingPlans.plan531Description':
@@ -1616,6 +1628,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Kolejne nieudane sesje',
     'trainingPlans.deloadPercentLabel': 'Redukcja ciężaru (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Liczą się tylko serie robocze - serie rozgrzewkowe i wyciszające są pomijane.',
+    'trainingPlans.weightIncrementLabel': 'Zwiększenie ciężaru',
+    'trainingPlans.weightIncrementTooltip': 'Ile ciężaru jest dodawane po udanej sesji. Zastępuje domyślny przyrost dla tego typu ćwiczenia.',
     'trainingPlans.copySuffix': ' (Kopia)',
     'trainingPlans.defaultPlanHint': 'To jest plan domyślny. Nie można go edytować ani usunąć — skopiuj go, aby utworzyć własną edytowalną wersję.',
     'trainingPlans.plan531Description':
@@ -1873,6 +1887,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Подряд неудачных тренировок',
     'trainingPlans.deloadPercentLabel': 'Снижение веса (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Учитываются только рабочие подходы - разминочные и заминочные подходы игнорируются.',
+    'trainingPlans.weightIncrementLabel': 'Прибавка веса',
+    'trainingPlans.weightIncrementTooltip': 'Насколько увеличивается вес после успешной тренировки. Заменяет стандартное увеличение для этого типа упражнения.',
     'trainingPlans.copySuffix': ' (Копия)',
     'trainingPlans.defaultPlanHint': 'Это план по умолчанию. Его нельзя редактировать или удалить — скопируйте его, чтобы создать свою редактируемую версию.',
     'trainingPlans.plan531Description':
@@ -2130,6 +2146,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.deloadAfterFailuresLabel': 'Egymást követő sikertelen edzések',
     'trainingPlans.deloadPercentLabel': 'Súlycsökkentés (%)',
     'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Csak a munkaszettek számítanak bele ebbe - a bemelegítő és levezető szetteket figyelmen kívül hagyja.',
+    'trainingPlans.weightIncrementLabel': 'Súlynövelés',
+    'trainingPlans.weightIncrementTooltip': 'Mennyi súlyt ad hozzá egy sikeres edzés után. Felülírja az adott gyakorlattípus alapértelmezett növekményét.',
     'trainingPlans.copySuffix': ' (Másolat)',
     'trainingPlans.defaultPlanHint': 'Ez egy alapértelmezett terv. Nem szerkeszthető és nem törölhető – másold le, hogy saját szerkeszthető verziót hozz létre.',
     'trainingPlans.plan531Description':

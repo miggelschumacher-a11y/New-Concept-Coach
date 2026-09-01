@@ -31,9 +31,9 @@ import {
   DoubleProgressionConfig,
   RepGoalConfig,
   WaveProgressionConfig,
-  LinearProgressionConfig,
   PlanExerciseType,
-  IncrementScheme
+  IncrementScheme,
+  WorkingSetTarget
 } from '../core/models/training-plan.model';
 import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core/models/tier-line-progression.model';
 import { DoubleProgressionState } from '../core/models/double-progression.model';
@@ -487,13 +487,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async getOrInitDoubleProgressionState(exerciseId: string): Promise<DoubleProgressionState> {
+  private async getOrInitDoubleProgressionState(exerciseId: string, seedWeight = 0): Promise<DoubleProgressionState> {
     const cached = this.doubleProgressionStates.get(exerciseId);
     if (cached) {
       return cached;
     }
     const existing = await this.doubleProgressionService.getState(exerciseId);
-    const state = existing ?? (await this.doubleProgressionService.initState(exerciseId, 0));
+    const state = existing ?? (await this.doubleProgressionService.initState(exerciseId, seedWeight));
     this.doubleProgressionStates.set(exerciseId, state);
     return state;
   }
@@ -523,19 +523,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
         sessionExercise.exerciseId,
         config.doubleProgression,
         { achievedReps, lastSetWeight },
-        category
+        category,
+        config.weightIncrement
       );
       this.doubleProgressionStates.set(sessionExercise.exerciseId, next);
     }
   }
 
-  private async getOrInitRepGoalState(exerciseId: string): Promise<RepGoalState> {
+  private async getOrInitRepGoalState(exerciseId: string, seedWeight = 0): Promise<RepGoalState> {
     const cached = this.repGoalStates.get(exerciseId);
     if (cached) {
       return cached;
     }
     const existing = await this.repGoalService.getState(exerciseId);
-    const state = existing ?? (await this.repGoalService.initState(exerciseId, 0));
+    const state = existing ?? (await this.repGoalService.initState(exerciseId, seedWeight));
     this.repGoalStates.set(exerciseId, state);
     return state;
   }
@@ -565,7 +566,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
         sessionExercise.exerciseId,
         config.repGoal,
         { totalReps, lastSetWeight },
-        category
+        category,
+        config.weightIncrement
       );
       this.repGoalStates.set(sessionExercise.exerciseId, next);
     }
@@ -573,14 +575,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   private async getOrInitWaveProgressionState(
     exerciseId: string,
-    config: WaveProgressionConfig
+    config: WaveProgressionConfig,
+    seedWeight = 0
   ): Promise<WaveProgressionState> {
     const cached = this.waveProgressionStates.get(exerciseId);
     if (cached) {
       return cached;
     }
     const existing = await this.waveProgressionService.getState(exerciseId);
-    const state = existing ?? (await this.waveProgressionService.initState(exerciseId, config.initialReps, 0));
+    const state = existing ?? (await this.waveProgressionService.initState(exerciseId, config.initialReps, seedWeight));
     this.waveProgressionStates.set(exerciseId, state);
     return state;
   }
@@ -607,19 +610,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
         sessionExercise.exerciseId,
         config.waveProgression,
         { achievedReps, lastSetWeight },
-        category
+        category,
+        config.weightIncrement
       );
       this.waveProgressionStates.set(sessionExercise.exerciseId, next);
     }
   }
 
-  private async getOrInitLinearProgressionState(exerciseId: string): Promise<LinearProgressionState> {
+  private async getOrInitLinearProgressionState(exerciseId: string, seedWeight = 0): Promise<LinearProgressionState> {
     const cached = this.linearProgressionStates.get(exerciseId);
     if (cached) {
       return cached;
     }
     const existing = await this.linearProgressionService.getState(exerciseId);
-    const state = existing ?? (await this.linearProgressionService.initState(exerciseId, 0));
+    const state = existing ?? (await this.linearProgressionService.initState(exerciseId, seedWeight));
     this.linearProgressionStates.set(exerciseId, state);
     return state;
   }
@@ -638,15 +642,27 @@ export class SessionsComponent implements OnInit, OnDestroy {
       if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
         continue;
       }
-      const achievedReps = workingSets.map((set) => set.reps);
+      // Each working set now carries its own target (from the plan's own
+      // working-set-target list, same as a session's target-reps field) -
+      // success requires every set to individually meet its own target,
+      // rather than one shared range for the whole exercise.
+      const lowerBoundSufficient = config.linearProgression.lowerBoundSufficient;
+      const success = workingSets.every((set) => {
+        if (set.targetReps === undefined) {
+          return true;
+        }
+        const required = lowerBoundSufficient ? set.targetReps : (set.targetRepsMax ?? set.targetReps);
+        return set.reps >= required;
+      });
       const lastSetWeight = workingSets[workingSets.length - 1].weight;
       const category =
         this.exercises.find((exercise) => exercise.id === sessionExercise.exerciseId)?.weightCategory ?? 'UPPER_BODY';
       const next = await this.linearProgressionService.recordSessionResult(
         sessionExercise.exerciseId,
-        config.linearProgression,
-        { achievedReps, lastSetWeight },
-        category
+        success,
+        { lastSetWeight },
+        category,
+        config.weightIncrement
       );
       this.linearProgressionStates.set(sessionExercise.exerciseId, next);
     }
@@ -735,17 +751,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
             continue;
           }
           await this.getOrInitLinearProgressionState(exerciseId);
-          const config: LinearProgressionConfig = {
-            targetReps: String(sessionExercise.minReps ?? 5),
-            lowerBoundSufficient: true
-          };
-          const achievedReps = workingSets.map((set) => set.reps);
-          const next = await this.linearProgressionService.recordSessionResult(
-            exerciseId,
-            config,
-            { achievedReps, lastSetWeight },
-            category
-          );
+          // Manual sessions have no plan config for lowerBoundSufficient -
+          // each set's own targetReps (its lower bound) is required, same as
+          // a plan exercise with lowerBoundSufficient effectively true.
+          const success = workingSets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
+          const next = await this.linearProgressionService.recordSessionResult(exerciseId, success, { lastSetWeight }, category);
           this.linearProgressionStates.set(exerciseId, next);
           break;
         }
@@ -1027,11 +1037,49 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 type
               }));
 
+            // A per-set target list turns each of its rows into one literal
+            // reps/weight set - no scheme, no deload, just what the plan
+            // editor shows. Used as-is for warm-up/cooldown, and as the
+            // None/Linear Progression fallback below. A config saved before
+            // these target lists existed (including the hardcoded default
+            // plans, e.g. 5x5) has no list at all - undefined, not an empty
+            // array - so it falls back to the old plain-count generation
+            // instead of silently producing zero sets; once a config is
+            // migrated (even to an empty list, by deleting every row) its
+            // list is respected as-is.
+            const buildTargetSets = (
+              targets: WorkingSetTarget[],
+              type: SetType,
+              weightFor: (target: WorkingSetTarget) => number = (target) => target.weight
+            ) =>
+              targets.map((target) => {
+                const parsed = this.parseTargetRepsText(target.targetReps);
+                return {
+                  id: crypto.randomUUID(),
+                  reps: parsed.targetRepsMax ?? parsed.targetReps ?? 0,
+                  targetReps: parsed.targetReps,
+                  targetRepsMax: parsed.targetRepsMax,
+                  isAmrap: parsed.isAmrap,
+                  weight: weightFor(target),
+                  type
+                };
+              });
+
             const hasIncrementScheme = config.exerciseType === 'WEIGHT_BASED';
+            // The exercise's own working-set list (WDH + weight per set) -
+            // its length is the working-set count for any weight-based
+            // scheme, and its first row's weight seeds a scheme's tracked
+            // state the very first time it's initialized (see getOrInit*
+            // above). Its own per-set targets are what actually generates
+            // the sets for None/Linear Progression; Double/Rep Goal/Wave
+            // keep deriving reps from their own scheme config as before.
+            const workingSetTargets = hasIncrementScheme ? config.workingSetTargets : undefined;
+            const workingSetCount = workingSetTargets?.length ?? config.workingSets;
+            const seedWeight = workingSetTargets?.[0]?.weight ?? this.defaultWeight(exerciseId, 'working');
             let workingSets: SessionExercise['sets'];
             if (hasIncrementScheme && config.incrementScheme === 'DOUBLE_PROGRESSION' && config.doubleProgression) {
-              const state = await this.getOrInitDoubleProgressionState(exerciseId);
-              const prescribedReps = computePrescribedReps(config.doubleProgression, state.repsAddedThisCycle, config.workingSets);
+              const state = await this.getOrInitDoubleProgressionState(exerciseId, seedWeight);
+              const prescribedReps = computePrescribedReps(config.doubleProgression, state.repsAddedThisCycle, workingSetCount);
               const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
               workingSets = prescribedReps.map((reps) => ({
                 id: crypto.randomUUID(),
@@ -1044,18 +1092,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
               // No prescribed reps per set - each working set is pushed close
               // to failure and logged freely; only the tracked weight carries
               // over from session to session.
-              const state = await this.getOrInitRepGoalState(exerciseId);
+              const state = await this.getOrInitRepGoalState(exerciseId, seedWeight);
               const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
-              workingSets = Array.from({ length: config.workingSets }, () => ({
+              workingSets = Array.from({ length: workingSetCount }, () => ({
                 id: crypto.randomUUID(),
                 reps: 0,
                 weight,
                 type: 'working' as SetType
               }));
             } else if (hasIncrementScheme && config.incrementScheme === 'WAVE_PROGRESSION' && config.waveProgression) {
-              const state = await this.getOrInitWaveProgressionState(exerciseId, config.waveProgression);
+              const state = await this.getOrInitWaveProgressionState(exerciseId, config.waveProgression, seedWeight);
               const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
-              workingSets = Array.from({ length: config.workingSets }, () => ({
+              workingSets = Array.from({ length: workingSetCount }, () => ({
                 id: crypto.randomUUID(),
                 reps: state.currentReps,
                 targetReps: state.currentReps,
@@ -1063,30 +1111,38 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 type: 'working' as SetType
               }));
             } else if (hasIncrementScheme && config.incrementScheme === 'LINEAR_PROGRESSION' && config.linearProgression) {
-              const state = await this.getOrInitLinearProgressionState(exerciseId);
-              // Prefilled with the range's lower bound regardless of
-              // lowerBoundSufficient - that flag only affects what counts as
-              // a success, not what's prescribed going in.
-              const targetRepsRange = parseRepsRange(config.linearProgression.targetReps);
+              const state = await this.getOrInitLinearProgressionState(exerciseId, seedWeight);
               const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
-              workingSets = Array.from({ length: config.workingSets }, () => ({
-                id: crypto.randomUUID(),
-                reps: targetRepsRange.min,
-                targetReps: targetRepsRange.min,
-                targetRepsMax: targetRepsRange.max !== targetRepsRange.min ? targetRepsRange.max : undefined,
-                weight,
-                type: 'working' as SetType
-              }));
+              workingSets = workingSetTargets
+                ? buildTargetSets(workingSetTargets, 'working', () => weight)
+                : buildSets(config.workingSets, 'working').map((set) => ({ ...set, weight }));
+            } else if (hasIncrementScheme) {
+              // NONE scheme - no tracked progression state, so each working
+              // set always starts from its own configured target reps and
+              // weight, same as the plan editor shows.
+              workingSets = workingSetTargets
+                ? buildTargetSets(workingSetTargets, 'working', (target) => this.applyDeload(plan, exerciseId, target.weight))
+                : buildSets(config.workingSets, 'working');
             } else {
-              workingSets = buildSets(config.workingSets, 'working').map((set) => ({
-                ...set,
-                weight: this.applyDeload(plan, exerciseId, set.weight)
-              }));
+              // Non-WEIGHT_BASED (TIME_BASED) - unaffected by the
+              // working-set-target list, still just a plain count.
+              workingSets = buildSets(config.workingSets, 'working');
             }
+
+            // Warm-up/cooldown never get progression or deload - a target
+            // list's weight is used exactly as configured.
+            const warmupSetTargets = hasIncrementScheme ? config.warmupSetTargets : undefined;
+            const cooldownSetTargets = hasIncrementScheme ? config.cooldownSetTargets : undefined;
+            const warmupSets = warmupSetTargets
+              ? buildTargetSets(warmupSetTargets, 'warmup')
+              : buildSets(config.warmupSets, 'warmup');
+            const cooldownSets = cooldownSetTargets
+              ? buildTargetSets(cooldownSetTargets, 'cooldown')
+              : buildSets(config.cooldownSets, 'cooldown');
 
             return {
               exerciseId,
-              sets: [...buildSets(config.warmupSets, 'warmup'), ...workingSets, ...buildSets(config.cooldownSets, 'cooldown')],
+              sets: [...warmupSets, ...workingSets, ...cooldownSets],
               countWarmupSets: true,
               countCooldownSets: true,
               showWarmupSets: true,
@@ -1853,22 +1909,33 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // recordManualProgressionProgress) in lockstep with the top of whatever
   // was just typed here, since that's the same number a manual session's
   // "hit the top of your range" target represents.
+  // Shared by this component's own target-reps field and by
+  // buildSessionFromPlan when seeding a working set's target straight from
+  // a plan's own working-set-target text (same format: plain number, a
+  // from-to range, either optionally suffixed with '+' for AMRAP).
+  private parseTargetRepsText(text: string): { targetReps?: number; targetRepsMax?: number; isAmrap?: boolean } {
+    const trimmed = text.trim();
+    if (trimmed === '') {
+      return {};
+    }
+    const match = trimmed.match(/^(\d{1,3})(?:-(\d{1,3}))?(\+)?$/);
+    if (!match) {
+      return {};
+    }
+    const lower = Math.min(Math.max(parseInt(match[1], 10), 1), 999);
+    const upper = match[2] !== undefined ? Math.min(Math.max(parseInt(match[2], 10), 1), 999) : undefined;
+    const targetReps = upper !== undefined ? Math.min(lower, upper) : lower;
+    const targetRepsMax = upper !== undefined && upper !== lower ? Math.max(lower, upper) : undefined;
+    return { targetReps, targetRepsMax, isAmrap: !!match[3] };
+  }
+
   async updateTargetReps(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const trimmed = value.trim();
-    let targetReps: number | undefined;
-    let targetRepsMax: number | undefined;
-    let isAmrap: boolean | undefined;
-
-    if (trimmed !== '') {
-      const match = trimmed.match(/^(\d{1,3})(?:-(\d{1,3}))?(\+)?$/);
-      if (!match) {
-        return;
-      }
-      const lower = Math.min(Math.max(parseInt(match[1], 10), 1), 999);
-      const upper = match[2] !== undefined ? Math.min(Math.max(parseInt(match[2], 10), 1), 999) : undefined;
-      targetReps = upper !== undefined ? Math.min(lower, upper) : lower;
-      targetRepsMax = upper !== undefined && upper !== lower ? Math.max(lower, upper) : undefined;
-      isAmrap = !!match[3];
+    if (trimmed !== '' && this.parseTargetRepsText(trimmed).targetReps === undefined) {
+      return;
+    }
+    const { targetReps, targetRepsMax, isAmrap } = this.parseTargetRepsText(trimmed);
+    if (targetReps !== undefined) {
       sessionExercise.minReps = targetRepsMax ?? targetReps;
     }
 

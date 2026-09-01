@@ -576,6 +576,26 @@
                               (change)="updatePlanExerciseDeloadPercent(plan, exerciseId, $any($event.target).value)"
                             />
                           </mat-form-field>
+                          @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                            <mat-form-field
+                              appearance="outline"
+                              class="exercise-settings-field"
+                              [matTooltip]="'trainingPlans.weightIncrementTooltip' | translate"
+                            >
+                              <mat-label>{{ 'trainingPlans.weightIncrementLabel' | translate }}</mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="decimal"
+                                [placeholder]="tierLineWeightIncrement(exerciseId).toFixed(2)"
+                                [value]="weightIncrementDisplay(plan, exerciseId)"
+                                name="weightIncrement-{{ plan.id }}-{{ exerciseId }}"
+                                (focus)="onDeloadFieldFocus($event)"
+                                (input)="onWeightIncrementFieldInput($event)"
+                                (change)="updatePlanExerciseWeightIncrement(plan, exerciseId, $any($event.target).value)"
+                              />
+                            </mat-form-field>
+                          }
                         </div>
                       }
                     </div>
@@ -617,29 +637,109 @@
                 }
 
                 <mat-accordion multi class="set-type-accordion">
+                  <!-- Shared per-set list (WDH + weight + delete/add) for WEIGHT_BASED
+                       exercises - used for warm-up, working, and cooldown sets alike.
+                       Warm-up/cooldown never get scheme-specific fields or deload -
+                       those are only ever rendered next to the working-set list. -->
+                  <ng-template #setTargetRows let-field="field" let-targets="targets">
+                    @for (target of targets; track target.id; let targetIndex = $index) {
+                      <div class="percentage-set-row">
+                        @if (!plan.isDefault) {
+                          <button
+                            mat-icon-button
+                            color="warn"
+                            (click)="removeSetTarget(plan, exerciseId, field, targetIndex)"
+                            [matTooltip]="'sessions.removeSet' | translate"
+                            [attr.aria-label]="'sessions.removeSet' | translate"
+                          >
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        }
+                        <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
+
+                        <mat-form-field appearance="outline" class="percentage-input-field">
+                          <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            class="plan-sets-input"
+                            [value]="target.targetReps"
+                            [disabled]="!!plan.isDefault"
+                            (focus)="onWorkingSetTargetFieldFocus($event)"
+                            (input)="onWorkingSetTargetRepsInput($event)"
+                            (change)="updateSetTargetReps(plan, exerciseId, field, targetIndex, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="percentage-input-field">
+                          <mat-label>{{ weightUnitLabel }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="decimal"
+                            class="plan-sets-input"
+                            [value]="setTargetWeightDisplay(target)"
+                            [disabled]="!!plan.isDefault"
+                            (focus)="onWorkingSetTargetFieldFocus($event)"
+                            (input)="onWorkingSetTargetWeightInput($event)"
+                            (change)="updateSetTargetWeight(plan, exerciseId, field, targetIndex, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      </div>
+                    }
+
+                    @if (!plan.isDefault) {
+                      <button mat-stroked-button type="button" (click)="addSetTarget(plan, exerciseId, field)">
+                        <mat-icon>add</mat-icon>
+                        {{ 'sessions.addSet' | translate }}
+                      </button>
+                    }
+                  </ng-template>
+
                   <!-- A default (read-only) plan's warmup/cooldown accordions are pure
                        clutter when the plan never has any of that set type - there's no
                        input to interact with, just a permanent "0". Editable plans always
                        keep the accordion, even at 0, since it's the only way to add sets. -->
-                  @if (!plan.isDefault || planExerciseConfig(plan, exerciseId).warmupSets > 0) {
+                  @if (
+                    !plan.isDefault ||
+                    (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED'
+                      ? (planExerciseConfig(plan, exerciseId).warmupSetTargets?.length ?? 0) > 0
+                      : planExerciseConfig(plan, exerciseId).warmupSets > 0)
+                  ) {
                     <mat-expansion-panel>
                       <mat-expansion-panel-header>
                         <mat-panel-title>{{ 'sessions.warmupSets' | translate }}</mat-panel-title>
-                        <mat-panel-description>{{ planExerciseConfig(plan, exerciseId).warmupSets }}</mat-panel-description>
+                        <mat-panel-description>
+                          @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                            {{ planExerciseConfig(plan, exerciseId).warmupSetTargets?.length ?? 0 }}
+                          } @else {
+                            {{ planExerciseConfig(plan, exerciseId).warmupSets }}
+                          }
+                        </mat-panel-description>
                       </mat-expansion-panel-header>
-                      <mat-form-field appearance="outline">
-                        <mat-label>{{ 'trainingPlans.repsAbbreviation' | translate }}</mat-label>
-                        <input
-                          matInput
-                          type="text"
-                          inputmode="numeric"
-                          class="plan-sets-input"
-                          [value]="planExerciseConfig(plan, exerciseId).warmupSets"
-                          [disabled]="!!plan.isDefault"
-                          (input)="onPlanExerciseSetsInput($event)"
-                          (change)="updatePlanExerciseWarmupSets(plan, exerciseId, $any($event.target).value)"
-                        />
-                      </mat-form-field>
+                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                        <ng-container
+                          [ngTemplateOutlet]="setTargetRows"
+                          [ngTemplateOutletContext]="{
+                            field: 'warmupSetTargets',
+                            targets: planExerciseConfig(plan, exerciseId).warmupSetTargets
+                          }"
+                        ></ng-container>
+                      } @else {
+                        <mat-form-field appearance="outline">
+                          <mat-label>{{ 'trainingPlans.repsAbbreviation' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="numeric"
+                            class="plan-sets-input"
+                            [value]="planExerciseConfig(plan, exerciseId).warmupSets"
+                            [disabled]="!!plan.isDefault"
+                            (input)="onPlanExerciseSetsInput($event)"
+                            (change)="updatePlanExerciseWarmupSets(plan, exerciseId, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      }
                     </mat-expansion-panel>
                   }
 
@@ -653,6 +753,8 @@
                           } @else {
                             {{ planExerciseConfig(plan, exerciseId).percentageWeeks?.length ?? 0 }} {{ 'trainingPlans.weeksWord' | translate }}
                           }
+                        } @else if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                          {{ planExerciseConfig(plan, exerciseId).workingSetTargets?.length ?? 0 }}
                         } @else {
                           {{ planExerciseConfig(plan, exerciseId).workingSets }}
                         }
@@ -666,7 +768,18 @@
                     <ng-template #percentageSetRows let-week="week" let-weekIndex="weekIndex">
                       @for (set of week.sets; track $index; let setIndex = $index) {
                         <div class="percentage-set-row">
-                          <span class="percentage-set-index">{{ 'sessions.setLabel' | translate }} {{ setIndex + 1 }}</span>
+                          @if (!plan.isDefault) {
+                            <button
+                              mat-icon-button
+                              color="warn"
+                              (click)="removePercentageSet(plan, exerciseId, weekIndex, setIndex)"
+                              [matTooltip]="'sessions.removeSet' | translate"
+                              [attr.aria-label]="'sessions.removeSet' | translate"
+                            >
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          }
+                          <span class="percentage-set-index">#{{ setIndex + 1 }}</span>
 
                           <mat-form-field appearance="outline" class="percentage-input-field">
                             <mat-label>%</mat-label>
@@ -711,18 +824,6 @@
                               >{{ 'trainingPlans.oneRepMaxMissing' | translate }}</span
                             >
                           }
-
-                          @if (!plan.isDefault) {
-                            <button
-                              mat-icon-button
-                              color="warn"
-                              (click)="removePercentageSet(plan, exerciseId, weekIndex, setIndex)"
-                              [matTooltip]="'sessions.removeSet' | translate"
-                              [attr.aria-label]="'sessions.removeSet' | translate"
-                            >
-                              <mat-icon>delete</mat-icon>
-                            </button>
-                          }
                         </div>
                       }
                     </ng-template>
@@ -762,22 +863,15 @@
                           }
                         </mat-accordion>
                       }
-                    } @else {
-                      <mat-form-field appearance="outline">
-                        <mat-label>{{ 'trainingPlans.repsAbbreviation' | translate }}</mat-label>
-                        <input
-                          matInput
-                          type="text"
-                          inputmode="numeric"
-                          class="plan-sets-input"
-                          [value]="planExerciseConfig(plan, exerciseId).workingSets"
-                          [disabled]="!!plan.isDefault"
-                          (input)="onPlanExerciseSetsInput($event)"
-                          (change)="updatePlanExerciseWorkingSets(plan, exerciseId, $any($event.target).value)"
-                        />
-                      </mat-form-field>
+                    } @else if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                      <ng-container
+                        [ngTemplateOutlet]="setTargetRows"
+                        [ngTemplateOutletContext]="{
+                          field: 'workingSetTargets',
+                          targets: planExerciseConfig(plan, exerciseId).workingSetTargets
+                        }"
+                      ></ng-container>
 
-                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
                       @if (planExerciseConfig(plan, exerciseId).incrementScheme === 'DOUBLE_PROGRESSION' && planExerciseConfig(plan, exerciseId).doubleProgression; as doubleProgression) {
                         <div class="double-progression-fields">
                           <mat-form-field appearance="outline" class="rep-range-field">
@@ -885,41 +979,16 @@
 
                       @if (planExerciseConfig(plan, exerciseId).incrementScheme === 'LINEAR_PROGRESSION' && planExerciseConfig(plan, exerciseId).linearProgression; as linearProgression) {
                         <div class="double-progression-fields">
-                          <mat-form-field appearance="outline" class="rep-range-field">
-                            <mat-label>{{ 'trainingPlans.repsAbbreviation' | translate }}</mat-label>
-                            <input
-                              matInput
-                              type="text"
-                              inputmode="text"
-                              class="plan-sets-input"
-                              [value]="linearProgression.targetReps"
-                              [disabled]="!!plan.isDefault"
-                              (input)="onLinearProgressionTargetRepsInput($event)"
-                              (change)="updateLinearProgressionTargetReps(plan, exerciseId, $any($event.target).value)"
-                            />
-                          </mat-form-field>
-
-                          @if (isLinearProgressionRange(plan, exerciseId)) {
-                            <mat-checkbox
-                              [checked]="linearProgression.lowerBoundSufficient"
-                              [disabled]="!!plan.isDefault"
-                              (change)="updateLinearProgressionLowerBoundSufficient(plan, exerciseId, $event.checked)"
-                            >
-                              {{ 'trainingPlans.linearProgressionLowerBoundSufficient' | translate }}
-                            </mat-checkbox>
-                          }
+                          <mat-checkbox
+                            [checked]="linearProgression.lowerBoundSufficient"
+                            [disabled]="!!plan.isDefault"
+                            (change)="updateLinearProgressionLowerBoundSufficient(plan, exerciseId, $event.checked)"
+                          >
+                            {{ 'trainingPlans.linearProgressionLowerBoundSufficient' | translate }}
+                          </mat-checkbox>
                         </div>
                       }
-                      }
-                    }
-                  </mat-expansion-panel>
-
-                  @if (!plan.isDefault || planExerciseConfig(plan, exerciseId).cooldownSets > 0) {
-                    <mat-expansion-panel>
-                      <mat-expansion-panel-header>
-                        <mat-panel-title>{{ 'sessions.cooldownSets' | translate }}</mat-panel-title>
-                        <mat-panel-description>{{ planExerciseConfig(plan, exerciseId).cooldownSets }}</mat-panel-description>
-                      </mat-expansion-panel-header>
+                    } @else {
                       <mat-form-field appearance="outline">
                         <mat-label>{{ 'trainingPlans.repsAbbreviation' | translate }}</mat-label>
                         <input
@@ -927,12 +996,55 @@
                           type="text"
                           inputmode="numeric"
                           class="plan-sets-input"
-                          [value]="planExerciseConfig(plan, exerciseId).cooldownSets"
+                          [value]="planExerciseConfig(plan, exerciseId).workingSets"
                           [disabled]="!!plan.isDefault"
                           (input)="onPlanExerciseSetsInput($event)"
-                          (change)="updatePlanExerciseCooldownSets(plan, exerciseId, $any($event.target).value)"
+                          (change)="updatePlanExerciseWorkingSets(plan, exerciseId, $any($event.target).value)"
                         />
                       </mat-form-field>
+                    }
+                  </mat-expansion-panel>
+
+                  @if (
+                    !plan.isDefault ||
+                    (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED'
+                      ? (planExerciseConfig(plan, exerciseId).cooldownSetTargets?.length ?? 0) > 0
+                      : planExerciseConfig(plan, exerciseId).cooldownSets > 0)
+                  ) {
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>{{ 'sessions.cooldownSets' | translate }}</mat-panel-title>
+                        <mat-panel-description>
+                          @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                            {{ planExerciseConfig(plan, exerciseId).cooldownSetTargets?.length ?? 0 }}
+                          } @else {
+                            {{ planExerciseConfig(plan, exerciseId).cooldownSets }}
+                          }
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                        <ng-container
+                          [ngTemplateOutlet]="setTargetRows"
+                          [ngTemplateOutletContext]="{
+                            field: 'cooldownSetTargets',
+                            targets: planExerciseConfig(plan, exerciseId).cooldownSetTargets
+                          }"
+                        ></ng-container>
+                      } @else {
+                        <mat-form-field appearance="outline">
+                          <mat-label>{{ 'trainingPlans.repsAbbreviation' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="numeric"
+                            class="plan-sets-input"
+                            [value]="planExerciseConfig(plan, exerciseId).cooldownSets"
+                            [disabled]="!!plan.isDefault"
+                            (input)="onPlanExerciseSetsInput($event)"
+                            (change)="updatePlanExerciseCooldownSets(plan, exerciseId, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      }
                     </mat-expansion-panel>
                   }
                 </mat-accordion>
