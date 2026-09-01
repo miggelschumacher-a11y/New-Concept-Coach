@@ -58,6 +58,40 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
+.exercise-settings-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.exercise-settings-popup {
+  position: fixed;
+  z-index: 1000;
+  width: 260px;
+  max-width: calc(100vw - 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: linear-gradient(145deg, #3d4058, #24263a);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  transform: perspective(700px) rotateX(4deg);
+  transform-origin: top right;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.45),
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.exercise-settings-field {
+  width: 100%;
+}
+
+.exercise-settings-field input {
+  text-align: right;
+}
+
 .plan-accordion .plan-card mat-panel-description {
   overflow: hidden;
   text-overflow: ellipsis;

@@ -1024,11 +1024,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
             if (hasIncrementScheme && config.incrementScheme === 'DOUBLE_PROGRESSION' && config.doubleProgression) {
               const state = await this.getOrInitDoubleProgressionState(exerciseId);
               const prescribedReps = computePrescribedReps(config.doubleProgression, state.repsAddedThisCycle, config.workingSets);
+              const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
               workingSets = prescribedReps.map((reps) => ({
                 id: crypto.randomUUID(),
                 reps,
                 targetReps: reps,
-                weight: state.currentWeight,
+                weight,
                 type: 'working' as SetType
               }));
             } else if (hasIncrementScheme && config.incrementScheme === 'REP_GOAL' && config.repGoal) {
@@ -1036,19 +1037,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
               // to failure and logged freely; only the tracked weight carries
               // over from session to session.
               const state = await this.getOrInitRepGoalState(exerciseId);
+              const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
               workingSets = Array.from({ length: config.workingSets }, () => ({
                 id: crypto.randomUUID(),
                 reps: 0,
-                weight: state.currentWeight,
+                weight,
                 type: 'working' as SetType
               }));
             } else if (hasIncrementScheme && config.incrementScheme === 'WAVE_PROGRESSION' && config.waveProgression) {
               const state = await this.getOrInitWaveProgressionState(exerciseId, config.waveProgression);
+              const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
               workingSets = Array.from({ length: config.workingSets }, () => ({
                 id: crypto.randomUUID(),
                 reps: state.currentReps,
                 targetReps: state.currentReps,
-                weight: state.currentWeight,
+                weight,
                 type: 'working' as SetType
               }));
             } else if (hasIncrementScheme && config.incrementScheme === 'LINEAR_PROGRESSION' && config.linearProgression) {
@@ -1057,16 +1060,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
               // lowerBoundSufficient - that flag only affects what counts as
               // a success, not what's prescribed going in.
               const targetRepsRange = parseRepsRange(config.linearProgression.targetReps);
+              const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
               workingSets = Array.from({ length: config.workingSets }, () => ({
                 id: crypto.randomUUID(),
                 reps: targetRepsRange.min,
                 targetReps: targetRepsRange.min,
                 targetRepsMax: targetRepsRange.max !== targetRepsRange.min ? targetRepsRange.max : undefined,
-                weight: state.currentWeight,
+                weight,
                 type: 'working' as SetType
               }));
             } else {
-              workingSets = buildSets(config.workingSets, 'working');
+              workingSets = buildSets(config.workingSets, 'working').map((set) => ({
+                ...set,
+                weight: this.applyDeload(plan, exerciseId, set.weight)
+              }));
             }
 
             return {
@@ -1236,7 +1243,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         }
         const newWeight = this.isTierLineProgressionExercise(session, sessionExercise.exerciseId)
           ? this.currentTierLineWeight(session, sessionExercise.exerciseId)
-          : this.currentSchemeWeight(sessionExercise);
+          : this.currentSchemeWeight(session, sessionExercise);
         if (newWeight === undefined) {
           continue;
         }
@@ -1261,23 +1268,80 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.progressionStates.get(this.progressionKey(exerciseId, planExercise.tier))?.currentWeight;
   }
 
-  private currentSchemeWeight(sessionExercise: SessionExercise): number | undefined {
+  private currentSchemeWeight(session: TrainingSession, sessionExercise: SessionExercise): number | undefined {
     if (sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
       return undefined;
     }
     const exerciseId = sessionExercise.exerciseId;
+    let weight: number | undefined;
     switch (sessionExercise.incrementScheme) {
       case 'DOUBLE_PROGRESSION':
-        return this.doubleProgressionStates.get(exerciseId)?.currentWeight;
+        weight = this.doubleProgressionStates.get(exerciseId)?.currentWeight;
+        break;
       case 'REP_GOAL':
-        return this.repGoalStates.get(exerciseId)?.currentWeight;
+        weight = this.repGoalStates.get(exerciseId)?.currentWeight;
+        break;
       case 'WAVE_PROGRESSION':
-        return this.waveProgressionStates.get(exerciseId)?.currentWeight;
+        weight = this.waveProgressionStates.get(exerciseId)?.currentWeight;
+        break;
       case 'LINEAR_PROGRESSION':
-        return this.linearProgressionStates.get(exerciseId)?.currentWeight;
+        weight = this.linearProgressionStates.get(exerciseId)?.currentWeight;
+        break;
       default:
         return undefined;
     }
+    if (weight === undefined || !session.trainingPlanId) {
+      return weight;
+    }
+    const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+    return plan ? this.applyDeload(plan, exerciseId, weight) : weight;
+  }
+
+  // Counts back through this plan's own finished sessions for exerciseId,
+  // most recent first, stopping at the first session that wasn't a clean
+  // failure (succeeded, or its working sets were never actually attempted -
+  // weight still at 0, same "untouched" signal used elsewhere in this file).
+  // Scoped to working sets only, since warmup/cooldown sets don't carry a
+  // pass/fail target relevant to a deload decision.
+  private consecutiveExerciseFailures(planId: string, exerciseId: string): number {
+    const finishedSessions = this.sessions
+      .filter((session) => session.trainingPlanId === planId && session.finished)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    let count = 0;
+    for (const session of finishedSessions) {
+      const sessionExercise = session.exercises.find((se) => se.exerciseId === exerciseId);
+      if (!sessionExercise) {
+        continue;
+      }
+      const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+      if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+        continue;
+      }
+      const succeeded = workingSets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
+      if (succeeded) {
+        break;
+      }
+      count++;
+    }
+    return count;
+  }
+
+  // Applies the configured deload once the exercise has failed this many
+  // sessions in a row, recomputed fresh from session history every time
+  // rather than tracked as separate persisted state - so it always reduces
+  // from the scheme's own stable base weight (not compounding further each
+  // session the streak continues), and a single logged success naturally
+  // clears it since consecutiveExerciseFailures stops counting there.
+  private applyDeload(plan: TrainingPlan, exerciseId: string, weight: number): number {
+    const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
+    if (!config?.deloadAfterFailures || !config.deloadPercent) {
+      return weight;
+    }
+    const failures = this.consecutiveExerciseFailures(plan.id, exerciseId);
+    if (failures < config.deloadAfterFailures) {
+      return weight;
+    }
+    return Math.round(weight * (1 - config.deloadPercent / 100) * 100) / 100;
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {

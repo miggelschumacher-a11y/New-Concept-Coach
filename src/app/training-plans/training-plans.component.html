@@ -524,6 +524,62 @@
                     {{ exerciseName(exerciseId) }}
                     <span class="set-count">({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }})</span>
                   </mat-panel-title>
+                  @if (!plan.isDefault) {
+                    <div class="exercise-settings-trigger">
+                      <button
+                        mat-icon-button
+                        (click)="toggleExerciseSettings(plan, exerciseId, $event)"
+                        [matTooltip]="'sessions.exerciseSettingsInfoButton' | translate"
+                        [attr.aria-label]="'sessions.exerciseSettingsInfoButton' | translate"
+                      >
+                        <mat-icon>tune</mat-icon>
+                      </button>
+                      @if (isExerciseSettingsOpen(plan, exerciseId) && exerciseSettingsPosition) {
+                        <div
+                          class="exercise-settings-popup"
+                          attr.data-popup-key="exercise-settings-{{ plan.id }}:{{ exerciseId }}"
+                          [style.top.px]="exerciseSettingsPosition.top"
+                          [style.left.px]="exerciseSettingsPosition.left"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-field"
+                            [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                          >
+                            <mat-label>{{ 'trainingPlans.deloadAfterFailuresLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="numeric"
+                              [value]="planExerciseConfig(plan, exerciseId).deloadAfterFailures ?? ''"
+                              name="deloadAfterFailures-{{ plan.id }}-{{ exerciseId }}"
+                              (focus)="onDeloadFieldFocus($event)"
+                              (input)="onDeloadAfterFailuresFieldInput($event)"
+                              (change)="updatePlanExerciseDeloadAfterFailures(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-field"
+                            [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                          >
+                            <mat-label>{{ 'trainingPlans.deloadPercentLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="decimal"
+                              [value]="deloadPercentDisplay(plan, exerciseId)"
+                              name="deloadPercent-{{ plan.id }}-{{ exerciseId }}"
+                              (focus)="onDeloadFieldFocus($event)"
+                              (input)="onDeloadPercentFieldInput($event)"
+                              (change)="updatePlanExerciseDeloadPercent(plan, exerciseId, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+                        </div>
+                      }
+                    </div>
+                  }
                 </mat-expansion-panel-header>
 
                 @if (!plan.isDefault) {
@@ -655,6 +711,18 @@
                               >{{ 'trainingPlans.oneRepMaxMissing' | translate }}</span
                             >
                           }
+
+                          @if (!plan.isDefault) {
+                            <button
+                              mat-icon-button
+                              color="warn"
+                              (click)="removePercentageSet(plan, exerciseId, weekIndex, setIndex)"
+                              [matTooltip]="'sessions.removeSet' | translate"
+                              [attr.aria-label]="'sessions.removeSet' | translate"
+                            >
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          }
                         </div>
                       }
                     </ng-template>
@@ -670,6 +738,19 @@
                           @for (week of planExerciseConfig(plan, exerciseId).percentageWeeks; track $index; let weekIndex = $index) {
                             <mat-expansion-panel>
                               <mat-expansion-panel-header>
+                                @if (!plan.isDefault) {
+                                  <div class="header-delete-action">
+                                    <button
+                                      mat-icon-button
+                                      color="warn"
+                                      (click)="removePercentageWeek(plan, exerciseId, weekIndex); $event.stopPropagation()"
+                                      [matTooltip]="'common.delete' | translate"
+                                      [attr.aria-label]="'common.delete' | translate"
+                                    >
+                                      <mat-icon>delete</mat-icon>
+                                    </button>
+                                  </div>
+                                }
                                 <mat-panel-title>{{ 'trainingPlans.weekLabel' | translate }} {{ weekIndex + 1 }}</mat-panel-title>
                               </mat-expansion-panel-header>
 

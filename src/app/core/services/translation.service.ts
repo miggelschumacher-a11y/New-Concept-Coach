@@ -71,6 +71,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Edit plan',
     'trainingPlans.copyPlan': 'Copy plan',
     'trainingPlans.planInfoButton': 'Plan info',
+    'trainingPlans.deloadAfterFailuresLabel': 'Consecutive Failed Sessions',
+    'trainingPlans.deloadPercentLabel': 'Weight Reduction (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Only working sets count toward this - warm-up and cooldown sets are ignored.',
     'trainingPlans.copySuffix': ' (Copy)',
     'trainingPlans.defaultPlanHint': 'This is a default plan. It cannot be edited or deleted — copy it to create your own editable version.',
     'trainingPlans.plan531Description':
@@ -325,6 +328,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Plan bearbeiten',
     'trainingPlans.copyPlan': 'Plan kopieren',
     'trainingPlans.planInfoButton': 'Plan-Info',
+    'trainingPlans.deloadAfterFailuresLabel': 'Nicht erfolgreiche Einheiten in Folge',
+    'trainingPlans.deloadPercentLabel': 'Gewichtsreduktion (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Nur Arbeitssätze werden dafür herangezogen - Aufwärm- und Cool-Down-Sätze werden ignoriert.',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dies ist ein Standardplan. Er kann nicht bearbeitet oder gelöscht werden – kopiere ihn, um eine eigene bearbeitbare Version zu erstellen.',
     'trainingPlans.plan531Description':
@@ -579,6 +585,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Editar plan',
     'trainingPlans.copyPlan': 'Copiar plan',
     'trainingPlans.planInfoButton': 'Información del plan',
+    'trainingPlans.deloadAfterFailuresLabel': 'Sesiones fallidas consecutivas',
+    'trainingPlans.deloadPercentLabel': 'Reducción de peso (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Solo se tienen en cuenta las series de trabajo - las series de calentamiento y enfriamiento se ignoran.',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Este es un plan predeterminado. No se puede editar ni eliminar; cópialo para crear tu propia versión editable.',
     'trainingPlans.plan531Description':
@@ -833,6 +842,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Editar plano',
     'trainingPlans.copyPlan': 'Copiar plano',
     'trainingPlans.planInfoButton': 'Informações do plano',
+    'trainingPlans.deloadAfterFailuresLabel': 'Sessões falhadas consecutivas',
+    'trainingPlans.deloadPercentLabel': 'Redução de peso (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Apenas as séries de trabalho contam para isto - séries de aquecimento e desaquecimento são ignoradas.',
     'trainingPlans.copySuffix': ' (Cópia)',
     'trainingPlans.defaultPlanHint': 'Este é um plano padrão. Não pode ser editado nem excluído — copie-o para criar sua própria versão editável.',
     'trainingPlans.plan531Description':
@@ -1087,6 +1099,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Modifica piano',
     'trainingPlans.copyPlan': 'Copia piano',
     'trainingPlans.planInfoButton': 'Info piano',
+    'trainingPlans.deloadAfterFailuresLabel': 'Sessioni fallite consecutive',
+    'trainingPlans.deloadPercentLabel': 'Riduzione del peso (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Vengono considerate solo le serie di lavoro - le serie di riscaldamento e defaticamento vengono ignorate.',
     'trainingPlans.copySuffix': ' (Copia)',
     'trainingPlans.defaultPlanHint': 'Questo è un piano predefinito. Non può essere modificato o eliminato: copialo per creare la tua versione modificabile.',
     'trainingPlans.plan531Description':
@@ -1341,6 +1356,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Plan bewerken',
     'trainingPlans.copyPlan': 'Plan kopiëren',
     'trainingPlans.planInfoButton': 'Plan-info',
+    'trainingPlans.deloadAfterFailuresLabel': 'Opeenvolgende mislukte sessies',
+    'trainingPlans.deloadPercentLabel': 'Gewichtsvermindering (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Alleen working sets tellen hiervoor mee - warming-up en cooling-down sets worden genegeerd.',
     'trainingPlans.copySuffix': ' (Kopie)',
     'trainingPlans.defaultPlanHint': 'Dit is een standaardplan. Het kan niet worden bewerkt of verwijderd — kopieer het om je eigen bewerkbare versie te maken.',
     'trainingPlans.plan531Description':
@@ -1595,6 +1613,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Edytuj plan',
     'trainingPlans.copyPlan': 'Kopiuj plan',
     'trainingPlans.planInfoButton': 'Informacje o planie',
+    'trainingPlans.deloadAfterFailuresLabel': 'Kolejne nieudane sesje',
+    'trainingPlans.deloadPercentLabel': 'Redukcja ciężaru (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Liczą się tylko serie robocze - serie rozgrzewkowe i wyciszające są pomijane.',
     'trainingPlans.copySuffix': ' (Kopia)',
     'trainingPlans.defaultPlanHint': 'To jest plan domyślny. Nie można go edytować ani usunąć — skopiuj go, aby utworzyć własną edytowalną wersję.',
     'trainingPlans.plan531Description':
@@ -1849,6 +1870,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Редактировать план',
     'trainingPlans.copyPlan': 'Копировать план',
     'trainingPlans.planInfoButton': 'Информация о плане',
+    'trainingPlans.deloadAfterFailuresLabel': 'Подряд неудачных тренировок',
+    'trainingPlans.deloadPercentLabel': 'Снижение веса (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Учитываются только рабочие подходы - разминочные и заминочные подходы игнорируются.',
     'trainingPlans.copySuffix': ' (Копия)',
     'trainingPlans.defaultPlanHint': 'Это план по умолчанию. Его нельзя редактировать или удалить — скопируйте его, чтобы создать свою редактируемую версию.',
     'trainingPlans.plan531Description':
@@ -2103,6 +2127,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.editPlan': 'Terv szerkesztése',
     'trainingPlans.copyPlan': 'Terv másolása',
     'trainingPlans.planInfoButton': 'Terv infó',
+    'trainingPlans.deloadAfterFailuresLabel': 'Egymást követő sikertelen edzések',
+    'trainingPlans.deloadPercentLabel': 'Súlycsökkentés (%)',
+    'trainingPlans.deloadWorkingSetsOnlyTooltip': 'Csak a munkaszettek számítanak bele ebbe - a bemelegítő és levezető szetteket figyelmen kívül hagyja.',
     'trainingPlans.copySuffix': ' (Másolat)',
     'trainingPlans.defaultPlanHint': 'Ez egy alapértelmezett terv. Nem szerkeszthető és nem törölhető – másold le, hogy saját szerkeszthető verziót hozz létre.',
     'trainingPlans.plan531Description':

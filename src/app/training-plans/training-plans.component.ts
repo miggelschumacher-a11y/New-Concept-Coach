@@ -238,15 +238,65 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   private readonly handleDocumentClick = (event: MouseEvent): void => {
-    if (!this.descriptionInfoOpenPlanId) {
-      return;
-    }
     const target = event.target as HTMLElement | null;
-    if (target?.closest('.description-info-trigger')) {
+    if (this.descriptionInfoOpenPlanId && !target?.closest('.description-info-trigger')) {
+      this.closeDescriptionInfo();
+    }
+    if (this.exerciseSettingsOpenKey && !target?.closest('.exercise-settings-trigger')) {
+      this.closeExerciseSettings();
+    }
+  };
+
+  // Same viewport-fit correction as the Sessions page's popups: the initial
+  // position is a best guess anchored to the trigger button, corrected a
+  // tick later once the popup has actually rendered and its real size is
+  // known, so it never clips off-screen.
+  private fitPopupToViewport(dataKey: string, position: { top: number; left: number }): void {
+    setTimeout(() => {
+      const el = document.querySelector(`[data-popup-key="${dataKey}"]`) as HTMLElement | null;
+      if (!el) {
+        return;
+      }
+      const margin = 8;
+      const rect = el.getBoundingClientRect();
+      const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
+      const maxTop = Math.max(margin, window.innerHeight - rect.height - margin);
+      position.left = Math.min(Math.max(margin, position.left), maxLeft);
+      position.top = Math.min(Math.max(margin, position.top), maxTop);
+    });
+  }
+
+  // Deload settings popup for a single exercise within a non-default plan -
+  // keyed by plan id + exercise id since the same exercise can appear across
+  // multiple plans with independent settings.
+  private exerciseSettingsOpenKey: string | null = null;
+  exerciseSettingsPosition: { top: number; left: number } | null = null;
+
+  toggleExerciseSettings(plan: TrainingPlan, exerciseId: string, event: MouseEvent): void {
+    event.stopPropagation();
+    const key = `${plan.id}:${exerciseId}`;
+    if (this.exerciseSettingsOpenKey === key) {
+      this.closeExerciseSettings();
       return;
     }
-    this.closeDescriptionInfo();
-  };
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const popupWidth = 260;
+    this.exerciseSettingsPosition = {
+      top: rect.bottom + 8,
+      left: Math.max(8, rect.right - popupWidth)
+    };
+    this.exerciseSettingsOpenKey = key;
+    this.fitPopupToViewport(`exercise-settings-${key}`, this.exerciseSettingsPosition);
+  }
+
+  isExerciseSettingsOpen(plan: TrainingPlan, exerciseId: string): boolean {
+    return this.exerciseSettingsOpenKey === `${plan.id}:${exerciseId}`;
+  }
+
+  private closeExerciseSettings(): void {
+    this.exerciseSettingsOpenKey = null;
+    this.exerciseSettingsPosition = null;
+  }
 
   tierLabelKey(tier: string): string {
     return 'trainingPlans.tier' + tier.split('_')[0];
@@ -464,6 +514,47 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     }
   }
 
+  onDeloadFieldFocus(event: Event): void {
+    (event.target as HTMLInputElement).select();
+  }
+
+  onDeloadAfterFailuresFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/\D/g, '').slice(0, 4);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // Allows up to 2 decimal places while typing, same pattern as the session
+  // weight field - digits, an optional separator, then at most 2 digits.
+  onDeloadPercentFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updatePlanExerciseDeloadAfterFailures(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const deloadAfterFailures = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 1000) : undefined;
+    await this.updateConfig(plan, exerciseId, { deloadAfterFailures });
+  }
+
+  // Displayed with trailing zeros (e.g. "5.00") to match the fixed 2-decimal
+  // precision the field is edited at, same convention as the weight fields.
+  deloadPercentDisplay(plan: TrainingPlan, exerciseId: string): string {
+    const deloadPercent = this.planExerciseConfig(plan, exerciseId).deloadPercent;
+    return deloadPercent !== undefined ? deloadPercent.toFixed(2) : '';
+  }
+
+  async updatePlanExerciseDeloadPercent(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : undefined;
+    await this.updateConfig(plan, exerciseId, { deloadPercent });
+  }
+
   private clampSets(value: string): number {
     const parsed = parseInt(value, 10);
     return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), PLAN_EXERCISE_SETS_MAX) : 0;
@@ -523,6 +614,20 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     isAmrap: boolean
   ): Promise<void> {
     await this.updatePercentageSet(plan, exerciseId, weekIndex, setIndex, { isAmrap });
+  }
+
+  async removePercentageSet(plan: TrainingPlan, exerciseId: string, weekIndex: number, setIndex: number): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const weeks = (config.percentageWeeks ?? []).map((week, wi) =>
+      wi === weekIndex ? { sets: week.sets.filter((_, si) => si !== setIndex) } : week
+    );
+    await this.updateConfig(plan, exerciseId, { percentageWeeks: weeks });
+  }
+
+  async removePercentageWeek(plan: TrainingPlan, exerciseId: string, weekIndex: number): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const weeks = (config.percentageWeeks ?? []).filter((_, wi) => wi !== weekIndex);
+    await this.updateConfig(plan, exerciseId, { percentageWeeks: weeks });
   }
 
   private async updateDoubleProgression(

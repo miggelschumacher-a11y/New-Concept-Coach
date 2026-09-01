@@ -97,6 +97,14 @@ export interface PlanExerciseConfig {
   waveProgression?: WaveProgressionConfig;
   // Only used when incrementScheme is LINEAR_PROGRESSION.
   linearProgression?: LinearProgressionConfig;
+  // Auto-deload safety net, independent of the incrementScheme above: once
+  // this exercise's working sets have failed to meet their target reps in
+  // this many consecutive finished sessions (0-1000; unset/0 disables it),
+  // the next session's weight is cut by deloadPercent (0-100). Computed live
+  // from session history rather than tracked as separate persisted state -
+  // see SessionsComponent.consecutiveExerciseFailures/applyDeload.
+  deloadAfterFailures?: number;
+  deloadPercent?: number;
 }
 
 export interface TrainingPlan {
