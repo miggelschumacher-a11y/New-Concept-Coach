@@ -668,6 +668,9 @@
                             (focus)="onWorkingSetTargetFieldFocus($event)"
                             (input)="onWorkingSetTargetRepsInput($event)"
                             (change)="updateSetTargetReps(plan, exerciseId, field, targetIndex, $any($event.target).value)"
+                            (mousedown)="onSetTargetFieldMouseDown($event, plan, exerciseId, field, targetIndex, 'targetReps')"
+                            (mouseup)="onSetTargetFieldMouseUp()"
+                            (mouseleave)="onSetTargetFieldMouseLeave()"
                           />
                         </mat-form-field>
 
@@ -683,6 +686,9 @@
                             (focus)="onWorkingSetTargetFieldFocus($event)"
                             (input)="onWorkingSetTargetWeightInput($event)"
                             (change)="updateSetTargetWeight(plan, exerciseId, field, targetIndex, $any($event.target).value)"
+                            (mousedown)="onSetTargetFieldMouseDown($event, plan, exerciseId, field, targetIndex, 'weight')"
+                            (mouseup)="onSetTargetFieldMouseUp()"
+                            (mouseleave)="onSetTargetFieldMouseLeave()"
                           />
                         </mat-form-field>
                       </div>
@@ -1106,4 +1112,24 @@
       </mat-expansion-panel>
     }
   </mat-accordion>
+}
+
+@if (setTargetCopyPopupOpen && setTargetCopyPopupPosition) {
+  <div
+    class="set-target-copy-popup"
+    data-popup-key="set-target-copy-popup"
+    [style.top.px]="setTargetCopyPopupPosition.top"
+    [style.left.px]="setTargetCopyPopupPosition.left"
+    (click)="$event.stopPropagation()"
+  >
+    <button mat-stroked-button type="button" (click)="copySetTargetToUnsetSets()">
+      {{ 'trainingPlans.copyToUnsetSets' | translate }}
+    </button>
+    <button mat-stroked-button type="button" (click)="copySetTargetToAllSets()">
+      {{ 'trainingPlans.copyToAllSets' | translate }}
+    </button>
+    <button mat-stroked-button type="button" (click)="cancelSetTargetCopy()">
+      {{ 'sessions.confirmCancel' | translate }}
+    </button>
+  </div>
 }

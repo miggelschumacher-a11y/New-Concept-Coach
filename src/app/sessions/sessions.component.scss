@@ -170,6 +170,29 @@ mat-expansion-panel-header .mat-content {
   margin-top: 1rem;
 }
 
+.set-field-copy-popup {
+  position: fixed;
+  z-index: 1000;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: linear-gradient(145deg, #3d4058, #24263a);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.45),
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.set-field-copy-popup button {
+  white-space: normal;
+  line-height: 1.2;
+}
+
 mat-expansion-panel mat-checkbox {
   display: block;
   margin: 0.75rem 0 0.25rem;

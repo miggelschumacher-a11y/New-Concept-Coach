@@ -418,12 +418,151 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
+  // Holding a "Ziel-WDH"/weight set field's own mouse button down for
+  // >500ms (without releasing) opens a popup offering to copy that field's
+  // current value across the whole exercise's not-yet-done sets - same
+  // popup as the analogous training-plan per-set fields. A quick click/type
+  // is unaffected, since the popup only appears once the timer actually
+  // fires. Done sets are never touched by either button, matching how the
+  // existing on-blur weight/target-reps propagation already protects them.
+  private longPressTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private suppressNextDocumentClick = false;
+  private setFieldCopyPopupKey: string | null = null;
+  setFieldCopyPopupPosition: { top: number; left: number } | null = null;
+  private setFieldCopyContext: {
+    session: TrainingSession;
+    sessionExercise: SessionExercise;
+    kind: 'targetReps' | 'weight';
+    sourceValue: string;
+  } | null = null;
+
+  onSetFieldMouseDown(
+    event: MouseEvent,
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    kind: 'targetReps' | 'weight'
+  ): void {
+    this.clearLongPressTimer();
+    const triggerEl = event.currentTarget as HTMLInputElement;
+    this.longPressTimeoutId = setTimeout(() => {
+      this.longPressTimeoutId = null;
+      this.openSetFieldCopyPopup(session, sessionExercise, kind, triggerEl);
+    }, 500);
+  }
+
+  onSetFieldMouseUp(): void {
+    this.clearLongPressTimer();
+  }
+
+  onSetFieldMouseLeave(): void {
+    this.clearLongPressTimer();
+  }
+
+  private clearLongPressTimer(): void {
+    if (this.longPressTimeoutId !== null) {
+      clearTimeout(this.longPressTimeoutId);
+      this.longPressTimeoutId = null;
+    }
+  }
+
+  private openSetFieldCopyPopup(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    kind: 'targetReps' | 'weight',
+    triggerEl: HTMLInputElement
+  ): void {
+    triggerEl.blur();
+    this.suppressNextDocumentClick = true;
+    const rect = triggerEl.getBoundingClientRect();
+    this.setFieldCopyPopupPosition = { top: rect.bottom + 8, left: rect.left };
+    this.setFieldCopyContext = { session, sessionExercise, kind, sourceValue: triggerEl.value };
+    this.setFieldCopyPopupKey = `${session.id}:${sessionExercise.exerciseId}:${kind}`;
+    this.fitPopupToViewport('set-field-copy-popup', this.setFieldCopyPopupPosition);
+  }
+
+  get setFieldCopyPopupOpen(): boolean {
+    return this.setFieldCopyPopupKey !== null;
+  }
+
+  private closeSetFieldCopyPopup(): void {
+    this.setFieldCopyPopupKey = null;
+    this.setFieldCopyPopupPosition = null;
+    this.setFieldCopyContext = null;
+  }
+
+  cancelSetFieldCopy(): void {
+    this.closeSetFieldCopyPopup();
+  }
+
+  async copySetFieldToUnsetSets(): Promise<void> {
+    await this.applySetFieldCopy(true);
+  }
+
+  async copySetFieldToAllSets(): Promise<void> {
+    await this.applySetFieldCopy(false);
+  }
+
+  private async applySetFieldCopy(onlyUnset: boolean): Promise<void> {
+    const ctx = this.setFieldCopyContext;
+    if (!ctx) {
+      return;
+    }
+    const { session, sessionExercise, kind, sourceValue } = ctx;
+    this.closeSetFieldCopyPopup();
+
+    if (kind === 'targetReps') {
+      const trimmed = sourceValue.trim();
+      if (trimmed !== '' && this.parseTargetRepsText(trimmed).targetReps === undefined) {
+        return;
+      }
+      const { targetReps, targetRepsMax, isAmrap } = this.parseTargetRepsText(trimmed);
+      if (targetReps !== undefined) {
+        sessionExercise.minReps = targetRepsMax ?? targetReps;
+      }
+      for (const candidate of sessionExercise.sets) {
+        if (candidate.done || (onlyUnset && candidate.targetReps !== undefined)) {
+          continue;
+        }
+        candidate.targetReps = targetReps;
+        candidate.targetRepsMax = targetRepsMax;
+        candidate.isAmrap = isAmrap;
+        if (targetReps !== undefined) {
+          this.fieldBuffer(candidate).reps = String(targetRepsMax ?? targetReps);
+        }
+      }
+    } else {
+      const weight = parseFloat(sourceValue.replace(',', '.'));
+      if (!Number.isFinite(weight)) {
+        return;
+      }
+      for (const candidate of sessionExercise.sets) {
+        if (candidate.done) {
+          continue;
+        }
+        const currentWeight = parseFloat(this.fieldBuffer(candidate).weight.replace(',', '.'));
+        if (onlyUnset && Number.isFinite(currentWeight) && currentWeight !== 0) {
+          continue;
+        }
+        this.fieldBuffer(candidate).weight = weight.toFixed(2);
+      }
+    }
+
+    await this.persist(session);
+  }
+
   // Closes an open popup on any other click in the app (a different button,
   // an input, a panel toggle, etc.). Registered on the capture phase so it
   // runs before target handlers that call stopPropagation() elsewhere in
   // this component (e.g. the delete-confirm buttons) — a bubble-phase
   // listener would never see those clicks.
   private readonly handleDocumentClick = (event: MouseEvent): void => {
+    // Releasing the mouse button that just opened the copy popup (after the
+    // 500ms hold) fires its own click on the field afterwards - skip that
+    // one click so it doesn't instantly close the popup it just opened.
+    if (this.suppressNextDocumentClick) {
+      this.suppressNextDocumentClick = false;
+      return;
+    }
     const target = event.target as HTMLElement | null;
     if (this.weightInfoOpenKey && !target?.closest('.weight-info-trigger')) {
       this.closeWeightInfo();
@@ -433,6 +572,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     if (this.sessionSettingsInfoOpenKey && !target?.closest('.session-settings-info-trigger')) {
       this.closeSessionSettingsInfo();
+    }
+    if (this.setFieldCopyPopupKey && !target?.closest('.set-field-copy-popup')) {
+      this.closeSetFieldCopyPopup();
     }
   };
 

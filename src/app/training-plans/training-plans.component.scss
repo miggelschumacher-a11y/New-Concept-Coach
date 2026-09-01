@@ -92,6 +92,29 @@ mat-card {
   text-align: right;
 }
 
+.set-target-copy-popup {
+  position: fixed;
+  z-index: 1000;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: linear-gradient(145deg, #3d4058, #24263a);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.45),
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.set-target-copy-popup button {
+  white-space: normal;
+  line-height: 1.2;
+}
+
 .plan-accordion .plan-card mat-panel-description {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -165,18 +188,18 @@ mat-card {
 .percentage-set-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.4rem;
   flex-wrap: wrap;
-  margin: 0.5rem 0;
+  margin: 0.25rem 0;
 }
 
 .percentage-set-index {
-  min-width: 4.5rem;
+  min-width: 2rem;
   color: lightgrey;
 }
 
 .percentage-input-field {
-  width: 5.5rem;
+  width: 5rem;
 }
 
 .percentage-set-weight {

@@ -57,7 +57,7 @@ const PLAN_EXERCISE_SETS_MAX = 100;
 const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
 const DEFAULT_INCREMENT_SCHEME: IncrementScheme = 'LINEAR_PROGRESSION';
 const DEFAULT_LINEAR_PROGRESSION_TARGET_REPS = '5';
-const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = true;
+const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = false;
 
 type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTargets';
 
@@ -240,12 +240,22 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   private readonly handleDocumentClick = (event: MouseEvent): void => {
+    // Releasing the mouse button that just opened the copy popup (after the
+    // 500ms hold) fires its own click on the field afterwards - skip that
+    // one click so it doesn't instantly close the popup it just opened.
+    if (this.suppressNextDocumentClick) {
+      this.suppressNextDocumentClick = false;
+      return;
+    }
     const target = event.target as HTMLElement | null;
     if (this.descriptionInfoOpenPlanId && !target?.closest('.description-info-trigger')) {
       this.closeDescriptionInfo();
     }
     if (this.exerciseSettingsOpenKey && !target?.closest('.exercise-settings-trigger')) {
       this.closeExerciseSettings();
+    }
+    if (this.setTargetCopyPopupKey && !target?.closest('.set-target-copy-popup')) {
+      this.closeSetTargetCopyPopup();
     }
   };
 
@@ -298,6 +308,127 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   private closeExerciseSettings(): void {
     this.exerciseSettingsOpenKey = null;
     this.exerciseSettingsPosition = null;
+  }
+
+  // Holding a "Ziel-WDH"/weight field's own mouse button down for >500ms
+  // (without releasing) opens a popup offering to copy that field's current
+  // value across the whole exercise - every one of its warm-up/working/
+  // cooldown sets, not just the one list the field itself belongs to, same
+  // as the analogous session-level target-reps field already does. A quick
+  // click/type is unaffected, since the popup only appears once the timer
+  // actually fires.
+  private longPressTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private suppressNextDocumentClick = false;
+  private setTargetCopyPopupKey: string | null = null;
+  setTargetCopyPopupPosition: { top: number; left: number } | null = null;
+  private setTargetCopyContext: {
+    plan: TrainingPlan;
+    exerciseId: string;
+    field: SetTargetField;
+    index: number;
+    kind: 'targetReps' | 'weight';
+  } | null = null;
+
+  onSetTargetFieldMouseDown(
+    event: MouseEvent,
+    plan: TrainingPlan,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    kind: 'targetReps' | 'weight'
+  ): void {
+    this.clearLongPressTimer();
+    const triggerEl = event.currentTarget as HTMLElement;
+    this.longPressTimeoutId = setTimeout(() => {
+      this.longPressTimeoutId = null;
+      this.openSetTargetCopyPopup(plan, exerciseId, field, index, kind, triggerEl);
+    }, 500);
+  }
+
+  onSetTargetFieldMouseUp(): void {
+    this.clearLongPressTimer();
+  }
+
+  onSetTargetFieldMouseLeave(): void {
+    this.clearLongPressTimer();
+  }
+
+  private clearLongPressTimer(): void {
+    if (this.longPressTimeoutId !== null) {
+      clearTimeout(this.longPressTimeoutId);
+      this.longPressTimeoutId = null;
+    }
+  }
+
+  private openSetTargetCopyPopup(
+    plan: TrainingPlan,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    kind: 'targetReps' | 'weight',
+    triggerEl: HTMLElement
+  ): void {
+    triggerEl.blur();
+    this.suppressNextDocumentClick = true;
+    const rect = triggerEl.getBoundingClientRect();
+    this.setTargetCopyPopupPosition = { top: rect.bottom + 8, left: rect.left };
+    this.setTargetCopyContext = { plan, exerciseId, field, index, kind };
+    this.setTargetCopyPopupKey = `${plan.id}:${exerciseId}:${field}:${index}:${kind}`;
+    this.fitPopupToViewport('set-target-copy-popup', this.setTargetCopyPopupPosition);
+  }
+
+  get setTargetCopyPopupOpen(): boolean {
+    return this.setTargetCopyPopupKey !== null;
+  }
+
+  private closeSetTargetCopyPopup(): void {
+    this.setTargetCopyPopupKey = null;
+    this.setTargetCopyPopupPosition = null;
+    this.setTargetCopyContext = null;
+  }
+
+  cancelSetTargetCopy(): void {
+    this.closeSetTargetCopyPopup();
+  }
+
+  async copySetTargetToUnsetSets(): Promise<void> {
+    await this.applySetTargetCopy(true);
+  }
+
+  async copySetTargetToAllSets(): Promise<void> {
+    await this.applySetTargetCopy(false);
+  }
+
+  private async applySetTargetCopy(onlyUnset: boolean): Promise<void> {
+    const ctx = this.setTargetCopyContext;
+    if (!ctx) {
+      return;
+    }
+    const { plan, exerciseId, field, index, kind } = ctx;
+    this.closeSetTargetCopyPopup();
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const source = config[field]?.[index];
+    if (!source) {
+      return;
+    }
+
+    const applyToList = (targets?: WorkingSetTarget[]): WorkingSetTarget[] | undefined => {
+      if (!targets) {
+        return targets;
+      }
+      return targets.map((target) => {
+        if (kind === 'targetReps') {
+          return onlyUnset && target.targetReps !== '' ? target : { ...target, targetReps: source.targetReps };
+        }
+        return onlyUnset && target.weight !== 0 ? target : { ...target, weight: source.weight };
+      });
+    };
+
+    await this.updateConfig(plan, exerciseId, {
+      warmupSetTargets: applyToList(config.warmupSetTargets),
+      workingSetTargets: applyToList(config.workingSetTargets),
+      cooldownSetTargets: applyToList(config.cooldownSetTargets)
+    });
   }
 
   tierLabelKey(tier: string): string {

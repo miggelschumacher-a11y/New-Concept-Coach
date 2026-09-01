@@ -693,6 +693,9 @@
                                   [disabled]="isPaused(session)"
                                   (input)="onTargetRepsFieldInput($event)"
                                   (change)="updateTargetReps(session, sessionExercise, $any($event.target).value)"
+                                  (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
+                                  (mouseup)="onSetFieldMouseUp()"
+                                  (mouseleave)="onSetFieldMouseLeave()"
                                 />
                               </mat-form-field>
                             }
@@ -733,6 +736,9 @@
                                 (focus)="onSetFieldFocus(set, $event)"
                                 (input)="onWeightFieldInput($event)"
                                 (blur)="onWeightFieldBlur(sessionExercise, set)"
+                                (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'weight')"
+                                (mouseup)="onSetFieldMouseUp()"
+                                (mouseleave)="onSetFieldMouseLeave()"
                               />
                             </mat-form-field>
                             <button
@@ -782,4 +788,24 @@
       </mat-expansion-panel>
     }
   </mat-accordion>
+}
+
+@if (setFieldCopyPopupOpen && setFieldCopyPopupPosition) {
+  <div
+    class="set-field-copy-popup"
+    data-popup-key="set-field-copy-popup"
+    [style.top.px]="setFieldCopyPopupPosition.top"
+    [style.left.px]="setFieldCopyPopupPosition.left"
+    (click)="$event.stopPropagation()"
+  >
+    <button mat-stroked-button type="button" (click)="copySetFieldToUnsetSets()">
+      {{ 'trainingPlans.copyToUnsetSets' | translate }}
+    </button>
+    <button mat-stroked-button type="button" (click)="copySetFieldToAllSets()">
+      {{ 'trainingPlans.copyToAllSets' | translate }}
+    </button>
+    <button mat-stroked-button type="button" (click)="cancelSetFieldCopy()">
+      {{ 'sessions.confirmCancel' | translate }}
+    </button>
+  </div>
 }
