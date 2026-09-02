@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -35,6 +35,7 @@ import {
   PlanExerciseType,
   IncrementScheme,
   PercentageProgressionMode,
+  PercentageWeek,
   WorkingSetTarget
 } from '../core/models/training-plan.model';
 import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core/models/tier-line-progression.model';
@@ -44,6 +45,7 @@ import { WaveProgressionState } from '../core/models/wave-progression.model';
 import { LinearProgressionState } from '../core/models/linear-progression.model';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
+import { DEFAULT_PERCENTAGE_WEEKS } from '../core/data/default-percentage-weeks';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { computePrescribedReps } from '../core/utils/double-progression.util';
 import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax } from '../core/utils/one-rep-max.util';
@@ -83,6 +85,7 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
     DragDropModule,
     MatTooltipModule,
     DatePipe,
+    NgTemplateOutlet,
     TranslatePipe
   ],
   providers: [DatePipe],
@@ -1033,39 +1036,59 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const now = new Date();
     const name = sourceSession.name;
     const exercises: SessionExercise[] = await Promise.all(
-      sourceSession.exercises.map(async (sessionExercise) => ({
-        exerciseId: sessionExercise.exerciseId,
-        sets: await Promise.all(
-          sessionExercise.sets.map(async (set) => ({
-            id: crypto.randomUUID(),
-            // Carries the just-finished set's own target reps forward (same
-            // prescription, next session), same as addSet() already does for
-            // a manually added set - and prefills the achieved-reps field
-            // from that target's top (fieldBuffer()'s own convention), not
-            // from cross-session history, now that there's a real target to
-            // prefill from. Falls back to history when the set had no target.
-            reps:
-              set.targetReps !== undefined
-                ? (set.targetRepsMax ?? set.targetReps)
-                : this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
-            weight: await this.peekProgressionWeight(sessionExercise, set),
-            type: set.type,
-            targetReps: set.targetReps,
-            targetRepsMax: set.targetRepsMax,
-            isAmrap: set.isAmrap
-          }))
-        ),
-        countWarmupSets: sessionExercise.countWarmupSets,
-        countCooldownSets: sessionExercise.countCooldownSets,
-        showWarmupSets: sessionExercise.showWarmupSets,
-        showCooldownSets: sessionExercise.showCooldownSets,
-        exerciseType: sessionExercise.exerciseType,
-        incrementScheme: sessionExercise.incrementScheme,
-        minReps: sessionExercise.minReps,
-        minWeight: sessionExercise.minWeight,
-        deloadAfterFailures: sessionExercise.deloadAfterFailures,
-        deloadPercent: sessionExercise.deloadPercent
-      }))
+      sourceSession.exercises.map(async (sessionExercise) => {
+        const carryOverSet = async (set: ExerciseSet): Promise<ExerciseSet> => ({
+          id: crypto.randomUUID(),
+          // Carries the just-finished set's own target reps forward (same
+          // prescription, next session), same as addSet() already does for
+          // a manually added set - and prefills the achieved-reps field
+          // from that target's top (fieldBuffer()'s own convention), not
+          // from cross-session history, now that there's a real target to
+          // prefill from. Falls back to history when the set had no target.
+          reps:
+            set.targetReps !== undefined
+              ? (set.targetRepsMax ?? set.targetReps)
+              : this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
+          weight: await this.peekProgressionWeight(sessionExercise, set),
+          type: set.type,
+          targetReps: set.targetReps,
+          targetRepsMax: set.targetRepsMax,
+          isAmrap: set.isAmrap
+        });
+        const warmupSets = await Promise.all(sessionExercise.sets.filter((set) => set.type === 'warmup').map(carryOverSet));
+        const cooldownSets = await Promise.all(sessionExercise.sets.filter((set) => set.type === 'cooldown').map(carryOverSet));
+        // Percentage-Based recomputes the working sets fresh from the
+        // exercise's own week templates (same rhythm/week-cycling logic as
+        // a plan-based session - see percentageBasedWorkingSets) instead of
+        // just carrying the previous sets' weight forward like every other
+        // exercise type does.
+        const workingSets =
+          sessionExercise.exerciseType === 'PERCENTAGE_BASED'
+            ? (this.percentageBasedWorkingSets(
+                sessionExercise.exerciseId,
+                sessionExercise.percentageProgressionMode ?? 'FOUR_WEEK_RHYTHM',
+                sessionExercise.percentageWeeks ?? [],
+                this.manualExerciseFinishedSessionCount(sessionExercise.exerciseId)
+              ) ?? (await Promise.all(sessionExercise.sets.filter((set) => set.type === 'working').map(carryOverSet))))
+            : await Promise.all(sessionExercise.sets.filter((set) => set.type === 'working').map(carryOverSet));
+        return {
+          exerciseId: sessionExercise.exerciseId,
+          sets: [...warmupSets, ...workingSets, ...cooldownSets],
+          countWarmupSets: sessionExercise.countWarmupSets,
+          countCooldownSets: sessionExercise.countCooldownSets,
+          showWarmupSets: sessionExercise.showWarmupSets,
+          showCooldownSets: sessionExercise.showCooldownSets,
+          exerciseType: sessionExercise.exerciseType,
+          incrementScheme: sessionExercise.incrementScheme,
+          minReps: sessionExercise.minReps,
+          minWeight: sessionExercise.minWeight,
+          deloadAfterFailures: sessionExercise.deloadAfterFailures,
+          deloadPercent: sessionExercise.deloadPercent,
+          weightIncrement: sessionExercise.weightIncrement,
+          percentageProgressionMode: sessionExercise.percentageProgressionMode,
+          percentageWeeks: sessionExercise.percentageWeeks
+        };
+      })
     );
     return {
       id: crypto.randomUUID(),
@@ -1278,46 +1301,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 : buildSets(config.workingSets, 'working');
             } else if (config.exerciseType === 'PERCENTAGE_BASED') {
               const percentageMode = config.percentageProgressionMode ?? 'FOUR_WEEK_RHYTHM';
-              const weeks = config.percentageWeeks ?? [];
-              if (percentageMode === 'ALL_SETS') {
-                // No week/percentage cycling at all - the working weight
-                // simply carries forward from history (like TIME_BASED). The
-                // first week's sets are used purely as the reps-per-set
-                // template - their percentage values are ignored in this
-                // mode.
-                const template = weeks[0]?.sets;
-                workingSets = template
-                  ? template.map((set) => ({
-                      id: crypto.randomUUID(),
-                      reps: set.reps,
-                      targetReps: set.reps,
-                      isAmrap: set.isAmrap,
-                      weight: this.defaultWeight(exerciseId, 'working'),
-                      type: 'working' as SetType
-                    }))
-                  : buildSets(config.workingSets, 'working');
-              } else {
-                // FOUR_WEEK_RHYTHM cycles through the weeks by position, one
-                // week per session, wrapping back to the first week after
-                // the last (e.g. 5/3/1's 3 build-up weeks + a deload week).
-                // ONE_WEEK_RHYTHM always uses the first (only) week. Either
-                // way each set's weight is computed fresh from the
-                // exercise's current 1RM times that set's own percentage -
-                // never carried forward from history.
-                const weekIndex =
-                  percentageMode === 'ONE_WEEK_RHYTHM' || !weeks.length
-                    ? 0
-                    : this.planExerciseFinishedSessionCount(plan.id, exerciseId) % weeks.length;
-                const template = weeks[weekIndex]?.sets ?? [];
-                workingSets = template.map((set) => ({
-                  id: crypto.randomUUID(),
-                  reps: set.reps,
-                  targetReps: set.reps,
-                  isAmrap: set.isAmrap,
-                  weight: this.percentageSetWeight(exerciseId, set.percentage),
-                  type: 'working' as SetType
-                }));
-              }
+              workingSets =
+                this.percentageBasedWorkingSets(
+                  exerciseId,
+                  percentageMode,
+                  config.percentageWeeks ?? [],
+                  this.planExerciseFinishedSessionCount(plan.id, exerciseId)
+                ) ?? buildSets(config.workingSets, 'working');
             } else {
               // TIME_BASED - unaffected by the working-set-target list or
               // any weight concept, still just a plain count.
@@ -1603,6 +1593,68 @@ export class SessionsComponent implements OnInit, OnDestroy {
     ).length;
   }
 
+  // Same idea as planExerciseFinishedSessionCount above, but for a manual
+  // (no trainingPlanId) exercise's own week cycling - scoped to all
+  // finished manual sessions that included the exercise, since there's no
+  // shared plan identity to scope the count to instead.
+  private manualExerciseFinishedSessionCount(exerciseId: string): number {
+    return this.sessions.filter(
+      (session) => !session.trainingPlanId && session.finished && session.exercises.some((se) => se.exerciseId === exerciseId)
+    ).length;
+  }
+
+  // Shared by buildSessionFromPlan (plan-based) and buildManualReplenishment
+  // (a manual session's own week templates) - the %1RM/week-cycling math is
+  // identical, only how "how many sessions of this exercise have already
+  // finished" gets counted differs between the two callers. Returns null
+  // when there's no template to generate from, so callers can fall back to
+  // whatever makes sense for them (a plan falls back to a plain working-set
+  // count; a manual session just keeps its existing sets as-is).
+  private percentageBasedWorkingSets(
+    exerciseId: string,
+    percentageMode: PercentageProgressionMode,
+    weeks: PercentageWeek[],
+    finishedSessionCount: number
+  ): ExerciseSet[] | null {
+    if (percentageMode === 'ALL_SETS') {
+      // No week/percentage cycling at all - the working weight simply
+      // carries forward from history (like TIME_BASED). The first week's
+      // sets are used purely as the reps-per-set template - their
+      // percentage values are ignored in this mode.
+      const template = weeks[0]?.sets;
+      if (!template) {
+        return null;
+      }
+      return template.map((set) => ({
+        id: crypto.randomUUID(),
+        reps: set.reps,
+        targetReps: set.reps,
+        isAmrap: set.isAmrap,
+        weight: this.defaultWeight(exerciseId, 'working'),
+        type: 'working' as SetType
+      }));
+    }
+    // FOUR_WEEK_RHYTHM cycles through the weeks by position, one week per
+    // session, wrapping back to the first week after the last (e.g. 5/3/1's
+    // 3 build-up weeks + a deload week). ONE_WEEK_RHYTHM always uses the
+    // first (only) week. Either way each set's weight is computed fresh
+    // from the exercise's current 1RM times that set's own percentage -
+    // never carried forward from history.
+    const weekIndex = percentageMode === 'ONE_WEEK_RHYTHM' || !weeks.length ? 0 : finishedSessionCount % weeks.length;
+    const template = weeks[weekIndex]?.sets;
+    if (!template) {
+      return null;
+    }
+    return template.map((set) => ({
+      id: crypto.randomUUID(),
+      reps: set.reps,
+      targetReps: set.reps,
+      isAmrap: set.isAmrap,
+      weight: this.percentageSetWeight(exerciseId, set.percentage),
+      type: 'working' as SetType
+    }));
+  }
+
   // Same %1RM-to-weight rounding convention as the plan editor's own
   // percentageSetWeight preview (nearest plate increment) - see
   // TrainingPlansComponent.percentageSetWeight.
@@ -1610,6 +1662,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const oneRepMax = this.effectiveOneRepMax(exerciseId);
     if (!oneRepMax) {
       return 0;
+    }
+    const increment = this.settingsService.getSettings().weightUnit === 'lbs' ? 5 : 2.5;
+    return Math.round((oneRepMax * percentage) / 100 / increment) * increment;
+  }
+
+  // Template-facing counterpart of percentageSetWeight above, for the manual
+  // session's own percentage-week editor preview - null (rather than 0)
+  // when there's no 1RM yet, so the template can tell "no 1RM" apart from
+  // "computed to 0".
+  sessionPercentageSetWeight(exerciseId: string, percentage: number): number | null {
+    const oneRepMax = this.effectiveOneRepMax(exerciseId);
+    if (!oneRepMax) {
+      return null;
     }
     const increment = this.settingsService.getSettings().weightUnit === 'lbs' ? 5 : 2.5;
     return Math.round((oneRepMax * percentage) / 100 / increment) * increment;
@@ -1870,6 +1935,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     exerciseType: PlanExerciseType
   ): Promise<void> {
     sessionExercise.exerciseType = exerciseType;
+    // Matches Training Plans' own default for a freshly switched exercise -
+    // only meaningful for a manual session, which holds its own week
+    // templates (see percentageWeeks on SessionExercise); a plan-derived
+    // session always reads them from the plan instead.
+    if (exerciseType === 'PERCENTAGE_BASED' && !session.trainingPlanId && !sessionExercise.percentageWeeks) {
+      sessionExercise.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
+    }
     await this.persist(session);
   }
 
@@ -1953,7 +2025,92 @@ export class SessionsComponent implements OnInit, OnDestroy {
     percentageProgressionMode: PercentageProgressionMode
   ): Promise<void> {
     sessionExercise.percentageProgressionMode = percentageProgressionMode;
+    // Same collapse-to-single-week/reseed convention as
+    // TrainingPlansComponent.updatePlanExercisePercentageProgressionMode -
+    // only meaningful for a manual session's own week templates.
+    if (!session.trainingPlanId) {
+      if (percentageProgressionMode === 'ONE_WEEK_RHYTHM') {
+        const week = sessionExercise.percentageWeeks?.[0];
+        if (week?.sets.length) {
+          const lastIndex = week.sets.length - 1;
+          sessionExercise.percentageWeeks = [
+            { sets: week.sets.map((set, i) => (i === lastIndex ? { ...set, isAmrap: true } : set)) }
+          ];
+        }
+      } else if (percentageProgressionMode === 'FOUR_WEEK_RHYTHM' && (sessionExercise.percentageWeeks?.length ?? 0) < 4) {
+        sessionExercise.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
+      }
+    }
     await this.persist(session);
+  }
+
+  hasSingleSessionPercentageWeek(sessionExercise: SessionExercise): boolean {
+    return sessionExercise.percentageWeeks?.length === 1;
+  }
+
+  private async updateSessionPercentageSet(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    weekIndex: number,
+    setIndex: number,
+    patch: Partial<{ percentage: number; reps: number; isAmrap: boolean }>
+  ): Promise<void> {
+    sessionExercise.percentageWeeks = (sessionExercise.percentageWeeks ?? []).map((week, wi) =>
+      wi === weekIndex ? { sets: week.sets.map((set, si) => (si === setIndex ? { ...set, ...patch } : set)) } : week
+    );
+    await this.persist(session);
+  }
+
+  async updateSessionPercentageSetPercentage(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    weekIndex: number,
+    setIndex: number,
+    value: string
+  ): Promise<void> {
+    await this.updateSessionPercentageSet(session, sessionExercise, weekIndex, setIndex, { percentage: this.clampPercentageValue(value) });
+  }
+
+  async updateSessionPercentageSetReps(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    weekIndex: number,
+    setIndex: number,
+    value: string
+  ): Promise<void> {
+    await this.updateSessionPercentageSet(session, sessionExercise, weekIndex, setIndex, { reps: this.clampPercentageValue(value) });
+  }
+
+  async toggleSessionPercentageSetAmrap(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    weekIndex: number,
+    setIndex: number,
+    isAmrap: boolean
+  ): Promise<void> {
+    await this.updateSessionPercentageSet(session, sessionExercise, weekIndex, setIndex, { isAmrap });
+  }
+
+  async removeSessionPercentageSet(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    weekIndex: number,
+    setIndex: number
+  ): Promise<void> {
+    sessionExercise.percentageWeeks = (sessionExercise.percentageWeeks ?? []).map((week, wi) =>
+      wi === weekIndex ? { sets: week.sets.filter((_, si) => si !== setIndex) } : week
+    );
+    await this.persist(session);
+  }
+
+  async removeSessionPercentageWeek(session: TrainingSession, sessionExercise: SessionExercise, weekIndex: number): Promise<void> {
+    sessionExercise.percentageWeeks = (sessionExercise.percentageWeeks ?? []).filter((_, wi) => wi !== weekIndex);
+    await this.persist(session);
+  }
+
+  private clampPercentageValue(value: string): number {
+    const parsed = parseInt(value, 10);
+    return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
   }
 
   async addSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {

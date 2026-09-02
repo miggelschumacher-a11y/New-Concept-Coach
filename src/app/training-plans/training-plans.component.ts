@@ -25,7 +25,6 @@ import {
   PlanExerciseConfig,
   PlanExerciseType,
   IncrementScheme,
-  PercentageWeek,
   PercentageProgressionMode,
   DoubleProgressionMode,
   WorkingSetTarget
@@ -42,6 +41,7 @@ import { DEFAULT_GREYSKULL_PLAN_ID } from '../core/data/default-greyskull-plan';
 import { DEFAULT_NSUNS_PLAN_ID } from '../core/data/default-nsuns-plan';
 import { DEFAULT_HEAVYDUTY_PLAN_ID } from '../core/data/default-heavyduty-plan';
 import { DEFAULT_HST_PLAN_ID } from '../core/data/default-hst-plan';
+import { DEFAULT_PERCENTAGE_WEEKS } from '../core/data/default-percentage-weeks';
 
 const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_531_PLAN_ID]: 'trainingPlans.plan531Description',
@@ -67,39 +67,6 @@ const DEFAULT_WEIGHT_INCREMENT = 1;
 
 type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTargets';
 
-// Classic Wendler 5/3/1: 3 waves building to a heavier AMRAP top set, then a
-// deload week. Seeded the first time an exercise is switched to
-// percentage-based, so there's a working example to edit instead of nothing.
-const DEFAULT_PERCENTAGE_WEEKS: PercentageWeek[] = [
-  {
-    sets: [
-      { percentage: 65, reps: 5, isAmrap: false },
-      { percentage: 75, reps: 5, isAmrap: false },
-      { percentage: 85, reps: 5, isAmrap: true }
-    ]
-  },
-  {
-    sets: [
-      { percentage: 70, reps: 3, isAmrap: false },
-      { percentage: 80, reps: 3, isAmrap: false },
-      { percentage: 90, reps: 3, isAmrap: true }
-    ]
-  },
-  {
-    sets: [
-      { percentage: 75, reps: 5, isAmrap: false },
-      { percentage: 85, reps: 3, isAmrap: false },
-      { percentage: 95, reps: 1, isAmrap: true }
-    ]
-  },
-  {
-    sets: [
-      { percentage: 40, reps: 5, isAmrap: false },
-      { percentage: 50, reps: 5, isAmrap: false },
-      { percentage: 60, reps: 5, isAmrap: false }
-    ]
-  }
-];
 
 @Component({
   selector: 'app-training-plans',
