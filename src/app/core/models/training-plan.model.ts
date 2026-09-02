@@ -32,12 +32,9 @@ export type DoubleProgressionMode = 'ADD_TO_ALL_SETS' | 'ADD_ONE_TOTAL_REP';
 // Only meaningful when exerciseType is PERCENTAGE_BASED - which rhythm
 // drives how a new session's sets are generated for the exercise.
 // 'ALL_SETS': no week/percentage cycling at all - the working weight simply
-// carries forward from history, same as a plain weight-based exercise,
-// bumped by percentIncrement only once every working set in the last
-// finished session met its target reps (the same success rule Linear
-// Progression uses, just expressed as a percent bump instead of a flat
-// kg one). percentageWeeks[0]'s sets are used purely as the reps-per-set
-// template - their percentage values are ignored in this mode.
+// carries forward from history, unchanged, same as TIME_BASED.
+// percentageWeeks[0]'s sets are used purely as the reps-per-set template -
+// their percentage values are ignored in this mode.
 // 'FOUR_WEEK_RHYTHM': cycles through percentageWeeks by position, one week
 // per session (e.g. 5/3/1's 3 build-up weeks + a deload week), wrapping
 // back to the first week after the last. Each set's weight is computed
@@ -153,11 +150,6 @@ export interface PlanExerciseConfig {
   // exercise's working sets gain each time its incrementScheme records a
   // success. Unset falls back to DEFAULT_WEIGHT_INCREMENT (1).
   weightIncrement?: number;
-  // Only used when exerciseType is PERCENTAGE_BASED - no tracked progression
-  // state of its own, so this simply scales up the working weight (carried
-  // forward from history) by this percentage each time a new session is
-  // generated for the exercise. Unset/0 means no automatic increase.
-  percentIncrement?: number;
   // Session-level defaults for a session exercise generated from this plan
   // exercise - same fields/meaning as SessionExercise's own show
   // warmup/cooldown booleans (see session.model.ts). Optional and treated

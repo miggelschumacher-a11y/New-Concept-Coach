@@ -571,26 +571,6 @@
                                     <mat-option value="ONE_WEEK_RHYTHM">{{ 'trainingPlans.percentageProgressionModeOneWeek' | translate }}</mat-option>
                                   </mat-select>
                                 </mat-form-field>
-
-                                @if (sessionPercentageProgressionModeDisplay(sessionExercise) === 'ALL_SETS') {
-                                  <mat-form-field
-                                    appearance="outline"
-                                    class="exercise-settings-info-field"
-                                    [matTooltip]="'trainingPlans.percentIncrementTooltip' | translate"
-                                  >
-                                    <mat-label>{{ 'trainingPlans.percentIncrementLabel' | translate }}</mat-label>
-                                    <input
-                                      matInput
-                                      type="text"
-                                      inputmode="decimal"
-                                      [value]="sessionPercentIncrementDisplay(sessionExercise)"
-                                      name="sessionPercentIncrement-{{ sessionExercise.exerciseId }}"
-                                      (focus)="onDeloadFieldFocus($event)"
-                                      (input)="onDeloadPercentFieldInput($event)"
-                                      (change)="updateSessionPercentIncrement(session, sessionExercise, $any($event.target).value)"
-                                    />
-                                  </mat-form-field>
-                                }
                               }
                             </mat-tab>
                           }

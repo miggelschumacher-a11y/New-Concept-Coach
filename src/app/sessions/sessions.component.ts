@@ -1271,28 +1271,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
               const weeks = config.percentageWeeks ?? [];
               if (percentageMode === 'ALL_SETS') {
                 // No week/percentage cycling at all - the working weight
-                // simply carries forward from history (like TIME_BASED),
-                // only bumped by percentIncrement once every working set in
-                // the last finished session met its target reps (the same
-                // success rule Linear Progression uses). The first week's
-                // sets are used purely as the reps-per-set template - its
-                // percentage values are ignored in this mode.
+                // simply carries forward from history (like TIME_BASED). The
+                // first week's sets are used purely as the reps-per-set
+                // template - their percentage values are ignored in this
+                // mode.
                 const template = weeks[0]?.sets;
-                const percentIncrement = config.percentIncrement ?? 0;
-                const scale = this.lastFinishedPlanExerciseSuccess(plan.id, exerciseId) ? 1 + percentIncrement / 100 : 1;
                 workingSets = template
                   ? template.map((set) => ({
                       id: crypto.randomUUID(),
                       reps: set.reps,
                       targetReps: set.reps,
                       isAmrap: set.isAmrap,
-                      weight: Math.round(this.defaultWeight(exerciseId, 'working') * scale * 100) / 100,
+                      weight: this.defaultWeight(exerciseId, 'working'),
                       type: 'working' as SetType
                     }))
-                  : buildSets(config.workingSets, 'working').map((set) => ({
-                      ...set,
-                      weight: Math.round(set.weight * scale * 100) / 100
-                    }));
+                  : buildSets(config.workingSets, 'working');
               } else {
                 // FOUR_WEEK_RHYTHM cycles through the weeks by position, one
                 // week per session, wrapping back to the first week after
@@ -1344,7 +1337,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
               deloadAfterFailures: config.deloadAfterFailures,
               deloadPercent: config.deloadPercent,
               weightIncrement: config.weightIncrement,
-              percentIncrement: config.percentIncrement,
               percentageProgressionMode: config.percentageProgressionMode
             };
           })
@@ -1590,28 +1582,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
       count++;
     }
     return count;
-  }
-
-  // ALL_SETS percentage progression's success check: the most recent
-  // attempted (non-zero-weight) finished session for this plan+exercise,
-  // same "untouched" skip as consecutiveExerciseFailures - but only the
-  // single latest attempt matters here, not a streak.
-  private lastFinishedPlanExerciseSuccess(planId: string | undefined, exerciseId: string): boolean {
-    const finishedSessions = this.sessions
-      .filter((session) => session.trainingPlanId === planId && session.finished)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    for (const session of finishedSessions) {
-      const sessionExercise = session.exercises.find((se) => se.exerciseId === exerciseId);
-      if (!sessionExercise) {
-        continue;
-      }
-      const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
-      if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
-        continue;
-      }
-      return workingSets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
-    }
-    return false;
   }
 
   // FOUR_WEEK_RHYTHM's week cycling: how many of this plan's finished
@@ -1960,16 +1930,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async updateSessionWeightIncrement(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     sessionExercise.weightIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
-    await this.persist(session);
-  }
-
-  sessionPercentIncrementDisplay(sessionExercise: SessionExercise): string {
-    return sessionExercise.percentIncrement !== undefined ? sessionExercise.percentIncrement.toFixed(2) : '';
-  }
-
-  async updateSessionPercentIncrement(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
-    const parsed = parseFloat(value.replace(',', '.'));
-    sessionExercise.percentIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
     await this.persist(session);
   }
 

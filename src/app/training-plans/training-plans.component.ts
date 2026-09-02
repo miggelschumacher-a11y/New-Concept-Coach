@@ -63,9 +63,6 @@ const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = false;
 // Flat fallback for weightIncrement when the field is left blank - no
 // longer the body-region-based WEIGHT_INCREMENT_BY_EXERCISE_TYPE default.
 const DEFAULT_WEIGHT_INCREMENT = 1;
-// Seeded on new exercise configs so percentIncrement isn't blank/0 (no
-// automatic increase) by default.
-const DEFAULT_PERCENT_INCREMENT = 5;
 
 type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTargets';
 
@@ -519,7 +516,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       warmupSetTargets: this.defaultWorkingSetTargets(DEFAULT_WARMUP_SETS),
       workingSetTargets: this.defaultWorkingSetTargets(DEFAULT_WORKING_SETS),
       cooldownSetTargets: this.defaultWorkingSetTargets(DEFAULT_COOLDOWN_SETS),
-      percentIncrement: DEFAULT_PERCENT_INCREMENT,
       ...(DEFAULT_INCREMENT_SCHEME === 'LINEAR_PROGRESSION'
         ? { linearProgression: { lowerBoundSufficient: DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT } }
         : {})
