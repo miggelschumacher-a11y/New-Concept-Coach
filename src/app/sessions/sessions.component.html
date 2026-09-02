@@ -480,7 +480,7 @@
                 </mat-expansion-panel-header>
 
                 <mat-accordion multi class="exercise-settings-accordion">
-                  <mat-expansion-panel>
+                  <mat-expansion-panel (afterExpand)="onSettingsPanelExpand()">
                     <mat-expansion-panel-header>
                       <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
                     </mat-expansion-panel-header>
@@ -557,10 +557,15 @@
                                 </mat-form-field>
                               }
                               @if (sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED') {
-                                <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                                <mat-form-field
+                                  appearance="outline"
+                                  class="exercise-settings-info-field"
+                                  [matTooltip]="session.trainingPlanId ? ('trainingPlans.percentageProgressionModeSessionLockedTooltip' | translate) : ''"
+                                >
                                   <mat-label>{{ 'trainingPlans.percentageProgressionModeTitle' | translate }}</mat-label>
                                   <mat-select
                                     [ngModel]="sessionPercentageProgressionModeDisplay(sessionExercise)"
+                                    [disabled]="!!session.trainingPlanId"
                                     name="sessionPercentageProgressionMode-{{ sessionExercise.exerciseId }}"
                                     (selectionChange)="updateSessionPercentageProgressionMode(session, sessionExercise, $event.value)"
                                   >

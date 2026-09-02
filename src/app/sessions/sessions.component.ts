@@ -253,6 +253,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return plan.methodology !== TrainingMethodology.TIER_LINE_PROGRESSION && !plan.isDefault;
   }
 
+  // Works around a MatTabGroup layout quirk: when it first paints while its
+  // ancestor mat-expansion-panel is still animating open, its tab body can
+  // get stuck measuring zero height, rendering blank until something forces
+  // a relayout - most visible here since a default/TierLine plan's exercise
+  // only ever has the single Sets tab (see canEditExerciseTypeInSession
+  // above), so there's no tab switch to trigger the fix on its own.
+  onSettingsPanelExpand(): void {
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
+  }
+
   exerciseTierLabelKey(session: TrainingSession, exerciseId: string): string | null {
     if (!this.isTierLineProgressionExercise(session, exerciseId)) {
       return null;
