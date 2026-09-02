@@ -1298,15 +1298,54 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 ? buildTargetSets(workingSetTargets, 'working', (target) => this.applyDeload(plan, exerciseId, target.weight))
                 : buildSets(config.workingSets, 'working');
             } else if (config.exerciseType === 'PERCENTAGE_BASED') {
-              // No tracked progression state of its own (and no working-set-
-              // target list either) - the working weight simply carries
-              // forward from history (like TIME_BASED), scaled up by the
-              // exercise's own percentIncrement for the next session, if set.
-              const percentIncrement = config.percentIncrement ?? 0;
-              workingSets = buildSets(config.workingSets, 'working').map((set) => ({
-                ...set,
-                weight: Math.round(set.weight * (1 + percentIncrement / 100) * 100) / 100
-              }));
+              const percentageMode = config.percentageProgressionMode ?? 'FOUR_WEEK_RHYTHM';
+              const weeks = config.percentageWeeks ?? [];
+              if (percentageMode === 'ALL_SETS') {
+                // No week/percentage cycling at all - the working weight
+                // simply carries forward from history (like TIME_BASED),
+                // only bumped by percentIncrement once every working set in
+                // the last finished session met its target reps (the same
+                // success rule Linear Progression uses). The first week's
+                // sets are used purely as the reps-per-set template - its
+                // percentage values are ignored in this mode.
+                const template = weeks[0]?.sets;
+                const percentIncrement = config.percentIncrement ?? 0;
+                const scale = this.lastFinishedPlanExerciseSuccess(plan.id, exerciseId) ? 1 + percentIncrement / 100 : 1;
+                workingSets = template
+                  ? template.map((set) => ({
+                      id: crypto.randomUUID(),
+                      reps: set.reps,
+                      targetReps: set.reps,
+                      isAmrap: set.isAmrap,
+                      weight: Math.round(this.defaultWeight(exerciseId, 'working') * scale * 100) / 100,
+                      type: 'working' as SetType
+                    }))
+                  : buildSets(config.workingSets, 'working').map((set) => ({
+                      ...set,
+                      weight: Math.round(set.weight * scale * 100) / 100
+                    }));
+              } else {
+                // FOUR_WEEK_RHYTHM cycles through the weeks by position, one
+                // week per session, wrapping back to the first week after
+                // the last (e.g. 5/3/1's 3 build-up weeks + a deload week).
+                // ONE_WEEK_RHYTHM always uses the first (only) week. Either
+                // way each set's weight is computed fresh from the
+                // exercise's current 1RM times that set's own percentage -
+                // never carried forward from history.
+                const weekIndex =
+                  percentageMode === 'ONE_WEEK_RHYTHM' || !weeks.length
+                    ? 0
+                    : this.planExerciseFinishedSessionCount(plan.id, exerciseId) % weeks.length;
+                const template = weeks[weekIndex]?.sets ?? [];
+                workingSets = template.map((set) => ({
+                  id: crypto.randomUUID(),
+                  reps: set.reps,
+                  targetReps: set.reps,
+                  isAmrap: set.isAmrap,
+                  weight: this.percentageSetWeight(exerciseId, set.percentage),
+                  type: 'working' as SetType
+                }));
+              }
             } else {
               // TIME_BASED - unaffected by the working-set-target list or
               // any weight concept, still just a plain count.
@@ -1581,6 +1620,49 @@ export class SessionsComponent implements OnInit, OnDestroy {
       count++;
     }
     return count;
+  }
+
+  // ALL_SETS percentage progression's success check: the most recent
+  // attempted (non-zero-weight) finished session for this plan+exercise,
+  // same "untouched" skip as consecutiveExerciseFailures - but only the
+  // single latest attempt matters here, not a streak.
+  private lastFinishedPlanExerciseSuccess(planId: string | undefined, exerciseId: string): boolean {
+    const finishedSessions = this.sessions
+      .filter((session) => session.trainingPlanId === planId && session.finished)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    for (const session of finishedSessions) {
+      const sessionExercise = session.exercises.find((se) => se.exerciseId === exerciseId);
+      if (!sessionExercise) {
+        continue;
+      }
+      const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+      if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+        continue;
+      }
+      return workingSets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
+    }
+    return false;
+  }
+
+  // FOUR_WEEK_RHYTHM's week cycling: how many of this plan's finished
+  // sessions have already included the exercise, used mod weeks.length to
+  // pick the next week - so week 1 comes first, then 2, 3, 4, back to 1.
+  private planExerciseFinishedSessionCount(planId: string | undefined, exerciseId: string): number {
+    return this.sessions.filter(
+      (session) => session.trainingPlanId === planId && session.finished && session.exercises.some((se) => se.exerciseId === exerciseId)
+    ).length;
+  }
+
+  // Same %1RM-to-weight rounding convention as the plan editor's own
+  // percentageSetWeight preview (nearest plate increment) - see
+  // TrainingPlansComponent.percentageSetWeight.
+  private percentageSetWeight(exerciseId: string, percentage: number): number {
+    const oneRepMax = this.exerciseOneRepMax(exerciseId);
+    if (!oneRepMax) {
+      return 0;
+    }
+    const increment = this.settingsService.getSettings().weightUnit === 'lbs' ? 5 : 2.5;
+    return Math.round((oneRepMax * percentage) / 100 / increment) * increment;
   }
 
   // Applies the configured deload once the exercise has failed this many

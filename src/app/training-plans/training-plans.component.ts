@@ -26,6 +26,7 @@ import {
   PlanExerciseType,
   IncrementScheme,
   PercentageWeek,
+  PercentageProgressionMode,
   DoubleProgressionMode,
   WorkingSetTarget
 } from '../core/models/training-plan.model';
@@ -882,6 +883,18 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const parsed = parseFloat(value.replace(',', '.'));
     const percentIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
     await this.updateConfig(plan, exerciseId, { percentIncrement });
+  }
+
+  percentageProgressionModeDisplay(plan: TrainingPlan, exerciseId: string): PercentageProgressionMode {
+    return this.planExerciseConfig(plan, exerciseId).percentageProgressionMode ?? 'FOUR_WEEK_RHYTHM';
+  }
+
+  async updatePlanExercisePercentageProgressionMode(
+    plan: TrainingPlan,
+    exerciseId: string,
+    percentageProgressionMode: PercentageProgressionMode
+  ): Promise<void> {
+    await this.updateConfig(plan, exerciseId, { percentageProgressionMode });
   }
 
   async updatePlanExerciseShowWarmupSets(plan: TrainingPlan, exerciseId: string, checked: boolean): Promise<void> {

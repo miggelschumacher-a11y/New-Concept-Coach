@@ -588,7 +588,25 @@
                             />
                           </mat-form-field>
                         }
-                        @if (planExerciseConfig(plan, exerciseId).exerciseType === 'PERCENTAGE_BASED') {
+                      </div>
+
+                      @if (planExerciseConfig(plan, exerciseId).exerciseType === 'PERCENTAGE_BASED') {
+                        <mat-form-field appearance="outline" class="exercise-settings-field">
+                          <mat-label>{{ 'trainingPlans.percentageProgressionModeTitle' | translate }}</mat-label>
+                          <mat-select
+                            [ngModel]="percentageProgressionModeDisplay(plan, exerciseId)"
+                            name="percentageProgressionMode-{{ plan.id }}-{{ exerciseId }}"
+                            (selectionChange)="updatePlanExercisePercentageProgressionMode(plan, exerciseId, $event.value)"
+                          >
+                            <mat-option value="ALL_SETS" [matTooltip]="'trainingPlans.percentageProgressionModeAllSetsTooltip' | translate">{{
+                              'trainingPlans.percentageProgressionModeAllSets' | translate
+                            }}</mat-option>
+                            <mat-option value="FOUR_WEEK_RHYTHM">{{ 'trainingPlans.percentageProgressionModeFourWeek' | translate }}</mat-option>
+                            <mat-option value="ONE_WEEK_RHYTHM">{{ 'trainingPlans.percentageProgressionModeOneWeek' | translate }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+
+                        @if (percentageProgressionModeDisplay(plan, exerciseId) === 'ALL_SETS') {
                           <mat-form-field
                             appearance="outline"
                             class="exercise-settings-field"
@@ -607,7 +625,7 @@
                             />
                           </mat-form-field>
                         }
-                      </div>
+                      }
                     </mat-tab>
                     <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">
                       <div class="exercise-settings-row">

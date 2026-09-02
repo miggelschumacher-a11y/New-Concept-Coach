@@ -29,6 +29,24 @@ export type IncrementScheme = 'NONE' | 'DOUBLE_PROGRESSION' | 'REP_GOAL' | 'WAVE
 // across sets round-robin, until all have caught up.
 export type DoubleProgressionMode = 'ADD_TO_ALL_SETS' | 'ADD_ONE_TOTAL_REP';
 
+// Only meaningful when exerciseType is PERCENTAGE_BASED - which rhythm
+// drives how a new session's sets are generated for the exercise.
+// 'ALL_SETS': no week/percentage cycling at all - the working weight simply
+// carries forward from history, same as a plain weight-based exercise,
+// bumped by percentIncrement only once every working set in the last
+// finished session met its target reps (the same success rule Linear
+// Progression uses, just expressed as a percent bump instead of a flat
+// kg one). percentageWeeks[0]'s sets are used purely as the reps-per-set
+// template - their percentage values are ignored in this mode.
+// 'FOUR_WEEK_RHYTHM': cycles through percentageWeeks by position, one week
+// per session (e.g. 5/3/1's 3 build-up weeks + a deload week), wrapping
+// back to the first week after the last. Each set's weight is computed
+// fresh from the exercise's current 1RM times that set's own percentage.
+// 'ONE_WEEK_RHYTHM': same per-set %1RM computation as FOUR_WEEK_RHYTHM, but
+// always from percentageWeeks[0] - no cycling.
+// Unset defaults to FOUR_WEEK_RHYTHM (matches the seeded default weeks).
+export type PercentageProgressionMode = 'ALL_SETS' | 'FOUR_WEEK_RHYTHM' | 'ONE_WEEK_RHYTHM';
+
 export interface DoubleProgressionConfig {
   // Bottom and top of the rep range, each 1-100. Reaching upperReps on every
   // set resets all sets back to lowerReps with an increased weight.
@@ -112,6 +130,9 @@ export interface PlanExerciseConfig {
   // Only used when exerciseType is PERCENTAGE_BASED - a wave of weeks, each
   // with its own set-by-set %1RM/reps/AMRAP, e.g. a 5/3/1 style cycle.
   percentageWeeks?: PercentageWeek[];
+  // Only used when exerciseType is PERCENTAGE_BASED - see
+  // PercentageProgressionMode. Unset defaults to FOUR_WEEK_RHYTHM.
+  percentageProgressionMode?: PercentageProgressionMode;
   // Only used when incrementScheme is DOUBLE_PROGRESSION.
   doubleProgression?: DoubleProgressionConfig;
   // Only used when incrementScheme is REP_GOAL.
