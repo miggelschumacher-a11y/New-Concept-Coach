@@ -648,7 +648,23 @@
                         </mat-form-field>
                       </div>
                     </mat-tab>
-                        <mat-tab [label]="'trainingPlans.setsTabLabel' | translate"></mat-tab>
+                        <mat-tab [label]="'trainingPlans.setsTabLabel' | translate">
+                          <mat-checkbox
+                            [checked]="planExerciseConfig(plan, exerciseId).showWarmupSets ?? true"
+                            (change)="updatePlanExerciseShowWarmupSets(plan, exerciseId, $event.checked)"
+                            [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate"
+                          >
+                            <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}
+                          </mat-checkbox>
+
+                          <mat-checkbox
+                            [checked]="planExerciseConfig(plan, exerciseId).showCooldownSets ?? true"
+                            (change)="updatePlanExerciseShowCooldownSets(plan, exerciseId, $event.checked)"
+                            [matTooltip]="'sessions.exerciseShowCooldownTooltip' | translate"
+                          >
+                            <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
+                          </mat-checkbox>
+                        </mat-tab>
                       </mat-tab-group>
                     </mat-expansion-panel>
                   </mat-accordion>
@@ -725,10 +741,11 @@
                        input to interact with, just a permanent "0". Editable plans always
                        keep the accordion, even at 0, since it's the only way to add sets. -->
                   @if (
-                    !plan.isDefault ||
-                    (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED'
-                      ? (planExerciseConfig(plan, exerciseId).warmupSetTargets?.length ?? 0) > 0
-                      : planExerciseConfig(plan, exerciseId).warmupSets > 0)
+                    (planExerciseConfig(plan, exerciseId).showWarmupSets ?? true) &&
+                    (!plan.isDefault ||
+                      (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED'
+                        ? (planExerciseConfig(plan, exerciseId).warmupSetTargets?.length ?? 0) > 0
+                        : planExerciseConfig(plan, exerciseId).warmupSets > 0))
                   ) {
                     <mat-expansion-panel>
                       <mat-expansion-panel-header>
@@ -1030,10 +1047,11 @@
                   </mat-expansion-panel>
 
                   @if (
-                    !plan.isDefault ||
-                    (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED'
-                      ? (planExerciseConfig(plan, exerciseId).cooldownSetTargets?.length ?? 0) > 0
-                      : planExerciseConfig(plan, exerciseId).cooldownSets > 0)
+                    (planExerciseConfig(plan, exerciseId).showCooldownSets ?? true) &&
+                    (!plan.isDefault ||
+                      (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED'
+                        ? (planExerciseConfig(plan, exerciseId).cooldownSetTargets?.length ?? 0) > 0
+                        : planExerciseConfig(plan, exerciseId).cooldownSets > 0))
                   ) {
                     <mat-expansion-panel>
                       <mat-expansion-panel-header>

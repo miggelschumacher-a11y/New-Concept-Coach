@@ -68,6 +68,11 @@ mat-card {
   .mat-mdc-tab-body-content {
     padding-top: 0.5rem;
   }
+
+  mat-checkbox {
+    display: block;
+    margin: 0.25rem 0;
+  }
 }
 
 .exercise-settings-field {

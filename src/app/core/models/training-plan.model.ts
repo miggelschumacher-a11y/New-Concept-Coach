@@ -137,6 +137,12 @@ export interface PlanExerciseConfig {
   // forward from history) by this percentage each time a new session is
   // generated for the exercise. Unset/0 means no automatic increase.
   percentIncrement?: number;
+  // Session-level defaults for a session exercise generated from this plan
+  // exercise - same fields/meaning as SessionExercise's own show
+  // warmup/cooldown booleans (see session.model.ts). Optional and treated
+  // as true when absent.
+  showWarmupSets?: boolean;
+  showCooldownSets?: boolean;
 }
 
 export interface TrainingPlan {

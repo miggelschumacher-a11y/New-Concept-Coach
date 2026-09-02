@@ -884,6 +884,14 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.updateConfig(plan, exerciseId, { percentIncrement });
   }
 
+  async updatePlanExerciseShowWarmupSets(plan: TrainingPlan, exerciseId: string, checked: boolean): Promise<void> {
+    await this.updateConfig(plan, exerciseId, { showWarmupSets: checked });
+  }
+
+  async updatePlanExerciseShowCooldownSets(plan: TrainingPlan, exerciseId: string, checked: boolean): Promise<void> {
+    await this.updateConfig(plan, exerciseId, { showCooldownSets: checked });
+  }
+
   private async updatePercentageSet(
     plan: TrainingPlan,
     exerciseId: string,
