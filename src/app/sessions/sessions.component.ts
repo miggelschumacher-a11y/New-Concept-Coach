@@ -46,7 +46,7 @@ import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { computePrescribedReps } from '../core/utils/double-progression.util';
-import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
+import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax } from '../core/utils/one-rep-max.util';
 import { parseRepsRange } from '../core/utils/reps-range.util';
 import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/body-weight-lookup.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
@@ -1597,7 +1597,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // percentageSetWeight preview (nearest plate increment) - see
   // TrainingPlansComponent.percentageSetWeight.
   private percentageSetWeight(exerciseId: string, percentage: number): number {
-    const oneRepMax = this.exerciseOneRepMax(exerciseId);
+    const oneRepMax = this.effectiveOneRepMax(exerciseId);
     if (!oneRepMax) {
       return 0;
     }
@@ -2094,6 +2094,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   exerciseOneRepMax(exerciseId: string): number | undefined {
     return this.exercises.find((exercise) => exercise.id === exerciseId)?.oneRepMax;
+  }
+
+  // The 1RM Percentage-Based progression actually calculates upcoming sets
+  // from - see effectiveOneRepMax in one-rep-max.util for the custom-vs-
+  // estimated fallback rule.
+  private effectiveOneRepMax(exerciseId: string): number | undefined {
+    const exercise = this.exercises.find((e) => e.id === exerciseId);
+    return exercise ? computeEffectiveOneRepMax(exercise) : undefined;
   }
 
   private lastExecutedSetOfType(exerciseId: string, type: SetType): ExerciseSet | undefined {

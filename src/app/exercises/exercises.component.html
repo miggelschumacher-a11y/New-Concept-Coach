@@ -49,6 +49,28 @@
             {{ 'exercises.oneRepMax' | translate }} {{ exercise.oneRepMax !== undefined ? exercise.oneRepMax.toFixed(2) : '–' }}
             <span class="unit-label">{{ weightUnitLabel }}</span>
           </span>
+          <mat-form-field appearance="outline" class="custom-one-rep-max-field" [matTooltip]="'exercises.customOneRepMaxTooltip' | translate">
+            <mat-label>{{ 'exercises.customOneRepMaxLabel' | translate }}</mat-label>
+            <input
+              matInput
+              type="text"
+              inputmode="decimal"
+              class="right-aligned-input"
+              [value]="customOneRepMaxDisplay(exercise)"
+              name="customOneRepMax-{{ exercise.id }}"
+              (focus)="onCustomOneRepMaxFieldFocus($event)"
+              (input)="onCustomOneRepMaxFieldInput($event)"
+              (change)="updateCustomOneRepMax(exercise, $any($event.target).value)"
+            />
+          </mat-form-field>
+          <mat-checkbox
+            [checked]="useCustomOneRepMaxChecked(exercise)"
+            [disabled]="useCustomOneRepMaxDisabled(exercise)"
+            (change)="updateUseCustomOneRepMax(exercise, $event.checked)"
+            [matTooltip]="'exercises.useCustomOneRepMaxTooltip' | translate"
+          >
+            {{ 'exercises.useCustomOneRepMaxLabel' | translate }}
+          </mat-checkbox>
           <mat-form-field appearance="outline" class="body-region-field">
             <mat-select
               [(ngModel)]="exercise.weightCategory"

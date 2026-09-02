@@ -33,6 +33,7 @@ import {
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
+import { effectiveOneRepMax as computeEffectiveOneRepMax } from '../core/utils/one-rep-max.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
 import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
@@ -1006,11 +1007,19 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   percentageSetWeight(exerciseId: string, percentage: number): number | null {
-    const oneRepMax = this.exercises.find((exercise) => exercise.id === exerciseId)?.oneRepMax;
+    const oneRepMax = this.effectiveOneRepMax(exerciseId);
     if (!oneRepMax) {
       return null;
     }
     const increment = this.settingsService.getSettings().weightUnit === 'lbs' ? 5 : 2.5;
     return Math.round((oneRepMax * percentage) / 100 / increment) * increment;
+  }
+
+  // Same effective-1RM rule as SessionsComponent.effectiveOneRepMax, so this
+  // preview always matches what an actual session generated from the plan
+  // will compute.
+  private effectiveOneRepMax(exerciseId: string): number | undefined {
+    const exercise = this.exercises.find((e) => e.id === exerciseId);
+    return exercise ? computeEffectiveOneRepMax(exercise) : undefined;
   }
 }

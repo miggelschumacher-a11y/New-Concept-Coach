@@ -13,6 +13,30 @@ mat-card {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0;
+}
+
+::ng-deep mat-list-item.mat-mdc-list-item {
+  height: auto;
+  overflow: visible;
+}
+
+::ng-deep mat-list-item .mdc-list-item__content {
+  overflow: visible;
+}
+
+.custom-one-rep-max-field {
+  width: 90px;
+  font-size: 0.85rem;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 2.25rem;
+  }
+
+  .right-aligned-input {
+    text-align: right;
+  }
 }
 
 .one-rep-max {

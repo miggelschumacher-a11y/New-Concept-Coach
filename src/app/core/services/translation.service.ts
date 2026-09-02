@@ -54,6 +54,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'No exercises yet.',
     'exercises.oneRepMax': 'Max ≈',
     'exercises.oneRepMaxTooltip': 'Estimated one-rep max, calculated from the last set performed',
+    'exercises.customOneRepMaxLabel': 'Custom 1RM',
+    'exercises.customOneRepMaxTooltip': 'Manually entered 1RM, used for Percentage-Based progression instead of the estimated max above when "Use Custom 1RM" is checked.',
+    'exercises.useCustomOneRepMaxLabel': 'Use Custom 1RM',
+    'exercises.useCustomOneRepMaxTooltip': 'When checked, Percentage-Based progression uses Custom 1RM instead of the estimated max.',
     'exercises.confirmDeleteQuestion': 'Really delete this exercise?',
 
     'trainingPlans.title': 'Training Plans',
@@ -252,7 +256,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'Rep Goal System',
     'config.repGoalDescription':
       'Rep goal system: instead of a fixed target per set, each working set is pushed close to failure and logged freely. The reps from all working sets are added up at the end of the session (e.g. 8+8+6+6 = 28) and compared to the total rep goal. Surpass the goal and the weight goes up next session; fall short and the same weight repeats so you can try again.',
-    'config.repGoalTotalRepGoalLabel': 'Total rep goal',
+    'config.repGoalTotalRepGoalLabel': 'Rep goal',
     'config.waveProgressionTitle': 'Wave Progression',
     'config.waveProgressionDescription':
       'Wave progression: every working set shares the same rep target and weight. Each successful session the weight goes up and the rep target steps down by the configured amount (e.g. 3x8 @110 → 3x7 @115 → 3x6 @120). Once the rep target reaches the bottom of the range, the next wave starts back at the top, with the weight one increment above where the previous wave began (e.g. 3x8 @115), rather than resetting all the way down.',
@@ -324,6 +328,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'Noch keine Übungen vorhanden.',
     'exercises.oneRepMax': 'Max ≈',
     'exercises.oneRepMaxTooltip': 'Geschätztes Einer-Wiederholungs-Maximum, berechnet aus dem letzten ausgeführten Satz',
+    'exercises.customOneRepMaxLabel': 'Eigene 1RM',
+    'exercises.customOneRepMaxTooltip':
+      'Manuell eingegebenes 1RM, das bei Percentage-Based-Progression anstelle des geschätzten Max oben verwendet wird, wenn „Eigenes 1RM" aktiviert ist.',
+    'exercises.useCustomOneRepMaxLabel': 'Eigenes 1RM',
+    'exercises.useCustomOneRepMaxTooltip':
+      'Wenn aktiviert, verwendet Percentage-Based-Progression die eigene 1RM anstelle des geschätzten Max.',
     'exercises.confirmDeleteQuestion': 'Diese Übung wirklich löschen?',
 
     'trainingPlans.title': 'Trainingspläne',
@@ -522,7 +532,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'Wiederholungsziel-System',
     'config.repGoalDescription':
       'Wiederholungsziel-System: Statt eines festen Ziels pro Satz trainierst du jeden Arbeitssatz nah ans Muskelversagen und protokollierst frei. Die Wiederholungen aller Arbeitssätze werden am Ende der Einheit zusammengezählt (z. B. 8+8+6+6 = 28) und mit dem Wiederholungsziel verglichen. Übertriffst du das Ziel, steigt das Gewicht in der nächsten Einheit; verfehlst du es, bleibt das Gewicht gleich, und du versuchst es erneut.',
-    'config.repGoalTotalRepGoalLabel': 'Wiederholungsziel gesamt',
+    'config.repGoalTotalRepGoalLabel': 'Wiederholungsziel',
     'config.waveProgressionTitle': 'Wellen-Progression',
     'config.waveProgressionDescription':
       'Wellen-Progression: Alle Arbeitssätze teilen sich dasselbe Wiederholungsziel und Gewicht. Bei jeder erfolgreichen Einheit steigt das Gewicht, und das Wiederholungsziel sinkt um den festgelegten Wert (z. B. 3x8 @110 → 3x7 @115 → 3x6 @120). Sobald das Wiederholungsziel die Untergrenze erreicht, beginnt die nächste Welle wieder an der Obergrenze, mit einem Gewicht, das eine Steigerung über dem Start der vorherigen Welle liegt (z. B. 3x8 @115), statt komplett zurückzufallen.',
@@ -594,6 +604,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'Aún no hay ejercicios.',
     'exercises.oneRepMax': 'Máx. ≈',
     'exercises.oneRepMaxTooltip': 'Máximo de una repetición estimado, calculado a partir de la última serie realizada',
+    'exercises.customOneRepMaxLabel': '1RM personalizado',
+    'exercises.customOneRepMaxTooltip':
+      '1RM introducido manualmente, usado en la progresión basada en porcentaje en lugar del máximo estimado cuando "Usar 1RM personalizado" está marcado.',
+    'exercises.useCustomOneRepMaxLabel': 'Usar 1RM personalizado',
+    'exercises.useCustomOneRepMaxTooltip':
+      'Si está marcado, la progresión basada en porcentaje usa el 1RM personalizado en lugar del máximo estimado.',
     'exercises.confirmDeleteQuestion': '¿Eliminar este ejercicio de verdad?',
 
     'trainingPlans.title': 'Planes de entrenamiento',
@@ -792,7 +808,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'Sistema de meta de repeticiones',
     'config.repGoalDescription':
       'Sistema de meta de repeticiones: en lugar de un objetivo fijo por serie, cada serie de trabajo se lleva cerca del fallo muscular y se registra libremente. Las repeticiones de todas las series de trabajo se suman al final de la sesión (p. ej. 8+8+6+6 = 28) y se comparan con la meta total de repeticiones. Si superas la meta, el peso sube en la siguiente sesión; si no la alcanzas, el peso se mantiene para que lo intentes de nuevo.',
-    'config.repGoalTotalRepGoalLabel': 'Meta total de repeticiones',
+    'config.repGoalTotalRepGoalLabel': 'Meta de repeticiones',
     'config.waveProgressionTitle': 'Progresión ondulante',
     'config.waveProgressionDescription':
       'Progresión ondulante: todas las series de trabajo comparten el mismo objetivo de repeticiones y el mismo peso. En cada sesión exitosa el peso sube y el objetivo de repeticiones baja según el valor configurado (p. ej. 3x8 @110 → 3x7 @115 → 3x6 @120). En cuanto el objetivo de repeticiones llega al límite inferior, la siguiente ola empieza de nuevo en el límite superior, con un peso un incremento por encima de donde empezó la ola anterior (p. ej. 3x8 @115), en lugar de volver del todo al principio.',
@@ -864,6 +880,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'Ainda não há exercícios.',
     'exercises.oneRepMax': 'Máx. ≈',
     'exercises.oneRepMaxTooltip': 'Máximo de uma repetição estimado, calculado a partir da última série realizada',
+    'exercises.customOneRepMaxLabel': '1RM personalizado',
+    'exercises.customOneRepMaxTooltip':
+      '1RM inserido manualmente, usado na progressão baseada em percentual em vez do máximo estimado acima quando "Usar 1RM personalizado" está marcado.',
+    'exercises.useCustomOneRepMaxLabel': 'Usar 1RM personalizado',
+    'exercises.useCustomOneRepMaxTooltip':
+      'Quando marcado, a progressão baseada em percentual usa o 1RM personalizado em vez do máximo estimado.',
     'exercises.confirmDeleteQuestion': 'Excluir este exercício mesmo?',
 
     'trainingPlans.title': 'Planos de treino',
@@ -1062,7 +1084,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'Sistema de meta de repetições',
     'config.repGoalDescription':
       'Sistema de meta de repetições: em vez de uma meta fixa por série, cada série de trabalho é levada perto da falha muscular e registrada livremente. As repetições de todas as séries de trabalho são somadas ao final da sessão (ex.: 8+8+6+6 = 28) e comparadas com a meta total de repetições. Se você ultrapassar a meta, o peso aumenta na próxima sessão; se não atingir, o peso permanece o mesmo para você tentar novamente.',
-    'config.repGoalTotalRepGoalLabel': 'Meta total de repetições',
+    'config.repGoalTotalRepGoalLabel': 'Meta de repetições',
     'config.waveProgressionTitle': 'Progressão ondulatória',
     'config.waveProgressionDescription':
       'Progressão ondulatória: todas as séries de trabalho compartilham a mesma meta de repetições e o mesmo peso. A cada sessão bem-sucedida, o peso aumenta e a meta de repetições diminui pelo valor configurado (ex.: 3x8 @110 → 3x7 @115 → 3x6 @120). Assim que a meta de repetições atinge o limite inferior, a próxima onda recomeça no limite superior, com um peso um incremento acima de onde a onda anterior começou (ex.: 3x8 @115), em vez de voltar totalmente ao início.',
@@ -1134,6 +1156,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'Nessun esercizio ancora presente.',
     'exercises.oneRepMax': 'Max ≈',
     'exercises.oneRepMaxTooltip': "Massimale stimato su una ripetizione, calcolato dall'ultima serie eseguita",
+    'exercises.customOneRepMaxLabel': '1RM personalizzato',
+    'exercises.customOneRepMaxTooltip':
+      '1RM inserito manualmente, usato nella progressione basata su percentuale al posto del massimale stimato sopra quando "Usa 1RM personalizzato" è selezionato.',
+    'exercises.useCustomOneRepMaxLabel': 'Usa 1RM personalizzato',
+    'exercises.useCustomOneRepMaxTooltip':
+      'Se selezionato, la progressione basata su percentuale usa l\'1RM personalizzato al posto del massimale stimato.',
     'exercises.confirmDeleteQuestion': 'Eliminare davvero questo esercizio?',
 
     'trainingPlans.title': 'Piani di allenamento',
@@ -1332,7 +1360,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'Sistema obiettivo ripetizioni',
     'config.repGoalDescription':
       'Sistema obiettivo ripetizioni: invece di un obiettivo fisso per serie, ogni serie di lavoro viene portata vicino al cedimento e registrata liberamente. Le ripetizioni di tutte le serie di lavoro vengono sommate alla fine della sessione (es. 8+8+6+6 = 28) e confrontate con l\'obiettivo totale di ripetizioni. Se superi l\'obiettivo, il peso aumenta nella sessione successiva; se non lo raggiungi, il peso resta invariato per riprovare.',
-    'config.repGoalTotalRepGoalLabel': 'Obiettivo ripetizioni totale',
+    'config.repGoalTotalRepGoalLabel': 'Obiettivo ripetizioni',
     'config.waveProgressionTitle': 'Progressione a onde',
     'config.waveProgressionDescription':
       'Progressione a onde: tutte le serie di lavoro condividono lo stesso obiettivo di ripetizioni e lo stesso peso. Ad ogni sessione riuscita il peso aumenta e l\'obiettivo di ripetizioni scende del valore configurato (es. 3x8 @110 → 3x7 @115 → 3x6 @120). Non appena l\'obiettivo di ripetizioni raggiunge il limite inferiore, la prossima onda riparte dal limite superiore, con un peso di un incremento superiore a quello di partenza dell\'onda precedente (es. 3x8 @115), invece di tornare completamente all\'inizio.',
@@ -1404,6 +1432,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'Nog geen oefeningen aanwezig.',
     'exercises.oneRepMax': 'Max ≈',
     'exercises.oneRepMaxTooltip': 'Geschat één-herhalingsmaximum, berekend op basis van de laatst uitgevoerde set',
+    'exercises.customOneRepMaxLabel': 'Eigen 1RM',
+    'exercises.customOneRepMaxTooltip':
+      'Handmatig ingevoerde 1RM, gebruikt bij Percentage-Based-progressie in plaats van het geschatte max hierboven wanneer "Eigen 1RM gebruiken" is aangevinkt.',
+    'exercises.useCustomOneRepMaxLabel': 'Eigen 1RM gebruiken',
+    'exercises.useCustomOneRepMaxTooltip':
+      'Indien aangevinkt, gebruikt Percentage-Based-progressie de eigen 1RM in plaats van het geschatte max.',
     'exercises.confirmDeleteQuestion': 'Deze oefening echt verwijderen?',
 
     'trainingPlans.title': 'Trainingsplannen',
@@ -1602,7 +1636,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'Herhalingsdoel-systeem',
     'config.repGoalDescription':
       'Herhalingsdoel-systeem: in plaats van een vast doel per set, breng je elke werkset dicht bij spierfalen en noteer je vrij. De herhalingen van alle werksets worden aan het einde van de sessie opgeteld (bijv. 8+8+6+6 = 28) en vergeleken met het totale herhalingsdoel. Overschrijd je het doel, dan gaat het gewicht omhoog in de volgende sessie; haal je het niet, dan blijft het gewicht gelijk zodat je het opnieuw kunt proberen.',
-    'config.repGoalTotalRepGoalLabel': 'Totaal herhalingsdoel',
+    'config.repGoalTotalRepGoalLabel': 'Herhalingsdoel',
     'config.waveProgressionTitle': 'Golfprogressie',
     'config.waveProgressionDescription':
       'Golfprogressie: alle werksets delen hetzelfde herhalingsdoel en gewicht. Bij elke geslaagde sessie gaat het gewicht omhoog en daalt het herhalingsdoel met de ingestelde waarde (bijv. 3x8 @110 → 3x7 @115 → 3x6 @120). Zodra het herhalingsdoel de ondergrens bereikt, begint de volgende golf weer bij de bovengrens, met een gewicht dat één stap hoger ligt dan het begin van de vorige golf (bijv. 3x8 @115), in plaats van helemaal terug te vallen.',
@@ -1674,6 +1708,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'Brak ćwiczeń.',
     'exercises.oneRepMax': 'Maks. ≈',
     'exercises.oneRepMaxTooltip': 'Szacowany maksymalny ciężar na jedno powtórzenie, obliczony na podstawie ostatniej wykonanej serii',
+    'exercises.customOneRepMaxLabel': 'Własne 1RM',
+    'exercises.customOneRepMaxTooltip':
+      'Ręcznie wprowadzone 1RM, używane w progresji opartej na procentach zamiast szacowanego maksimum powyżej, gdy zaznaczono „Użyj własnego 1RM".',
+    'exercises.useCustomOneRepMaxLabel': 'Użyj własnego 1RM',
+    'exercises.useCustomOneRepMaxTooltip':
+      'Gdy zaznaczone, progresja oparta na procentach używa własnego 1RM zamiast szacowanego maksimum.',
     'exercises.confirmDeleteQuestion': 'Czy na pewno usunąć to ćwiczenie?',
 
     'trainingPlans.title': 'Plany treningowe',
@@ -1872,7 +1912,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'System celu powtórzeń',
     'config.repGoalDescription':
       'System celu powtórzeń: zamiast stałego celu na serię, każdą serię roboczą wykonujesz blisko odmowy mięśniowej i zapisujesz swobodnie. Powtórzenia ze wszystkich serii roboczych są sumowane na koniec sesji (np. 8+8+6+6 = 28) i porównywane z łącznym celem powtórzeń. Jeśli przekroczysz cel, ciężar rośnie w kolejnej sesji; jeśli go nie osiągniesz, ciężar pozostaje taki sam, byś mógł spróbować ponownie.',
-    'config.repGoalTotalRepGoalLabel': 'Łączny cel powtórzeń',
+    'config.repGoalTotalRepGoalLabel': 'Cel powtórzeń',
     'config.waveProgressionTitle': 'Progresja falowa',
     'config.waveProgressionDescription':
       'Progresja falowa: wszystkie serie robocze mają ten sam cel powtórzeń i ten sam ciężar. W każdej udanej sesji ciężar rośnie, a cel powtórzeń maleje o ustaloną wartość (np. 3x8 @110 → 3x7 @115 → 3x6 @120). Gdy cel powtórzeń osiągnie dolną granicę, kolejna fala zaczyna się od nowa od górnej granicy, z ciężarem o jeden przyrost wyższym niż początek poprzedniej fali (np. 3x8 @115), zamiast wracać całkowicie do początku.',
@@ -1944,6 +1984,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'Упражнений пока нет.',
     'exercises.oneRepMax': 'Макс. ≈',
     'exercises.oneRepMaxTooltip': 'Оценочный максимум на одно повторение, рассчитанный по последнему выполненному подходу',
+    'exercises.customOneRepMaxLabel': 'Свой 1ПМ',
+    'exercises.customOneRepMaxTooltip':
+      'Вручную введённый 1ПМ, используется в прогрессии на основе процента вместо оценочного максимума выше, если отмечено «Использовать свой 1ПМ».',
+    'exercises.useCustomOneRepMaxLabel': 'Использовать свой 1ПМ',
+    'exercises.useCustomOneRepMaxTooltip':
+      'Если отмечено, прогрессия на основе процента использует свой 1ПМ вместо оценочного максимума.',
     'exercises.confirmDeleteQuestion': 'Действительно удалить это упражнение?',
 
     'trainingPlans.title': 'Планы тренировок',
@@ -2142,7 +2188,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'Система целевых повторений',
     'config.repGoalDescription':
       'Система целевых повторений: вместо фиксированной цели на подход каждый рабочий подход выполняется почти до отказа и записывается свободно. Повторения всех рабочих подходов суммируются в конце тренировки (например, 8+8+6+6 = 28) и сравниваются с общей целью повторений. Если цель превышена, в следующей тренировке вес увеличивается; если нет — вес остаётся прежним, чтобы попробовать ещё раз.',
-    'config.repGoalTotalRepGoalLabel': 'Общая цель повторений',
+    'config.repGoalTotalRepGoalLabel': 'Цель повторений',
     'config.waveProgressionTitle': 'Волновая прогрессия',
     'config.waveProgressionDescription':
       'Волновая прогрессия: все рабочие подходы имеют одинаковую целевую нагрузку по повторениям и вес. При каждой успешной тренировке вес увеличивается, а целевое число повторений снижается на заданную величину (например, 3x8 @110 → 3x7 @115 → 3x6 @120). Как только целевое число повторений достигает нижней границы, новая волна начинается заново с верхней границы, с весом на один шаг выше начала предыдущей волны (например, 3x8 @115), а не с полным откатом назад.',
@@ -2214,6 +2260,12 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.empty': 'Még nincsenek gyakorlatok.',
     'exercises.oneRepMax': 'Max. ≈',
     'exercises.oneRepMaxTooltip': 'Becsült egyismétléses maximum, az utoljára végrehajtott sorozat alapján számítva',
+    'exercises.customOneRepMaxLabel': 'Egyéni 1RM',
+    'exercises.customOneRepMaxTooltip':
+      'Kézzel megadott 1RM, amelyet a százalékalapú progresszió a fenti becsült maximum helyett használ, ha az „Egyéni 1RM használata" be van jelölve.',
+    'exercises.useCustomOneRepMaxLabel': 'Egyéni 1RM használata',
+    'exercises.useCustomOneRepMaxTooltip':
+      'Ha be van jelölve, a százalékalapú progresszió az egyéni 1RM-et használja a becsült maximum helyett.',
     'exercises.confirmDeleteQuestion': 'Valóban törlöd ezt a gyakorlatot?',
 
     'trainingPlans.title': 'Edzéstervek',
@@ -2412,7 +2464,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.repGoalTitle': 'Ismétléscél-rendszer',
     'config.repGoalDescription':
       'Ismétléscél-rendszer: szettenkénti rögzített cél helyett minden munkaszettet közel a kimerülésig végzel, és szabadon rögzíted az eredményt. Az összes munkaszett ismétlései az edzés végén összeadódnak (pl. 8+8+6+6 = 28), és összehasonlításra kerülnek az összesített ismétléscéllal. Ha meghaladod a célt, a következő edzésen nő a súly; ha nem éred el, a súly változatlan marad, hogy újra megpróbálhasd.',
-    'config.repGoalTotalRepGoalLabel': 'Összes ismétléscél',
+    'config.repGoalTotalRepGoalLabel': 'Ismétléscél',
     'config.waveProgressionTitle': 'Hullám progresszió',
     'config.waveProgressionDescription':
       'Hullám progresszió: minden munkaszett ugyanazt az ismétléscélt és súlyt osztja. Minden sikeres edzésen nő a súly, és a beállított értékkel csökken az ismétléscél (pl. 3x8 @110 → 3x7 @115 → 3x6 @120). Amint az ismétléscél eléri az alsó határt, a következő hullám újra a felső határnál kezdődik, az előző hullám kezdő súlyánál egy növekménnyel magasabb súllyal (pl. 3x8 @115), nem pedig teljesen visszaesve.',
