@@ -208,7 +208,7 @@ mat-expansion-panel mat-checkbox {
 .exercise-settings-info-popup {
   position: fixed;
   z-index: 1000;
-  width: 300px;
+  width: 340px;
   background: linear-gradient(145deg, #3d4058, #24263a);
   border-radius: 10px;
   padding: 0.65rem 0.85rem;
@@ -224,6 +224,12 @@ mat-expansion-panel mat-checkbox {
 .exercise-settings-info-popup mat-checkbox {
   display: block;
   margin: 0.25rem 0;
+}
+
+.exercise-settings-info-tabs {
+  .mat-mdc-tab-body-content {
+    padding-top: 0.5rem;
+  }
 }
 
 // Grabbing this bar moves the whole popup (cdkDragHandle) - kept separate

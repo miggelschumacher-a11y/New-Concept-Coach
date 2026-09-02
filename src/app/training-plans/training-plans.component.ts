@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
@@ -113,6 +114,7 @@ const DEFAULT_PERCENTAGE_WEEKS: PercentageWeek[] = [
     MatSelectModule,
     MatCardModule,
     MatExpansionModule,
+    MatTabsModule,
     MatTooltipModule,
     MatCheckboxModule,
     MatRadioModule,

@@ -43,6 +43,13 @@ export interface SessionExercise {
   // SessionsComponent.consecutiveExerciseFailures/applyManualDeload.
   deloadAfterFailures?: number;
   deloadPercent?: number;
+  // Session-local snapshot of the plan exercise's weightIncrement/
+  // percentIncrement, same mirroring as exerciseType/incrementScheme above -
+  // purely informational, doesn't feed a plan session's own live weight
+  // calculation (see SessionsComponent.buildSessionFromPlan), which always
+  // reads the source plan's config directly.
+  weightIncrement?: number;
+  percentIncrement?: number;
 }
 
 export interface TrainingSession {

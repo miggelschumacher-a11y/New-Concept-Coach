@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -76,6 +77,7 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
     MatIconModule,
     MatCardModule,
     MatExpansionModule,
+    MatTabsModule,
     MatCheckboxModule,
     DragDropModule,
     MatTooltipModule,
@@ -1330,7 +1332,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
               showWarmupSets: true,
               showCooldownSets: true,
               exerciseType: config.exerciseType,
-              incrementScheme: config.incrementScheme
+              incrementScheme: config.incrementScheme,
+              deloadAfterFailures: config.deloadAfterFailures,
+              deloadPercent: config.deloadPercent,
+              weightIncrement: config.weightIncrement,
+              percentIncrement: config.percentIncrement
             };
           })
         );
@@ -1875,6 +1881,30 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async updateSessionDeloadPercent(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     sessionExercise.deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : undefined;
+    await this.persist(session);
+  }
+
+  // Shown as the weight-increment field's own placeholder, same as the
+  // training-plans version of this field.
+  readonly defaultWeightIncrement = DEFAULT_WEIGHT_INCREMENT;
+
+  sessionWeightIncrementDisplay(sessionExercise: SessionExercise): string {
+    return sessionExercise.weightIncrement !== undefined ? sessionExercise.weightIncrement.toFixed(2) : '';
+  }
+
+  async updateSessionWeightIncrement(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    sessionExercise.weightIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
+    await this.persist(session);
+  }
+
+  sessionPercentIncrementDisplay(sessionExercise: SessionExercise): string {
+    return sessionExercise.percentIncrement !== undefined ? sessionExercise.percentIncrement.toFixed(2) : '';
+  }
+
+  async updateSessionPercentIncrement(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    sessionExercise.percentIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
     await this.persist(session);
   }
 

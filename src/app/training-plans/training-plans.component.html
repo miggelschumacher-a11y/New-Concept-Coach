@@ -533,6 +533,8 @@
                         <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
                       </mat-expansion-panel-header>
 
+                      <mat-tab-group class="exercise-settings-tabs" animationDuration="0ms">
+                        <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
                       <div class="exercise-type-row">
                         <mat-form-field appearance="outline" class="exercise-type-field">
                           <mat-label>Select Exercise-Type</mat-label>
@@ -564,24 +566,6 @@
                           </mat-form-field>
                         }
                       </div>
-
-                      <mat-form-field
-                        appearance="outline"
-                        class="exercise-settings-field"
-                        [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
-                      >
-                        <mat-label>{{ 'trainingPlans.deloadAfterFailuresLabel' | translate }}</mat-label>
-                        <input
-                          matInput
-                          type="text"
-                          inputmode="numeric"
-                          [value]="planExerciseConfig(plan, exerciseId).deloadAfterFailures ?? ''"
-                          name="deloadAfterFailures-{{ plan.id }}-{{ exerciseId }}"
-                          (focus)="onDeloadFieldFocus($event)"
-                          (input)="onDeloadAfterFailuresFieldInput($event)"
-                          (change)="updatePlanExerciseDeloadAfterFailures(plan, exerciseId, $any($event.target).value)"
-                        />
-                      </mat-form-field>
 
                       <div class="exercise-settings-row">
                         @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
@@ -624,24 +608,48 @@
                           </mat-form-field>
                         }
                       </div>
+                    </mat-tab>
+                    <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">
+                      <div class="exercise-settings-row">
+                        <mat-form-field
+                          appearance="outline"
+                          class="exercise-settings-field"
+                          [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                        >
+                          <mat-label>{{ 'trainingPlans.deloadAfterFailuresLabel' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="numeric"
+                            [value]="planExerciseConfig(plan, exerciseId).deloadAfterFailures ?? ''"
+                            name="deloadAfterFailures-{{ plan.id }}-{{ exerciseId }}"
+                            (focus)="onDeloadFieldFocus($event)"
+                            (input)="onDeloadAfterFailuresFieldInput($event)"
+                            (change)="updatePlanExerciseDeloadAfterFailures(plan, exerciseId, $any($event.target).value)"
+                          />
+                        </mat-form-field>
 
-                      <mat-form-field
-                        appearance="outline"
-                        class="exercise-settings-field"
-                        [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
-                      >
-                        <mat-label>{{ 'trainingPlans.deloadPercentLabel' | translate }}</mat-label>
-                        <input
-                          matInput
-                          type="text"
-                          inputmode="decimal"
-                          [value]="deloadPercentDisplay(plan, exerciseId)"
-                          name="deloadPercent-{{ plan.id }}-{{ exerciseId }}"
-                          (focus)="onDeloadFieldFocus($event)"
-                          (input)="onDeloadPercentFieldInput($event)"
-                          (change)="updatePlanExerciseDeloadPercent(plan, exerciseId, $any($event.target).value)"
-                        />
-                      </mat-form-field>
+                        <mat-form-field
+                          appearance="outline"
+                          class="exercise-settings-field"
+                          [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                        >
+                          <mat-label>{{ 'trainingPlans.deloadPercentLabel' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="decimal"
+                            [value]="deloadPercentDisplay(plan, exerciseId)"
+                            name="deloadPercent-{{ plan.id }}-{{ exerciseId }}"
+                            (focus)="onDeloadFieldFocus($event)"
+                            (input)="onDeloadPercentFieldInput($event)"
+                            (change)="updatePlanExerciseDeloadPercent(plan, exerciseId, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      </div>
+                    </mat-tab>
+                        <mat-tab [label]="'trainingPlans.setsTabLabel' | translate"></mat-tab>
+                      </mat-tab-group>
                     </mat-expansion-panel>
                   </mat-accordion>
                 }
