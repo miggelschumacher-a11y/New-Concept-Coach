@@ -1877,7 +1877,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async updateSessionExercisePreference(
     session: TrainingSession,
     sessionExercise: SessionExercise,
-    field: 'showWarmupSets' | 'showCooldownSets',
+    field: 'countWarmupSets' | 'countCooldownSets' | 'showWarmupSets' | 'showCooldownSets',
     value: boolean
   ): Promise<void> {
     sessionExercise[field] = value;

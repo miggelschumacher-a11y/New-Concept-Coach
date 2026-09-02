@@ -634,6 +634,50 @@
                             </mat-tab>
                           }
                           <mat-tab [label]="'trainingPlans.setsTabLabel' | translate">
+                            <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountWarmupTooltip' | translate">
+                              <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}</legend>
+                              <div class="session-settings-actions">
+                                <button
+                                  mat-stroked-button
+                                  type="button"
+                                  [class.active]="sessionExercise.countWarmupSets"
+                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'countWarmupSets', true)"
+                                >
+                                  {{ 'common.yes' | translate }}
+                                </button>
+                                <button
+                                  mat-stroked-button
+                                  type="button"
+                                  [class.active]="!sessionExercise.countWarmupSets"
+                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'countWarmupSets', false)"
+                                >
+                                  {{ 'common.no' | translate }}
+                                </button>
+                              </div>
+                            </fieldset>
+
+                            <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountCooldownTooltip' | translate">
+                              <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}</legend>
+                              <div class="session-settings-actions">
+                                <button
+                                  mat-stroked-button
+                                  type="button"
+                                  [class.active]="sessionExercise.countCooldownSets"
+                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'countCooldownSets', true)"
+                                >
+                                  {{ 'common.yes' | translate }}
+                                </button>
+                                <button
+                                  mat-stroked-button
+                                  type="button"
+                                  [class.active]="!sessionExercise.countCooldownSets"
+                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'countCooldownSets', false)"
+                                >
+                                  {{ 'common.no' | translate }}
+                                </button>
+                              </div>
+                            </fieldset>
+
                             <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate">
                               <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}</legend>
                               <div class="session-settings-actions">
