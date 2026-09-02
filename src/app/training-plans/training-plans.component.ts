@@ -871,7 +871,27 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     exerciseId: string,
     percentageProgressionMode: PercentageProgressionMode
   ): Promise<void> {
-    await this.updateConfig(plan, exerciseId, { percentageProgressionMode });
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const patch: Partial<PlanExerciseConfig> = { percentageProgressionMode };
+    if (percentageProgressionMode === 'ONE_WEEK_RHYTHM') {
+      // Only percentageWeeks[0] is ever used in this mode (see
+      // PercentageProgressionMode's doc comment) - collapse down to just
+      // that week so the editor stops showing the now-dead weeks 2+, and
+      // force its last set to AMRAP so the exercise's 1RM (and therefore
+      // every set's weight) keeps refreshing itself from real logged
+      // performance instead of staying static forever.
+      const week = config.percentageWeeks?.[0];
+      if (week?.sets.length) {
+        const lastIndex = week.sets.length - 1;
+        patch.percentageWeeks = [{ sets: week.sets.map((set, i) => (i === lastIndex ? { ...set, isAmrap: true } : set)) }];
+      }
+    } else if (percentageProgressionMode === 'FOUR_WEEK_RHYTHM' && (config.percentageWeeks?.length ?? 0) < 4) {
+      // Coming back from a single collapsed week - there's no meaningful
+      // way to restore weeks that were dropped, so reseed the standard
+      // 4-week template.
+      patch.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
+    }
+    await this.updateConfig(plan, exerciseId, patch);
   }
 
   async updatePlanExerciseShowWarmupSets(plan: TrainingPlan, exerciseId: string, checked: boolean): Promise<void> {

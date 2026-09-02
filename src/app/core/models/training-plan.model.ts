@@ -40,7 +40,12 @@ export type DoubleProgressionMode = 'ADD_TO_ALL_SETS' | 'ADD_ONE_TOTAL_REP';
 // back to the first week after the last. Each set's weight is computed
 // fresh from the exercise's current 1RM times that set's own percentage.
 // 'ONE_WEEK_RHYTHM': same per-set %1RM computation as FOUR_WEEK_RHYTHM, but
-// always from percentageWeeks[0] - no cycling.
+// always from percentageWeeks[0] - no cycling. Switching a plan exercise
+// into this mode (see TrainingPlansComponent.updatePlanExercisePercentage-
+// ProgressionMode) collapses percentageWeeks down to that single week and
+// forces its last set to AMRAP, so the exercise's 1RM - and every set's
+// weight, computed fresh from it each session - keeps progressing on its
+// own from real logged performance instead of staying static forever.
 // Unset defaults to FOUR_WEEK_RHYTHM (matches the seeded default weeks).
 export type PercentageProgressionMode = 'ALL_SETS' | 'FOUR_WEEK_RHYTHM' | 'ONE_WEEK_RHYTHM';
 
