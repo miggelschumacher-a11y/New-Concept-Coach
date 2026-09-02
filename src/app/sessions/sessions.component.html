@@ -447,69 +447,45 @@
                       }
                     }
                   </mat-panel-title>
-                  <div class="exercise-settings-info-trigger">
-                    <button
-                      mat-icon-button
-                      (click)="toggleExerciseSettingsInfo(session.id, sessionExercise.exerciseId, $event)"
-                      [matTooltip]="'sessions.exerciseSettingsInfoButton' | translate"
-                      [attr.aria-label]="'sessions.exerciseSettingsInfoButton' | translate"
-                    >
-                      <mat-icon>tune</mat-icon>
-                    </button>
-                    @if (isExerciseSettingsInfoOpen(session.id, sessionExercise.exerciseId) && exerciseSettingsInfoPosition) {
-                      <div
-                        class="exercise-settings-info-popup"
-                        attr.data-popup-key="exercise-settings-{{ session.id }}:{{ sessionExercise.exerciseId }}"
-                        [style.top.px]="exerciseSettingsInfoPosition.top"
-                        [style.left.px]="exerciseSettingsInfoPosition.left"
-                        (click)="$event.stopPropagation()"
-                        cdkDrag
-                        cdkDragBoundary="body"
+                  @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
+                    <div class="weight-info-trigger">
+                      <button
+                        mat-icon-button
+                        (click)="toggleWeightInfo(session.id, sessionExercise.exerciseId, $event)"
+                        [matTooltip]="'sessions.tierLineInfoButton' | translate"
+                        [attr.aria-label]="'sessions.tierLineInfoButton' | translate"
                       >
-                        <div class="settings-info-popup-header" cdkDragHandle>
-                          <mat-icon>drag_indicator</mat-icon>
-                          <span>{{ 'sessions.exerciseSettingsInfoButton' | translate }}</span>
+                        <mat-icon>info</mat-icon>
+                      </button>
+                      @if (isWeightInfoOpen(session.id, sessionExercise.exerciseId) && weightInfoPosition) {
+                        <div
+                          class="weight-info-popup"
+                          attr.data-popup-key="weight-info-{{ session.id }}:{{ sessionExercise.exerciseId }}"
+                          [style.top.px]="weightInfoPosition.top"
+                          [style.left.px]="weightInfoPosition.left"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <p>
+                            <strong>{{ 'sessions.tierLineSuccessLabel' | translate }}</strong>
+                            +{{ tierLineWeightIncrement(sessionExercise.exerciseId) }} {{ weightUnitLabel }}
+                          </p>
+                          <p>
+                            <strong>{{ 'sessions.tierLineFailLabel' | translate }}</strong>
+                            {{ 'sessions.tierLineFailExplanation' | translate }}
+                          </p>
                         </div>
+                      }
+                    </div>
+                  }
+                </mat-expansion-panel-header>
 
-                        <mat-tab-group class="exercise-settings-info-tabs" animationDuration="0ms">
-                          <mat-tab [label]="'trainingPlans.setsTabLabel' | translate">
-                            <mat-checkbox
-                              [(ngModel)]="sessionExercise.countWarmupSets"
-                              name="countWarmup-{{ sessionExercise.exerciseId }}"
-                              (change)="onCountingPreferenceChange(session, sessionExercise, 'countWarmupSets')"
-                              [matTooltip]="'sessions.exerciseCountWarmupTooltip' | translate"
-                            >
-                              <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}
-                            </mat-checkbox>
+                <mat-accordion multi class="exercise-settings-accordion">
+                  <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                      <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
+                    </mat-expansion-panel-header>
 
-                            <mat-checkbox
-                              [(ngModel)]="sessionExercise.countCooldownSets"
-                              name="countCooldown-{{ sessionExercise.exerciseId }}"
-                              (change)="onCountingPreferenceChange(session, sessionExercise, 'countCooldownSets')"
-                              [matTooltip]="'sessions.exerciseCountCooldownTooltip' | translate"
-                            >
-                              <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}
-                            </mat-checkbox>
-
-                            <mat-checkbox
-                              [(ngModel)]="sessionExercise.showWarmupSets"
-                              name="showWarmup-{{ sessionExercise.exerciseId }}"
-                              (change)="onCountingPreferenceChange(session, sessionExercise, 'showWarmupSets')"
-                              [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate"
-                            >
-                              <mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}
-                            </mat-checkbox>
-
-                            <mat-checkbox
-                              [(ngModel)]="sessionExercise.showCooldownSets"
-                              name="showCooldown-{{ sessionExercise.exerciseId }}"
-                              (change)="onCountingPreferenceChange(session, sessionExercise, 'showCooldownSets')"
-                              [matTooltip]="'sessions.exerciseShowCooldownTooltip' | translate"
-                            >
-                              <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
-                            </mat-checkbox>
-                          </mat-tab>
-
+                    <mat-tab-group class="exercise-settings-info-tabs" animationDuration="0ms">
                           @if (canEditExerciseTypeInSession(session)) {
                             <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
                               <mat-form-field appearance="outline" class="exercise-settings-info-field">
@@ -581,23 +557,40 @@
                                 </mat-form-field>
                               }
                               @if (sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED') {
-                                <mat-form-field
-                                  appearance="outline"
-                                  class="exercise-settings-info-field"
-                                  [matTooltip]="'trainingPlans.percentIncrementTooltip' | translate"
-                                >
-                                  <mat-label>{{ 'trainingPlans.percentIncrementLabel' | translate }}</mat-label>
-                                  <input
-                                    matInput
-                                    type="text"
-                                    inputmode="decimal"
-                                    [value]="sessionPercentIncrementDisplay(sessionExercise)"
-                                    name="sessionPercentIncrement-{{ sessionExercise.exerciseId }}"
-                                    (focus)="onDeloadFieldFocus($event)"
-                                    (input)="onDeloadPercentFieldInput($event)"
-                                    (change)="updateSessionPercentIncrement(session, sessionExercise, $any($event.target).value)"
-                                  />
+                                <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                                  <mat-label>{{ 'trainingPlans.percentageProgressionModeTitle' | translate }}</mat-label>
+                                  <mat-select
+                                    [ngModel]="sessionPercentageProgressionModeDisplay(sessionExercise)"
+                                    name="sessionPercentageProgressionMode-{{ sessionExercise.exerciseId }}"
+                                    (selectionChange)="updateSessionPercentageProgressionMode(session, sessionExercise, $event.value)"
+                                  >
+                                    <mat-option value="ALL_SETS" [matTooltip]="'trainingPlans.percentageProgressionModeAllSetsTooltip' | translate">{{
+                                      'trainingPlans.percentageProgressionModeAllSets' | translate
+                                    }}</mat-option>
+                                    <mat-option value="FOUR_WEEK_RHYTHM">{{ 'trainingPlans.percentageProgressionModeFourWeek' | translate }}</mat-option>
+                                    <mat-option value="ONE_WEEK_RHYTHM">{{ 'trainingPlans.percentageProgressionModeOneWeek' | translate }}</mat-option>
+                                  </mat-select>
                                 </mat-form-field>
+
+                                @if (sessionPercentageProgressionModeDisplay(sessionExercise) === 'ALL_SETS') {
+                                  <mat-form-field
+                                    appearance="outline"
+                                    class="exercise-settings-info-field"
+                                    [matTooltip]="'trainingPlans.percentIncrementTooltip' | translate"
+                                  >
+                                    <mat-label>{{ 'trainingPlans.percentIncrementLabel' | translate }}</mat-label>
+                                    <input
+                                      matInput
+                                      type="text"
+                                      inputmode="decimal"
+                                      [value]="sessionPercentIncrementDisplay(sessionExercise)"
+                                      name="sessionPercentIncrement-{{ sessionExercise.exerciseId }}"
+                                      (focus)="onDeloadFieldFocus($event)"
+                                      (input)="onDeloadPercentFieldInput($event)"
+                                      (change)="updateSessionPercentIncrement(session, sessionExercise, $any($event.target).value)"
+                                    />
+                                  </mat-form-field>
+                                }
                               }
                             </mat-tab>
                           }
@@ -640,41 +633,54 @@
                               </mat-form-field>
                             </mat-tab>
                           }
+                          <mat-tab [label]="'trainingPlans.setsTabLabel' | translate">
+                            <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate">
+                              <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}</legend>
+                              <div class="session-settings-actions">
+                                <button
+                                  mat-stroked-button
+                                  type="button"
+                                  [class.active]="sessionExercise.showWarmupSets ?? true"
+                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', true)"
+                                >
+                                  {{ 'common.yes' | translate }}
+                                </button>
+                                <button
+                                  mat-stroked-button
+                                  type="button"
+                                  [class.active]="!(sessionExercise.showWarmupSets ?? true)"
+                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', false)"
+                                >
+                                  {{ 'common.no' | translate }}
+                                </button>
+                              </div>
+                            </fieldset>
+
+                            <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowCooldownTooltip' | translate">
+                              <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}</legend>
+                              <div class="session-settings-actions">
+                                <button
+                                  mat-stroked-button
+                                  type="button"
+                                  [class.active]="sessionExercise.showCooldownSets ?? true"
+                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'showCooldownSets', true)"
+                                >
+                                  {{ 'common.yes' | translate }}
+                                </button>
+                                <button
+                                  mat-stroked-button
+                                  type="button"
+                                  [class.active]="!(sessionExercise.showCooldownSets ?? true)"
+                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'showCooldownSets', false)"
+                                >
+                                  {{ 'common.no' | translate }}
+                                </button>
+                              </div>
+                            </fieldset>
+                          </mat-tab>
                         </mat-tab-group>
-                      </div>
-                    }
-                  </div>
-                  @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
-                    <div class="weight-info-trigger">
-                      <button
-                        mat-icon-button
-                        (click)="toggleWeightInfo(session.id, sessionExercise.exerciseId, $event)"
-                        [matTooltip]="'sessions.tierLineInfoButton' | translate"
-                        [attr.aria-label]="'sessions.tierLineInfoButton' | translate"
-                      >
-                        <mat-icon>info</mat-icon>
-                      </button>
-                      @if (isWeightInfoOpen(session.id, sessionExercise.exerciseId) && weightInfoPosition) {
-                        <div
-                          class="weight-info-popup"
-                          attr.data-popup-key="weight-info-{{ session.id }}:{{ sessionExercise.exerciseId }}"
-                          [style.top.px]="weightInfoPosition.top"
-                          [style.left.px]="weightInfoPosition.left"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <p>
-                            <strong>{{ 'sessions.tierLineSuccessLabel' | translate }}</strong>
-                            +{{ tierLineWeightIncrement(sessionExercise.exerciseId) }} {{ weightUnitLabel }}
-                          </p>
-                          <p>
-                            <strong>{{ 'sessions.tierLineFailLabel' | translate }}</strong>
-                            {{ 'sessions.tierLineFailExplanation' | translate }}
-                          </p>
-                        </div>
-                      }
-                    </div>
-                  }
-                </mat-expansion-panel-header>
+                  </mat-expansion-panel>
+                </mat-accordion>
 
                 <mat-accordion multi class="set-type-accordion">
                   @for (setType of setTypes; track setType.value) {

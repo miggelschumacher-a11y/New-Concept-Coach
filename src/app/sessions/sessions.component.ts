@@ -34,6 +34,7 @@ import {
   WaveProgressionConfig,
   PlanExerciseType,
   IncrementScheme,
+  PercentageProgressionMode,
   WorkingSetTarget
 } from '../core/models/training-plan.model';
 import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core/models/tier-line-progression.model';
@@ -320,41 +321,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.weightInfoPosition = null;
   }
 
-  private exerciseSettingsInfoOpenKey: string | null = null;
-  exerciseSettingsInfoPosition: { top: number; left: number } | null = null;
-
-  toggleExerciseSettingsInfo(sessionId: string, exerciseId: string, event: MouseEvent): void {
-    event.stopPropagation();
-    const key = `${sessionId}:${exerciseId}`;
-    if (this.exerciseSettingsInfoOpenKey === key) {
-      this.closeExerciseSettingsInfo();
-      return;
-    }
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const popupWidth = 280;
-    this.exerciseSettingsInfoPosition = {
-      top: rect.bottom + 8,
-      left: Math.max(8, rect.right - popupWidth)
-    };
-    this.exerciseSettingsInfoOpenKey = key;
-    this.fitPopupToViewport(`exercise-settings-${key}`, this.exerciseSettingsInfoPosition);
-  }
-
-  isExerciseSettingsInfoOpen(sessionId: string, exerciseId: string): boolean {
-    return this.exerciseSettingsInfoOpenKey === `${sessionId}:${exerciseId}`;
-  }
-
-  private closeExerciseSettingsInfo(): void {
-    this.exerciseSettingsInfoOpenKey = null;
-    this.exerciseSettingsInfoPosition = null;
-  }
-
-  // Same popup as the per-exercise one, but its four checkboxes apply to
-  // every exercise in the session at once instead of a single one. There's
-  // no single canonical value across exercises to reflect, so the popup
-  // works off its own buffer - seeded from the first exercise's settings
-  // (or true, the same default showSetType() falls back to) - which is
-  // what actually gets pushed to every exercise on change.
+  // Bulk-applies the same four count/show preferences to every exercise in
+  // the session at once. There's no single canonical value across exercises
+  // to reflect, so the popup works off its own buffer - seeded from the
+  // first exercise's settings (or true, the same default showSetType()
+  // falls back to) - which is what actually gets pushed to every exercise
+  // on change.
   private sessionSettingsInfoOpenKey: string | null = null;
   sessionSettingsInfoPosition: { top: number; left: number } | null = null;
   private sessionSettingsBuffers = new Map<
@@ -587,9 +559,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLElement | null;
     if (this.weightInfoOpenKey && !target?.closest('.weight-info-trigger')) {
       this.closeWeightInfo();
-    }
-    if (this.exerciseSettingsInfoOpenKey && !target?.closest('.exercise-settings-info-trigger')) {
-      this.closeExerciseSettingsInfo();
     }
     if (this.sessionSettingsInfoOpenKey && !target?.closest('.session-settings-info-trigger')) {
       this.closeSessionSettingsInfo();
@@ -1375,7 +1344,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
               deloadAfterFailures: config.deloadAfterFailures,
               deloadPercent: config.deloadPercent,
               weightIncrement: config.weightIncrement,
-              percentIncrement: config.percentIncrement
+              percentIncrement: config.percentIncrement,
+              percentageProgressionMode: config.percentageProgressionMode
             };
           })
         );
@@ -1901,6 +1871,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
+  // Yes/No button pair for the exercise's own Sätze tab (unlike the
+  // session-wide popup's same-shaped buttons, these reflect and set this
+  // one exercise's current value, not broadcast to every exercise).
+  async updateSessionExercisePreference(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    field: 'showWarmupSets' | 'showCooldownSets',
+    value: boolean
+  ): Promise<void> {
+    sessionExercise[field] = value;
+    await this.onCountingPreferenceChange(session, sessionExercise, field);
+  }
+
   async updateSessionExerciseType(
     session: TrainingSession,
     sessionExercise: SessionExercise,
@@ -1987,6 +1970,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async updateSessionPercentIncrement(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     sessionExercise.percentIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
+    await this.persist(session);
+  }
+
+  sessionPercentageProgressionModeDisplay(sessionExercise: SessionExercise): PercentageProgressionMode {
+    return sessionExercise.percentageProgressionMode ?? 'FOUR_WEEK_RHYTHM';
+  }
+
+  async updateSessionPercentageProgressionMode(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    percentageProgressionMode: PercentageProgressionMode
+  ): Promise<void> {
+    sessionExercise.percentageProgressionMode = percentageProgressionMode;
     await this.persist(session);
   }
 

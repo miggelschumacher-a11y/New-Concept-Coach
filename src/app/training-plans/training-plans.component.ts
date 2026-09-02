@@ -865,26 +865,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // actually applied (see sessions.component.ts) when the field is blank.
   readonly defaultWeightIncrement = DEFAULT_WEIGHT_INCREMENT;
 
-  onPercentIncrementFieldInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d{0,3}([.,]\d{0,2})?/)?.[0] ?? '';
-    if (sanitized !== input.value) {
-      input.value = sanitized;
-    }
-  }
-
-  // Displayed with trailing zeros, matching the deload percent field.
-  percentIncrementDisplay(plan: TrainingPlan, exerciseId: string): string {
-    const percentIncrement = this.planExerciseConfig(plan, exerciseId).percentIncrement;
-    return percentIncrement !== undefined ? percentIncrement.toFixed(2) : '';
-  }
-
-  async updatePlanExercisePercentIncrement(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    const parsed = parseFloat(value.replace(',', '.'));
-    const percentIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
-    await this.updateConfig(plan, exerciseId, { percentIncrement });
-  }
-
   percentageProgressionModeDisplay(plan: TrainingPlan, exerciseId: string): PercentageProgressionMode {
     return this.planExerciseConfig(plan, exerciseId).percentageProgressionMode ?? 'FOUR_WEEK_RHYTHM';
   }

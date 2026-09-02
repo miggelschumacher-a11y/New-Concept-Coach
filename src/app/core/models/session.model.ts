@@ -1,4 +1,4 @@
-import { PlanExerciseType, IncrementScheme } from './training-plan.model';
+import { PlanExerciseType, IncrementScheme, PercentageProgressionMode } from './training-plan.model';
 
 export type SetType = 'warmup' | 'working' | 'cooldown';
 
@@ -50,6 +50,7 @@ export interface SessionExercise {
   // reads the source plan's config directly.
   weightIncrement?: number;
   percentIncrement?: number;
+  percentageProgressionMode?: PercentageProgressionMode;
 }
 
 export interface TrainingSession {

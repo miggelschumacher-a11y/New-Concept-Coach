@@ -281,6 +281,14 @@ mat-expansion-panel mat-checkbox {
     flex: 1 1 0;
     min-width: 0;
   }
+
+  // Only meaningful where the buttons reflect one exercise's current value
+  // (the session-wide popup's same-shaped buttons are pure broadcast
+  // actions and never mark either one active).
+  button.active {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
 }
 
 .set-type-accordion {
