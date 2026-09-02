@@ -391,39 +391,3 @@ mat-expansion-panel mat-checkbox {
 .set-complete-btn.set-complete-fail {
   color: #d32f2f;
 }
-
-.plan-sets-input {
-  text-align: right;
-}
-
-.percentage-week-accordion {
-  margin-top: 0.5rem;
-}
-
-.percentage-set-row {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  margin: 0.25rem 0;
-}
-
-.percentage-set-index {
-  min-width: 2rem;
-  color: lightgrey;
-}
-
-.percentage-input-field {
-  width: 5rem;
-}
-
-.percentage-set-weight {
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 500;
-}
-
-.percentage-set-weight-missing {
-  color: lightgrey;
-  font-weight: normal;
-  font-style: italic;
-}

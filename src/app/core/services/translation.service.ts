@@ -85,8 +85,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Weight Increase',
     'trainingPlans.weightIncrementTooltip': 'How much weight is added after a successful session. Overrides the default increment (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Rhythm',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      'This mirrors the training plan and cannot be changed here - change the rhythm on the training plan itself instead.',
     'trainingPlans.percentageProgressionModeAllSets': 'Success-Based',
     'trainingPlans.percentageProgressionModeFourWeek': '4-Week Rhythm (like 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': '1-Week Rhythm',
@@ -363,8 +361,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Steigerung Gewicht',
     'trainingPlans.weightIncrementTooltip': 'Wie viel Gewicht nach einer erfolgreichen Einheit hinzugefügt wird. Überschreibt die Standard-Steigerung (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Rhythmus',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      'Dies spiegelt nur den Trainingsplan wider und kann hier nicht geändert werden - ändere den Rhythmus stattdessen im Trainingsplan selbst.',
     'trainingPlans.percentageProgressionModeAllSets': 'Erfolgsbasiert',
     'trainingPlans.percentageProgressionModeFourWeek': '4-Wochen-Rhythmus (wie 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': '1-Wochen-Rhythmus',
@@ -641,8 +637,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Aumento de peso',
     'trainingPlans.weightIncrementTooltip': 'Cuánto peso se añade tras una sesión exitosa. Sustituye el incremento predeterminado (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Ritmo',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      'Esto solo refleja el plan de entrenamiento y no se puede cambiar aquí - cambia el ritmo en el plan de entrenamiento en su lugar.',
     'trainingPlans.percentageProgressionModeAllSets': 'Basado en el éxito',
     'trainingPlans.percentageProgressionModeFourWeek': 'Ritmo de 4 semanas (como 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': 'Ritmo de 1 semana',
@@ -919,8 +913,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Aumento de peso',
     'trainingPlans.weightIncrementTooltip': 'Quanto peso é adicionado após uma sessão bem-sucedida. Substitui o incremento padrão (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Ritmo',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      'Isso apenas reflete o plano de treino e não pode ser alterado aqui - altere o ritmo no próprio plano de treino.',
     'trainingPlans.percentageProgressionModeAllSets': 'Baseado no sucesso',
     'trainingPlans.percentageProgressionModeFourWeek': 'Ritmo de 4 semanas (como 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': 'Ritmo de 1 semana',
@@ -1197,8 +1189,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Aumento del peso',
     'trainingPlans.weightIncrementTooltip': 'Quanto peso viene aggiunto dopo una sessione riuscita. Sostituisce l\'incremento predefinito (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Ritmo',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      "Questo riflette solo il piano di allenamento e non può essere modificato qui - modifica il ritmo nel piano di allenamento stesso.",
     'trainingPlans.percentageProgressionModeAllSets': 'Basato sul successo',
     'trainingPlans.percentageProgressionModeFourWeek': 'Ritmo di 4 settimane (come 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': 'Ritmo di 1 settimana',
@@ -1475,8 +1465,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Gewichtstoename',
     'trainingPlans.weightIncrementTooltip': 'Hoeveel gewicht wordt toegevoegd na een succesvolle sessie. Overschrijft de standaardverhoging (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Ritme',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      'Dit weerspiegelt alleen het trainingsplan en kan hier niet worden gewijzigd - wijzig het ritme in plaats daarvan in het trainingsplan zelf.',
     'trainingPlans.percentageProgressionModeAllSets': 'Op succes gebaseerd',
     'trainingPlans.percentageProgressionModeFourWeek': '4-wekenritme (zoals 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': '1-weekritme',
@@ -1753,8 +1741,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Zwiększenie ciężaru',
     'trainingPlans.weightIncrementTooltip': 'Ile ciężaru jest dodawane po udanej sesji. Zastępuje domyślny przyrost (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Rytm',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      'To tylko odzwierciedla plan treningowy i nie można tego tutaj zmienić - zmień rytm w samym planie treningowym.',
     'trainingPlans.percentageProgressionModeAllSets': 'Oparty na sukcesie',
     'trainingPlans.percentageProgressionModeFourWeek': 'Rytm 4-tygodniowy (jak 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': 'Rytm 1-tygodniowy',
@@ -2031,8 +2017,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Прибавка веса',
     'trainingPlans.weightIncrementTooltip': 'Насколько увеличивается вес после успешной тренировки. Заменяет стандартное увеличение (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Ритм',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      'Это лишь отражает тренировочный план и не может быть изменено здесь - измените ритм в самом тренировочном плане.',
     'trainingPlans.percentageProgressionModeAllSets': 'На основе успеха',
     'trainingPlans.percentageProgressionModeFourWeek': '4-недельный ритм (как 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': '1-недельный ритм',
@@ -2309,8 +2293,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'trainingPlans.weightIncrementLabel': 'Súlynövelés',
     'trainingPlans.weightIncrementTooltip': 'Mennyi súlyt ad hozzá egy sikeres edzés után. Felülírja az alapértelmezett növekményt (1).',
     'trainingPlans.percentageProgressionModeTitle': 'Ritmus',
-    'trainingPlans.percentageProgressionModeSessionLockedTooltip':
-      'Ez csak az edzéstervet tükrözi, és itt nem módosítható - a ritmust magában az edzéstervben módosítsd.',
     'trainingPlans.percentageProgressionModeAllSets': 'Sikeralapú',
     'trainingPlans.percentageProgressionModeFourWeek': '4 hetes ritmus (mint az 5/3/1)',
     'trainingPlans.percentageProgressionModeOneWeek': '1 hetes ritmus',

@@ -492,11 +492,18 @@
                                 <mat-label>Select Exercise-Type</mat-label>
                                 <mat-select
                                   [ngModel]="sessionExerciseTypeDisplay(sessionExercise)"
+                                  [disabled]="sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED'"
                                   name="sessionExerciseType-{{ sessionExercise.exerciseId }}"
                                   (selectionChange)="updateSessionExerciseType(session, sessionExercise, $event.value)"
                                 >
                                   <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
-                                  <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                                  <!-- Percentage-Based can't be picked for a manual session (no
+                                       training plan to drive its progression) - only shown here
+                                       when it's already the exercise's locked-in value, e.g. a
+                                       plan-derived session's mirror of its plan config. -->
+                                  @if (session.trainingPlanId || sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED') {
+                                    <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                                  }
                                   <mat-option value="TIME_BASED">Time-Based</mat-option>
                                 </mat-select>
                               </mat-form-field>
@@ -555,124 +562,6 @@
                                     (change)="updateSessionWeightIncrement(session, sessionExercise, $any($event.target).value)"
                                   />
                                 </mat-form-field>
-                              }
-                              @if (sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED') {
-                                <mat-form-field
-                                  appearance="outline"
-                                  class="exercise-settings-info-field"
-                                  [matTooltip]="session.trainingPlanId ? ('trainingPlans.percentageProgressionModeSessionLockedTooltip' | translate) : ''"
-                                >
-                                  <mat-label>{{ 'trainingPlans.percentageProgressionModeTitle' | translate }}</mat-label>
-                                  <mat-select
-                                    [ngModel]="sessionPercentageProgressionModeDisplay(sessionExercise)"
-                                    [disabled]="!!session.trainingPlanId"
-                                    name="sessionPercentageProgressionMode-{{ sessionExercise.exerciseId }}"
-                                    (selectionChange)="updateSessionPercentageProgressionMode(session, sessionExercise, $event.value)"
-                                  >
-                                    <mat-option value="ALL_SETS" [matTooltip]="'trainingPlans.percentageProgressionModeAllSetsTooltip' | translate">{{
-                                      'trainingPlans.percentageProgressionModeAllSets' | translate
-                                    }}</mat-option>
-                                    <mat-option value="FOUR_WEEK_RHYTHM">{{ 'trainingPlans.percentageProgressionModeFourWeek' | translate }}</mat-option>
-                                    <mat-option value="ONE_WEEK_RHYTHM">{{ 'trainingPlans.percentageProgressionModeOneWeek' | translate }}</mat-option>
-                                  </mat-select>
-                                </mat-form-field>
-
-                                <!-- A manual session holds its own percentage-week templates (no
-                                     source plan to read them from) - a plan-derived session's
-                                     rhythm is locked to the plan above, so there's nothing to
-                                     edit here for it. -->
-                                @if (!session.trainingPlanId && sessionExercise.percentageWeeks) {
-                                  <ng-template #sessionPercentageSetRows let-week="week" let-weekIndex="weekIndex">
-                                    @for (set of week.sets; track $index; let setIndex = $index) {
-                                      <div class="percentage-set-row">
-                                        <button
-                                          mat-icon-button
-                                          color="warn"
-                                          (click)="removeSessionPercentageSet(session, sessionExercise, weekIndex, setIndex)"
-                                          [matTooltip]="'sessions.removeSet' | translate"
-                                          [attr.aria-label]="'sessions.removeSet' | translate"
-                                        >
-                                          <mat-icon>delete</mat-icon>
-                                        </button>
-                                        <span class="percentage-set-index">#{{ setIndex + 1 }}</span>
-
-                                        <mat-form-field appearance="outline" class="percentage-input-field">
-                                          <mat-label>%</mat-label>
-                                          <input
-                                            matInput
-                                            type="text"
-                                            inputmode="numeric"
-                                            class="plan-sets-input"
-                                            [value]="set.percentage"
-                                            (input)="onRepsFieldInput($event)"
-                                            (change)="updateSessionPercentageSetPercentage(session, sessionExercise, weekIndex, setIndex, $any($event.target).value)"
-                                          />
-                                        </mat-form-field>
-
-                                        <mat-form-field appearance="outline" class="percentage-input-field">
-                                          <mat-label>{{ 'trainingPlans.repsAbbreviation' | translate }}</mat-label>
-                                          <input
-                                            matInput
-                                            type="text"
-                                            inputmode="numeric"
-                                            class="plan-sets-input"
-                                            [value]="set.reps"
-                                            (input)="onRepsFieldInput($event)"
-                                            (change)="updateSessionPercentageSetReps(session, sessionExercise, weekIndex, setIndex, $any($event.target).value)"
-                                          />
-                                        </mat-form-field>
-
-                                        <mat-checkbox
-                                          [checked]="set.isAmrap"
-                                          (change)="toggleSessionPercentageSetAmrap(session, sessionExercise, weekIndex, setIndex, $event.checked)"
-                                        >
-                                          {{ 'trainingPlans.amrapLabel' | translate }}
-                                        </mat-checkbox>
-
-                                        @if (sessionPercentageSetWeight(sessionExercise.exerciseId, set.percentage); as weight) {
-                                          <span class="percentage-set-weight">{{ weight }} {{ weightUnitLabel }}</span>
-                                        } @else {
-                                          <span class="percentage-set-weight percentage-set-weight-missing"
-                                            >{{ 'trainingPlans.oneRepMaxMissing' | translate }}</span
-                                          >
-                                        }
-                                      </div>
-                                    }
-                                  </ng-template>
-
-                                  @if (hasSingleSessionPercentageWeek(sessionExercise)) {
-                                    <ng-container
-                                      [ngTemplateOutlet]="sessionPercentageSetRows"
-                                      [ngTemplateOutletContext]="{ week: sessionExercise.percentageWeeks![0], weekIndex: 0 }"
-                                    ></ng-container>
-                                  } @else {
-                                    <mat-accordion multi class="percentage-week-accordion">
-                                      @for (week of sessionExercise.percentageWeeks; track $index; let weekIndex = $index) {
-                                        <mat-expansion-panel>
-                                          <mat-expansion-panel-header>
-                                            <div class="header-delete-action">
-                                              <button
-                                                mat-icon-button
-                                                color="warn"
-                                                (click)="removeSessionPercentageWeek(session, sessionExercise, weekIndex); $event.stopPropagation()"
-                                                [matTooltip]="'common.delete' | translate"
-                                                [attr.aria-label]="'common.delete' | translate"
-                                              >
-                                                <mat-icon>delete</mat-icon>
-                                              </button>
-                                            </div>
-                                            <mat-panel-title>{{ 'trainingPlans.weekLabel' | translate }} {{ weekIndex + 1 }}</mat-panel-title>
-                                          </mat-expansion-panel-header>
-
-                                          <ng-container
-                                            [ngTemplateOutlet]="sessionPercentageSetRows"
-                                            [ngTemplateOutletContext]="{ week: week, weekIndex: weekIndex }"
-                                          ></ng-container>
-                                        </mat-expansion-panel>
-                                      }
-                                    </mat-accordion>
-                                  }
-                                }
                               }
                             </mat-tab>
                           }

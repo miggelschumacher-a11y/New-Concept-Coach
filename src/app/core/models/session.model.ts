@@ -1,4 +1,4 @@
-import { PlanExerciseType, IncrementScheme, PercentageProgressionMode, PercentageWeek } from './training-plan.model';
+import { PlanExerciseType, IncrementScheme, PercentageProgressionMode } from './training-plan.model';
 
 export type SetType = 'warmup' | 'working' | 'cooldown';
 
@@ -50,12 +50,6 @@ export interface SessionExercise {
   // plan's config directly.
   weightIncrement?: number;
   percentageProgressionMode?: PercentageProgressionMode;
-  // Manual-session-only: this exercise's own percentage-week templates,
-  // since a manual session has no source plan to hold them (compare
-  // PlanExerciseConfig's same-named field). A plan-derived session never
-  // populates this - it always reads percentageWeeks from the plan itself.
-  // See SessionsComponent.percentageBasedWorkingSets.
-  percentageWeeks?: PercentageWeek[];
 }
 
 export interface TrainingSession {
