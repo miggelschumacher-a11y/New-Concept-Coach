@@ -1205,8 +1205,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 })),
                 countWarmupSets: true,
                 countCooldownSets: true,
-                showWarmupSets: true,
-                showCooldownSets: true
+                // A tier-line exercise has no warm-up/cooldown concept in its
+                // plan config at all - always hidden, never just empty.
+                showWarmupSets: false,
+                showCooldownSets: false
               };
             }
             // planExercise.targetReps may be a range ('8-12'); a session set's
@@ -1226,8 +1228,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
               })),
               countWarmupSets: true,
               countCooldownSets: true,
-              showWarmupSets: true,
-              showCooldownSets: true
+              // Same as the tier-line case above - a plan-session exercise
+              // has no warm-up/cooldown fields to configure in the first
+              // place.
+              showWarmupSets: false,
+              showCooldownSets: false
             };
           })
         )
@@ -1240,8 +1245,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 sets: [],
                 countWarmupSets: true,
                 countCooldownSets: true,
-                showWarmupSets: true,
-                showCooldownSets: true
+                showWarmupSets: false,
+                showCooldownSets: false
               };
             }
             const buildSets = (count: number, type: SetType) =>
@@ -1371,8 +1376,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
               sets: [...warmupSets, ...workingSets, ...cooldownSets],
               countWarmupSets: true,
               countCooldownSets: true,
-              showWarmupSets: config.showWarmupSets ?? true,
-              showCooldownSets: config.showCooldownSets ?? true,
+              // Defaults to hidden rather than an empty, pointless "(0)"
+              // section when the plan itself has no warm-up/cooldown sets -
+              // an explicit config.show*Sets still wins either way.
+              showWarmupSets: config.showWarmupSets ?? warmupSets.length > 0,
+              showCooldownSets: config.showCooldownSets ?? cooldownSets.length > 0,
               exerciseType: config.exerciseType,
               incrementScheme: config.incrementScheme,
               deloadAfterFailures: config.deloadAfterFailures,
