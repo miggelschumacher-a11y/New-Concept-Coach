@@ -846,6 +846,7 @@
                                 [disabled]="isPaused(session)"
                                 (focus)="onSetFieldFocus(set, $event)"
                                 (input)="onRepsFieldInput($event)"
+                                (blur)="onRepsFieldBlur(sessionExercise, set)"
                                 (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'reps')"
                                 (mouseup)="onSetFieldMouseUp()"
                                 (mouseleave)="onSetFieldMouseLeave()"

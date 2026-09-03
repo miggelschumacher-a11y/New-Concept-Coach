@@ -2183,6 +2183,34 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Same broadcast idea as onWeightFieldBlur above, for reps instead of
+  // weight: leaving a set's reps field fills that same value into any other
+  // still-0 (i.e. never-touched) un-done set of the same type, so hitting
+  // the same reps across working sets needs typing it only once.
+  onRepsFieldBlur(sessionExercise: SessionExercise, set: ExerciseSet): void {
+    if (set.done) {
+      return;
+    }
+    const reps = parseInt(this.fieldBuffer(set).reps, 10);
+    if (!Number.isFinite(reps)) {
+      return;
+    }
+    this.fieldBuffer(set).reps = String(reps);
+    if (reps <= 0) {
+      return;
+    }
+    for (const other of sessionExercise.sets) {
+      if (other.id === set.id || other.type !== set.type || other.done) {
+        continue;
+      }
+      const otherReps = parseInt(this.fieldBuffer(other).reps, 10);
+      if (Number.isFinite(otherReps) && otherReps !== 0) {
+        continue;
+      }
+      this.fieldBuffer(other).reps = String(reps);
+    }
+  }
+
   completeSet(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
     if (this.isPaused(session)) {
       return;
