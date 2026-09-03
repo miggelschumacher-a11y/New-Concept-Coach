@@ -1145,7 +1145,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const name = planSession
       ? `${plan.name} – ${planSession.name}`
       : onlyExerciseId
-        ? `${plan.name} – ${this.exerciseName(onlyExerciseId)}`
+        ? // Exercise name first (not `${plan.name} – ${exerciseName}`) so it's
+          // what stays visible once the collapsed session row's ellipsis
+          // truncation kicks in - the one detail that actually tells
+          // same-plan sessions apart in the list, unlike the plan name.
+          `${this.exerciseName(onlyExerciseId)} – ${plan.name}`
         : plan.name;
     const isTierLine = plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION;
     const exercises: SessionExercise[] = planSession
@@ -1640,6 +1644,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       targetReps: set.reps,
       isAmrap: set.isAmrap,
       weight: this.percentageSetWeight(exerciseId, set.percentage),
+      percentage: set.percentage,
       type: 'working' as SetType
     }));
   }
@@ -2040,16 +2045,33 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // replaced, where a value only became "done" on deliberate confirmation.
   private fieldBuffers = new Map<string, { reps: string; weight: string }>();
 
-  fieldBuffer(set: ExerciseSet): { reps: string; weight: string } {
+  fieldBuffer(set: ExerciseSet, sessionExercise?: SessionExercise): { reps: string; weight: string } {
     let buffer = this.fieldBuffers.get(set.id);
     if (!buffer) {
       // Prefill with the target reps (the top of the range, if there is
       // one) so hitting the target needs no typing at all - just confirm.
       const reps = !set.done && set.targetReps !== undefined ? (set.targetRepsMax ?? set.targetReps) : set.reps;
-      buffer = { reps: String(reps), weight: set.weight.toFixed(2) };
+      buffer = { reps: String(reps), weight: this.initialSetWeight(set, sessionExercise).toFixed(2) };
       this.fieldBuffers.set(set.id, buffer);
     }
     return buffer;
+  }
+
+  // An un-done Percentage-Based set's weight is recomputed here from the
+  // exercise's CURRENT 1RM (custom override respected) rather than read from
+  // the frozen value percentageBasedWorkingSets stored back when the session
+  // was generated - so a 1RM change after generation but before this set is
+  // logged is reflected instead of silently going stale. Every other case
+  // (already done, not Percentage-Based, or no 1RM to compute from) just
+  // keeps the set's own stored weight.
+  private initialSetWeight(set: ExerciseSet, sessionExercise?: SessionExercise): number {
+    if (!set.done && sessionExercise?.exerciseType === 'PERCENTAGE_BASED' && set.percentage !== undefined) {
+      const oneRepMax = this.effectiveOneRepMax(sessionExercise.exerciseId);
+      if (oneRepMax) {
+        return this.percentageSetWeight(sessionExercise.exerciseId, set.percentage);
+      }
+    }
+    return set.weight;
   }
 
   // The total load of a done set, shown in the weight field's own label.
@@ -2130,8 +2152,31 @@ export class SessionsComponent implements OnInit, OnDestroy {
     void this.persist(session);
   }
 
+  // Shown in the exercise header - the exercise's current 1RM (custom
+  // override respected, same as what Percentage-Based generation itself
+  // uses), not just the raw auto-estimated value, so the header still shows
+  // a number for an exercise whose 1RM comes entirely from a custom
+  // override with no logged history of its own yet.
   exerciseOneRepMax(exerciseId: string): number | undefined {
-    return this.exercises.find((exercise) => exercise.id === exerciseId)?.oneRepMax;
+    return this.effectiveOneRepMax(exerciseId);
+  }
+
+  // Shown in the working-set weight field's own label - how much of the
+  // exercise's current 1RM (custom override respected, same as what
+  // Percentage-Based generation itself uses) this set's weight is. Reads the
+  // live field buffer (like setVolume) rather than set.weight, so it updates
+  // as the weight is typed instead of only after the set is marked done.
+  // Null hides it: no weight yet, or no 1RM to compare against.
+  workingSetOneRepMaxPercentage(sessionExercise: SessionExercise, set: ExerciseSet): number | null {
+    const weight = parseFloat(this.fieldBuffer(set, sessionExercise).weight.replace(',', '.'));
+    if (!Number.isFinite(weight) || weight <= 0) {
+      return null;
+    }
+    const oneRepMax = this.effectiveOneRepMax(sessionExercise.exerciseId);
+    if (!oneRepMax) {
+      return null;
+    }
+    return Math.round((weight / oneRepMax) * 100);
   }
 
   // The 1RM Percentage-Based progression actually calculates upcoming sets

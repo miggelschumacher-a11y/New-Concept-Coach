@@ -53,7 +53,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Upper Body',
     'exercises.empty': 'No exercises yet.',
     'exercises.oneRepMax': 'Max ≈',
-    'exercises.oneRepMaxTooltip': 'Estimated one-rep max, calculated from the last set performed',
+    'exercises.oneRepMaxTooltip': 'One-rep max used for Percentage-Based calculations - your own override if set, otherwise estimated from the last set performed',
     'exercises.customOneRepMaxLabel': 'Custom 1RM',
     'exercises.customOneRepMaxTooltip': 'Manually entered 1RM, used for Percentage-Based progression instead of the estimated max above when "Use Custom 1RM" is checked.',
     'exercises.useCustomOneRepMaxLabel': 'Use Custom 1RM',
@@ -327,7 +327,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Oberkörper',
     'exercises.empty': 'Noch keine Übungen vorhanden.',
     'exercises.oneRepMax': 'Max ≈',
-    'exercises.oneRepMaxTooltip': 'Geschätztes Einer-Wiederholungs-Maximum, berechnet aus dem letzten ausgeführten Satz',
+    'exercises.oneRepMaxTooltip': 'Einer-Wiederholungs-Maximum für Percentage-Based-Berechnungen - eigenes 1RM, falls gesetzt, sonst geschätzt aus dem letzten ausgeführten Satz',
     'exercises.customOneRepMaxLabel': 'Eigene 1RM',
     'exercises.customOneRepMaxTooltip':
       'Manuell eingegebenes 1RM, das bei Percentage-Based-Progression anstelle des geschätzten Max oben verwendet wird, wenn „Eigenes 1RM" aktiviert ist.',
@@ -603,7 +603,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Tren superior',
     'exercises.empty': 'Aún no hay ejercicios.',
     'exercises.oneRepMax': 'Máx. ≈',
-    'exercises.oneRepMaxTooltip': 'Máximo de una repetición estimado, calculado a partir de la última serie realizada',
+    'exercises.oneRepMaxTooltip': 'Máximo de una repetición usado en cálculos Percentage-Based - tu propio valor si está definido, si no, estimado a partir de la última serie realizada',
     'exercises.customOneRepMaxLabel': '1RM personalizado',
     'exercises.customOneRepMaxTooltip':
       '1RM introducido manualmente, usado en la progresión basada en porcentaje en lugar del máximo estimado cuando "Usar 1RM personalizado" está marcado.',
@@ -879,7 +879,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Membros superiores',
     'exercises.empty': 'Ainda não há exercícios.',
     'exercises.oneRepMax': 'Máx. ≈',
-    'exercises.oneRepMaxTooltip': 'Máximo de uma repetição estimado, calculado a partir da última série realizada',
+    'exercises.oneRepMaxTooltip': 'Máximo de uma repetição usado nos cálculos Percentage-Based - seu próprio valor se definido, senão estimado a partir da última série realizada',
     'exercises.customOneRepMaxLabel': '1RM personalizado',
     'exercises.customOneRepMaxTooltip':
       '1RM inserido manualmente, usado na progressão baseada em percentual em vez do máximo estimado acima quando "Usar 1RM personalizado" está marcado.',
@@ -1155,7 +1155,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Treno superiore',
     'exercises.empty': 'Nessun esercizio ancora presente.',
     'exercises.oneRepMax': 'Max ≈',
-    'exercises.oneRepMaxTooltip': "Massimale stimato su una ripetizione, calcolato dall'ultima serie eseguita",
+    'exercises.oneRepMaxTooltip': "Massimale su una ripetizione usato nei calcoli Percentage-Based - il tuo valore personalizzato se impostato, altrimenti stimato dall'ultima serie eseguita",
     'exercises.customOneRepMaxLabel': '1RM personalizzato',
     'exercises.customOneRepMaxTooltip':
       '1RM inserito manualmente, usato nella progressione basata su percentuale al posto del massimale stimato sopra quando "Usa 1RM personalizzato" è selezionato.',
@@ -1431,7 +1431,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Bovenlichaam',
     'exercises.empty': 'Nog geen oefeningen aanwezig.',
     'exercises.oneRepMax': 'Max ≈',
-    'exercises.oneRepMaxTooltip': 'Geschat één-herhalingsmaximum, berekend op basis van de laatst uitgevoerde set',
+    'exercises.oneRepMaxTooltip': 'Eén-herhalingsmaximum voor Percentage-Based-berekeningen - je eigen waarde indien ingesteld, anders geschat op basis van de laatst uitgevoerde set',
     'exercises.customOneRepMaxLabel': 'Eigen 1RM',
     'exercises.customOneRepMaxTooltip':
       'Handmatig ingevoerde 1RM, gebruikt bij Percentage-Based-progressie in plaats van het geschatte max hierboven wanneer "Eigen 1RM gebruiken" is aangevinkt.',
@@ -1707,7 +1707,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Górna część ciała',
     'exercises.empty': 'Brak ćwiczeń.',
     'exercises.oneRepMax': 'Maks. ≈',
-    'exercises.oneRepMaxTooltip': 'Szacowany maksymalny ciężar na jedno powtórzenie, obliczony na podstawie ostatniej wykonanej serii',
+    'exercises.oneRepMaxTooltip': 'Maksymalny ciężar na jedno powtórzenie używany w obliczeniach Percentage-Based - własna wartość, jeśli ustawiona, w przeciwnym razie szacowana na podstawie ostatniej wykonanej serii',
     'exercises.customOneRepMaxLabel': 'Własne 1RM',
     'exercises.customOneRepMaxTooltip':
       'Ręcznie wprowadzone 1RM, używane w progresji opartej na procentach zamiast szacowanego maksimum powyżej, gdy zaznaczono „Użyj własnego 1RM".',
@@ -1983,7 +1983,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Верх тела',
     'exercises.empty': 'Упражнений пока нет.',
     'exercises.oneRepMax': 'Макс. ≈',
-    'exercises.oneRepMaxTooltip': 'Оценочный максимум на одно повторение, рассчитанный по последнему выполненному подходу',
+    'exercises.oneRepMaxTooltip': 'Максимум на одно повторение для расчётов Percentage-Based - собственное значение, если задано, иначе оценка по последнему выполненному подходу',
     'exercises.customOneRepMaxLabel': 'Свой 1ПМ',
     'exercises.customOneRepMaxTooltip':
       'Вручную введённый 1ПМ, используется в прогрессии на основе процента вместо оценочного максимума выше, если отмечено «Использовать свой 1ПМ».',
@@ -2259,7 +2259,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.upperBody': 'Felső test',
     'exercises.empty': 'Még nincsenek gyakorlatok.',
     'exercises.oneRepMax': 'Max. ≈',
-    'exercises.oneRepMaxTooltip': 'Becsült egyismétléses maximum, az utoljára végrehajtott sorozat alapján számítva',
+    'exercises.oneRepMaxTooltip': 'Egyismétléses maximum a Percentage-Based-számításokhoz - a saját érték, ha be van állítva, egyébként az utoljára végrehajtott sorozat alapján becsülve',
     'exercises.customOneRepMaxLabel': 'Egyéni 1RM',
     'exercises.customOneRepMaxTooltip':
       'Kézzel megadott 1RM, amelyet a százalékalapú progresszió a fenti becsült maximum helyett használ, ha az „Egyéni 1RM használata" be van jelölve.',

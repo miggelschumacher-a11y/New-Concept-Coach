@@ -18,6 +18,13 @@ export interface ExerciseSet {
   targetRepsMax?: number;
   // True for a tier-line scheme's AMRAP top set (as-many-reps-as-possible).
   isAmrap?: boolean;
+  // Set only for a Percentage-Based exercise's FOUR_WEEK_RHYTHM/ONE_WEEK_
+  // RHYTHM sets (not ALL_SETS, which ignores %1RM entirely) - the %1RM this
+  // set was prescribed at. Lets an un-done set's displayed weight be
+  // recomputed from the exercise's CURRENT 1RM (see
+  // SessionsComponent.fieldBuffer) instead of staying frozen at whatever the
+  // 1RM was back when the session was generated.
+  percentage?: number;
 }
 
 export interface SessionExercise {
