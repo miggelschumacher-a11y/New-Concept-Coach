@@ -848,7 +848,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
             exerciseId,
             config,
             { achievedReps, lastSetWeight },
-            category
+            category,
+            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
           );
           this.doubleProgressionStates.set(exerciseId, next);
           break;
@@ -864,7 +865,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
             exerciseId,
             config,
             { totalReps, lastSetWeight },
-            category
+            category,
+            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
           );
           this.repGoalStates.set(exerciseId, next);
           break;
@@ -884,7 +886,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
             exerciseId,
             config,
             { achievedReps, lastSetWeight },
-            category
+            category,
+            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
           );
           this.waveProgressionStates.set(exerciseId, next);
           break;
@@ -1964,7 +1967,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async updateSessionWeightIncrement(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
-    sessionExercise.weightIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
+    sessionExercise.weightIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : DEFAULT_WEIGHT_INCREMENT;
     await this.persist(session);
   }
 
