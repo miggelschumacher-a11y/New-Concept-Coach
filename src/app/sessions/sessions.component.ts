@@ -106,6 +106,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   pendingDeleteSetId: string | null = null;
   pendingDeleteExerciseKey: string | null = null;
   pendingDeleteSessionId: string | null = null;
+  pendingDeleteAllSessions = false;
   pendingReplenishSession: TrainingSession | null = null;
   finishBlockedSessionId: string | null = null;
   private readonly progressionStates = new Map<string, TierLineProgressionState>();
@@ -2409,6 +2410,22 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     await this.sessionsService.delete(id);
+    await this.load();
+  }
+
+  requestDeleteAllSessions(): void {
+    this.pendingDeleteAllSessions = true;
+  }
+
+  cancelDeleteAllSessions(): void {
+    this.pendingDeleteAllSessions = false;
+  }
+
+  async confirmDeleteAllSessions(): Promise<void> {
+    this.pendingDeleteAllSessions = false;
+    const savedIds = this.sessions.filter((session) => !this.unsavedSessionIds.has(session.id)).map((session) => session.id);
+    this.unsavedSessionIds.clear();
+    await Promise.all(savedIds.map((id) => this.sessionsService.delete(id)));
     await this.load();
   }
 
