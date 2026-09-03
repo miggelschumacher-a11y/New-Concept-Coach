@@ -46,7 +46,7 @@
         }
         <span matListItemMeta class="list-item-meta">
           <span class="one-rep-max">
-            {{ 'exercises.oneRepMax' | translate }} {{ exercise.oneRepMax !== undefined ? exercise.oneRepMax.toFixed(2) : '–' }}
+            {{ 'exercises.oneRepMaxEstimated' | translate }} {{ exercise.oneRepMax !== undefined ? exercise.oneRepMax.toFixed(2) : '–' }}
             <span class="unit-label">{{ weightUnitLabel }}</span>
           </span>
           <mat-form-field appearance="outline" class="custom-one-rep-max-field" [matTooltip]="'exercises.customOneRepMaxTooltip' | translate">

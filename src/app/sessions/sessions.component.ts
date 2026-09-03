@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -47,7 +47,7 @@ import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { computePrescribedReps } from '../core/utils/double-progression.util';
-import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax } from '../core/utils/one-rep-max.util';
+import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
 import { parseRepsRange } from '../core/utils/reps-range.util';
 import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/body-weight-lookup.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
@@ -84,6 +84,7 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
     DragDropModule,
     MatTooltipModule,
     DatePipe,
+    NgTemplateOutlet,
     TranslatePipe
   ],
   providers: [DatePipe],
@@ -257,9 +258,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // Works around a MatTabGroup layout quirk: when it first paints while its
   // ancestor mat-expansion-panel is still animating open, its tab body can
   // get stuck measuring zero height, rendering blank until something forces
-  // a relayout - most visible here since a default/TierLine plan's exercise
-  // only ever has the single Sets tab (see canEditExerciseTypeInSession
-  // above), so there's no tab switch to trigger the fix on its own.
+  // a relayout. A default/TierLine plan's exercise only ever has the single
+  // Sets tab (see canEditExerciseTypeInSession above) and skips
+  // mat-tab-group entirely for that reason, sidestepping the quirk there -
+  // this still matters for the multi-tab case, where a resize is a more
+  // reliable prompt than waiting on the user's own first tab switch.
   onSettingsPanelExpand(): void {
     setTimeout(() => window.dispatchEvent(new Event('resize')), 0);
   }
@@ -2159,6 +2162,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // override with no logged history of its own yet.
   exerciseOneRepMax(exerciseId: string): number | undefined {
     return this.effectiveOneRepMax(exerciseId);
+  }
+
+  // Which symbol the exercise header's 1RM figure should use - "≈" for an
+  // auto-estimate, "=" for an exact custom override (same distinction
+  // effectiveOneRepMax already makes when picking the value itself).
+  exerciseOneRepMaxLabelKey(exerciseId: string): string {
+    const exercise = this.exercises.find((e) => e.id === exerciseId);
+    return exercise && oneRepMaxOverrideChecked(exercise) ? 'exercises.oneRepMaxCustom' : 'exercises.oneRepMaxEstimated';
   }
 
   // Shown in the working-set weight field's own label - how much of the

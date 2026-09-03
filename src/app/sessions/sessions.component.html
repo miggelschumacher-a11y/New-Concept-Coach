@@ -437,7 +437,7 @@
                     }
                     <span class="set-count"
                       >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
-                      <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ 'exercises.oneRepMax' | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
+                      <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(sessionExercise.exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
                     >
                     @if (exerciseCompletionStatus(sessionExercise); as status) {
                       @if (status === 'success') {
@@ -485,215 +485,227 @@
                       <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
                     </mat-expansion-panel-header>
 
-                    <mat-tab-group class="exercise-settings-info-tabs" animationDuration="0ms">
-                          @if (canEditExerciseTypeInSession(session)) {
-                            <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
-                              <mat-form-field appearance="outline" class="exercise-settings-info-field">
-                                <mat-label>Select Exercise-Type</mat-label>
-                                <mat-select
-                                  [ngModel]="sessionExerciseTypeDisplay(sessionExercise)"
-                                  [disabled]="sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED'"
-                                  name="sessionExerciseType-{{ sessionExercise.exerciseId }}"
-                                  (selectionChange)="updateSessionExerciseType(session, sessionExercise, $event.value)"
-                                >
-                                  <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
-                                  <!-- Percentage-Based can't be picked for a manual session (no
-                                       training plan to drive its progression) - only shown here
-                                       when it's already the exercise's locked-in value, e.g. a
-                                       plan-derived session's mirror of its plan config. -->
-                                  @if (session.trainingPlanId || sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED') {
-                                    <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
-                                  }
-                                  <mat-option value="TIME_BASED">Time-Based</mat-option>
-                                </mat-select>
-                              </mat-form-field>
+                    <ng-template #exerciseSettingsSetsTab>
+                      <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountWarmupTooltip' | translate">
+                        <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}</legend>
+                        <div class="session-settings-actions">
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="sessionExercise.countWarmupSets"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'countWarmupSets', true)"
+                          >
+                            {{ 'common.yes' | translate }}
+                          </button>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="!sessionExercise.countWarmupSets"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'countWarmupSets', false)"
+                          >
+                            {{ 'common.no' | translate }}
+                          </button>
+                        </div>
+                      </fieldset>
 
-                              @if (sessionExerciseTypeDisplay(sessionExercise) === 'WEIGHT_BASED') {
-                                <mat-form-field
-                                  appearance="outline"
-                                  class="exercise-settings-info-field"
-                                  [matTooltip]="incrementSchemeTooltipKey(sessionExercise) | translate"
-                                  matTooltipClass="increment-scheme-tooltip"
-                                >
-                                  <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
-                                  <mat-select
-                                    [ngModel]="sessionIncrementSchemeDisplay(sessionExercise)"
-                                    name="sessionIncrementScheme-{{ sessionExercise.exerciseId }}"
-                                    (selectionChange)="updateSessionIncrementScheme(session, sessionExercise, $event.value)"
-                                  >
-                                    <mat-option value="NONE">None</mat-option>
-                                    <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
-                                    <mat-option value="REP_GOAL">Rep Goal System</mat-option>
-                                    <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
-                                    <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
-                                  </mat-select>
-                                </mat-form-field>
+                      <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountCooldownTooltip' | translate">
+                        <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}</legend>
+                        <div class="session-settings-actions">
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="sessionExercise.countCooldownSets"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'countCooldownSets', true)"
+                          >
+                            {{ 'common.yes' | translate }}
+                          </button>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="!sessionExercise.countCooldownSets"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'countCooldownSets', false)"
+                          >
+                            {{ 'common.no' | translate }}
+                          </button>
+                        </div>
+                      </fieldset>
 
-                                @if (sessionIncrementSchemeDisplay(sessionExercise) === 'LINEAR_PROGRESSION') {
-                                  <mat-form-field appearance="outline" class="exercise-settings-info-field">
-                                    <mat-label>{{ 'sessions.minReps' | translate }}</mat-label>
-                                    <input
-                                      matInput
-                                      type="text"
-                                      inputmode="numeric"
-                                      [value]="sessionExercise.minReps ?? ''"
-                                      name="sessionMinReps-{{ sessionExercise.exerciseId }}"
-                                      (input)="onRepsFieldInput($event)"
-                                      (change)="updateSessionMinReps(session, sessionExercise, $any($event.target).value)"
-                                    />
-                                  </mat-form-field>
-                                }
+                      <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate">
+                        <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}</legend>
+                        <div class="session-settings-actions">
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="sessionExercise.showWarmupSets ?? true"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', true)"
+                          >
+                            {{ 'common.yes' | translate }}
+                          </button>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="!(sessionExercise.showWarmupSets ?? true)"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', false)"
+                          >
+                            {{ 'common.no' | translate }}
+                          </button>
+                        </div>
+                      </fieldset>
 
-                                <mat-form-field
-                                  appearance="outline"
-                                  class="exercise-settings-info-field"
-                                  [matTooltip]="'trainingPlans.weightIncrementTooltip' | translate"
-                                >
-                                  <mat-label>{{ 'trainingPlans.weightIncrementLabel' | translate }}</mat-label>
-                                  <input
-                                    matInput
-                                    type="text"
-                                    inputmode="decimal"
-                                    [placeholder]="defaultWeightIncrement.toFixed(2)"
-                                    [value]="sessionWeightIncrementDisplay(sessionExercise)"
-                                    name="sessionWeightIncrement-{{ sessionExercise.exerciseId }}"
-                                    (focus)="onDeloadFieldFocus($event)"
-                                    (input)="onDeloadPercentFieldInput($event)"
-                                    (change)="updateSessionWeightIncrement(session, sessionExercise, $any($event.target).value)"
-                                  />
-                                </mat-form-field>
+                      <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowCooldownTooltip' | translate">
+                        <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}</legend>
+                        <div class="session-settings-actions">
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="sessionExercise.showCooldownSets ?? true"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'showCooldownSets', true)"
+                          >
+                            {{ 'common.yes' | translate }}
+                          </button>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="!(sessionExercise.showCooldownSets ?? true)"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'showCooldownSets', false)"
+                          >
+                            {{ 'common.no' | translate }}
+                          </button>
+                        </div>
+                      </fieldset>
+                    </ng-template>
+
+                    @if (canEditExerciseTypeInSession(session)) {
+                      <mat-tab-group class="exercise-settings-info-tabs" animationDuration="0ms">
+                        <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
+                          <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                            <mat-label>Select Exercise-Type</mat-label>
+                            <mat-select
+                              [ngModel]="sessionExerciseTypeDisplay(sessionExercise)"
+                              [disabled]="sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED'"
+                              name="sessionExerciseType-{{ sessionExercise.exerciseId }}"
+                              (selectionChange)="updateSessionExerciseType(session, sessionExercise, $event.value)"
+                            >
+                              <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                              <!-- Percentage-Based can't be picked for a manual session (no
+                                   training plan to drive its progression) - only shown here
+                                   when it's already the exercise's locked-in value, e.g. a
+                                   plan-derived session's mirror of its plan config. -->
+                              @if (session.trainingPlanId || sessionExerciseTypeDisplay(sessionExercise) === 'PERCENTAGE_BASED') {
+                                <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
                               }
-                            </mat-tab>
-                          }
-                          @if (canEditExerciseTypeInSession(session)) {
-                            <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">
-                              <mat-form-field
-                                appearance="outline"
-                                class="exercise-settings-info-field"
-                                [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                              <mat-option value="TIME_BASED">Time-Based</mat-option>
+                            </mat-select>
+                          </mat-form-field>
+
+                          @if (sessionExerciseTypeDisplay(sessionExercise) === 'WEIGHT_BASED') {
+                            <mat-form-field
+                              appearance="outline"
+                              class="exercise-settings-info-field"
+                              [matTooltip]="incrementSchemeTooltipKey(sessionExercise) | translate"
+                              matTooltipClass="increment-scheme-tooltip"
+                            >
+                              <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
+                              <mat-select
+                                [ngModel]="sessionIncrementSchemeDisplay(sessionExercise)"
+                                name="sessionIncrementScheme-{{ sessionExercise.exerciseId }}"
+                                (selectionChange)="updateSessionIncrementScheme(session, sessionExercise, $event.value)"
                               >
-                                <mat-label>{{ 'trainingPlans.deloadAfterFailuresLabel' | translate }}</mat-label>
+                                <mat-option value="NONE">None</mat-option>
+                                <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
+                                <mat-option value="REP_GOAL">Rep Goal System</mat-option>
+                                <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
+                                <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+
+                            @if (sessionIncrementSchemeDisplay(sessionExercise) === 'LINEAR_PROGRESSION') {
+                              <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                                <mat-label>{{ 'sessions.minReps' | translate }}</mat-label>
                                 <input
                                   matInput
                                   type="text"
                                   inputmode="numeric"
-                                  [value]="sessionExercise.deloadAfterFailures ?? ''"
-                                  name="sessionDeloadAfterFailures-{{ sessionExercise.exerciseId }}"
-                                  (focus)="onDeloadFieldFocus($event)"
-                                  (input)="onDeloadAfterFailuresFieldInput($event)"
-                                  (change)="updateSessionDeloadAfterFailures(session, sessionExercise, $any($event.target).value)"
+                                  [value]="sessionExercise.minReps ?? ''"
+                                  name="sessionMinReps-{{ sessionExercise.exerciseId }}"
+                                  (input)="onRepsFieldInput($event)"
+                                  (change)="updateSessionMinReps(session, sessionExercise, $any($event.target).value)"
                                 />
                               </mat-form-field>
+                            }
 
-                              <mat-form-field
-                                appearance="outline"
-                                class="exercise-settings-info-field"
-                                [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
-                              >
-                                <mat-label>{{ 'trainingPlans.deloadPercentLabel' | translate }}</mat-label>
-                                <input
-                                  matInput
-                                  type="text"
-                                  inputmode="decimal"
-                                  [value]="sessionDeloadPercentDisplay(sessionExercise)"
-                                  name="sessionDeloadPercent-{{ sessionExercise.exerciseId }}"
-                                  (focus)="onDeloadFieldFocus($event)"
-                                  (input)="onDeloadPercentFieldInput($event)"
-                                  (change)="updateSessionDeloadPercent(session, sessionExercise, $any($event.target).value)"
-                                />
-                              </mat-form-field>
-                            </mat-tab>
+                            <mat-form-field
+                              appearance="outline"
+                              class="exercise-settings-info-field"
+                              [matTooltip]="'trainingPlans.weightIncrementTooltip' | translate"
+                            >
+                              <mat-label>{{ 'trainingPlans.weightIncrementLabel' | translate }}</mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="decimal"
+                                [placeholder]="defaultWeightIncrement.toFixed(2)"
+                                [value]="sessionWeightIncrementDisplay(sessionExercise)"
+                                name="sessionWeightIncrement-{{ sessionExercise.exerciseId }}"
+                                (focus)="onDeloadFieldFocus($event)"
+                                (input)="onDeloadPercentFieldInput($event)"
+                                (change)="updateSessionWeightIncrement(session, sessionExercise, $any($event.target).value)"
+                              />
+                            </mat-form-field>
                           }
-                          <mat-tab [label]="'trainingPlans.setsTabLabel' | translate">
-                            <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountWarmupTooltip' | translate">
-                              <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.countWarmup' | translate }}</legend>
-                              <div class="session-settings-actions">
-                                <button
-                                  mat-stroked-button
-                                  type="button"
-                                  [class.active]="sessionExercise.countWarmupSets"
-                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'countWarmupSets', true)"
-                                >
-                                  {{ 'common.yes' | translate }}
-                                </button>
-                                <button
-                                  mat-stroked-button
-                                  type="button"
-                                  [class.active]="!sessionExercise.countWarmupSets"
-                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'countWarmupSets', false)"
-                                >
-                                  {{ 'common.no' | translate }}
-                                </button>
-                              </div>
-                            </fieldset>
+                        </mat-tab>
+                        <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-info-field"
+                            [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                          >
+                            <mat-label>{{ 'trainingPlans.deloadAfterFailuresLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="numeric"
+                              [value]="sessionExercise.deloadAfterFailures ?? ''"
+                              name="sessionDeloadAfterFailures-{{ sessionExercise.exerciseId }}"
+                              (focus)="onDeloadFieldFocus($event)"
+                              (input)="onDeloadAfterFailuresFieldInput($event)"
+                              (change)="updateSessionDeloadAfterFailures(session, sessionExercise, $any($event.target).value)"
+                            />
+                          </mat-form-field>
 
-                            <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountCooldownTooltip' | translate">
-                              <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.countCooldown' | translate }}</legend>
-                              <div class="session-settings-actions">
-                                <button
-                                  mat-stroked-button
-                                  type="button"
-                                  [class.active]="sessionExercise.countCooldownSets"
-                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'countCooldownSets', true)"
-                                >
-                                  {{ 'common.yes' | translate }}
-                                </button>
-                                <button
-                                  mat-stroked-button
-                                  type="button"
-                                  [class.active]="!sessionExercise.countCooldownSets"
-                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'countCooldownSets', false)"
-                                >
-                                  {{ 'common.no' | translate }}
-                                </button>
-                              </div>
-                            </fieldset>
-
-                            <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate">
-                              <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}</legend>
-                              <div class="session-settings-actions">
-                                <button
-                                  mat-stroked-button
-                                  type="button"
-                                  [class.active]="sessionExercise.showWarmupSets ?? true"
-                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', true)"
-                                >
-                                  {{ 'common.yes' | translate }}
-                                </button>
-                                <button
-                                  mat-stroked-button
-                                  type="button"
-                                  [class.active]="!(sessionExercise.showWarmupSets ?? true)"
-                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', false)"
-                                >
-                                  {{ 'common.no' | translate }}
-                                </button>
-                              </div>
-                            </fieldset>
-
-                            <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowCooldownTooltip' | translate">
-                              <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}</legend>
-                              <div class="session-settings-actions">
-                                <button
-                                  mat-stroked-button
-                                  type="button"
-                                  [class.active]="sessionExercise.showCooldownSets ?? true"
-                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'showCooldownSets', true)"
-                                >
-                                  {{ 'common.yes' | translate }}
-                                </button>
-                                <button
-                                  mat-stroked-button
-                                  type="button"
-                                  [class.active]="!(sessionExercise.showCooldownSets ?? true)"
-                                  (click)="updateSessionExercisePreference(session, sessionExercise, 'showCooldownSets', false)"
-                                >
-                                  {{ 'common.no' | translate }}
-                                </button>
-                              </div>
-                            </fieldset>
-                          </mat-tab>
-                        </mat-tab-group>
+                          <mat-form-field
+                            appearance="outline"
+                            class="exercise-settings-info-field"
+                            [matTooltip]="'trainingPlans.deloadWorkingSetsOnlyTooltip' | translate"
+                          >
+                            <mat-label>{{ 'trainingPlans.deloadPercentLabel' | translate }}</mat-label>
+                            <input
+                              matInput
+                              type="text"
+                              inputmode="decimal"
+                              [value]="sessionDeloadPercentDisplay(sessionExercise)"
+                              name="sessionDeloadPercent-{{ sessionExercise.exerciseId }}"
+                              (focus)="onDeloadFieldFocus($event)"
+                              (input)="onDeloadPercentFieldInput($event)"
+                              (change)="updateSessionDeloadPercent(session, sessionExercise, $any($event.target).value)"
+                            />
+                          </mat-form-field>
+                        </mat-tab>
+                        <mat-tab [label]="'trainingPlans.setsTabLabel' | translate">
+                          <ng-container *ngTemplateOutlet="exerciseSettingsSetsTab"></ng-container>
+                        </mat-tab>
+                      </mat-tab-group>
+                    } @else {
+                      <!-- A plan-derived session whose plan is TIER_LINE_PROGRESSION or a
+                           default plan only ever has this one Sets tab (see
+                           canEditExerciseTypeInSession) - skip mat-tab-group entirely rather
+                           than render a single-tab group with nothing to navigate, which is
+                           what was getting stuck at zero height inside an animating
+                           mat-expansion-panel even with onSettingsPanelExpand's resize kick. -->
+                      <div class="exercise-settings-info-tabs">
+                        <ng-container *ngTemplateOutlet="exerciseSettingsSetsTab"></ng-container>
+                      </div>
+                    }
                   </mat-expansion-panel>
                 </mat-accordion>
 
