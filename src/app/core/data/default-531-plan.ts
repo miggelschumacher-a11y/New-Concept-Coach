@@ -4,7 +4,7 @@ import { PercentageWeek, PlanExerciseConfig, TrainingPlan } from '../models/trai
 // plan is unambiguously identifiable as THE default 5/3/1 plan across installs.
 export const DEFAULT_531_PLAN_ID = 'default-plan-531-powerlifting';
 
-const DEFAULT_531_LIFT_NAMES = ['Squat', 'Bench-Press', 'Deadlift', 'Overhead-Press'];
+const DEFAULT_531_LIFT_NAMES = ['Overhead-Press', 'Deadlift', 'Bench-Press', 'Squat'];
 
 // Classic Wendler 5/3/1: 3 waves building to a heavier AMRAP top set, then a
 // deload week.
@@ -61,7 +61,7 @@ export function buildDefault531Plan(exerciseIdByName: ReadonlyMap<string, string
     id: DEFAULT_531_PLAN_ID,
     // Attributed by name per Jim Wendler's own stated terms for using 5/3/1
     // in a program: the methodology is free to use, but should credit him.
-    name: '5/3/1 (Jim Wendler)',
+    name: 'Wendler 531 Base Program',
     exerciseIds,
     exerciseConfigs,
     isDefault: true
