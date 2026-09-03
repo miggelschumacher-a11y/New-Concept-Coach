@@ -1123,11 +1123,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
             )
           )
         : plan.oneExercisePerSession
-          ? await Promise.all(
-              plan.exerciseIds.map((exerciseId, index) =>
-                this.buildSessionFromPlan(plan, null, baseSequence + index, exerciseId)
-              )
-            )
+          ? await this.buildOneExercisePerSessionCycle(plan, baseSequence)
           : [await this.buildSessionFromPlan(plan, null, baseSequence)];
     for (const session of newSessions) {
       this.unsavedSessionIds.add(session.id);
@@ -1138,13 +1134,44 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // For a oneExercisePerSession plan (e.g. 5/3/1), generates every week of
+  // each exercise's percentage cycle up front - not just one session per
+  // exercise that would only reach later weeks through replenishment - so
+  // "Create from plan" produces the whole weekly-trained cycle in one go
+  // (4 weeks x 4 lifts = 16 sessions for the default 5/3/1 plan). Ordered
+  // week-by-week (every exercise's week 1, then every exercise's week 2, ...)
+  // to match the order they'd actually be trained in, not exercise-by-
+  // exercise. An exercise with fewer weeks than another (ONE_WEEK_RHYTHM
+  // alongside FOUR_WEEK_RHYTHM, say) simply stops appearing once its own
+  // weeks are exhausted.
+  private async buildOneExercisePerSessionCycle(plan: TrainingPlan, baseSequence: number): Promise<TrainingSession[]> {
+    const weeksCountFor = (exerciseId: string): number =>
+      plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId)?.percentageWeeks?.length || 1;
+    const maxWeeks = Math.max(...plan.exerciseIds.map(weeksCountFor));
+    const jobs: { exerciseId: string; weekIndex: number }[] = [];
+    for (let week = 0; week < maxWeeks; week++) {
+      for (const exerciseId of plan.exerciseIds) {
+        if (week < weeksCountFor(exerciseId)) {
+          jobs.push({ exerciseId, weekIndex: week });
+        }
+      }
+    }
+    return Promise.all(
+      jobs.map((job, index) => this.buildSessionFromPlan(plan, null, baseSequence + index, job.exerciseId, job.weekIndex))
+    );
+  }
+
   private async buildSessionFromPlan(
     plan: TrainingPlan,
     planSession: TierLinePlanSession | null,
     sequence: number,
-    onlyExerciseId?: string
+    onlyExerciseId?: string,
+    weekIndexOverride?: number
   ): Promise<TrainingSession> {
     const now = new Date();
+    const onlyExerciseWeeksCount = onlyExerciseId
+      ? (plan.exerciseConfigs?.find((c) => c.exerciseId === onlyExerciseId)?.percentageWeeks?.length ?? 1)
+      : 1;
     const name = planSession
       ? `${plan.name} – ${planSession.name}`
       : onlyExerciseId
@@ -1152,7 +1179,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
           // what stays visible once the collapsed session row's ellipsis
           // truncation kicks in - the one detail that actually tells
           // same-plan sessions apart in the list, unlike the plan name.
-          `${this.exerciseName(onlyExerciseId)} – ${plan.name}`
+          // A week suffix disambiguates the whole cycle's sessions from each
+          // other too, when there's more than one week to disambiguate.
+          `${this.exerciseName(onlyExerciseId)} – ${plan.name}` +
+          (weekIndexOverride !== undefined && onlyExerciseWeeksCount > 1
+            ? ` (${this.translationService.translate('trainingPlans.weekLabel')} ${weekIndexOverride + 1})`
+            : '')
         : plan.name;
     const isTierLine = plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION;
     const exercises: SessionExercise[] = planSession
@@ -1313,7 +1345,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
                   exerciseId,
                   percentageMode,
                   config.percentageWeeks ?? [],
-                  this.planExerciseFinishedSessionCount(plan.id, exerciseId)
+                  exerciseId === onlyExerciseId && weekIndexOverride !== undefined
+                    ? weekIndexOverride
+                    : this.planExerciseFinishedSessionCount(plan.id, exerciseId)
                 ) ?? buildSets(config.workingSets, 'working');
             } else {
               // TIME_BASED - unaffected by the working-set-target list or
