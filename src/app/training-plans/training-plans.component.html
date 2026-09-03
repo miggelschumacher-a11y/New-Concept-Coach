@@ -856,14 +856,27 @@
                             {{ 'trainingPlans.amrapLabel' | translate }}
                           </mat-checkbox>
 
-                          @if (percentageSetWeight(exerciseId, set.percentage); as weight) {
-                            <span class="percentage-set-weight">{{ weight }} {{ weightUnitLabel }}</span>
+                          @if (set.percentage === 100 && set.reps === 1) {
+                            <!-- Still the default prescription a just-added set starts at
+                                 (see addPercentageSet) - not a real target yet, so no
+                                 weight preview until it's actually been edited. -->
                           } @else {
-                            <span class="percentage-set-weight percentage-set-weight-missing"
-                              >{{ 'trainingPlans.oneRepMaxMissing' | translate }}</span
-                            >
+                            @if (percentageSetWeight(exerciseId, set.percentage); as weight) {
+                              <span class="percentage-set-weight">{{ weight }} {{ weightUnitLabel }}</span>
+                            } @else {
+                              <span class="percentage-set-weight percentage-set-weight-missing"
+                                >{{ 'trainingPlans.oneRepMaxMissing' | translate }}</span
+                              >
+                            }
                           }
                         </div>
+                      }
+
+                      @if (!plan.isDefault) {
+                        <button mat-stroked-button type="button" (click)="addPercentageSet(plan, exerciseId, weekIndex)">
+                          <mat-icon>add</mat-icon>
+                          {{ 'sessions.addSet' | translate }}
+                        </button>
                       }
                     </ng-template>
 
@@ -873,7 +886,7 @@
                           [ngTemplateOutlet]="percentageSetRows"
                           [ngTemplateOutletContext]="{ week: planExerciseConfig(plan, exerciseId).percentageWeeks![0], weekIndex: 0 }"
                         ></ng-container>
-                      } @else {
+                      } @else if ((planExerciseConfig(plan, exerciseId).percentageWeeks ?? []).length > 0) {
                         <mat-accordion multi class="percentage-week-accordion">
                           @for (week of planExerciseConfig(plan, exerciseId).percentageWeeks; track $index; let weekIndex = $index) {
                             <mat-expansion-panel>
@@ -901,6 +914,12 @@
                             </mat-expansion-panel>
                           }
                         </mat-accordion>
+                      }
+                      @if (!plan.isDefault) {
+                        <button mat-stroked-button type="button" (click)="addPercentageWeek(plan, exerciseId)">
+                          <mat-icon>add</mat-icon>
+                          {{ 'trainingPlans.addWeek' | translate }}
+                        </button>
                       }
                     } @else if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
                       <ng-container

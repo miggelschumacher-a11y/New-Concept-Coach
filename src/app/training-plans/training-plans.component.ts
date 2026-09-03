@@ -27,7 +27,8 @@ import {
   IncrementScheme,
   PercentageProgressionMode,
   DoubleProgressionMode,
-  WorkingSetTarget
+  WorkingSetTarget,
+  PercentageSet
 } from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
@@ -588,7 +589,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const config = this.planExerciseConfig(plan, exerciseId);
     const patch: Partial<PlanExerciseConfig> = { exerciseType };
     if (exerciseType === 'PERCENTAGE_BASED' && !config.percentageWeeks) {
-      patch.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
+      // Genuinely empty - no weeks and no sets. addPercentageWeek/
+      // addPercentageSet build the whole structure up from nothing as the
+      // user actually adds to it, rather than pre-seeding a template.
+      patch.percentageWeeks = [];
     }
     if (exerciseType === 'WEIGHT_BASED') {
       if (!config.warmupSetTargets) {
@@ -916,11 +920,37 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.updatePercentageSet(plan, exerciseId, weekIndex, setIndex, { isAmrap });
   }
 
+  async addPercentageSet(plan: TrainingPlan, exerciseId: string, weekIndex: number): Promise<void> {
+    // Copies the previous set's own percentage/reps/AMRAP, same convenience
+    // as addSetTarget for a WEIGHT_BASED exercise - only the very first set
+    // in the week falls back to a default prescription (100% x 1, not
+    // AMRAP) instead of a blank one, since 0%/0 reps isn't a meaningful
+    // starting point for a percentage-based set.
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const weeks = (config.percentageWeeks ?? []).map((week, wi) => {
+      if (wi !== weekIndex) {
+        return week;
+      }
+      const previous = week.sets[week.sets.length - 1];
+      const newSet: PercentageSet = previous
+        ? { percentage: previous.percentage, reps: previous.reps, isAmrap: previous.isAmrap }
+        : { percentage: 100, reps: 1, isAmrap: false };
+      return { sets: [...week.sets, newSet] };
+    });
+    await this.updateConfig(plan, exerciseId, { percentageWeeks: weeks });
+  }
+
   async removePercentageSet(plan: TrainingPlan, exerciseId: string, weekIndex: number, setIndex: number): Promise<void> {
     const config = this.planExerciseConfig(plan, exerciseId);
     const weeks = (config.percentageWeeks ?? []).map((week, wi) =>
       wi === weekIndex ? { sets: week.sets.filter((_, si) => si !== setIndex) } : week
     );
+    await this.updateConfig(plan, exerciseId, { percentageWeeks: weeks });
+  }
+
+  async addPercentageWeek(plan: TrainingPlan, exerciseId: string): Promise<void> {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const weeks = [...(config.percentageWeeks ?? []), { sets: [] }];
     await this.updateConfig(plan, exerciseId, { percentageWeeks: weeks });
   }
 
