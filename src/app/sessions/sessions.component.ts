@@ -968,6 +968,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.exercises.find((exercise) => exercise.id === id)?.name ?? id;
   }
 
+  // True when the session's name starts with the "W{week}T{day}" shorthand
+  // buildSessionFromPlan prefixes a one-exercise-per-session plan's bulk-
+  // generated names with (see there) - gates the tooltip explaining it, so
+  // it doesn't show on a session whose name never had (or was edited to no
+  // longer have) that prefix.
+  private static readonly WEEK_DAY_PREFIX_PATTERN = /^W\d+T\d+ /;
+
+  sessionNameHasWeekDayPrefix(session: TrainingSession): boolean {
+    return SessionsComponent.WEEK_DAY_PREFIX_PATTERN.test(session.name);
+  }
+
   selectedExerciseIds(session: TrainingSession): string[] {
     const currentIds = session.exercises.map((sessionExercise) => sessionExercise.exerciseId);
     const cached = this.selectedExerciseIdsCache.get(session.id);
@@ -1169,22 +1180,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     weekIndexOverride?: number
   ): Promise<TrainingSession> {
     const now = new Date();
-    const onlyExerciseWeeksCount = onlyExerciseId
-      ? (plan.exerciseConfigs?.find((c) => c.exerciseId === onlyExerciseId)?.percentageWeeks?.length ?? 1)
-      : 1;
     const name = planSession
       ? `${plan.name} – ${planSession.name}`
       : onlyExerciseId
-        ? // Exercise name first (not `${plan.name} – ${exerciseName}`) so it's
-          // what stays visible once the collapsed session row's ellipsis
-          // truncation kicks in - the one detail that actually tells
-          // same-plan sessions apart in the list, unlike the plan name.
-          // A week suffix disambiguates the whole cycle's sessions from each
-          // other too, when there's more than one week to disambiguate.
-          `${this.exerciseName(onlyExerciseId)} – ${plan.name}` +
-          (weekIndexOverride !== undefined && onlyExerciseWeeksCount > 1
-            ? ` (${this.translationService.translate('trainingPlans.weekLabel')} ${weekIndexOverride + 1})`
-            : '')
+        ? // "W{week}T{day}" (Wendler-style week/day shorthand) identifies
+          // which of the cycle's sessions this is - kept as a prefix since
+          // it's the detail readers scan for first, and short enough to
+          // still leave room for the exercise name (which follows next,
+          // ahead of the plan name, so it's what stays visible once the
+          // collapsed session row's ellipsis truncation kicks in).
+          (weekIndexOverride !== undefined
+            ? `W${weekIndexOverride + 1}T${plan.exerciseIds.indexOf(onlyExerciseId) + 1} `
+            : '') + `${this.exerciseName(onlyExerciseId)} – ${plan.name}`
         : plan.name;
     const isTierLine = plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION;
     const exercises: SessionExercise[] = planSession

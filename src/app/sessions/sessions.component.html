@@ -142,7 +142,11 @@
               </button>
             }
           </div>
-          <mat-panel-title class="session-name-title">{{ session.name }}</mat-panel-title>
+          <mat-panel-title
+            class="session-name-title"
+            [matTooltip]="sessionNameHasWeekDayPrefix(session) ? ('sessions.weekDayPrefixTooltip' | translate) : ''"
+            >{{ session.name }}</mat-panel-title
+          >
           <mat-panel-description>
             @if (session.startedAt; as startedAt) {
               {{ startedAt | date: dateFormat }}
@@ -215,7 +219,11 @@
         </mat-expansion-panel-header>
 
         <div class="name-row">
-          <mat-form-field appearance="outline" class="name-field">
+          <mat-form-field
+            appearance="outline"
+            class="name-field"
+            [matTooltip]="sessionNameHasWeekDayPrefix(session) ? ('sessions.weekDayPrefixTooltip' | translate) : ''"
+          >
             <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
             <input
               matInput
