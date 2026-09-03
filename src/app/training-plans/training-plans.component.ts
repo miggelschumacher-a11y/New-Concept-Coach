@@ -805,9 +805,12 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return target.weight.toFixed(2);
   }
 
+  // Same digit/decimal limit as any other weight field (e.g. a session set's
+  // own weight input) - 4 leading digits, 2 decimals - not the 3-digit
+  // percent-field convention, since this is a weight, not a percentage.
   onWeightIncrementFieldInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d{0,3}([.,]\d{0,2})?/)?.[0] ?? '';
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
     if (sanitized !== input.value) {
       input.value = sanitized;
     }
@@ -821,7 +824,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async updatePlanExerciseWeightIncrement(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
-    const weightIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : undefined;
+    const weightIncrement = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 9999) * 100) / 100 : undefined;
     await this.updateConfig(plan, exerciseId, { weightIncrement });
   }
 

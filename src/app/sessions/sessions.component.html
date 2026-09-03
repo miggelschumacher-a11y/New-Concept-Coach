@@ -696,7 +696,7 @@
                                 [value]="sessionWeightIncrementDisplay(sessionExercise)"
                                 name="sessionWeightIncrement-{{ sessionExercise.exerciseId }}"
                                 (focus)="onDeloadFieldFocus($event)"
-                                (input)="onDeloadPercentFieldInput($event)"
+                                (input)="onWeightFieldInput($event)"
                                 (change)="updateSessionWeightIncrement(session, sessionExercise, $any($event.target).value)"
                               />
                             </mat-form-field>
@@ -751,6 +751,14 @@
                            what was getting stuck at zero height inside an animating
                            mat-expansion-panel even with onSettingsPanelExpand's resize kick. -->
                       <div class="exercise-settings-info-tabs">
+                        @if (sessionExercise.exerciseType === 'WEIGHT_BASED') {
+                          <p class="exercise-settings-readonly-info">
+                            Weight-Based
+                            @if (sessionExercise.weightIncrement !== undefined) {
+                              · {{ 'trainingPlans.weightIncrementLabel' | translate }}: {{ sessionExercise.weightIncrement.toFixed(2) }} {{ weightUnitLabel }}
+                            }
+                          </p>
+                        }
                         <ng-container *ngTemplateOutlet="exerciseSettingsSetsTab"></ng-container>
                       </div>
                     }

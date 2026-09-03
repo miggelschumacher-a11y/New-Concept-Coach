@@ -2038,7 +2038,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async updateSessionWeightIncrement(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
-    sessionExercise.weightIncrement = Number.isFinite(parsed) ? Math.round(Math.max(parsed, 0) * 100) / 100 : DEFAULT_WEIGHT_INCREMENT;
+    sessionExercise.weightIncrement = Number.isFinite(parsed)
+      ? Math.round(Math.min(Math.max(parsed, 0), 9999) * 100) / 100
+      : DEFAULT_WEIGHT_INCREMENT;
     await this.persist(session);
   }
 

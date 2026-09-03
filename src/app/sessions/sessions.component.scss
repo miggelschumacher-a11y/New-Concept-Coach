@@ -198,6 +198,12 @@ mat-expansion-panel mat-checkbox {
   margin: 0.75rem 0 0.25rem;
 }
 
+.exercise-settings-readonly-info {
+  margin: 0 0 0.75rem;
+  color: lightgrey;
+  font-size: 0.9rem;
+}
+
 .exercise-settings-info-trigger,
 .session-settings-info-trigger {
   position: relative;
