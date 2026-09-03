@@ -36,17 +36,15 @@ export class TrainingPlansService {
   // store with whatever the backup contains, which can silently drop a default
   // plan if it predates it. Re-checking on every load makes the default plans
   // self-healing instead of a one-time migration that a restore can
-  // permanently undo.
+  // permanently undo. Every default plan is unconditionally rebuilt and
+  // overwritten (not just re-added when missing) so a code change to a
+  // default plan's own content (e.g. its day structure) reaches an install
+  // that already seeded an older version - safe since default plans are
+  // read-only in the UI and hold no user edits to lose.
   private async ensureDefaultPlans(): Promise<void> {
-    const existingPlans = await this.db.getAll<TrainingPlan>(STORES.trainingPlans);
-    const existingIds = new Set(existingPlans.map((plan) => plan.id));
-    const missing = DEFAULT_PLANS.filter(({ id }) => !existingIds.has(id));
-    if (missing.length === 0) {
-      return;
-    }
     const exercises = await this.exercisesService.getAll();
     const exerciseIdByName = new Map(exercises.map((exercise) => [exercise.name, exercise.id]));
-    for (const { build } of missing) {
+    for (const { build } of DEFAULT_PLANS) {
       const defaultPlan = build(exerciseIdByName);
       if (defaultPlan) {
         await this.db.put(STORES.trainingPlans, defaultPlan);

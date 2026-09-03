@@ -64,6 +64,9 @@ export function buildDefault531Plan(exerciseIdByName: ReadonlyMap<string, string
     name: 'Wendler 531 Base Program',
     exerciseIds,
     exerciseConfigs,
+    // One session per lift, four sessions a week (Overhead-Press, Deadlift,
+    // Bench-Press, Squat) rather than all four bundled into a single session.
+    oneExercisePerSession: true,
     isDefault: true
   };
 }

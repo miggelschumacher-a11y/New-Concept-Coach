@@ -1119,7 +1119,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
               this.buildSessionFromPlan(plan, planSession, baseSequence + index)
             )
           )
-        : [await this.buildSessionFromPlan(plan, null, baseSequence)];
+        : plan.oneExercisePerSession
+          ? await Promise.all(
+              plan.exerciseIds.map((exerciseId, index) =>
+                this.buildSessionFromPlan(plan, null, baseSequence + index, exerciseId)
+              )
+            )
+          : [await this.buildSessionFromPlan(plan, null, baseSequence)];
     for (const session of newSessions) {
       this.unsavedSessionIds.add(session.id);
     }
@@ -1132,10 +1138,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private async buildSessionFromPlan(
     plan: TrainingPlan,
     planSession: TierLinePlanSession | null,
-    sequence: number
+    sequence: number,
+    onlyExerciseId?: string
   ): Promise<TrainingSession> {
     const now = new Date();
-    const name = planSession ? `${plan.name} – ${planSession.name}` : plan.name;
+    const name = planSession
+      ? `${plan.name} – ${planSession.name}`
+      : onlyExerciseId
+        ? `${plan.name} – ${this.exerciseName(onlyExerciseId)}`
+        : plan.name;
     const isTierLine = plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION;
     const exercises: SessionExercise[] = planSession
       ? await Promise.all(
@@ -1182,7 +1193,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
           })
         )
       : await Promise.all(
-          plan.exerciseIds.map(async (exerciseId) => {
+          (onlyExerciseId ? [onlyExerciseId] : plan.exerciseIds).map(async (exerciseId) => {
             const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
             if (!config) {
               return {
@@ -1370,7 +1381,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       // Day template no longer exists on the plan; nothing to replenish.
       return null;
     }
-    return this.buildSessionFromPlan(plan, planSession, Date.now());
+    const onlyExerciseId =
+      !planSession && plan.oneExercisePerSession ? sourceSession.exercises[0]?.exerciseId : undefined;
+    return this.buildSessionFromPlan(plan, planSession, Date.now(), onlyExerciseId);
   }
 
   private async persist(session: TrainingSession): Promise<void> {

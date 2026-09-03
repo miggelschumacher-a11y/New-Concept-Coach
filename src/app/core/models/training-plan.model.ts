@@ -173,5 +173,9 @@ export interface TrainingPlan {
   // Per-exercise sets/reps config for self-created plans (no planSessions).
   // One entry per id in exerciseIds, kept in sync by updatePlanExercises.
   exerciseConfigs?: PlanExerciseConfig[];
+  // Only meaningful when planSessions is unset - "Create from plan" and
+  // replenishment generate one session per exerciseId instead of a single
+  // session bundling every exercise, e.g. 5/3/1's one-lift-per-day split.
+  oneExercisePerSession?: boolean;
   isDefault?: boolean;
 }
