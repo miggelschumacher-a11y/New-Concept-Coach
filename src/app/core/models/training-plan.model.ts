@@ -79,9 +79,13 @@ export interface WorkingSetTarget {
   id: string;
   // Same text format as a session set's own target-reps field: plain
   // number ('10'), a from-to range ('8-12'), either optionally suffixed
-  // with '+' for AMRAP.
+  // with '+' for AMRAP. Only meaningful outside TIME_BASED, where seconds
+  // below is the only prescription.
   targetReps: string;
   weight: number;
+  // Only meaningful when the owning session/exercise is TIME_BASED - a
+  // held/timed duration in seconds (0-99999) instead of reps/weight.
+  seconds?: number;
 }
 
 export interface PlanExerciseConfig {

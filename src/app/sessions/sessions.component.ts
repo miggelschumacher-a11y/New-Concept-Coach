@@ -2071,6 +2071,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     } else {
       newSet.targetReps = DEFAULT_TARGET_REPS;
     }
+    newSet.seconds = previousSet?.seconds ?? 0;
     sessionExercise.sets = [...sessionExercise.sets, newSet];
     await this.persist(session);
   }
@@ -2098,6 +2099,37 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // explicitly confirms it - matching the reps circle interaction this
   // replaced, where a value only became "done" on deliberate confirmation.
   private fieldBuffers = new Map<string, { reps: string; weight: string }>();
+
+  // A running Time-Based countdown, keyed by set.id - never persisted, same
+  // "computed live from a start reference" approach as the session's own
+  // elapsed timer (see timerElapsedMs/timerStartedAt), driven by the same
+  // empty-callback timerTickerId interval that already forces a redraw every
+  // second rather than a dedicated per-set interval.
+  private countdownStarts = new Map<string, { startedAt: number; initialSeconds: number }>();
+
+  isCountdownRunning(set: ExerciseSet): boolean {
+    return this.countdownStarts.has(set.id);
+  }
+
+  // The live remaining value while running; the field's own stored value
+  // otherwise. Never goes below 0.
+  countdownRemaining(set: ExerciseSet): number {
+    const state = this.countdownStarts.get(set.id);
+    if (!state) {
+      return set.seconds ?? 0;
+    }
+    const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
+    return Math.max(0, state.initialSeconds - elapsed);
+  }
+
+  // Starts from whatever the field currently holds - stays "running" (field
+  // and button disabled) even once it reaches 0, until the set is reset.
+  startCountdown(set: ExerciseSet): void {
+    if (this.countdownStarts.has(set.id)) {
+      return;
+    }
+    this.countdownStarts.set(set.id, { startedAt: Date.now(), initialSeconds: set.seconds ?? 0 });
+  }
 
   fieldBuffer(set: ExerciseSet, sessionExercise?: SessionExercise): { reps: string; weight: string } {
     let buffer = this.fieldBuffers.get(set.id);
@@ -2152,6 +2184,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (sanitized !== input.value) {
       input.value = sanitized;
     }
+  }
+
+  // 5-digit integer, no decimals - 0 to 99999 seconds.
+  onSecondsFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,5}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateSetSeconds(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    set.seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : 0;
+    await this.persist(session);
   }
 
   // Leaving a weight field fills the same weight into every other not-yet-
@@ -2231,6 +2278,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     set.done = false;
     set.reps = 0;
     this.fieldBuffers.delete(set.id);
+    this.countdownStarts.delete(set.id);
     void this.persist(session);
   }
 

@@ -24,6 +24,9 @@ export interface ExerciseSet {
   // instead of staying frozen at whatever the 1RM was back when the session
   // was generated.
   percentage?: number;
+  // Only meaningful for a Time-Based exercise's set - a held/timed duration
+  // in seconds (0-99999) instead of reps/weight.
+  seconds?: number;
 }
 
 export interface SessionExercise {

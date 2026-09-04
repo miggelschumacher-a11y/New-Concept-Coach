@@ -714,7 +714,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       const previous = targets[targets.length - 1];
       return [
         ...targets,
-        { id: crypto.randomUUID(), targetReps: previous?.targetReps ?? '10', weight: previous?.weight ?? 0 }
+        { id: crypto.randomUUID(), targetReps: previous?.targetReps ?? '10', weight: previous?.weight ?? 0, seconds: previous?.seconds ?? 0 }
       ];
     });
   }
@@ -787,6 +787,23 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // Displayed with trailing zeros (e.g. "80.00"), matching setTargetWeightDisplay.
   customSessionSetWeightDisplay(target: WorkingSetTarget): string {
     return target.weight.toFixed(2);
+  }
+
+  // Time-Based sets prescribe a held duration instead of reps/weight - a
+  // plain 5-digit integer (0-99999), initialized to 0.
+  async updateCustomSessionSetSeconds(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    value: string
+  ): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : 0;
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
+      targets.map((target, i) => (i === index ? { ...target, seconds } : target))
+    );
   }
 
   // AMRAP has no dedicated field on WorkingSetTarget - it's the same trailing
@@ -1038,6 +1055,15 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   onWorkingSetTargetRepsInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const sanitized = input.value.match(/^\d{0,3}(-\d{0,3})?\+?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // 5-digit integer, no decimals - 0 to 99999 seconds.
+  onSecondsFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,5}/)?.[0] ?? '';
     if (sanitized !== input.value) {
       input.value = sanitized;
     }
