@@ -722,8 +722,14 @@
                                   </mat-form-field>
 
                                   @if (session.exerciseType === 'PERCENTAGE_BASED') {
-                                    <mat-form-field appearance="outline" class="percentage-input-field">
-                                      <mat-label>%</mat-label>
+                                    <mat-form-field appearance="outline" class="percentage-input-field percentage-weight-field">
+                                      <mat-label>
+                                        @if (customSessionSetWeightPreview(sessionExercise.exerciseId, target.weight); as previewWeight) {
+                                          {{ previewWeight.toFixed(2) }} {{ weightUnitLabel }}
+                                        } @else {
+                                          {{ 'trainingPlans.oneRepMaxMissingHint' | translate }}
+                                        }
+                                      </mat-label>
                                       <input
                                         matInput
                                         type="text"
@@ -734,6 +740,7 @@
                                         (input)="onDeloadPercentFieldInput($event)"
                                         (change)="updateCustomSessionSetPercentage(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $any($event.target).value)"
                                       />
+                                      <span matTextSuffix>%</span>
                                     </mat-form-field>
                                   } @else {
                                     <mat-form-field appearance="outline" class="percentage-input-field">
@@ -750,6 +757,13 @@
                                       />
                                     </mat-form-field>
                                   }
+
+                                  <mat-checkbox
+                                    [checked]="customSessionSetAmrap(target)"
+                                    (change)="updateCustomSessionSetAmrap(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $event.checked)"
+                                  >
+                                    {{ 'trainingPlans.amrapLabel' | translate }}
+                                  </mat-checkbox>
                                 </div>
                               }
 

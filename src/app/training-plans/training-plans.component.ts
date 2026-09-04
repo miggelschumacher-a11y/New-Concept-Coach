@@ -783,6 +783,46 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return target.weight.toFixed(2);
   }
 
+  // AMRAP has no dedicated field on WorkingSetTarget - it's the same trailing
+  // "+" convention targetReps already documents (e.g. "10+"), parsed by
+  // SessionsComponent.parseTargetRepsText when a session is generated. The
+  // checkbox just toggles that suffix instead of asking the user to type it.
+  customSessionSetAmrap(target: WorkingSetTarget): boolean {
+    return target.targetReps.trim().endsWith('+');
+  }
+
+  async updateCustomSessionSetAmrap(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    checked: boolean
+  ): Promise<void> {
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
+      targets.map((target, i) => {
+        if (i !== index) {
+          return target;
+        }
+        const base = target.targetReps.trim().replace(/\+$/, '');
+        return { ...target, targetReps: checked ? `${base}+` : base };
+      })
+    );
+  }
+
+  // Live preview only, never stored - same %1RM-to-weight rounding
+  // convention as SessionsComponent.percentageSetWeight (nearest plate
+  // increment), so what's previewed here matches what a generated session
+  // actually prescribes.
+  customSessionSetWeightPreview(exerciseId: string, percentage: number): number | undefined {
+    const oneRepMax = this.effectiveOneRepMax(exerciseId);
+    if (!oneRepMax) {
+      return undefined;
+    }
+    const increment = this.settingsService.getSettings().weightUnit === 'lbs' ? 5 : 2.5;
+    return Math.round((oneRepMax * percentage) / 100 / increment) * increment;
+  }
+
   // Self-healing: a config saved before workingSetTargets existed (or one
   // just switched to WEIGHT_BASED) gets a freshly-seeded list here rather
   // than needing a one-off migration - same pattern as defaultExerciseConfig
