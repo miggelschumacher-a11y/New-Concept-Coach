@@ -603,7 +603,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   customSessionDeloadPercentDisplay(exercise: CustomSessionExercise): string {
-    return exercise.deloadPercent !== undefined ? exercise.deloadPercent.toFixed(2) : '';
+    return (exercise.deloadPercent ?? 0).toFixed(2);
   }
 
   async updateCustomSessionExerciseDeloadPercent(
@@ -615,6 +615,19 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const parsed = parseFloat(value.replace(',', '.'));
     const deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : undefined;
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { deloadPercent });
+  }
+
+  // "Keine Gewichtsreduktion" - checking it zeroes both deload fields (0
+  // already means "disabled" per deloadAfterFailures' own semantics);
+  // unchecking re-enables them starting from a minimal 1-failure default.
+  async updateCustomSessionExerciseNoDeload(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    checked: boolean
+  ): Promise<void> {
+    const patch = checked ? { deloadAfterFailures: 0, deloadPercent: 0 } : { deloadAfterFailures: 1 };
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, patch);
   }
 
   async updateCustomSessionExerciseShowWarmupSets(
