@@ -153,6 +153,10 @@ export interface PlanExerciseConfig {
 export interface CustomSessionExercise {
   exerciseId: string;
   workingSetTargets: WorkingSetTarget[];
+  // Same idea as workingSetTargets, but for the warm-up/cooldown sets - shown
+  // in their own accordion panels, gated by showWarmupSets/showCooldownSets.
+  warmupSetTargets?: WorkingSetTarget[];
+  cooldownSetTargets?: WorkingSetTarget[];
   // Same "Settings" accordion fields as PlanExerciseConfig - only meaningful
   // when the owning session's exerciseType is WEIGHT_BASED.
   incrementScheme?: IncrementScheme;

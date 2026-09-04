@@ -66,6 +66,9 @@ const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = false;
 // Flat fallback for weightIncrement when the field is left blank - no
 // longer the body-region-based WEIGHT_INCREMENT_BY_EXERCISE_TYPE default.
 const DEFAULT_WEIGHT_INCREMENT = 1;
+// Above this, a deload is flagged as unusually high - the same flat cutoff
+// for both a percent-mode reduction (%) and a weight-mode one (kg/lb).
+const DELOAD_UNUSUALLY_HIGH_THRESHOLD = 20;
 
 type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTargets';
 
@@ -640,6 +643,11 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { deloadPercent });
   }
 
+  // Same flat cutoff either way - only the unit differs (% vs kg/lb).
+  customSessionDeloadUnusuallyHigh(sessionExercise: CustomSessionExercise): boolean {
+    return !!sessionExercise.deloadAfterFailures && (sessionExercise.deloadPercent ?? 0) > DELOAD_UNUSUALLY_HIGH_THRESHOLD;
+  }
+
   // "Keine Gewichtsreduktion" - checking it zeroes both deload fields (0
   // already means "disabled" per deloadAfterFailures' own semantics);
   // unchecking re-enables them starting from a minimal 1-failure default.
@@ -675,6 +683,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     plan: TrainingPlan,
     sessionId: string,
     exerciseId: string,
+    field: SetTargetField,
     updater: (targets: WorkingSetTarget[]) => WorkingSetTarget[]
   ): Promise<void> {
     plan.customSessions = (plan.customSessions ?? []).map((session) => {
@@ -684,7 +693,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       return {
         ...session,
         exercises: (session.exercises ?? []).map((exercise) =>
-          exercise.exerciseId === exerciseId ? { ...exercise, workingSetTargets: updater(exercise.workingSetTargets ?? []) } : exercise
+          exercise.exerciseId === exerciseId ? { ...exercise, [field]: updater(exercise[field] ?? []) } : exercise
         )
       };
     });
@@ -694,8 +703,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // Copies the previous set's own target/weight, same convenience as
   // addSetTarget for the old plan-level editor - only the very first set
   // falls back to a default prescription (10 reps, 0 weight).
-  async addCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string): Promise<void> {
-    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) => {
+  async addCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string, field: SetTargetField): Promise<void> {
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) => {
       const previous = targets[targets.length - 1];
       return [
         ...targets,
@@ -704,16 +713,23 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     });
   }
 
-  async removeCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string, index: number): Promise<void> {
-    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) => targets.filter((_, i) => i !== index));
+  async removeCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string, field: SetTargetField, index: number): Promise<void> {
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) => targets.filter((_, i) => i !== index));
   }
 
   // Same fill-if-empty behavior as updateSetTargetReps for the old plan-level
   // editor - leaving this field fills the same target into every other
   // not-yet-prescribed row of the same exercise's set list.
-  async updateCustomSessionSetReps(plan: TrainingPlan, sessionId: string, exerciseId: string, index: number, value: string): Promise<void> {
+  async updateCustomSessionSetReps(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    value: string
+  ): Promise<void> {
     const targetReps = value.trim();
-    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) =>
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
       targets.map((target, i) => {
         if (i === index) {
           return { ...target, targetReps };
@@ -724,10 +740,17 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   // Same fill-if-empty behavior as updateSetTargetWeight above, for weight.
-  async updateCustomSessionSetWeight(plan: TrainingPlan, sessionId: string, exerciseId: string, index: number, value: string): Promise<void> {
+  async updateCustomSessionSetWeight(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    value: string
+  ): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     const weight = Number.isFinite(parsed) ? Math.max(parsed, 0) : 0;
-    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) =>
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
       targets.map((target, i) => {
         if (i === index) {
           return { ...target, weight };
@@ -740,10 +763,17 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // Same 3-int/2-decimal percent field as deloadPercent - stored in the same
   // WorkingSetTarget.weight slot as a plain weight would be, just displayed
   // and clamped as a percentage while the exercise is PERCENTAGE_BASED.
-  async updateCustomSessionSetPercentage(plan: TrainingPlan, sessionId: string, exerciseId: string, index: number, value: string): Promise<void> {
+  async updateCustomSessionSetPercentage(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    value: string
+  ): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     const weight = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : 0;
-    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) =>
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
       targets.map((target, i) => (i === index ? { ...target, weight } : target))
     );
   }
@@ -931,6 +961,13 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const parsed = parseFloat(value.replace(',', '.'));
     const deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : undefined;
     await this.updateConfig(plan, exerciseId, { deloadPercent });
+  }
+
+  // This field is always a percentage here (unlike a custom session
+  // exercise's own deloadType toggle).
+  planExerciseDeloadUnusuallyHigh(plan: TrainingPlan, exerciseId: string): boolean {
+    const config = this.planExerciseConfig(plan, exerciseId);
+    return !!config.deloadAfterFailures && (config.deloadPercent ?? 0) > DELOAD_UNUSUALLY_HIGH_THRESHOLD;
   }
 
   private clampSets(value: string): number {

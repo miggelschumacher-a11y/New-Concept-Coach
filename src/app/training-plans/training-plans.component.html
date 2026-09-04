@@ -668,6 +668,10 @@
                                         </mat-select>
                                       </mat-form-field>
                                     </div>
+
+                                    @if (customSessionDeloadUnusuallyHigh(sessionExercise)) {
+                                      <p class="deload-warning-hint">{{ 'trainingPlans.deloadUnusuallyHighWarning' | translate }}</p>
+                                    }
                                   </mat-tab>
                                   <mat-tab [label]="'trainingPlans.setsTabLabel' | translate">
                                     <mat-checkbox
@@ -690,68 +694,109 @@
                               </mat-expansion-panel>
                             </mat-accordion>
 
-                            @for (target of sessionExercise.workingSetTargets; track target.id; let targetIndex = $index) {
-                              <div class="percentage-set-row">
-                                <button
-                                  mat-icon-button
-                                  color="warn"
-                                  (click)="removeCustomSessionSet(plan, session.id, sessionExercise.exerciseId, targetIndex)"
-                                  [matTooltip]="'sessions.removeSet' | translate"
-                                  [attr.aria-label]="'sessions.removeSet' | translate"
-                                >
-                                  <mat-icon>delete</mat-icon>
-                                </button>
-                                <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
+                            <ng-template #customSetTargetRows let-field="field" let-targets="targets">
+                              @for (target of targets; track target.id; let targetIndex = $index) {
+                                <div class="percentage-set-row">
+                                  <button
+                                    mat-icon-button
+                                    color="warn"
+                                    (click)="removeCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field, targetIndex)"
+                                    [matTooltip]="'sessions.removeSet' | translate"
+                                    [attr.aria-label]="'sessions.removeSet' | translate"
+                                  >
+                                    <mat-icon>delete</mat-icon>
+                                  </button>
+                                  <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
 
-                                <mat-form-field appearance="outline" class="percentage-input-field">
-                                  <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
-                                  <input
-                                    matInput
-                                    type="text"
-                                    class="plan-sets-input"
-                                    [value]="target.targetReps"
-                                    selectOnFocus
-                                    (input)="onWorkingSetTargetRepsInput($event)"
-                                    (change)="updateCustomSessionSetReps(plan, session.id, sessionExercise.exerciseId, targetIndex, $any($event.target).value)"
-                                  />
-                                </mat-form-field>
-
-                                @if (session.exerciseType === 'PERCENTAGE_BASED') {
                                   <mat-form-field appearance="outline" class="percentage-input-field">
-                                    <mat-label>%</mat-label>
+                                    <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
                                     <input
                                       matInput
                                       type="text"
-                                      inputmode="decimal"
                                       class="plan-sets-input"
-                                      [value]="customSessionSetWeightDisplay(target)"
+                                      [value]="target.targetReps"
                                       selectOnFocus
-                                      (input)="onDeloadPercentFieldInput($event)"
-                                      (change)="updateCustomSessionSetPercentage(plan, session.id, sessionExercise.exerciseId, targetIndex, $any($event.target).value)"
+                                      (input)="onWorkingSetTargetRepsInput($event)"
+                                      (change)="updateCustomSessionSetReps(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $any($event.target).value)"
                                     />
                                   </mat-form-field>
-                                } @else {
-                                  <mat-form-field appearance="outline" class="percentage-input-field">
-                                    <mat-label>{{ weightUnitLabel }}</mat-label>
-                                    <input
-                                      matInput
-                                      type="text"
-                                      inputmode="decimal"
-                                      class="plan-sets-input"
-                                      [value]="customSessionSetWeightDisplay(target)"
-                                      selectOnFocus
-                                      (input)="onWorkingSetTargetWeightInput($event)"
-                                      (change)="updateCustomSessionSetWeight(plan, session.id, sessionExercise.exerciseId, targetIndex, $any($event.target).value)"
-                                    />
-                                  </mat-form-field>
-                                }
-                              </div>
-                            }
 
-                            <button mat-stroked-button type="button" (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId)">
-                              <mat-icon>add</mat-icon>
-                              {{ 'sessions.addSet' | translate }}
-                            </button>
+                                  @if (session.exerciseType === 'PERCENTAGE_BASED') {
+                                    <mat-form-field appearance="outline" class="percentage-input-field">
+                                      <mat-label>%</mat-label>
+                                      <input
+                                        matInput
+                                        type="text"
+                                        inputmode="decimal"
+                                        class="plan-sets-input"
+                                        [value]="customSessionSetWeightDisplay(target)"
+                                        selectOnFocus
+                                        (input)="onDeloadPercentFieldInput($event)"
+                                        (change)="updateCustomSessionSetPercentage(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $any($event.target).value)"
+                                      />
+                                    </mat-form-field>
+                                  } @else {
+                                    <mat-form-field appearance="outline" class="percentage-input-field">
+                                      <mat-label>{{ weightUnitLabel }}</mat-label>
+                                      <input
+                                        matInput
+                                        type="text"
+                                        inputmode="decimal"
+                                        class="plan-sets-input"
+                                        [value]="customSessionSetWeightDisplay(target)"
+                                        selectOnFocus
+                                        (input)="onWorkingSetTargetWeightInput($event)"
+                                        (change)="updateCustomSessionSetWeight(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $any($event.target).value)"
+                                      />
+                                    </mat-form-field>
+                                  }
+                                </div>
+                              }
+
+                              <button mat-stroked-button type="button" (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field)">
+                                <mat-icon>add</mat-icon>
+                                {{ 'sessions.addSet' | translate }}
+                              </button>
+                            </ng-template>
+
+                            <mat-accordion multi class="set-type-accordion">
+                              @if (sessionExercise.showWarmupSets ?? true) {
+                                <mat-expansion-panel>
+                                  <mat-expansion-panel-header>
+                                    <mat-panel-title>{{ 'sessions.warmupSets' | translate }}</mat-panel-title>
+                                    <mat-panel-description>{{ sessionExercise.warmupSetTargets?.length ?? 0 }}</mat-panel-description>
+                                  </mat-expansion-panel-header>
+                                  <ng-container
+                                    [ngTemplateOutlet]="customSetTargetRows"
+                                    [ngTemplateOutletContext]="{ field: 'warmupSetTargets', targets: sessionExercise.warmupSetTargets ?? [] }"
+                                  ></ng-container>
+                                </mat-expansion-panel>
+                              }
+
+                              <mat-expansion-panel>
+                                <mat-expansion-panel-header>
+                                  <mat-panel-title>{{ 'sessions.workingSets' | translate }}</mat-panel-title>
+                                  <mat-panel-description>{{ sessionExercise.workingSetTargets?.length ?? 0 }}</mat-panel-description>
+                                </mat-expansion-panel-header>
+                                <ng-container
+                                  [ngTemplateOutlet]="customSetTargetRows"
+                                  [ngTemplateOutletContext]="{ field: 'workingSetTargets', targets: sessionExercise.workingSetTargets ?? [] }"
+                                ></ng-container>
+                              </mat-expansion-panel>
+
+                              @if (sessionExercise.showCooldownSets ?? true) {
+                                <mat-expansion-panel>
+                                  <mat-expansion-panel-header>
+                                    <mat-panel-title>{{ 'sessions.cooldownSets' | translate }}</mat-panel-title>
+                                    <mat-panel-description>{{ sessionExercise.cooldownSetTargets?.length ?? 0 }}</mat-panel-description>
+                                  </mat-expansion-panel-header>
+                                  <ng-container
+                                    [ngTemplateOutlet]="customSetTargetRows"
+                                    [ngTemplateOutletContext]="{ field: 'cooldownSetTargets', targets: sessionExercise.cooldownSetTargets ?? [] }"
+                                  ></ng-container>
+                                </mat-expansion-panel>
+                              }
+                            </mat-accordion>
                           </mat-expansion-panel>
                         }
                       </mat-accordion>
@@ -915,6 +960,10 @@
                           />
                         </mat-form-field>
                       </div>
+
+                      @if (planExerciseDeloadUnusuallyHigh(plan, exerciseId)) {
+                        <p class="deload-warning-hint">{{ 'trainingPlans.deloadUnusuallyHighWarning' | translate }}</p>
+                      }
                     </mat-tab>
                         <mat-tab [label]="'trainingPlans.setsTabLabel' | translate">
                           <mat-checkbox

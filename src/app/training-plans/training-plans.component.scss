@@ -97,6 +97,12 @@ mat-card {
   flex: 1 1 0;
 }
 
+.deload-warning-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: #ffb74d;
+}
+
 .set-target-copy-popup {
   position: fixed;
   z-index: 1000;
