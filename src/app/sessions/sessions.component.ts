@@ -60,6 +60,9 @@ function toDateTimeLocalValue(date: Date): string {
 // Flat fallback for a plan exercise's weightIncrement when left blank - not
 // the body-region-based WEIGHT_INCREMENT_BY_EXERCISE_TYPE default.
 const DEFAULT_WEIGHT_INCREMENT = 1;
+// A brand-new set with no previous set of its type to copy targetReps from
+// (see addSet) starts prescribed at this many reps rather than blank.
+const DEFAULT_TARGET_REPS = 10;
 
 export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
   { value: 'warmup', labelKey: 'sessions.warmupSets', icon: 'whatshot' },
@@ -1739,7 +1742,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
           showCooldownSets: sessionSettings.showCooldownSets,
           // Matches Training Plans' own default for a freshly added exercise.
           exerciseType: 'WEIGHT_BASED',
-          incrementScheme: 'LINEAR_PROGRESSION'
+          incrementScheme: 'LINEAR_PROGRESSION',
+          weightIncrement: DEFAULT_WEIGHT_INCREMENT
         }
     );
     await this.persist(session);
@@ -2030,6 +2034,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       newSet.targetReps = previousSet.targetReps;
       newSet.targetRepsMax = previousSet.targetRepsMax;
       newSet.isAmrap = previousSet.isAmrap;
+    } else {
+      newSet.targetReps = DEFAULT_TARGET_REPS;
     }
     sessionExercise.sets = [...sessionExercise.sets, newSet];
     await this.persist(session);
