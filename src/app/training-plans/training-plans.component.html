@@ -487,46 +487,31 @@
                       <mat-panel-title>{{ 'trainingPlans.sessionLabel' | translate }} {{ sessionIndex + 1 }}</mat-panel-title>
                     </mat-expansion-panel-header>
 
-                    <div class="exercise-type-row">
-                      <mat-form-field appearance="outline">
-                        <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
-                        <mat-select
-                          [ngModel]="session.exerciseIds ?? []"
-                          name="customSessionExerciseIds-{{ plan.id }}-{{ session.id }}"
-                          multiple
-                          panelClass="exercise-select-panel"
-                          (selectionChange)="updateCustomSessionExercises(plan, session.id, $event.value)"
-                        >
-                          <mat-select-trigger>
-                            @if ((session.exercises ?? []).length > 0) {
-                              {{ exerciseName(session.exercises[0].exerciseId) }}
-                              @if (session.exercises.length > 1) {
-                                <span> (+{{ session.exercises.length - 1 }})</span>
-                              }
+                    <mat-form-field appearance="outline">
+                      <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
+                      <mat-select
+                        [ngModel]="session.exerciseIds ?? []"
+                        name="customSessionExerciseIds-{{ plan.id }}-{{ session.id }}"
+                        multiple
+                        panelClass="exercise-select-panel"
+                        (selectionChange)="updateCustomSessionExercises(plan, session.id, $event.value)"
+                      >
+                        <mat-select-trigger>
+                          @if ((session.exercises ?? []).length > 0) {
+                            {{ exerciseName(session.exercises[0].exerciseId) }}
+                            @if (session.exercises.length > 1) {
+                              <span> (+{{ session.exercises.length - 1 }})</span>
                             }
-                          </mat-select-trigger>
-                          @for (exercise of exercises; track exercise.id) {
-                            <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
                           }
-                        </mat-select>
-                        @if (exercises.length === 0) {
-                          <mat-hint>{{ 'trainingPlans.noExercisesHint' | translate }}</mat-hint>
+                        </mat-select-trigger>
+                        @for (exercise of exercises; track exercise.id) {
+                          <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
                         }
-                      </mat-form-field>
-
-                      <mat-form-field appearance="outline" class="exercise-type-field">
-                        <mat-label>Select Exercise-Type</mat-label>
-                        <mat-select
-                          [ngModel]="session.exerciseType"
-                          name="customSessionExerciseType-{{ plan.id }}-{{ session.id }}"
-                          (selectionChange)="updateCustomSessionExerciseType(plan, session.id, $event.value)"
-                        >
-                          <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
-                          <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
-                          <mat-option value="TIME_BASED">Time-Based</mat-option>
-                        </mat-select>
-                      </mat-form-field>
-                    </div>
+                      </mat-select>
+                      @if (exercises.length === 0) {
+                        <mat-hint>{{ 'trainingPlans.noExercisesHint' | translate }}</mat-hint>
+                      }
+                    </mat-form-field>
 
                     @if ((session.exercises ?? []).length > 0) {
                       <mat-accordion multi class="exercise-accordion">
@@ -541,6 +526,21 @@
                                 <mat-expansion-panel-header>
                                   <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
                                 </mat-expansion-panel-header>
+
+                                <div class="exercise-type-row">
+                                  <mat-form-field appearance="outline" class="exercise-type-field">
+                                    <mat-label>Select Exercise-Type</mat-label>
+                                    <mat-select
+                                      [ngModel]="session.exerciseType"
+                                      name="customSessionExerciseType-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
+                                      (selectionChange)="updateCustomSessionExerciseType(plan, session.id, $event.value)"
+                                    >
+                                      <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                                      <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                                      <mat-option value="TIME_BASED">Time-Based</mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
+                                </div>
 
                                 <mat-tab-group class="exercise-settings-tabs" animationDuration="0ms">
                                   @if (session.exerciseType !== 'PERCENTAGE_BASED') {
