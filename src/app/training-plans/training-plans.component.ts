@@ -701,6 +701,17 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Same 3-int/2-decimal percent field as deloadPercent - stored in the same
+  // WorkingSetTarget.weight slot as a plain weight would be, just displayed
+  // and clamped as a percentage while the exercise is PERCENTAGE_BASED.
+  async updateCustomSessionSetPercentage(plan: TrainingPlan, sessionId: string, exerciseId: string, index: number, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const weight = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : 0;
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) =>
+      targets.map((target, i) => (i === index ? { ...target, weight } : target))
+    );
+  }
+
   // Displayed with trailing zeros (e.g. "80.00"), matching setTargetWeightDisplay.
   customSessionSetWeightDisplay(target: WorkingSetTarget): string {
     return target.weight.toFixed(2);

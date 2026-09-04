@@ -58,7 +58,12 @@ mat-card {
 }
 
 .exercise-settings-accordion {
+  // Explicit block display - without it this renders as an inline box (its
+  // computed display was "inline"), which makes a vertical margin-bottom a
+  // no-op since inline boxes ignore block-axis margins entirely.
+  display: block;
   margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .exercise-settings-tabs {
