@@ -47,7 +47,7 @@
     <div class="settings-form">
       <mat-form-field appearance="outline">
         <mat-label><mat-icon class="label-icon">cake</mat-icon>{{ 'config.dateOfBirth' | translate }}</mat-label>
-        <input matInput type="date" [(ngModel)]="dateOfBirth" [attr.lang]="language" (change)="onDateOfBirthChange()" />
+        <input matInput type="date" [(ngModel)]="dateOfBirth" [attr.lang]="language" selectOnFocus (change)="onDateOfBirthChange()" />
       </mat-form-field>
 
       @if (age !== null) {
@@ -105,13 +105,14 @@
               inputmode="decimal"
               class="body-weight-input"
               [value]="newBodyWeightValue"
+              selectOnFocus
               (input)="onBodyWeightValueInput($event)"
             />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>{{ 'config.bodyWeightTimestamp' | translate }}</mat-label>
-            <input matInput type="datetime-local" [(ngModel)]="newBodyWeightTimestamp" />
+            <input matInput type="datetime-local" [(ngModel)]="newBodyWeightTimestamp" selectOnFocus />
           </mat-form-field>
 
           <button
@@ -214,6 +215,7 @@
               type="text"
               inputmode="numeric"
               [value]="doubleProgressionLowerReps"
+              selectOnFocus
               (input)="onRepRangeInput($event)"
               (change)="onDoubleProgressionLowerRepsChange($any($event.target).value)"
             />
@@ -226,6 +228,7 @@
               type="text"
               inputmode="numeric"
               [value]="doubleProgressionUpperReps"
+              selectOnFocus
               (input)="onRepRangeInput($event)"
               (change)="onDoubleProgressionUpperRepsChange($any($event.target).value)"
             />
@@ -253,6 +256,7 @@
               type="text"
               inputmode="numeric"
               [value]="repGoalTotalRepGoal"
+              selectOnFocus
               (input)="onRepRangeInput($event)"
               (change)="onRepGoalTotalRepGoalChange($any($event.target).value)"
             />
@@ -275,6 +279,7 @@
               type="text"
               inputmode="numeric"
               [value]="waveProgressionInitialReps"
+              selectOnFocus
               (input)="onRepRangeInput($event)"
               (change)="onWaveProgressionInitialRepsChange($any($event.target).value)"
             />
@@ -287,6 +292,7 @@
               type="text"
               inputmode="numeric"
               [value]="waveProgressionFinalReps"
+              selectOnFocus
               (input)="onRepRangeInput($event)"
               (change)="onWaveProgressionFinalRepsChange($any($event.target).value)"
             />
@@ -299,6 +305,7 @@
               type="text"
               inputmode="numeric"
               [value]="waveProgressionRepsDecrement"
+              selectOnFocus
               (input)="onRepRangeInput($event)"
               (change)="onWaveProgressionRepsDecrementChange($any($event.target).value)"
             />
@@ -327,7 +334,7 @@
         <div class="confirm-dialog">
           <mat-form-field appearance="outline" class="drive-filename-field">
             <mat-label>{{ 'config.driveFileNameLabel' | translate }}</mat-label>
-            <input matInput [(ngModel)]="driveFileName" />
+            <input matInput [(ngModel)]="driveFileName" selectOnFocus />
           </mat-form-field>
           <div class="confirm-dialog-actions">
             <button

@@ -272,7 +272,7 @@
               [(ngModel)]="session.name"
               #nameModel="ngModel"
               required
-              (focus)="onSessionNameFocus($event)"
+              selectOnFocus
               (blur)="updateSessionName(session)"
             />
             @if (nameModel.invalid && nameModel.touched) {
@@ -676,6 +676,7 @@
                                   inputmode="numeric"
                                   [value]="sessionExercise.minReps ?? ''"
                                   name="sessionMinReps-{{ sessionExercise.exerciseId }}"
+                                  selectOnFocus
                                   (input)="onRepsFieldInput($event)"
                                   (change)="updateSessionMinReps(session, sessionExercise, $any($event.target).value)"
                                 />
@@ -695,7 +696,7 @@
                                 [placeholder]="defaultWeightIncrement.toFixed(2)"
                                 [value]="sessionWeightIncrementDisplay(sessionExercise)"
                                 name="sessionWeightIncrement-{{ sessionExercise.exerciseId }}"
-                                (focus)="onDeloadFieldFocus($event)"
+                                selectOnFocus
                                 (input)="onWeightFieldInput($event)"
                                 (change)="updateSessionWeightIncrement(session, sessionExercise, $any($event.target).value)"
                               />
@@ -715,7 +716,7 @@
                               inputmode="numeric"
                               [value]="sessionExercise.deloadAfterFailures ?? ''"
                               name="sessionDeloadAfterFailures-{{ sessionExercise.exerciseId }}"
-                              (focus)="onDeloadFieldFocus($event)"
+                              selectOnFocus
                               (input)="onDeloadAfterFailuresFieldInput($event)"
                               (change)="updateSessionDeloadAfterFailures(session, sessionExercise, $any($event.target).value)"
                             />
@@ -733,7 +734,7 @@
                               inputmode="decimal"
                               [value]="sessionDeloadPercentDisplay(sessionExercise)"
                               name="sessionDeloadPercent-{{ sessionExercise.exerciseId }}"
-                              (focus)="onDeloadFieldFocus($event)"
+                              selectOnFocus
                               (input)="onDeloadPercentFieldInput($event)"
                               (change)="updateSessionDeloadPercent(session, sessionExercise, $any($event.target).value)"
                             />
@@ -829,6 +830,7 @@
                                   name="targetReps-{{ set.id }}"
                                   [readonly]="set.done"
                                   [disabled]="isPaused(session)"
+                                  selectOnFocus
                                   (input)="onTargetRepsFieldInput($event)"
                                   (change)="updateTargetReps(session, sessionExercise, $any($event.target).value)"
                                   (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"

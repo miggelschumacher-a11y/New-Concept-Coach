@@ -14,6 +14,7 @@ import { SettingsService } from '../core/services/settings.service';
 import { Exercise } from '../core/models/exercise.model';
 import { ExerciseWeightCategory } from '../core/models/tier-line-progression.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
+import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 import { oneRepMaxOverrideChecked, oneRepMaxOverrideDisabled } from '../core/utils/one-rep-max.util';
 
 const CUSTOM_ONE_REP_MAX_MIN = 0;
@@ -33,7 +34,8 @@ const CUSTOM_ONE_REP_MAX_MAX = 1000;
     MatTooltipModule,
     MatSelectModule,
     MatCheckboxModule,
-    TranslatePipe
+    TranslatePipe,
+    SelectOnFocusDirective
   ],
   templateUrl: './exercises.component.html',
   styleUrl: './exercises.component.scss'
@@ -85,10 +87,6 @@ export class ExercisesComponent implements OnInit {
 
   customOneRepMaxDisplay(exercise: Exercise): string {
     return (exercise.customOneRepMax ?? 0).toString();
-  }
-
-  onCustomOneRepMaxFieldFocus(event: Event): void {
-    (event.target as HTMLInputElement).select();
   }
 
   // Allows up to 4 integer digits (covers the 1000 upper bound) and up to

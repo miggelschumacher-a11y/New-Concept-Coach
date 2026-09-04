@@ -5,12 +5,12 @@
     <form class="entry-form" (ngSubmit)="addExercise()">
       <mat-form-field appearance="outline">
         <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
-        <input matInput name="name" [(ngModel)]="name" required />
+        <input matInput name="name" [(ngModel)]="name" required selectOnFocus />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label><mat-icon class="label-icon">category</mat-icon>{{ 'exercises.category' | translate }}</mat-label>
-        <input matInput name="category" [(ngModel)]="category" />
+        <input matInput name="category" [(ngModel)]="category" selectOnFocus />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -58,7 +58,7 @@
               class="right-aligned-input"
               [value]="customOneRepMaxDisplay(exercise)"
               name="customOneRepMax-{{ exercise.id }}"
-              (focus)="onCustomOneRepMaxFieldFocus($event)"
+              selectOnFocus
               (input)="onCustomOneRepMaxFieldInput($event)"
               (change)="updateCustomOneRepMax(exercise, $any($event.target).value)"
             />

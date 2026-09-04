@@ -50,6 +50,7 @@ import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax, one
 import { parseRepsRange } from '../core/utils/reps-range.util';
 import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/body-weight-lookup.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
+import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 
 function toDateTimeLocalValue(date: Date): string {
   const pad = (value: number) => value.toString().padStart(2, '0');
@@ -84,7 +85,8 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
     MatTooltipModule,
     DatePipe,
     NgTemplateOutlet,
-    TranslatePipe
+    TranslatePipe,
+    SelectOnFocusDirective
   ],
   providers: [DatePipe],
   templateUrl: './sessions.component.html',
@@ -1960,10 +1962,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  onDeloadFieldFocus(event: Event): void {
-    (event.target as HTMLInputElement).select();
-  }
-
   onDeloadAfterFailuresFieldInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const sanitized = input.value.replace(/\D/g, '').slice(0, 4);
@@ -2384,10 +2382,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async updateSessionName(session: TrainingSession): Promise<void> {
     await this.persist(session);
-  }
-
-  onSessionNameFocus(event: Event): void {
-    (event.target as HTMLInputElement).select();
   }
 
   requestDeleteSession(id: string): void {

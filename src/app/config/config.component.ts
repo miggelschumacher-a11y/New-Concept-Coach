@@ -27,6 +27,7 @@ import { findHeartRateMax, parseHeartRateRange } from '../core/data/heart-rate-z
 import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
+import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 
 const BODY_WEIGHT_MAX = 300;
 
@@ -46,7 +47,8 @@ const BODY_WEIGHT_MAX = 300;
     MatRadioModule,
     DatePipe,
     DecimalPipe,
-    TranslatePipe
+    TranslatePipe,
+    SelectOnFocusDirective
   ],
   templateUrl: './config.component.html',
   styleUrl: './config.component.scss'
@@ -316,24 +318,21 @@ export class ConfigComponent implements OnInit {
     }
   }
 
+  // Same 4-int/2-decimal mask as every other weight field in the app (see
+  // e.g. TrainingPlansComponent.onWeightIncrementFieldInput) - the
+  // BODY_WEIGHT_MAX ceiling is still enforced on commit, in addBodyWeightEntry.
   onBodyWeightValueInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    let sanitized = input.value.replace(/[^\d.,]/g, '').replace(',', '.');
-    const firstDotIndex = sanitized.indexOf('.');
-    if (firstDotIndex !== -1) {
-      const integerPart = sanitized.slice(0, firstDotIndex);
-      const decimalPart = sanitized.slice(firstDotIndex + 1).replace(/\./g, '').slice(0, 2);
-      sanitized = `${integerPart}.${decimalPart}`;
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
     }
-    if (parseFloat(sanitized) > BODY_WEIGHT_MAX) {
-      sanitized = String(BODY_WEIGHT_MAX);
-    }
-    input.value = sanitized;
-    this.newBodyWeightValue = sanitized;
+    this.newBodyWeightValue = input.value;
   }
 
   async addBodyWeightEntry(): Promise<void> {
-    const weight = Math.round(Math.min(parseFloat(this.newBodyWeightValue), BODY_WEIGHT_MAX) * 100) / 100;
+    const parsed = parseFloat(this.newBodyWeightValue.replace(',', '.'));
+    const weight = Math.round(Math.min(parsed, BODY_WEIGHT_MAX) * 100) / 100;
     if (!Number.isFinite(weight) || weight <= 0 || !this.newBodyWeightTimestamp) {
       return;
     }

@@ -169,6 +169,8 @@ export interface CustomPlanSession {
   // updateCustomSessionExercises.
   exerciseIds: string[];
   exercises: CustomSessionExercise[];
+  // Shown next to the Exercises select field itself.
+  exerciseType?: PlanExerciseType;
 }
 
 export interface TrainingPlan {

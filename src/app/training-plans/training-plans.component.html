@@ -5,12 +5,12 @@
     <form class="entry-form" (ngSubmit)="addPlan()">
       <mat-form-field appearance="outline">
         <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
-        <input matInput name="name" [(ngModel)]="name" required />
+        <input matInput name="name" [(ngModel)]="name" required selectOnFocus />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label><mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}</mat-label>
-        <input matInput name="description" [(ngModel)]="description" />
+        <input matInput name="description" [(ngModel)]="description" selectOnFocus />
       </mat-form-field>
 
       <button
@@ -430,12 +430,12 @@
           <form class="entry-form" (ngSubmit)="confirmEditPlan(plan)">
             <mat-form-field appearance="outline">
               <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
-              <input matInput name="editName-{{ plan.id }}" [(ngModel)]="editName" required />
+              <input matInput name="editName-{{ plan.id }}" [(ngModel)]="editName" required selectOnFocus />
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label><mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}</mat-label>
-              <input matInput name="editDescription-{{ plan.id }}" [(ngModel)]="editDescription" />
+              <input matInput name="editDescription-{{ plan.id }}" [(ngModel)]="editDescription" selectOnFocus />
             </mat-form-field>
 
             <button
@@ -487,31 +487,46 @@
                       <mat-panel-title>{{ 'trainingPlans.sessionLabel' | translate }} {{ sessionIndex + 1 }}</mat-panel-title>
                     </mat-expansion-panel-header>
 
-                    <mat-form-field appearance="outline">
-                      <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
-                      <mat-select
-                        [ngModel]="session.exerciseIds ?? []"
-                        name="customSessionExerciseIds-{{ plan.id }}-{{ session.id }}"
-                        multiple
-                        panelClass="exercise-select-panel"
-                        (selectionChange)="updateCustomSessionExercises(plan, session.id, $event.value)"
-                      >
-                        <mat-select-trigger>
-                          @if ((session.exercises ?? []).length > 0) {
-                            {{ exerciseName(session.exercises[0].exerciseId) }}
-                            @if (session.exercises.length > 1) {
-                              <span> (+{{ session.exercises.length - 1 }})</span>
+                    <div class="exercise-type-row">
+                      <mat-form-field appearance="outline">
+                        <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
+                        <mat-select
+                          [ngModel]="session.exerciseIds ?? []"
+                          name="customSessionExerciseIds-{{ plan.id }}-{{ session.id }}"
+                          multiple
+                          panelClass="exercise-select-panel"
+                          (selectionChange)="updateCustomSessionExercises(plan, session.id, $event.value)"
+                        >
+                          <mat-select-trigger>
+                            @if ((session.exercises ?? []).length > 0) {
+                              {{ exerciseName(session.exercises[0].exerciseId) }}
+                              @if (session.exercises.length > 1) {
+                                <span> (+{{ session.exercises.length - 1 }})</span>
+                              }
                             }
+                          </mat-select-trigger>
+                          @for (exercise of exercises; track exercise.id) {
+                            <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
                           }
-                        </mat-select-trigger>
-                        @for (exercise of exercises; track exercise.id) {
-                          <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+                        </mat-select>
+                        @if (exercises.length === 0) {
+                          <mat-hint>{{ 'trainingPlans.noExercisesHint' | translate }}</mat-hint>
                         }
-                      </mat-select>
-                      @if (exercises.length === 0) {
-                        <mat-hint>{{ 'trainingPlans.noExercisesHint' | translate }}</mat-hint>
-                      }
-                    </mat-form-field>
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="exercise-type-field">
+                        <mat-label>Select Exercise-Type</mat-label>
+                        <mat-select
+                          [ngModel]="session.exerciseType"
+                          name="customSessionExerciseType-{{ plan.id }}-{{ session.id }}"
+                          (selectionChange)="updateCustomSessionExerciseType(plan, session.id, $event.value)"
+                        >
+                          <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                          <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                          <mat-option value="TIME_BASED">Time-Based</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
 
                     @if ((session.exercises ?? []).length > 0) {
                       <mat-accordion multi class="exercise-accordion">
@@ -541,7 +556,7 @@
                                     type="text"
                                     class="plan-sets-input"
                                     [value]="target.targetReps"
-                                    (focus)="onWorkingSetTargetFieldFocus($event)"
+                                    selectOnFocus
                                     (input)="onWorkingSetTargetRepsInput($event)"
                                     (change)="updateCustomSessionSetReps(plan, session.id, sessionExercise.exerciseId, targetIndex, $any($event.target).value)"
                                   />
@@ -555,7 +570,7 @@
                                     inputmode="decimal"
                                     class="plan-sets-input"
                                     [value]="customSessionSetWeightDisplay(target)"
-                                    (focus)="onWorkingSetTargetFieldFocus($event)"
+                                    selectOnFocus
                                     (input)="onWorkingSetTargetWeightInput($event)"
                                     (change)="updateCustomSessionSetWeight(plan, session.id, sessionExercise.exerciseId, targetIndex, $any($event.target).value)"
                                   />
@@ -683,7 +698,7 @@
                                     [placeholder]="defaultWeightIncrement.toFixed(2)"
                                     [value]="weightIncrementDisplay(plan, exerciseId)"
                                     name="weightIncrement-{{ plan.id }}-{{ exerciseId }}"
-                                    (focus)="onDeloadFieldFocus($event)"
+                                    selectOnFocus
                                     (input)="onWeightIncrementFieldInput($event)"
                                     (change)="updatePlanExerciseWeightIncrement(plan, exerciseId, $any($event.target).value)"
                                   />
@@ -706,7 +721,7 @@
                             inputmode="numeric"
                             [value]="planExerciseConfig(plan, exerciseId).deloadAfterFailures ?? ''"
                             name="deloadAfterFailures-{{ plan.id }}-{{ exerciseId }}"
-                            (focus)="onDeloadFieldFocus($event)"
+                            selectOnFocus
                             (input)="onDeloadAfterFailuresFieldInput($event)"
                             (change)="updatePlanExerciseDeloadAfterFailures(plan, exerciseId, $any($event.target).value)"
                           />
@@ -724,7 +739,7 @@
                             inputmode="decimal"
                             [value]="deloadPercentDisplay(plan, exerciseId)"
                             name="deloadPercent-{{ plan.id }}-{{ exerciseId }}"
-                            (focus)="onDeloadFieldFocus($event)"
+                            selectOnFocus
                             (input)="onDeloadPercentFieldInput($event)"
                             (change)="updatePlanExerciseDeloadPercent(plan, exerciseId, $any($event.target).value)"
                           />
@@ -782,7 +797,7 @@
                             class="plan-sets-input"
                             [value]="target.targetReps"
                             [disabled]="!!plan.isDefault"
-                            (focus)="onWorkingSetTargetFieldFocus($event)"
+                            selectOnFocus
                             (input)="onWorkingSetTargetRepsInput($event)"
                             (change)="updateSetTargetReps(plan, exerciseId, field, targetIndex, $any($event.target).value)"
                             (mousedown)="onSetTargetFieldMouseDown($event, plan, exerciseId, field, targetIndex, 'targetReps')"
@@ -800,7 +815,7 @@
                             class="plan-sets-input"
                             [value]="setTargetWeightDisplay(target)"
                             [disabled]="!!plan.isDefault"
-                            (focus)="onWorkingSetTargetFieldFocus($event)"
+                            selectOnFocus
                             (input)="onWorkingSetTargetWeightInput($event)"
                             (change)="updateSetTargetWeight(plan, exerciseId, field, targetIndex, $any($event.target).value)"
                             (mousedown)="onSetTargetFieldMouseDown($event, plan, exerciseId, field, targetIndex, 'weight')"
@@ -859,6 +874,7 @@
                             class="plan-sets-input"
                             [value]="planExerciseConfig(plan, exerciseId).warmupSets"
                             [disabled]="!!plan.isDefault"
+                            selectOnFocus
                             (input)="onPlanExerciseSetsInput($event)"
                             (change)="updatePlanExerciseWarmupSets(plan, exerciseId, $any($event.target).value)"
                           />
@@ -914,7 +930,7 @@
                               class="plan-sets-input"
                               [value]="set.percentage"
                               [disabled]="!!plan.isDefault"
-                              (focus)="onDeloadFieldFocus($event)"
+                              selectOnFocus
                               (input)="onPlanExerciseSetsInput($event)"
                               (change)="updatePercentageSetPercentage(plan, exerciseId, weekIndex, setIndex, $any($event.target).value)"
                             />
@@ -929,7 +945,7 @@
                               class="plan-sets-input"
                               [value]="set.reps"
                               [disabled]="!!plan.isDefault"
-                              (focus)="onDeloadFieldFocus($event)"
+                              selectOnFocus
                               (input)="onPlanExerciseSetsInput($event)"
                               (change)="updatePercentageSetReps(plan, exerciseId, weekIndex, setIndex, $any($event.target).value)"
                             />
@@ -1014,6 +1030,7 @@
                               class="plan-sets-input"
                               [value]="doubleProgression.lowerReps"
                               [disabled]="!!plan.isDefault"
+                              selectOnFocus
                               (input)="onPlanExerciseSetsInput($event)"
                               (change)="updateDoubleProgressionLowerReps(plan, exerciseId, $any($event.target).value)"
                             />
@@ -1028,6 +1045,7 @@
                               class="plan-sets-input"
                               [value]="doubleProgression.upperReps"
                               [disabled]="!!plan.isDefault"
+                              selectOnFocus
                               (input)="onPlanExerciseSetsInput($event)"
                               (change)="updateDoubleProgressionUpperReps(plan, exerciseId, $any($event.target).value)"
                             />
@@ -1056,6 +1074,7 @@
                             class="plan-sets-input"
                             [value]="repGoal.totalRepGoal"
                             [disabled]="!!plan.isDefault"
+                            selectOnFocus
                             (input)="onPlanExerciseSetsInput($event)"
                             (change)="updateRepGoalTotalRepGoal(plan, exerciseId, $any($event.target).value)"
                           />
@@ -1073,6 +1092,7 @@
                               class="plan-sets-input"
                               [value]="waveProgression.initialReps"
                               [disabled]="!!plan.isDefault"
+                              selectOnFocus
                               (input)="onPlanExerciseSetsInput($event)"
                               (change)="updateWaveProgressionInitialReps(plan, exerciseId, $any($event.target).value)"
                             />
@@ -1087,6 +1107,7 @@
                               class="plan-sets-input"
                               [value]="waveProgression.finalReps"
                               [disabled]="!!plan.isDefault"
+                              selectOnFocus
                               (input)="onPlanExerciseSetsInput($event)"
                               (change)="updateWaveProgressionFinalReps(plan, exerciseId, $any($event.target).value)"
                             />
@@ -1101,6 +1122,7 @@
                               class="plan-sets-input"
                               [value]="waveProgression.repsDecrement"
                               [disabled]="!!plan.isDefault"
+                              selectOnFocus
                               (input)="onPlanExerciseSetsInput($event)"
                               (change)="updateWaveProgressionRepsDecrement(plan, exerciseId, $any($event.target).value)"
                             />
@@ -1129,6 +1151,7 @@
                           class="plan-sets-input"
                           [value]="planExerciseConfig(plan, exerciseId).workingSets"
                           [disabled]="!!plan.isDefault"
+                          selectOnFocus
                           (input)="onPlanExerciseSetsInput($event)"
                           (change)="updatePlanExerciseWorkingSets(plan, exerciseId, $any($event.target).value)"
                         />
@@ -1172,6 +1195,7 @@
                             class="plan-sets-input"
                             [value]="planExerciseConfig(plan, exerciseId).cooldownSets"
                             [disabled]="!!plan.isDefault"
+                            selectOnFocus
                             (input)="onPlanExerciseSetsInput($event)"
                             (change)="updatePlanExerciseCooldownSets(plan, exerciseId, $any($event.target).value)"
                           />

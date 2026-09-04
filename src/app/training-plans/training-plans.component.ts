@@ -36,6 +36,7 @@ import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progress
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
+import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
 import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
 import { DEFAULT_GZCLP_PLAN_ID } from '../core/data/default-gzclp-plan';
@@ -87,7 +88,8 @@ type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTar
     MatRadioModule,
     MatDialogModule,
     NgTemplateOutlet,
-    TranslatePipe
+    TranslatePipe,
+    SelectOnFocusDirective
   ],
   templateUrl: './training-plans.component.html',
   styleUrl: './training-plans.component.scss'
@@ -514,7 +516,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     if (plan.isDefault) {
       return;
     }
-    const session: CustomPlanSession = { id: crypto.randomUUID(), exerciseIds: [], exercises: [] };
+    const session: CustomPlanSession = { id: crypto.randomUUID(), exerciseIds: [], exercises: [], exerciseType: 'WEIGHT_BASED' };
     plan.customSessions = [...(plan.customSessions ?? []), session];
     await this.trainingPlansService.update(plan);
   }
@@ -533,6 +535,13 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       );
       return { ...session, exerciseIds, exercises: sessionExercises };
     });
+    await this.trainingPlansService.update(plan);
+  }
+
+  async updateCustomSessionExerciseType(plan: TrainingPlan, sessionId: string, exerciseType: PlanExerciseType): Promise<void> {
+    plan.customSessions = (plan.customSessions ?? []).map((session) =>
+      session.id === sessionId ? { ...session, exerciseType } : session
+    );
     await this.trainingPlansService.update(plan);
   }
 
@@ -558,13 +567,13 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   // Copies the previous set's own target/weight, same convenience as
   // addSetTarget for the old plan-level editor - only the very first set
-  // falls back to a blank prescription.
+  // falls back to a default prescription (10 reps, 0 weight).
   async addCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string): Promise<void> {
     await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) => {
       const previous = targets[targets.length - 1];
       return [
         ...targets,
-        { id: crypto.randomUUID(), targetReps: previous?.targetReps ?? '', weight: previous?.weight ?? 0 }
+        { id: crypto.randomUUID(), targetReps: previous?.targetReps ?? '10', weight: previous?.weight ?? 0 }
       ];
     });
   }
@@ -750,10 +759,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     }
   }
 
-  onDeloadFieldFocus(event: Event): void {
-    (event.target as HTMLInputElement).select();
-  }
-
   onDeloadAfterFailuresFieldInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const sanitized = input.value.replace(/\D/g, '').slice(0, 4);
@@ -806,10 +811,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async updatePlanExerciseCooldownSets(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
     await this.updateConfig(plan, exerciseId, { cooldownSets: this.clampSets(value) });
-  }
-
-  onWorkingSetTargetFieldFocus(event: Event): void {
-    (event.target as HTMLInputElement).select();
   }
 
   // Same format/sanitizer as a session's own target-reps field: digits, an
