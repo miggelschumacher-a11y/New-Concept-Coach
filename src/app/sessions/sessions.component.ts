@@ -1953,15 +1953,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  // Linear Progression has no Config-level default (unlike the other three
-  // schemes) - a plan exercise sets its target reps directly, and this is
-  // the session-level equivalent for a manual session's exercise.
-  async updateSessionMinReps(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
-    sessionExercise.minReps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 100) : undefined;
-    await this.persist(session);
-  }
-
   onDeloadAfterFailuresFieldInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const sanitized = input.value.replace(/\D/g, '').slice(0, 4);

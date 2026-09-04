@@ -30,7 +30,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Exercises',
     'exercises.category': 'Category',
-    'sessions.minReps': 'Minimum Reps',
     'sessions.targetRepsField': 'Target Reps',
     'sessions.minWeight': 'Minimum Weight',
     'sessions.tierLineInfoButton': 'Progression info',
@@ -314,7 +313,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Übungen',
     'exercises.category': 'Kategorie',
-    'sessions.minReps': 'Minimum Wiederholungen',
     'sessions.targetRepsField': 'Ziel-Wdh.',
     'sessions.minWeight': 'Minimum Gewicht',
     'sessions.tierLineInfoButton': 'Progressions-Info',
@@ -600,7 +598,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Ejercicios',
     'exercises.category': 'Categoría',
-    'sessions.minReps': 'Repeticiones mínimas',
     'sessions.targetRepsField': 'Objetivo reps',
     'sessions.minWeight': 'Peso mínimo',
     'sessions.tierLineInfoButton': 'Info de progresión',
@@ -886,7 +883,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Exercícios',
     'exercises.category': 'Categoria',
-    'sessions.minReps': 'Repetições mínimas',
     'sessions.targetRepsField': 'Alvo reps',
     'sessions.minWeight': 'Peso mínimo',
     'sessions.tierLineInfoButton': 'Informações de progressão',
@@ -1172,7 +1168,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Esercizi',
     'exercises.category': 'Categoria',
-    'sessions.minReps': 'Ripetizioni minime',
     'sessions.targetRepsField': 'Rip. previste',
     'sessions.minWeight': 'Peso minimo',
     'sessions.tierLineInfoButton': 'Info progressione',
@@ -1458,7 +1453,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Oefeningen',
     'exercises.category': 'Categorie',
-    'sessions.minReps': 'Minimum herhalingen',
     'sessions.targetRepsField': 'Doel herh.',
     'sessions.minWeight': 'Minimum gewicht',
     'sessions.tierLineInfoButton': 'Progressie-info',
@@ -1744,7 +1738,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Ćwiczenia',
     'exercises.category': 'Kategoria',
-    'sessions.minReps': 'Minimalna liczba powtórzeń',
     'sessions.targetRepsField': 'Cel powt.',
     'sessions.minWeight': 'Minimalny ciężar',
     'sessions.tierLineInfoButton': 'Informacje o progresji',
@@ -2030,7 +2023,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Упражнения',
     'exercises.category': 'Категория',
-    'sessions.minReps': 'Минимум повторений',
     'sessions.targetRepsField': 'Цель повт.',
     'sessions.minWeight': 'Минимальный вес',
     'sessions.tierLineInfoButton': 'Информация о прогрессии',
@@ -2316,7 +2308,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     'exercises.title': 'Gyakorlatok',
     'exercises.category': 'Kategória',
-    'sessions.minReps': 'Minimum ismétlés',
     'sessions.targetRepsField': 'Cél ism.',
     'sessions.minWeight': 'Minimum súly',
     'sessions.tierLineInfoButton': 'Progressziós infó',

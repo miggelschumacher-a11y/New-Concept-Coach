@@ -553,8 +553,8 @@
                                   @if (session.exerciseType !== 'PERCENTAGE_BASED') {
                                     <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
                                       @if (session.exerciseType === 'WEIGHT_BASED') {
-                                        <div class="exercise-type-row">
-                                          <mat-form-field appearance="outline" class="exercise-type-field">
+                                        <div class="exercise-settings-row">
+                                          <mat-form-field appearance="outline" class="exercise-settings-field">
                                             <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
                                             <mat-select
                                               [ngModel]="sessionExercise.incrementScheme"
@@ -568,11 +568,7 @@
                                               <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
                                             </mat-select>
                                           </mat-form-field>
-                                        </div>
-                                      }
 
-                                      <div class="exercise-settings-row">
-                                        @if (session.exerciseType === 'WEIGHT_BASED') {
                                           <mat-form-field
                                             appearance="outline"
                                             class="exercise-settings-field"
@@ -591,8 +587,8 @@
                                               (change)="updateCustomSessionExerciseWeightIncrement(plan, session.id, sessionExercise.exerciseId, $any($event.target).value)"
                                             />
                                           </mat-form-field>
-                                        }
-                                      </div>
+                                        </div>
+                                      }
                                     </mat-tab>
                                   }
                                   <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">

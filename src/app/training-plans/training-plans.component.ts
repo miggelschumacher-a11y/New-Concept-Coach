@@ -534,7 +534,13 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       }
       const existingByExerciseId = new Map((session.exercises ?? []).map((exercise) => [exercise.exerciseId, exercise]));
       const sessionExercises: CustomSessionExercise[] = exerciseIds.map(
-        (exerciseId) => existingByExerciseId.get(exerciseId) ?? { exerciseId, workingSetTargets: [] }
+        (exerciseId) =>
+          existingByExerciseId.get(exerciseId) ?? {
+            exerciseId,
+            workingSetTargets: [],
+            incrementScheme: DEFAULT_INCREMENT_SCHEME,
+            weightIncrement: DEFAULT_WEIGHT_INCREMENT
+          }
       );
       return { ...session, exerciseIds, exercises: sessionExercises };
     });
