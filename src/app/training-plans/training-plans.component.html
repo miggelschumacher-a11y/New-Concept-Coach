@@ -518,7 +518,14 @@
                         @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
                           <mat-expansion-panel>
                             <mat-expansion-panel-header>
-                              <mat-panel-title>{{ exerciseName(sessionExercise.exerciseId) }}</mat-panel-title>
+                              <mat-panel-title>
+                                {{ exerciseName(sessionExercise.exerciseId) }}
+                                @if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {
+                                  <span class="set-count" [matTooltip]="'exercises.oneRepMaxTooltip' | translate"
+                                    >({{ exerciseOneRepMaxLabelKey(sessionExercise.exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }})</span
+                                  >
+                                }
+                              </mat-panel-title>
                             </mat-expansion-panel-header>
 
                             <mat-accordion multi class="exercise-settings-accordion">
