@@ -63,6 +63,10 @@ const DEFAULT_WEIGHT_INCREMENT = 1;
 // A brand-new set with no previous set of its type to copy targetReps from
 // (see addSet) starts prescribed at this many reps rather than blank.
 const DEFAULT_TARGET_REPS = 10;
+// Above this, a deload is flagged as unusually high - same flat cutoff
+// either way, only the unit differs (% vs kg/lb), matching Training Plans'
+// own DELOAD_UNUSUALLY_HIGH_THRESHOLD.
+const DELOAD_UNUSUALLY_HIGH_THRESHOLD = 20;
 
 export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
   { value: 'warmup', labelKey: 'sessions.warmupSets', icon: 'whatshot' },
@@ -1982,13 +1986,43 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // Displayed with trailing zeros (e.g. "5.00"), same convention as the
   // training-plans version of this field.
   sessionDeloadPercentDisplay(sessionExercise: SessionExercise): string {
-    return sessionExercise.deloadPercent !== undefined ? sessionExercise.deloadPercent.toFixed(2) : '';
+    return (sessionExercise.deloadPercent ?? 0).toFixed(2);
   }
 
+  // Percent mode - same 0-100 clamp as deloadAfterFailures' own tooltip describes.
   async updateSessionDeloadPercent(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     sessionExercise.deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : undefined;
     await this.persist(session);
+  }
+
+  // Weight mode - same 4-int/2-decimal clamp as every other weight field.
+  async updateSessionDeloadWeight(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    sessionExercise.deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 9999) * 100) / 100 : undefined;
+    await this.persist(session);
+  }
+
+  async updateSessionDeloadType(session: TrainingSession, sessionExercise: SessionExercise, deloadType: 'WEIGHT' | 'PERCENT'): Promise<void> {
+    sessionExercise.deloadType = deloadType;
+    await this.persist(session);
+  }
+
+  // "Keine Gewichtsreduktion" - checking it zeroes both deload fields (0
+  // already means "disabled" per deloadAfterFailures' own semantics);
+  // unchecking re-enables them starting from a minimal 1-failure default.
+  async updateSessionNoDeload(session: TrainingSession, sessionExercise: SessionExercise, checked: boolean): Promise<void> {
+    if (checked) {
+      sessionExercise.deloadAfterFailures = 0;
+      sessionExercise.deloadPercent = 0;
+    } else {
+      sessionExercise.deloadAfterFailures = 1;
+    }
+    await this.persist(session);
+  }
+
+  sessionDeloadUnusuallyHigh(sessionExercise: SessionExercise): boolean {
+    return !!sessionExercise.deloadAfterFailures && (sessionExercise.deloadPercent ?? 0) > DELOAD_UNUSUALLY_HIGH_THRESHOLD;
   }
 
   // Shown as the weight-increment field's own placeholder, same as the

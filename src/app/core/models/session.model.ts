@@ -48,6 +48,10 @@ export interface SessionExercise {
   // concept as PlanExerciseConfig's fields of the same name - see
   // SessionsComponent.consecutiveExerciseFailures/applyManualDeload.
   deloadAfterFailures?: number;
+  // Whether deloadPercent above is an absolute weight amount or a
+  // percentage - unset is treated as 'WEIGHT' (the default), same
+  // dual-purpose convention as CustomSessionExercise's own field.
+  deloadType?: 'WEIGHT' | 'PERCENT';
   deloadPercent?: number;
   // Session-local snapshot of the plan exercise's weightIncrement, same
   // mirroring as exerciseType/incrementScheme above - purely informational,
