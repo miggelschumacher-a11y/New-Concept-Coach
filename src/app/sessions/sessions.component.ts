@@ -34,7 +34,6 @@ import {
   WaveProgressionConfig,
   PlanExerciseType,
   IncrementScheme,
-  PercentageProgressionMode,
   PercentageWeek,
   WorkingSetTarget
 } from '../core/models/training-plan.model';
@@ -1090,8 +1089,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         minWeight: sessionExercise.minWeight,
         deloadAfterFailures: sessionExercise.deloadAfterFailures,
         deloadPercent: sessionExercise.deloadPercent,
-        weightIncrement: sessionExercise.weightIncrement,
-        percentageProgressionMode: sessionExercise.percentageProgressionMode
+        weightIncrement: sessionExercise.weightIncrement
       }))
     );
     return {
@@ -1153,9 +1151,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // (4 weeks x 4 lifts = 16 sessions for the default 5/3/1 plan). Ordered
   // week-by-week (every exercise's week 1, then every exercise's week 2, ...)
   // to match the order they'd actually be trained in, not exercise-by-
-  // exercise. An exercise with fewer weeks than another (ONE_WEEK_RHYTHM
-  // alongside FOUR_WEEK_RHYTHM, say) simply stops appearing once its own
-  // weeks are exhausted.
+  // exercise. An exercise with fewer weeks than another simply stops
+  // appearing once its own weeks are exhausted.
   private async buildOneExercisePerSessionCycle(plan: TrainingPlan, baseSequence: number): Promise<TrainingSession[]> {
     const weeksCountFor = (exerciseId: string): number =>
       plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId)?.percentageWeeks?.length || 1;
@@ -1352,11 +1349,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 ? buildTargetSets(workingSetTargets, 'working', (target) => this.applyDeload(plan, exerciseId, target.weight))
                 : buildSets(config.workingSets, 'working');
             } else if (config.exerciseType === 'PERCENTAGE_BASED') {
-              const percentageMode = config.percentageProgressionMode ?? 'FOUR_WEEK_RHYTHM';
               workingSets =
                 this.percentageBasedWorkingSets(
                   exerciseId,
-                  percentageMode,
                   config.percentageWeeks ?? [],
                   exerciseId === onlyExerciseId && weekIndexOverride !== undefined
                     ? weekIndexOverride
@@ -1393,8 +1388,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               incrementScheme: config.incrementScheme,
               deloadAfterFailures: config.deloadAfterFailures,
               deloadPercent: config.deloadPercent,
-              weightIncrement: config.weightIncrement,
-              percentageProgressionMode: config.percentageProgressionMode
+              weightIncrement: config.weightIncrement
             };
           })
         );
@@ -1643,9 +1637,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return count;
   }
 
-  // FOUR_WEEK_RHYTHM's week cycling: how many of this plan's finished
-  // sessions have already included the exercise, used mod weeks.length to
-  // pick the next week - so week 1 comes first, then 2, 3, 4, back to 1.
+  // Drives percentageBasedWorkingSets' week cycling: how many of this
+  // plan's finished sessions have already included the exercise, used mod
+  // weeks.length to pick the next week - so week 1 comes first, then 2, 3,
+  // 4, back to 1.
   private planExerciseFinishedSessionCount(planId: string | undefined, exerciseId: string): number {
     return this.sessions.filter(
       (session) => session.trainingPlanId === planId && session.finished && session.exercises.some((se) => se.exerciseId === exerciseId)
@@ -1653,40 +1648,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   // Used by buildSessionFromPlan to generate a Percentage-Based exercise's
-  // working sets fresh from its plan-config week templates each session.
-  // Returns null when there's no template to generate from, so the caller
-  // can fall back to a plain working-set count instead.
-  private percentageBasedWorkingSets(
-    exerciseId: string,
-    percentageMode: PercentageProgressionMode,
-    weeks: PercentageWeek[],
-    finishedSessionCount: number
-  ): ExerciseSet[] | null {
-    if (percentageMode === 'ALL_SETS') {
-      // No week/percentage cycling at all - the working weight simply
-      // carries forward from history (like TIME_BASED). The first week's
-      // sets are used purely as the reps-per-set template - their
-      // percentage values are ignored in this mode.
-      const template = weeks[0]?.sets;
-      if (!template) {
-        return null;
-      }
-      return template.map((set) => ({
-        id: crypto.randomUUID(),
-        reps: set.reps,
-        targetReps: set.reps,
-        isAmrap: set.isAmrap,
-        weight: this.defaultWeight(exerciseId, 'working'),
-        type: 'working' as SetType
-      }));
-    }
-    // FOUR_WEEK_RHYTHM cycles through the weeks by position, one week per
-    // session, wrapping back to the first week after the last (e.g. 5/3/1's
-    // 3 build-up weeks + a deload week). ONE_WEEK_RHYTHM always uses the
-    // first (only) week. Either way each set's weight is computed fresh
-    // from the exercise's current 1RM times that set's own percentage -
-    // never carried forward from history.
-    const weekIndex = percentageMode === 'ONE_WEEK_RHYTHM' || !weeks.length ? 0 : finishedSessionCount % weeks.length;
+  // working sets fresh from its plan-config week templates each session -
+  // cycles through the weeks by position, one week per session, wrapping
+  // back to the first week after the last (e.g. 5/3/1's 3 build-up weeks +
+  // a deload week). Each set's weight is computed fresh from the exercise's
+  // current 1RM times that set's own percentage - never carried forward
+  // from history. Returns null when there's no template to generate from,
+  // so the caller can fall back to a plain working-set count instead.
+  private percentageBasedWorkingSets(exerciseId: string, weeks: PercentageWeek[], finishedSessionCount: number): ExerciseSet[] | null {
+    const weekIndex = weeks.length ? finishedSessionCount % weeks.length : 0;
     const template = weeks[weekIndex]?.sets;
     if (!template) {
       return null;

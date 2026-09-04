@@ -1,5 +1,4 @@
-.entry-form,
-.exercise-form {
+.entry-form {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
@@ -142,6 +141,14 @@ mat-card {
 }
 
 .exercise-accordion {
+  margin-top: 0.5rem;
+}
+
+.custom-session-list {
+  margin-top: 0.5rem;
+}
+
+.custom-session-accordion {
   margin-top: 0.5rem;
 }
 

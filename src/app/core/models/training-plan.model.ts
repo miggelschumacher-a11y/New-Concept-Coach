@@ -29,26 +29,6 @@ export type IncrementScheme = 'NONE' | 'DOUBLE_PROGRESSION' | 'REP_GOAL' | 'WAVE
 // across sets round-robin, until all have caught up.
 export type DoubleProgressionMode = 'ADD_TO_ALL_SETS' | 'ADD_ONE_TOTAL_REP';
 
-// Only meaningful when exerciseType is PERCENTAGE_BASED - which rhythm
-// drives how a new session's sets are generated for the exercise.
-// 'ALL_SETS': no week/percentage cycling at all - the working weight simply
-// carries forward from history, unchanged, same as TIME_BASED.
-// percentageWeeks[0]'s sets are used purely as the reps-per-set template -
-// their percentage values are ignored in this mode.
-// 'FOUR_WEEK_RHYTHM': cycles through percentageWeeks by position, one week
-// per session (e.g. 5/3/1's 3 build-up weeks + a deload week), wrapping
-// back to the first week after the last. Each set's weight is computed
-// fresh from the exercise's current 1RM times that set's own percentage.
-// 'ONE_WEEK_RHYTHM': same per-set %1RM computation as FOUR_WEEK_RHYTHM, but
-// always from percentageWeeks[0] - no cycling. Switching a plan exercise
-// into this mode (see TrainingPlansComponent.updatePlanExercisePercentage-
-// ProgressionMode) collapses percentageWeeks down to that single week and
-// forces its last set to AMRAP, so the exercise's 1RM - and every set's
-// weight, computed fresh from it each session - keeps progressing on its
-// own from real logged performance instead of staying static forever.
-// Unset defaults to FOUR_WEEK_RHYTHM (matches the seeded default weeks).
-export type PercentageProgressionMode = 'ALL_SETS' | 'FOUR_WEEK_RHYTHM' | 'ONE_WEEK_RHYTHM';
-
 export interface DoubleProgressionConfig {
   // Bottom and top of the rep range, each 1-100. Reaching upperReps on every
   // set resets all sets back to lowerReps with an increased weight.
@@ -131,10 +111,14 @@ export interface PlanExerciseConfig {
   cooldownSetTargets?: WorkingSetTarget[];
   // Only used when exerciseType is PERCENTAGE_BASED - a wave of weeks, each
   // with its own set-by-set %1RM/reps/AMRAP, e.g. a 5/3/1 style cycle.
+  // Cycles through by position, one week per session, wrapping back to the
+  // first week after the last - however many weeks there are.
   percentageWeeks?: PercentageWeek[];
-  // Only used when exerciseType is PERCENTAGE_BASED - see
-  // PercentageProgressionMode. Unset defaults to FOUR_WEEK_RHYTHM.
-  percentageProgressionMode?: PercentageProgressionMode;
+  // Only used when exerciseType is PERCENTAGE_BASED - after how many days
+  // this exercise is trained again within its cycle, 1-7 (defaults to 1
+  // when unset). Purely informational, doesn't drive session
+  // generation/scheduling itself.
+  cycleDays?: number;
   // Only used when incrementScheme is DOUBLE_PROGRESSION.
   doubleProgression?: DoubleProgressionConfig;
   // Only used when incrementScheme is REP_GOAL.
@@ -163,6 +147,30 @@ export interface PlanExerciseConfig {
   showCooldownSets?: boolean;
 }
 
+// One exercise within a CustomPlanSession, with its own working-set list -
+// same shape/editing convention as PlanExerciseConfig.workingSetTargets, but
+// this one exercise only ever belongs to this one session.
+export interface CustomSessionExercise {
+  exerciseId: string;
+  workingSetTargets: WorkingSetTarget[];
+}
+
+// One training unit within a self-created plan's "Neue Trainingseinheit"
+// list - its own exercise selection, independent of every other session in
+// the plan. Displayed as "Einheit N" by position (1-indexed), not a stored
+// number, so it stays correct if a session is ever removed from the middle.
+export interface CustomPlanSession {
+  id: string;
+  // Same dual-array shape as TrainingPlan's own exerciseIds/exerciseConfigs -
+  // exerciseIds drives the Exercises select field directly (a stable array
+  // reference, unlike a derived one recomputed every change-detection pass,
+  // which caused mat-select's multi-selection to loop), exercises carries
+  // each selected exercise's own working-set list, kept in sync by
+  // updateCustomSessionExercises.
+  exerciseIds: string[];
+  exercises: CustomSessionExercise[];
+}
+
 export interface TrainingPlan {
   id: string;
   name: string;
@@ -173,6 +181,10 @@ export interface TrainingPlan {
   // Per-exercise sets/reps config for self-created plans (no planSessions).
   // One entry per id in exerciseIds, kept in sync by updatePlanExercises.
   exerciseConfigs?: PlanExerciseConfig[];
+  // Self-created (non-default) plans built via "Neue Trainingseinheit" -
+  // replaces exerciseIds/exerciseConfigs above as the editable structure for
+  // these plans, one entry per training session the user has added.
+  customSessions?: CustomPlanSession[];
   // Only meaningful when planSessions is unset - "Create from plan" and
   // replenishment generate one session per exerciseId instead of a single
   // session bundling every exercise, e.g. 5/3/1's one-lift-per-day split.

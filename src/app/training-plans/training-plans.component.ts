@@ -25,15 +25,16 @@ import {
   PlanExerciseConfig,
   PlanExerciseType,
   IncrementScheme,
-  PercentageProgressionMode,
   DoubleProgressionMode,
   WorkingSetTarget,
-  PercentageSet
+  PercentageSet,
+  CustomPlanSession,
+  CustomSessionExercise
 } from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
-import { effectiveOneRepMax as computeEffectiveOneRepMax } from '../core/utils/one-rep-max.util';
+import { effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
 import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
@@ -42,7 +43,6 @@ import { DEFAULT_GREYSKULL_PLAN_ID } from '../core/data/default-greyskull-plan';
 import { DEFAULT_NSUNS_PLAN_ID } from '../core/data/default-nsuns-plan';
 import { DEFAULT_HEAVYDUTY_PLAN_ID } from '../core/data/default-heavyduty-plan';
 import { DEFAULT_HST_PLAN_ID } from '../core/data/default-hst-plan';
-import { DEFAULT_PERCENTAGE_WEEKS } from '../core/data/default-percentage-weeks';
 
 const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_531_PLAN_ID]: 'trainingPlans.plan531Description',
@@ -510,6 +510,103 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     );
   }
 
+  async addCustomSession(plan: TrainingPlan): Promise<void> {
+    if (plan.isDefault) {
+      return;
+    }
+    const session: CustomPlanSession = { id: crypto.randomUUID(), exerciseIds: [], exercises: [] };
+    plan.customSessions = [...(plan.customSessions ?? []), session];
+    await this.trainingPlansService.update(plan);
+  }
+
+  // Keeps each retained exercise's own working-set list intact - only
+  // newly-added exercises start with an empty one, same convenience as
+  // updatePlanExercises does for the old plan-level exerciseConfigs.
+  async updateCustomSessionExercises(plan: TrainingPlan, sessionId: string, exerciseIds: string[]): Promise<void> {
+    plan.customSessions = (plan.customSessions ?? []).map((session) => {
+      if (session.id !== sessionId) {
+        return session;
+      }
+      const existingByExerciseId = new Map((session.exercises ?? []).map((exercise) => [exercise.exerciseId, exercise]));
+      const sessionExercises: CustomSessionExercise[] = exerciseIds.map(
+        (exerciseId) => existingByExerciseId.get(exerciseId) ?? { exerciseId, workingSetTargets: [] }
+      );
+      return { ...session, exerciseIds, exercises: sessionExercises };
+    });
+    await this.trainingPlansService.update(plan);
+  }
+
+  private async updateCustomSessionSetTargets(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    updater: (targets: WorkingSetTarget[]) => WorkingSetTarget[]
+  ): Promise<void> {
+    plan.customSessions = (plan.customSessions ?? []).map((session) => {
+      if (session.id !== sessionId) {
+        return session;
+      }
+      return {
+        ...session,
+        exercises: (session.exercises ?? []).map((exercise) =>
+          exercise.exerciseId === exerciseId ? { ...exercise, workingSetTargets: updater(exercise.workingSetTargets ?? []) } : exercise
+        )
+      };
+    });
+    await this.trainingPlansService.update(plan);
+  }
+
+  // Copies the previous set's own target/weight, same convenience as
+  // addSetTarget for the old plan-level editor - only the very first set
+  // falls back to a blank prescription.
+  async addCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string): Promise<void> {
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) => {
+      const previous = targets[targets.length - 1];
+      return [
+        ...targets,
+        { id: crypto.randomUUID(), targetReps: previous?.targetReps ?? '', weight: previous?.weight ?? 0 }
+      ];
+    });
+  }
+
+  async removeCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string, index: number): Promise<void> {
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) => targets.filter((_, i) => i !== index));
+  }
+
+  // Same fill-if-empty behavior as updateSetTargetReps for the old plan-level
+  // editor - leaving this field fills the same target into every other
+  // not-yet-prescribed row of the same exercise's set list.
+  async updateCustomSessionSetReps(plan: TrainingPlan, sessionId: string, exerciseId: string, index: number, value: string): Promise<void> {
+    const targetReps = value.trim();
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) =>
+      targets.map((target, i) => {
+        if (i === index) {
+          return { ...target, targetReps };
+        }
+        return targetReps !== '' && target.targetReps === '' ? { ...target, targetReps } : target;
+      })
+    );
+  }
+
+  // Same fill-if-empty behavior as updateSetTargetWeight above, for weight.
+  async updateCustomSessionSetWeight(plan: TrainingPlan, sessionId: string, exerciseId: string, index: number, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const weight = Number.isFinite(parsed) ? Math.max(parsed, 0) : 0;
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, (targets) =>
+      targets.map((target, i) => {
+        if (i === index) {
+          return { ...target, weight };
+        }
+        return weight > 0 && target.weight === 0 ? { ...target, weight } : target;
+      })
+    );
+  }
+
+  // Displayed with trailing zeros (e.g. "80.00"), matching setTargetWeightDisplay.
+  customSessionSetWeightDisplay(target: WorkingSetTarget): string {
+    return target.weight.toFixed(2);
+  }
+
   // Self-healing: a config saved before workingSetTargets existed (or one
   // just switched to WEIGHT_BASED) gets a freshly-seeded list here rather
   // than needing a one-off migration - same pattern as defaultExerciseConfig
@@ -836,36 +933,16 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // actually applied (see sessions.component.ts) when the field is blank.
   readonly defaultWeightIncrement = DEFAULT_WEIGHT_INCREMENT;
 
-  percentageProgressionModeDisplay(plan: TrainingPlan, exerciseId: string): PercentageProgressionMode {
-    return this.planExerciseConfig(plan, exerciseId).percentageProgressionMode ?? 'FOUR_WEEK_RHYTHM';
+  // The Cycle Days dropdown's fixed option list - only 1 to 7 are valid.
+  readonly cycleDaysOptions = [1, 2, 3, 4, 5, 6, 7];
+
+  // Defaults to 1 when unset, so the dropdown never starts out unselected.
+  cycleDaysDisplay(plan: TrainingPlan, exerciseId: string): number {
+    return this.planExerciseConfig(plan, exerciseId).cycleDays ?? 1;
   }
 
-  async updatePlanExercisePercentageProgressionMode(
-    plan: TrainingPlan,
-    exerciseId: string,
-    percentageProgressionMode: PercentageProgressionMode
-  ): Promise<void> {
-    const config = this.planExerciseConfig(plan, exerciseId);
-    const patch: Partial<PlanExerciseConfig> = { percentageProgressionMode };
-    if (percentageProgressionMode === 'ONE_WEEK_RHYTHM') {
-      // Only percentageWeeks[0] is ever used in this mode (see
-      // PercentageProgressionMode's doc comment) - collapse down to just
-      // that week so the editor stops showing the now-dead weeks 2+, and
-      // force its last set to AMRAP so the exercise's 1RM (and therefore
-      // every set's weight) keeps refreshing itself from real logged
-      // performance instead of staying static forever.
-      const week = config.percentageWeeks?.[0];
-      if (week?.sets.length) {
-        const lastIndex = week.sets.length - 1;
-        patch.percentageWeeks = [{ sets: week.sets.map((set, i) => (i === lastIndex ? { ...set, isAmrap: true } : set)) }];
-      }
-    } else if (percentageProgressionMode === 'FOUR_WEEK_RHYTHM' && (config.percentageWeeks?.length ?? 0) < 4) {
-      // Coming back from a single collapsed week - there's no meaningful
-      // way to restore weeks that were dropped, so reseed the standard
-      // 4-week template.
-      patch.percentageWeeks = DEFAULT_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }));
-    }
-    await this.updateConfig(plan, exerciseId, patch);
+  async updatePlanExerciseCycleDays(plan: TrainingPlan, exerciseId: string, cycleDays: number): Promise<void> {
+    await this.updateConfig(plan, exerciseId, { cycleDays });
   }
 
   async updatePlanExerciseShowWarmupSets(plan: TrainingPlan, exerciseId: string, checked: boolean): Promise<void> {
@@ -1026,20 +1103,25 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     });
   }
 
-  percentageSetWeight(exerciseId: string, percentage: number): number | null {
-    const oneRepMax = this.effectiveOneRepMax(exerciseId);
-    if (!oneRepMax) {
-      return null;
-    }
-    const increment = this.settingsService.getSettings().weightUnit === 'lbs' ? 5 : 2.5;
-    return Math.round((oneRepMax * percentage) / 100 / increment) * increment;
-  }
-
-  // Same effective-1RM rule as SessionsComponent.effectiveOneRepMax, so this
-  // preview always matches what an actual session generated from the plan
-  // will compute.
+  // Same effective-1RM rule as SessionsComponent.effectiveOneRepMax, so the
+  // exercise header's 1RM figure always matches what an actual session
+  // generated from the plan will compute from.
   private effectiveOneRepMax(exerciseId: string): number | undefined {
     const exercise = this.exercises.find((e) => e.id === exerciseId);
     return exercise ? computeEffectiveOneRepMax(exercise) : undefined;
+  }
+
+  // Shown once in the exercise's own accordion header, replacing the
+  // per-AMRAP-checkbox weight preview that used to repeat it on every set.
+  exerciseOneRepMax(exerciseId: string): number | undefined {
+    return this.effectiveOneRepMax(exerciseId);
+  }
+
+  // Which symbol the header's 1RM figure should use - "≈" for an
+  // auto-estimate, "=" for an exact custom override - same distinction
+  // SessionsComponent.exerciseOneRepMaxLabelKey makes.
+  exerciseOneRepMaxLabelKey(exerciseId: string): string {
+    const exercise = this.exercises.find((e) => e.id === exerciseId);
+    return exercise && oneRepMaxOverrideChecked(exercise) ? 'exercises.oneRepMaxCustom' : 'exercises.oneRepMaxEstimated';
   }
 }
