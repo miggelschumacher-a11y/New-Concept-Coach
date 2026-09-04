@@ -153,6 +153,16 @@ export interface PlanExerciseConfig {
 export interface CustomSessionExercise {
   exerciseId: string;
   workingSetTargets: WorkingSetTarget[];
+  // Same "Settings" accordion fields as PlanExerciseConfig - only meaningful
+  // when the owning session's exerciseType is WEIGHT_BASED.
+  incrementScheme?: IncrementScheme;
+  weightIncrement?: number;
+  // Auto-deload safety net, same meaning as PlanExerciseConfig's own fields.
+  deloadAfterFailures?: number;
+  deloadPercent?: number;
+  // Optional and treated as true when absent, same as PlanExerciseConfig.
+  showWarmupSets?: boolean;
+  showCooldownSets?: boolean;
 }
 
 // One training unit within a self-created plan's "Neue Trainingseinheit"

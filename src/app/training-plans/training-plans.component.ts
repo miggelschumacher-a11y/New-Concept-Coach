@@ -545,6 +545,96 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.trainingPlansService.update(plan);
   }
 
+  // Same "Settings" accordion as a default plan's own exercises (see
+  // updateConfig) - patches one field on one exercise within one session.
+  private async updateCustomSessionExerciseConfig(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    patch: Partial<CustomSessionExercise>
+  ): Promise<void> {
+    plan.customSessions = (plan.customSessions ?? []).map((session) => {
+      if (session.id !== sessionId) {
+        return session;
+      }
+      return {
+        ...session,
+        exercises: (session.exercises ?? []).map((exercise) =>
+          exercise.exerciseId === exerciseId ? { ...exercise, ...patch } : exercise
+        )
+      };
+    });
+    await this.trainingPlansService.update(plan);
+  }
+
+  async updateCustomSessionExerciseIncrementScheme(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    incrementScheme: IncrementScheme
+  ): Promise<void> {
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { incrementScheme });
+  }
+
+  customSessionWeightIncrementDisplay(exercise: CustomSessionExercise): string {
+    return exercise.weightIncrement !== undefined ? exercise.weightIncrement.toFixed(2) : '';
+  }
+
+  async updateCustomSessionExerciseWeightIncrement(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    value: string
+  ): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const weightIncrement = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 9999) * 100) / 100 : undefined;
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { weightIncrement });
+  }
+
+  async updateCustomSessionExerciseDeloadAfterFailures(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    value: string
+  ): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const deloadAfterFailures = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 1000) : undefined;
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { deloadAfterFailures });
+  }
+
+  customSessionDeloadPercentDisplay(exercise: CustomSessionExercise): string {
+    return exercise.deloadPercent !== undefined ? exercise.deloadPercent.toFixed(2) : '';
+  }
+
+  async updateCustomSessionExerciseDeloadPercent(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    value: string
+  ): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : undefined;
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { deloadPercent });
+  }
+
+  async updateCustomSessionExerciseShowWarmupSets(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    checked: boolean
+  ): Promise<void> {
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { showWarmupSets: checked });
+  }
+
+  async updateCustomSessionExerciseShowCooldownSets(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    checked: boolean
+  ): Promise<void> {
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { showCooldownSets: checked });
+  }
+
   private async updateCustomSessionSetTargets(
     plan: TrainingPlan,
     sessionId: string,
