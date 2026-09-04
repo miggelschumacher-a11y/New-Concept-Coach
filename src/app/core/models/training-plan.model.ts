@@ -159,6 +159,11 @@ export interface CustomSessionExercise {
   weightIncrement?: number;
   // Auto-deload safety net, same meaning as PlanExerciseConfig's own fields.
   deloadAfterFailures?: number;
+  // Whether deloadPercent below is an absolute weight amount or a percentage
+  // - unset is treated as 'WEIGHT' (the default). Same value slot either
+  // way, same dual-purpose convention as CustomSessionExercise's own
+  // workingSetTargets weight field switching to a percentage display.
+  deloadType?: 'WEIGHT' | 'PERCENT';
   deloadPercent?: number;
   // Optional and treated as true when absent, same as PlanExerciseConfig.
   showWarmupSets?: boolean;

@@ -606,6 +606,17 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return (exercise.deloadPercent ?? 0).toFixed(2);
   }
 
+  async updateCustomSessionExerciseDeloadType(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    deloadType: 'WEIGHT' | 'PERCENT'
+  ): Promise<void> {
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { deloadType });
+  }
+
+  // Percent mode - same 0-100 clamp as deloadAfterFailures' own tooltip
+  // describes.
   async updateCustomSessionExerciseDeloadPercent(
     plan: TrainingPlan,
     sessionId: string,
@@ -614,6 +625,18 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     const parsed = parseFloat(value.replace(',', '.'));
     const deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 100) * 100) / 100 : undefined;
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { deloadPercent });
+  }
+
+  // Weight mode - same 4-int/2-decimal clamp as every other weight field.
+  async updateCustomSessionExerciseDeloadWeight(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    value: string
+  ): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const deloadPercent = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 9999) * 100) / 100 : undefined;
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { deloadPercent });
   }
 
