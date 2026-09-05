@@ -527,31 +527,31 @@
                   }
                 </mat-expansion-panel-header>
 
-                @if (canEditExerciseTypeInSession(session)) {
-                  <mat-form-field
-                    appearance="outline"
-                    class="exercise-settings-info-field"
-                    [matTooltip]="hasCompletedSetInExercise(sessionExercise) ? ('sessions.exerciseTypeLockedTooltip' | translate) : null"
-                  >
-                    <mat-label>Select Exercise-Type</mat-label>
-                    <mat-select
-                      [ngModel]="sessionExerciseTypeDisplay(sessionExercise)"
-                      name="sessionExerciseType-{{ sessionExercise.exerciseId }}"
-                      [disabled]="hasCompletedSetInExercise(sessionExercise)"
-                      (selectionChange)="updateSessionExerciseType(session, sessionExercise, $event.value)"
-                    >
-                      <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
-                      <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
-                      <mat-option value="TIME_BASED">Time-Based</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                }
-
                 <mat-accordion multi class="exercise-settings-accordion">
                   <mat-expansion-panel (afterExpand)="onSettingsPanelExpand()">
                     <mat-expansion-panel-header>
                       <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
                     </mat-expansion-panel-header>
+
+                    @if (canEditExerciseTypeInSession(session)) {
+                      <mat-form-field
+                        appearance="outline"
+                        class="exercise-settings-info-field"
+                        [matTooltip]="hasCompletedSetInExercise(sessionExercise) ? ('sessions.exerciseTypeLockedTooltip' | translate) : null"
+                      >
+                        <mat-label>Select Exercise-Type</mat-label>
+                        <mat-select
+                          [ngModel]="sessionExerciseTypeDisplay(sessionExercise)"
+                          name="sessionExerciseType-{{ sessionExercise.exerciseId }}"
+                          [disabled]="hasCompletedSetInExercise(sessionExercise)"
+                          (selectionChange)="updateSessionExerciseType(session, sessionExercise, $event.value)"
+                        >
+                          <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>
+                          <mat-option value="PERCENTAGE_BASED">Percentage-Based</mat-option>
+                          <mat-option value="TIME_BASED">Time-Based</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    }
 
                     <ng-template #exerciseSettingsSetsTab>
                       <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountWarmupTooltip' | translate">
@@ -689,7 +689,7 @@
                             </div>
                           </mat-tab>
                         }
-                        @if (sessionExerciseTypeDisplay(sessionExercise) !== 'TIME_BASED') {
+                        @if (sessionExerciseTypeDisplay(sessionExercise) === 'WEIGHT_BASED') {
                           <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">
                             <mat-checkbox
                               [checked]="!sessionExercise.deloadAfterFailures"
