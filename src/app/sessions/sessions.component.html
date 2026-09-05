@@ -645,7 +645,7 @@
 
                     @if (canEditExerciseTypeInSession(session)) {
                       <mat-tab-group class="exercise-settings-info-tabs" animationDuration="0ms">
-                        @if (sessionExerciseTypeDisplay(sessionExercise) === 'WEIGHT_BASED') {
+                        @if (sessionExerciseTypeDisplay(sessionExercise) !== 'TIME_BASED') {
                           <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
                             <div class="exercise-settings-info-row">
                               <mat-form-field
@@ -689,7 +689,7 @@
                             </div>
                           </mat-tab>
                         }
-                        @if (sessionExerciseTypeDisplay(sessionExercise) === 'WEIGHT_BASED') {
+                        @if (sessionExerciseTypeDisplay(sessionExercise) !== 'TIME_BASED') {
                           <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">
                             <mat-checkbox
                               [checked]="!sessionExercise.deloadAfterFailures"

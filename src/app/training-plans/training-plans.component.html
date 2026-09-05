@@ -550,7 +550,7 @@
                                 </div>
 
                                 <mat-tab-group class="exercise-settings-tabs" animationDuration="0ms">
-                                  @if (session.exerciseType === 'WEIGHT_BASED') {
+                                  @if (session.exerciseType !== 'TIME_BASED') {
                                     <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
                                       <div class="exercise-settings-row">
                                         <mat-form-field appearance="outline" class="exercise-settings-field">
@@ -589,7 +589,7 @@
                                       </div>
                                     </mat-tab>
                                   }
-                                  @if (session.exerciseType === 'WEIGHT_BASED') {
+                                  @if (session.exerciseType !== 'TIME_BASED') {
                                     <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">
                                       <mat-checkbox
                                         [checked]="!sessionExercise.deloadAfterFailures"
@@ -910,7 +910,7 @@
                       </div>
 
                       <mat-tab-group class="exercise-settings-tabs" animationDuration="0ms">
-                        @if (planExerciseConfig(plan, exerciseId).exerciseType !== 'PERCENTAGE_BASED') {
+                        @if (planExerciseConfig(plan, exerciseId).exerciseType !== 'TIME_BASED') {
                           <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
                             @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
                               <div class="exercise-type-row">
@@ -955,7 +955,7 @@
                             </div>
                           </mat-tab>
                         }
-                        @if (planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED') {
+                        @if (planExerciseConfig(plan, exerciseId).exerciseType !== 'TIME_BASED') {
                           <mat-tab [label]="'trainingPlans.weightReductionTabLabel' | translate">
                             <div class="exercise-settings-row">
                               <mat-form-field
