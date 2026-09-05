@@ -899,7 +899,7 @@
                                   matInput
                                   type="text"
                                   inputmode="numeric"
-                                  [(ngModel)]="fieldBuffer(set, sessionExercise).reps"
+                                  [(ngModel)]="fieldBuffer(set, session, sessionExercise).reps"
                                   name="reps-{{ set.id }}"
                                   [readonly]="set.done"
                                   [disabled]="isPaused(session)"
@@ -914,7 +914,7 @@
                               <mat-form-field appearance="outline" class="set-field set-field-weight">
                                 <mat-label>
                                   {{ weightUnitLabel }}
-                                  @if (setType.value === 'working' && workingSetOneRepMaxPercentage(sessionExercise, set); as oneRepMaxPercentage) {
+                                  @if (setType.value === 'working' && workingSetOneRepMaxPercentage(session, sessionExercise, set); as oneRepMaxPercentage) {
                                     &nbsp;({{ oneRepMaxPercentage }}%)
                                   }
                                   @if (set.done) {
@@ -925,7 +925,7 @@
                                   matInput
                                   type="text"
                                   inputmode="decimal"
-                                  [(ngModel)]="fieldBuffer(set, sessionExercise).weight"
+                                  [(ngModel)]="fieldBuffer(set, session, sessionExercise).weight"
                                   name="weight-{{ set.id }}"
                                   [readonly]="set.done"
                                   [disabled]="isPaused(session)"

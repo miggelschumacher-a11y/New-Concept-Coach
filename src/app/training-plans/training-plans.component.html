@@ -853,7 +853,7 @@
           </div>
         }
 
-        @if (plan.isDefault && (!plan.planSessions || plan.planSessions.length === 0) && plan.exerciseIds.length > 0) {
+        @if ((!plan.planSessions || plan.planSessions.length === 0) && plan.exerciseIds.length > 0) {
           <mat-accordion multi class="exercise-accordion">
             @for (exerciseId of plan.exerciseIds; track exerciseId) {
               <mat-expansion-panel>

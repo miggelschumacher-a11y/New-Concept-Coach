@@ -173,13 +173,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    await Promise.all([
-      this.load(),
-      this.loadExercises(),
-      this.loadTrainingPlans(),
-      this.loadProgressionStates(),
-      this.loadBodyWeightEntries()
-    ]);
+    // load() renders the session list, and that first render already reads
+    // set weights through fieldBuffer - which computes and caches a
+    // Percentage-Based set's weight (1RM + deload) exactly once. So
+    // everything that computation depends on must be in place *before*
+    // load(), not merely alongside it: running load() in the same
+    // Promise.all as these let it win the race on a fast load and cache a
+    // deload-less weight forever, from a still-empty trainingPlans/exercises.
+    await Promise.all([this.loadExercises(), this.loadTrainingPlans(), this.loadProgressionStates(), this.loadBodyWeightEntries()]);
+    await this.load();
     this.timerTickerId = setInterval(() => this.tickCountdowns(), 1000);
     document.addEventListener('click', this.handleDocumentClick, true);
   }
@@ -1062,7 +1064,22 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // can't derive a sensible starting weight, so an untracked exercise falls
   // back too.
   private async peekProgressionWeight(sessionExercise: SessionExercise, type: SetType, fallbackWeight: number): Promise<number> {
-    if (type !== 'working' || sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
+    if (type !== 'working') {
+      return fallbackWeight;
+    }
+    // Percentage-Based has no incrementScheme/tracked state to pull a weight
+    // from - it just carries the previous set's weight forward as-is, so the
+    // exercise's own deload needs applying here same as every other type.
+    // (A percentage-based *plan* exercise's set instead carries its own
+    // percentage field, which initialSetWeight recomputes - and deloads -
+    // fresh from the exercise's current 1RM every time it's displayed,
+    // overriding whatever this returns; this only matters for a manually-
+    // managed Percentage-Based exercise, whose sets never get a percentage
+    // field to begin with.)
+    if (sessionExercise.exerciseType === 'PERCENTAGE_BASED') {
+      return this.applyManualDeload(sessionExercise, fallbackWeight);
+    }
+    if (sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
       return fallbackWeight;
     }
     const exerciseId = sessionExercise.exerciseId;
@@ -1394,6 +1411,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
             } else if (config.exerciseType === 'PERCENTAGE_BASED') {
               workingSets =
                 this.percentageBasedWorkingSets(
+                  plan,
                   exerciseId,
                   config.percentageWeeks ?? [],
                   exerciseId === onlyExerciseId && weekIndexOverride !== undefined
@@ -1708,10 +1726,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // cycles through the weeks by position, one week per session, wrapping
   // back to the first week after the last (e.g. 5/3/1's 3 build-up weeks +
   // a deload week). Each set's weight is computed fresh from the exercise's
-  // current 1RM times that set's own percentage - never carried forward
-  // from history. Returns null when there's no template to generate from,
-  // so the caller can fall back to a plain working-set count instead.
-  private percentageBasedWorkingSets(exerciseId: string, weeks: PercentageWeek[], finishedSessionCount: number): ExerciseSet[] | null {
+  // current 1RM times that set's own percentage, with the plan's own deload
+  // applied on top same as every other exercise type - never carried forward
+  // from history otherwise. Returns null when there's no template to
+  // generate from, so the caller can fall back to a plain working-set count
+  // instead.
+  private percentageBasedWorkingSets(plan: TrainingPlan, exerciseId: string, weeks: PercentageWeek[], finishedSessionCount: number): ExerciseSet[] | null {
     const weekIndex = weeks.length ? finishedSessionCount % weeks.length : 0;
     const template = weeks[weekIndex]?.sets;
     if (!template) {
@@ -1722,7 +1742,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       reps: set.reps,
       targetReps: set.reps,
       isAmrap: set.isAmrap,
-      weight: this.percentageSetWeight(exerciseId, set.percentage),
+      weight: this.applyDeload(plan, exerciseId, this.percentageSetWeight(exerciseId, set.percentage)),
       percentage: set.percentage,
       type: 'working' as SetType
     }));
@@ -2269,13 +2289,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  fieldBuffer(set: ExerciseSet, sessionExercise?: SessionExercise): { reps: string; weight: string } {
+  fieldBuffer(set: ExerciseSet, session?: TrainingSession, sessionExercise?: SessionExercise): { reps: string; weight: string } {
     let buffer = this.fieldBuffers.get(set.id);
     if (!buffer) {
       // Prefill with the target reps (the top of the range, if there is
       // one) so hitting the target needs no typing at all - just confirm.
       const reps = !set.done && set.targetReps !== undefined ? (set.targetRepsMax ?? set.targetReps) : set.reps;
-      buffer = { reps: String(reps), weight: this.initialSetWeight(set, sessionExercise).toFixed(2) };
+      buffer = { reps: String(reps), weight: this.initialSetWeight(set, session, sessionExercise).toFixed(2) };
       this.fieldBuffers.set(set.id, buffer);
     }
     return buffer;
@@ -2285,14 +2305,23 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // exercise's CURRENT 1RM (custom override respected) rather than read from
   // the frozen value percentageBasedWorkingSets stored back when the session
   // was generated - so a 1RM change after generation but before this set is
-  // logged is reflected instead of silently going stale. Every other case
-  // (already done, not Percentage-Based, or no 1RM to compute from) just
-  // keeps the set's own stored weight.
-  private initialSetWeight(set: ExerciseSet, sessionExercise?: SessionExercise): number {
+  // logged is reflected instead of silently going stale. The exercise's own
+  // deload is applied on top of that recompute too, same as
+  // percentageBasedWorkingSets' own generation-time weight - otherwise this
+  // live recompute would silently override a deloaded weight back to full
+  // the moment the field is first read. Every other case (already done, not
+  // Percentage-Based, or no 1RM to compute from) just keeps the set's own
+  // stored weight.
+  private initialSetWeight(set: ExerciseSet, session?: TrainingSession, sessionExercise?: SessionExercise): number {
     if (!set.done && sessionExercise?.exerciseType === 'PERCENTAGE_BASED' && set.percentage !== undefined) {
       const oneRepMax = this.effectiveOneRepMax(sessionExercise.exerciseId);
       if (oneRepMax) {
-        return this.percentageSetWeight(sessionExercise.exerciseId, set.percentage);
+        const weight = this.percentageSetWeight(sessionExercise.exerciseId, set.percentage);
+        if (!session) {
+          return weight;
+        }
+        const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
+        return plan ? this.applyDeload(plan, sessionExercise.exerciseId, weight) : this.applyManualDeload(sessionExercise, weight);
       }
     }
     return set.weight;
@@ -2446,8 +2475,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // live field buffer (like setVolume) rather than set.weight, so it updates
   // as the weight is typed instead of only after the set is marked done.
   // Null hides it: no weight yet, or no 1RM to compare against.
-  workingSetOneRepMaxPercentage(sessionExercise: SessionExercise, set: ExerciseSet): number | null {
-    const weight = parseFloat(this.fieldBuffer(set, sessionExercise).weight.replace(',', '.'));
+  workingSetOneRepMaxPercentage(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): number | null {
+    const weight = parseFloat(this.fieldBuffer(set, session, sessionExercise).weight.replace(',', '.'));
     if (!Number.isFinite(weight) || weight <= 0) {
       return null;
     }
