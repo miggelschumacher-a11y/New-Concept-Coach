@@ -528,11 +528,16 @@
                 </mat-expansion-panel-header>
 
                 @if (canEditExerciseTypeInSession(session)) {
-                  <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                  <mat-form-field
+                    appearance="outline"
+                    class="exercise-settings-info-field"
+                    [matTooltip]="hasCompletedSetInExercise(sessionExercise) ? ('sessions.exerciseTypeLockedTooltip' | translate) : null"
+                  >
                     <mat-label>Select Exercise-Type</mat-label>
                     <mat-select
                       [ngModel]="sessionExerciseTypeDisplay(sessionExercise)"
                       name="sessionExerciseType-{{ sessionExercise.exerciseId }}"
+                      [disabled]="hasCompletedSetInExercise(sessionExercise)"
                       (selectionChange)="updateSessionExerciseType(session, sessionExercise, $event.value)"
                     >
                       <mat-option value="WEIGHT_BASED">Weight-Based</mat-option>

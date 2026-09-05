@@ -273,6 +273,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return plan.methodology !== TrainingMethodology.TIER_LINE_PROGRESSION && !plan.isDefault;
   }
 
+  // Once a set has been completed, its exerciseType is baked into whatever
+  // that set already tracked (reps/weight vs. seconds) - switching type
+  // afterward would leave a done set holding the wrong kind of data.
+  hasCompletedSetInExercise(sessionExercise: SessionExercise): boolean {
+    return sessionExercise.sets.some((set) => set.done);
+  }
+
   // Works around a MatTabGroup layout quirk: when it first paints while its
   // ancestor mat-expansion-panel is still animating open, its tab body can
   // get stuck measuring zero height, rendering blank until something forces
@@ -1969,6 +1976,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sessionExercise: SessionExercise,
     exerciseType: PlanExerciseType
   ): Promise<void> {
+    if (this.hasCompletedSetInExercise(sessionExercise)) {
+      return;
+    }
     sessionExercise.exerciseType = exerciseType;
     await this.persist(session);
   }
