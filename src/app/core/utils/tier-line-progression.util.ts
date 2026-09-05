@@ -15,6 +15,17 @@ export const DELOAD_FACTOR = 0.9; // 10% Reduktion bei Reset nach Stage 3
 
 export const FAIL_THRESHOLD = 2; // 2x Fail in Folge -> Stage-Wechsel
 
+export type IncrementType = 'WEIGHT' | 'PERCENT';
+
+// A progression step on top of a base weight - a flat addition for 'WEIGHT'
+// (the default), or a percentage increase for 'PERCENT'. Shared by every
+// non-TierLine progression scheme's own success branch. Rounded to 2
+// decimals, matching every other weight field's own precision.
+export function applyWeightIncrement(baseWeight: number, increment: number, incrementType: IncrementType = 'WEIGHT'): number {
+  const next = incrementType === 'PERCENT' ? baseWeight * (1 + increment / 100) : baseWeight + increment;
+  return Math.round(next * 100) / 100;
+}
+
 export function computeNextTierLineState(
   state: TierLineProgressionState,
   result: SessionResult,

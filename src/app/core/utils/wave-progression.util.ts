@@ -1,7 +1,7 @@
 import { WaveProgressionConfig } from '../models/training-plan.model';
 import { WaveProgressionState } from '../models/wave-progression.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
-import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from './tier-line-progression.util';
+import { applyWeightIncrement, IncrementType, WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from './tier-line-progression.util';
 
 export interface WaveProgressionResult {
   achievedReps: number[];
@@ -13,7 +13,8 @@ export function computeNextWaveProgressionState(
   config: WaveProgressionConfig,
   result: WaveProgressionResult,
   exerciseCategory: ExerciseWeightCategory,
-  incrementOverride?: number
+  incrementOverride?: number,
+  incrementType?: IncrementType
 ): WaveProgressionState {
   const success = result.achievedReps.every((reps) => reps >= state.currentReps);
   if (!success) {
@@ -29,7 +30,7 @@ export function computeNextWaveProgressionState(
     // Still descending through this wave: weight climbs, reps step down.
     return {
       ...state,
-      currentWeight: state.currentWeight + increment,
+      currentWeight: applyWeightIncrement(state.currentWeight, increment, incrementType),
       currentReps: Math.max(state.currentReps - config.repsDecrement, config.finalReps),
       lastUpdated: new Date()
     };
@@ -37,7 +38,7 @@ export function computeNextWaveProgressionState(
 
   // Bottom of the wave reached: start a new wave one increment above where
   // this one started, at the top of the rep range again.
-  const waveStartWeight = state.waveStartWeight + increment;
+  const waveStartWeight = applyWeightIncrement(state.waveStartWeight, increment, incrementType);
   return {
     ...state,
     waveStartWeight,

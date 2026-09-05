@@ -143,6 +143,10 @@ export interface PlanExerciseConfig {
   // exercise's working sets gain each time its incrementScheme records a
   // success. Unset falls back to DEFAULT_WEIGHT_INCREMENT (1).
   weightIncrement?: number;
+  // Whether weightIncrement above is an absolute weight amount or a
+  // percentage - unset is treated as 'WEIGHT' (the default), same
+  // dual-purpose convention as CustomSessionExercise's own deloadType.
+  incrementType?: 'WEIGHT' | 'PERCENT';
   // Session-level defaults for a session exercise generated from this plan
   // exercise - same fields/meaning as SessionExercise's own show
   // warmup/cooldown booleans (see session.model.ts). Optional and treated
@@ -165,6 +169,10 @@ export interface CustomSessionExercise {
   // when the owning session's exerciseType is WEIGHT_BASED.
   incrementScheme?: IncrementScheme;
   weightIncrement?: number;
+  // Whether weightIncrement above is an absolute weight amount or a
+  // percentage - unset is treated as 'WEIGHT' (the default), same
+  // dual-purpose convention as this exercise's own deloadType.
+  incrementType?: 'WEIGHT' | 'PERCENT';
   // Auto-deload safety net, same meaning as PlanExerciseConfig's own fields.
   deloadAfterFailures?: number;
   // Whether deloadPercent below is an absolute weight amount or a percentage

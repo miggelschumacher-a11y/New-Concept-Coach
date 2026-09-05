@@ -686,6 +686,18 @@
                                   (change)="updateSessionWeightIncrement(session, sessionExercise, $any($event.target).value)"
                                 />
                               </mat-form-field>
+
+                              <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                                <mat-label>{{ 'trainingPlans.incrementTypeLabel' | translate }}</mat-label>
+                                <mat-select
+                                  [ngModel]="sessionExercise.incrementType ?? 'WEIGHT'"
+                                  name="sessionIncrementType-{{ sessionExercise.exerciseId }}"
+                                  (selectionChange)="updateSessionIncrementType(session, sessionExercise, $event.value)"
+                                >
+                                  <mat-option value="WEIGHT">{{ 'trainingPlans.deloadTypeWeight' | translate }}</mat-option>
+                                  <mat-option value="PERCENT">{{ 'trainingPlans.deloadTypePercent' | translate }}</mat-option>
+                                </mat-select>
+                              </mat-form-field>
                             </div>
                           </mat-tab>
                         }

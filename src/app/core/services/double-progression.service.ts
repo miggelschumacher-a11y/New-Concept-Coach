@@ -40,14 +40,15 @@ export class DoubleProgressionService {
     config: DoubleProgressionConfig,
     result: DoubleProgressionResult,
     exerciseCategory: ExerciseWeightCategory,
-    incrementOverride?: number
+    incrementOverride?: number,
+    incrementType?: 'WEIGHT' | 'PERCENT'
   ): Promise<DoubleProgressionState> {
     return this.lock.acquire(async () => {
       const current = await this.db.get<DoubleProgressionState>(STORES.doubleProgression, exerciseId);
       if (!current) {
         throw new Error(`DoubleProgressionService: no state initialized for exercise ${exerciseId}.`);
       }
-      const next = computeNextDoubleProgressionState(current, config, result, exerciseCategory, incrementOverride);
+      const next = computeNextDoubleProgressionState(current, config, result, exerciseCategory, incrementOverride, incrementType);
       await this.db.put(STORES.doubleProgression, next);
       return next;
     });

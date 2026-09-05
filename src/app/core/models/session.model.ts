@@ -62,6 +62,10 @@ export interface SessionExercise {
   // SessionsComponent.buildSessionFromPlan), which always reads the source
   // plan's config directly.
   weightIncrement?: number;
+  // Whether weightIncrement above is an absolute weight amount or a
+  // percentage - unset is treated as 'WEIGHT' (the default), same
+  // dual-purpose convention as this exercise's own deloadType.
+  incrementType?: 'WEIGHT' | 'PERCENT';
 }
 
 export interface TrainingSession {

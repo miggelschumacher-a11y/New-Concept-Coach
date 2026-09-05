@@ -41,14 +41,15 @@ export class WaveProgressionService {
     config: WaveProgressionConfig,
     result: WaveProgressionResult,
     exerciseCategory: ExerciseWeightCategory,
-    incrementOverride?: number
+    incrementOverride?: number,
+    incrementType?: 'WEIGHT' | 'PERCENT'
   ): Promise<WaveProgressionState> {
     return this.lock.acquire(async () => {
       const current = await this.db.get<WaveProgressionState>(STORES.waveProgression, exerciseId);
       if (!current) {
         throw new Error(`WaveProgressionService: no state initialized for exercise ${exerciseId}.`);
       }
-      const next = computeNextWaveProgressionState(current, config, result, exerciseCategory, incrementOverride);
+      const next = computeNextWaveProgressionState(current, config, result, exerciseCategory, incrementOverride, incrementType);
       await this.db.put(STORES.waveProgression, next);
       return next;
     });

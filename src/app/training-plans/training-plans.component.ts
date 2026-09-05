@@ -600,6 +600,15 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { weightIncrement });
   }
 
+  async updateCustomSessionExerciseIncrementType(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    incrementType: 'WEIGHT' | 'PERCENT'
+  ): Promise<void> {
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { incrementType });
+  }
+
   async updateCustomSessionExerciseDeloadAfterFailures(
     plan: TrainingPlan,
     sessionId: string,
@@ -1174,6 +1183,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const parsed = parseFloat(value.replace(',', '.'));
     const weightIncrement = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 9999) * 100) / 100 : undefined;
     await this.updateConfig(plan, exerciseId, { weightIncrement });
+  }
+
+  async updatePlanExerciseIncrementType(plan: TrainingPlan, exerciseId: string, incrementType: 'WEIGHT' | 'PERCENT'): Promise<void> {
+    await this.updateConfig(plan, exerciseId, { incrementType });
   }
 
   // Shown as the weight-increment field's own placeholder - the fallback

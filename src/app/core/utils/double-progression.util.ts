@@ -1,7 +1,7 @@
 import { DoubleProgressionConfig } from '../models/training-plan.model';
 import { DoubleProgressionState } from '../models/double-progression.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
-import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from './tier-line-progression.util';
+import { applyWeightIncrement, IncrementType, WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from './tier-line-progression.util';
 
 // How many reps a single set can climb within one weight cycle before every
 // set has reached upperReps and a weight increase is due.
@@ -43,7 +43,8 @@ export function computeNextDoubleProgressionState(
   exerciseCategory: ExerciseWeightCategory,
   // Per-exercise override for the weight step on a successful cycle reset -
   // falls back to the fixed body-region default when unset.
-  incrementOverride?: number
+  incrementOverride?: number,
+  incrementType?: IncrementType
 ): DoubleProgressionState {
   const workingSets = result.achievedReps.length;
   const prescribedReps = computePrescribedReps(config, state.repsAddedThisCycle, workingSets);
@@ -64,7 +65,11 @@ export function computeNextDoubleProgressionState(
     // and increase the weight, building on what was actually lifted.
     return {
       ...state,
-      currentWeight: result.lastSetWeight + (incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory]),
+      currentWeight: applyWeightIncrement(
+        result.lastSetWeight,
+        incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory],
+        incrementType
+      ),
       repsAddedThisCycle: 0,
       lastUpdated: new Date()
     };

@@ -695,7 +695,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
         config.doubleProgression,
         { achievedReps, lastSetWeight },
         category,
-        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
+        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
+        config.incrementType
       );
       this.doubleProgressionStates.set(sessionExercise.exerciseId, next);
     }
@@ -738,7 +739,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
         config.repGoal,
         { totalReps, lastSetWeight },
         category,
-        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
+        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
+        config.incrementType
       );
       this.repGoalStates.set(sessionExercise.exerciseId, next);
     }
@@ -782,7 +784,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
         config.waveProgression,
         { achievedReps, lastSetWeight },
         category,
-        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
+        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
+        config.incrementType
       );
       this.waveProgressionStates.set(sessionExercise.exerciseId, next);
     }
@@ -833,7 +836,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
         success,
         { lastSetWeight },
         category,
-        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
+        config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
+        config.incrementType
       );
       this.linearProgressionStates.set(sessionExercise.exerciseId, next);
     }
@@ -883,7 +887,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
             config,
             { achievedReps, lastSetWeight },
             category,
-            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
+            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
+            sessionExercise.incrementType
           );
           this.doubleProgressionStates.set(exerciseId, next);
           break;
@@ -900,7 +905,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
             config,
             { totalReps, lastSetWeight },
             category,
-            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
+            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
+            sessionExercise.incrementType
           );
           this.repGoalStates.set(exerciseId, next);
           break;
@@ -921,7 +927,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
             config,
             { achievedReps, lastSetWeight },
             category,
-            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
+            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
+            sessionExercise.incrementType
           );
           this.waveProgressionStates.set(exerciseId, next);
           break;
@@ -940,7 +947,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
             success,
             { lastSetWeight },
             category,
-            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT
+            sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
+            sessionExercise.incrementType
           );
           this.linearProgressionStates.set(exerciseId, next);
           break;
@@ -1123,7 +1131,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
         deloadAfterFailures: sessionExercise.deloadAfterFailures,
         deloadType: sessionExercise.deloadType,
         deloadPercent: sessionExercise.deloadPercent,
-        weightIncrement: sessionExercise.weightIncrement
+        weightIncrement: sessionExercise.weightIncrement,
+        incrementType: sessionExercise.incrementType
       }))
     );
     return {
@@ -1422,7 +1431,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
               incrementScheme: config.incrementScheme,
               deloadAfterFailures: config.deloadAfterFailures,
               deloadPercent: config.deloadPercent,
-              weightIncrement: config.weightIncrement
+              weightIncrement: config.weightIncrement,
+              incrementType: config.incrementType
             };
           })
         );
@@ -2083,6 +2093,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sessionExercise.weightIncrement = Number.isFinite(parsed)
       ? Math.round(Math.min(Math.max(parsed, 0), 9999) * 100) / 100
       : DEFAULT_WEIGHT_INCREMENT;
+    await this.persist(session);
+  }
+
+  async updateSessionIncrementType(session: TrainingSession, sessionExercise: SessionExercise, incrementType: 'WEIGHT' | 'PERCENT'): Promise<void> {
+    sessionExercise.incrementType = incrementType;
     await this.persist(session);
   }
 

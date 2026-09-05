@@ -38,14 +38,15 @@ export class LinearProgressionService {
     success: boolean,
     result: LinearProgressionResult,
     exerciseCategory: ExerciseWeightCategory,
-    incrementOverride?: number
+    incrementOverride?: number,
+    incrementType?: 'WEIGHT' | 'PERCENT'
   ): Promise<LinearProgressionState> {
     return this.lock.acquire(async () => {
       const current = await this.db.get<LinearProgressionState>(STORES.linearProgression, exerciseId);
       if (!current) {
         throw new Error(`LinearProgressionService: no state initialized for exercise ${exerciseId}.`);
       }
-      const next = computeNextLinearProgressionState(current, success, result, exerciseCategory, incrementOverride);
+      const next = computeNextLinearProgressionState(current, success, result, exerciseCategory, incrementOverride, incrementType);
       await this.db.put(STORES.linearProgression, next);
       return next;
     });

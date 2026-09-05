@@ -1,6 +1,6 @@
 import { LinearProgressionState } from '../models/linear-progression.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
-import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from './tier-line-progression.util';
+import { applyWeightIncrement, IncrementType, WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from './tier-line-progression.util';
 
 export interface LinearProgressionResult {
   lastSetWeight: number;
@@ -16,7 +16,8 @@ export function computeNextLinearProgressionState(
   success: boolean,
   result: LinearProgressionResult,
   exerciseCategory: ExerciseWeightCategory,
-  incrementOverride?: number
+  incrementOverride?: number,
+  incrementType?: IncrementType
 ): LinearProgressionState {
   if (!success) {
     // Repeat the same weight next session rather than advancing - from the
@@ -27,7 +28,11 @@ export function computeNextLinearProgressionState(
   }
   return {
     ...state,
-    currentWeight: result.lastSetWeight + (incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory]),
+    currentWeight: applyWeightIncrement(
+      result.lastSetWeight,
+      incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory],
+      incrementType
+    ),
     lastUpdated: new Date()
   };
 }
