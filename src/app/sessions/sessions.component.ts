@@ -67,6 +67,9 @@ const DEFAULT_TARGET_REPS = 10;
 // either way, only the unit differs (% vs kg/lb), matching Training Plans'
 // own DELOAD_UNUSUALLY_HIGH_THRESHOLD.
 const DELOAD_UNUSUALLY_HIGH_THRESHOLD = 20;
+// A Time-Based set's seconds field is a 5-digit integer - its own max, and
+// also where a running count-up automatically stops (see tickCountdowns).
+const MAX_COUNTDOWN_SECONDS = 99999;
 
 export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
   { value: 'warmup', labelKey: 'sessions.warmupSets', icon: 'whatshot' },
@@ -177,7 +180,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       this.loadProgressionStates(),
       this.loadBodyWeightEntries()
     ]);
-    this.timerTickerId = setInterval(() => {}, 1000);
+    this.timerTickerId = setInterval(() => this.tickCountdowns(), 1000);
     document.addEventListener('click', this.handleDocumentClick, true);
   }
 
@@ -189,6 +192,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
       clearTimeout(this.doneAttemptTimeoutId);
     }
     document.removeEventListener('click', this.handleDocumentClick, true);
+    // Navigating to another nav-bar entry destroys this component - pause
+    // every still-running session's own timer rather than leaving it ticking
+    // in the background with no UI left to stop it from.
+    for (const session of this.sessions) {
+      this.pauseSessionTimer(session);
+    }
   }
 
   async load(): Promise<void> {
@@ -1480,19 +1489,30 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     if (session.timerRunning && session.timerStartedAt) {
-      session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
-      session.timerRunning = false;
-      session.timerStartedAt = undefined;
-    } else {
-      session.timerElapsedMs ??= 0;
-      session.timerRunning = true;
-      session.timerStartedAt = new Date().toISOString();
-      session.startedAt ??= session.timerStartedAt;
-      if (this.bodyWeightFallbackCandidate(session) !== null) {
-        this.promptedBodyWeightFallbackSessionIds.add(session.id);
-      }
+      this.pauseSessionTimer(session);
+      return;
+    }
+    session.timerElapsedMs ??= 0;
+    session.timerRunning = true;
+    session.timerStartedAt = new Date().toISOString();
+    session.startedAt ??= session.timerStartedAt;
+    if (this.bodyWeightFallbackCandidate(session) !== null) {
+      this.promptedBodyWeightFallbackSessionIds.add(session.id);
     }
     await this.persist(session);
+  }
+
+  // Shared by toggleTimer's own pause branch and ngOnDestroy's "navigated
+  // away" auto-pause - accumulates the elapsed run into timerElapsedMs and
+  // stops the clock. A no-op for an already-paused or finished session.
+  private pauseSessionTimer(session: TrainingSession): void {
+    if (session.finished || !session.timerRunning || !session.timerStartedAt) {
+      return;
+    }
+    session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
+    session.timerRunning = false;
+    session.timerStartedAt = undefined;
+    void this.persist(session);
   }
 
   requestFinishSession(session: TrainingSession): void {
@@ -1510,6 +1530,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     this.finishBlockedSessionId = null;
+    this.stopAllCountdowns(session);
     if (session.timerRunning && session.timerStartedAt) {
       session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
     } else {
@@ -2100,35 +2121,108 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // replaced, where a value only became "done" on deliberate confirmation.
   private fieldBuffers = new Map<string, { reps: string; weight: string }>();
 
-  // A running Time-Based countdown, keyed by set.id - never persisted, same
-  // "computed live from a start reference" approach as the session's own
-  // elapsed timer (see timerElapsedMs/timerStartedAt), driven by the same
-  // empty-callback timerTickerId interval that already forces a redraw every
-  // second rather than a dedicated per-set interval.
-  private countdownStarts = new Map<string, { startedAt: number; initialSeconds: number }>();
+  // A running Time-Based count-up, keyed by set.id - never persisted tick by
+  // tick, same "computed live from a start reference" approach as the
+  // session's own elapsed timer (see timerElapsedMs/timerStartedAt).
+  // targetSeconds is the field's own value at the moment it was started (its
+  // "goal"), read back for the field's floating label instead of ticking
+  // there. beeped guards the sound so it plays exactly once, from
+  // tickCountdowns below - the same timerTickerId interval that already
+  // forces a redraw every second rather than a dedicated per-set interval.
+  // Keeps its own session/set references so tickCountdowns and a session
+  // finish can stop a run without needing to search for them.
+  private countdownStarts = new Map<
+    string,
+    { startedAt: number; targetSeconds: number; beeped: boolean; session: TrainingSession; set: ExerciseSet }
+  >();
 
   isCountdownRunning(set: ExerciseSet): boolean {
     return this.countdownStarts.has(set.id);
   }
 
-  // The live remaining value while running; the field's own stored value
-  // otherwise. Never goes below 0.
-  countdownRemaining(set: ExerciseSet): number {
+  // The live elapsed count while running, capped at the field's own max (it
+  // keeps counting past the target instead of stopping there - only the
+  // field's max, a manual stop, or the session finishing end a run); the
+  // field's own stored value otherwise.
+  countdownElapsed(set: ExerciseSet): number {
     const state = this.countdownStarts.get(set.id);
     if (!state) {
       return set.seconds ?? 0;
     }
     const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
-    return Math.max(0, state.initialSeconds - elapsed);
+    return Math.min(MAX_COUNTDOWN_SECONDS, elapsed);
   }
 
-  // Starts from whatever the field currently holds - stays "running" (field
-  // and button disabled) even once it reaches 0, until the set is reset.
-  startCountdown(set: ExerciseSet): void {
+  // Captures the field's current value as the goal, then counts up from 0.
+  startCountdown(session: TrainingSession, set: ExerciseSet): void {
     if (this.countdownStarts.has(set.id)) {
       return;
     }
-    this.countdownStarts.set(set.id, { startedAt: Date.now(), initialSeconds: set.seconds ?? 0 });
+    this.countdownStarts.set(set.id, { startedAt: Date.now(), targetSeconds: set.seconds ?? 0, beeped: false, session, set });
+  }
+
+  // Ends a run (manual stop, hitting the field's max, or the session
+  // finishing) - writes the elapsed count back into the field itself (same
+  // "the field holds whatever was actually achieved" convention as reps/
+  // weight) and re-enables it for editing.
+  stopCountdown(set: ExerciseSet): void {
+    const state = this.countdownStarts.get(set.id);
+    if (!state) {
+      return;
+    }
+    set.seconds = this.countdownElapsed(set);
+    this.countdownStarts.delete(set.id);
+    void this.persist(state.session);
+  }
+
+  // Stops every countdown still running in this session - called when it
+  // finishes, since there's no more session left to time against.
+  private stopAllCountdowns(session: TrainingSession): void {
+    for (const sessionExercise of session.exercises) {
+      for (const set of sessionExercise.sets) {
+        if (this.isCountdownRunning(set)) {
+          this.stopCountdown(set);
+        }
+      }
+    }
+  }
+
+  // Runs every second (see timerTickerId) - beeps exactly once per run, the
+  // moment its elapsed count reaches its target, and auto-stops a run once
+  // it hits the field's own max (it can't count any higher).
+  private tickCountdowns(): void {
+    for (const set of Array.from(this.countdownStarts.keys()).map((setId) => this.countdownStarts.get(setId)!.set)) {
+      const state = this.countdownStarts.get(set.id)!;
+      const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
+      if (!state.beeped && elapsed >= state.targetSeconds) {
+        state.beeped = true;
+        this.playCountdownSound();
+      }
+      if (elapsed >= MAX_COUNTDOWN_SECONDS) {
+        this.stopCountdown(set);
+      }
+    }
+  }
+
+  // A short beep via the Web Audio API - no audio asset needed. Silently
+  // does nothing if audio playback isn't available (e.g. no user gesture
+  // yet in some browsers).
+  private playCountdownSound(): void {
+    try {
+      const AudioContextCtor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const context = new AudioContextCtor();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.frequency.value = 880;
+      gain.gain.setValueAtTime(0.2, context.currentTime);
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.3);
+      oscillator.onended = () => void context.close();
+    } catch {
+      // Audio playback isn't available - fail silently rather than block the countdown.
+    }
   }
 
   fieldBuffer(set: ExerciseSet, sessionExercise?: SessionExercise): { reps: string; weight: string } {
@@ -2197,7 +2291,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async updateSetSeconds(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, value: string): Promise<void> {
     const parsed = parseInt(value, 10);
-    set.seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : 0;
+    set.seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_COUNTDOWN_SECONDS) : 0;
     await this.persist(session);
   }
 
@@ -2262,6 +2356,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
   completeSet(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
     if (this.isPaused(session)) {
       return;
+    }
+    if (this.isCountdownRunning(set)) {
+      this.stopCountdown(set);
     }
     const buffer = this.fieldBuffer(set);
     const parsedReps = parseInt(buffer.reps, 10);

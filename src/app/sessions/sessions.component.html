@@ -924,7 +924,7 @@
                               <mat-form-field appearance="outline" class="set-field">
                                 <mat-label>
                                   @if (isCountdownRunning(set)) {
-                                    {{ countdownRemaining(set) }}
+                                    {{ set.seconds ?? 0 }}
                                   } @else {
                                     {{ 'sessions.secondsField' | translate }}
                                   }
@@ -933,7 +933,7 @@
                                   matInput
                                   type="text"
                                   inputmode="numeric"
-                                  [value]="set.seconds ?? 0"
+                                  [value]="isCountdownRunning(set) ? countdownElapsed(set) : (set.seconds ?? 0)"
                                   name="seconds-{{ set.id }}"
                                   [readonly]="set.done"
                                   [disabled]="isPaused(session) || isCountdownRunning(set)"
@@ -944,12 +944,12 @@
                               </mat-form-field>
                               <button
                                 mat-icon-button
-                                [disabled]="isPaused(session) || isCountdownRunning(set) || set.done"
-                                (click)="startCountdown(set)"
-                                [matTooltip]="'sessions.startCountdownButton' | translate"
-                                [attr.aria-label]="'sessions.startCountdownButton' | translate"
+                                [disabled]="isPaused(session) || set.done"
+                                (click)="isCountdownRunning(set) ? stopCountdown(set) : startCountdown(session, set)"
+                                [matTooltip]="(isCountdownRunning(set) ? 'sessions.stopCountdownButton' : 'sessions.startCountdownButton') | translate"
+                                [attr.aria-label]="(isCountdownRunning(set) ? 'sessions.stopCountdownButton' : 'sessions.startCountdownButton') | translate"
                               >
-                                <mat-icon>play_arrow</mat-icon>
+                                <mat-icon>{{ isCountdownRunning(set) ? 'stop' : 'play_arrow' }}</mat-icon>
                               </button>
                             }
                             <button
