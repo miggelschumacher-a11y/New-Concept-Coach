@@ -19,8 +19,11 @@ export function computeNextLinearProgressionState(
   incrementOverride?: number
 ): LinearProgressionState {
   if (!success) {
-    // Repeat the same weight next session rather than advancing.
-    return { ...state, lastUpdated: new Date() };
+    // Repeat the same weight next session rather than advancing - from the
+    // weight actually just lifted (result.lastSetWeight), not the state's
+    // own cached currentWeight, which can otherwise drift and go stale (e.g.
+    // a set logged at a different weight than the tracker last advanced to).
+    return { ...state, currentWeight: result.lastSetWeight, lastUpdated: new Date() };
   }
   return {
     ...state,

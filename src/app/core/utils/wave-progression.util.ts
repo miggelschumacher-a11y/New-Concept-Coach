@@ -17,8 +17,10 @@ export function computeNextWaveProgressionState(
 ): WaveProgressionState {
   const success = result.achievedReps.every((reps) => reps >= state.currentReps);
   if (!success) {
-    // Repeat the same reps/weight next session rather than advancing.
-    return { ...state, lastUpdated: new Date() };
+    // Repeat the same reps/weight next session rather than advancing - from
+    // the weight actually just lifted, not the state's own cached
+    // currentWeight, which can otherwise drift and go stale.
+    return { ...state, currentWeight: result.lastSetWeight, lastUpdated: new Date() };
   }
 
   const increment = incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory];

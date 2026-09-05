@@ -17,8 +17,10 @@ export function computeNextRepGoalState(
   incrementOverride?: number
 ): RepGoalState {
   if (result.totalReps <= config.totalRepGoal) {
-    // Goal not surpassed: repeat the same weight next session.
-    return { ...state, lastUpdated: new Date() };
+    // Goal not surpassed: repeat the same weight next session - from the
+    // weight actually just lifted, not the state's own cached currentWeight,
+    // which can otherwise drift and go stale.
+    return { ...state, currentWeight: result.lastSetWeight, lastUpdated: new Date() };
   }
   return {
     ...state,

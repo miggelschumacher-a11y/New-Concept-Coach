@@ -859,13 +859,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
       const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
       const category = this.exercises.find((exercise) => exercise.id === exerciseId)?.weightCategory ?? 'UPPER_BODY';
       const lastSetWeight = workingSets.length > 0 ? workingSets[workingSets.length - 1].weight : 0;
+      // Passed to every getOrInit* below as its seed weight - the first time
+      // a scheme is tracked for this exercise, its state must start from
+      // what was actually just lifted, not the seed's own default of 0. On a
+      // failed first session this matters most: a fresh state stays exactly
+      // where it started (see computeNextLinearProgressionState et al.), so
+      // an unseeded 0 would freeze the exercise at 0 forever.
 
       switch (sessionExercise.incrementScheme) {
         case 'DOUBLE_PROGRESSION': {
           if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
             continue;
           }
-          await this.getOrInitDoubleProgressionState(exerciseId);
+          await this.getOrInitDoubleProgressionState(exerciseId, lastSetWeight);
           const config: DoubleProgressionConfig = {
             lowerReps: settings.doubleProgressionLowerReps,
             upperReps: settings.doubleProgressionUpperReps,
@@ -886,7 +892,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
           if (workingSets.length === 0 || workingSets.every((set) => set.reps === 0)) {
             continue;
           }
-          await this.getOrInitRepGoalState(exerciseId);
+          await this.getOrInitRepGoalState(exerciseId, lastSetWeight);
           const config: RepGoalConfig = { totalRepGoal: settings.repGoalTotalRepGoal };
           const totalReps = workingSets.reduce((sum, set) => sum + set.reps, 0);
           const next = await this.repGoalService.recordSessionResult(
@@ -908,7 +914,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
             finalReps: settings.waveProgressionFinalReps,
             repsDecrement: settings.waveProgressionRepsDecrement
           };
-          await this.getOrInitWaveProgressionState(exerciseId, config);
+          await this.getOrInitWaveProgressionState(exerciseId, config, lastSetWeight);
           const achievedReps = workingSets.map((set) => set.reps);
           const next = await this.waveProgressionService.recordSessionResult(
             exerciseId,
@@ -924,7 +930,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
           if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
             continue;
           }
-          await this.getOrInitLinearProgressionState(exerciseId);
+          await this.getOrInitLinearProgressionState(exerciseId, lastSetWeight);
           // Manual sessions have no plan config for lowerBoundSufficient -
           // each set's own targetReps (its lower bound) is required, same as
           // a plan exercise with lowerBoundSufficient effectively true.
@@ -1038,16 +1044,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     void this.persist(session);
   }
 
-  // The weight a replenished set starts at: for a working set on an exercise
-  // that has a weight-based increment scheme with an already-tracked
-  // progression state, that state's current weight (the same source
-  // buildSessionFromPlan uses) - otherwise the finished set being
-  // replenished keeps its own weight as-is. Never triggers initState here:
-  // without the plan's full scheme config a manual session can't derive a
-  // sensible starting weight, so an untracked exercise falls back too.
-  private async peekProgressionWeight(sessionExercise: SessionExercise, set: ExerciseSet): Promise<number> {
-    if (set.type !== 'working' || sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
-      return set.weight;
+  // The weight a replenished or freshly-added set starts at: for a working
+  // set on an exercise that has a weight-based increment scheme with an
+  // already-tracked progression state, that state's current weight (the same
+  // source buildSessionFromPlan uses) with the exercise's own deload applied
+  // on top - otherwise just fallbackWeight as-is (a replenished set's own
+  // prior weight, or addSet's cross-session history lookup). Never triggers
+  // initState here: without the plan's full scheme config a manual session
+  // can't derive a sensible starting weight, so an untracked exercise falls
+  // back too.
+  private async peekProgressionWeight(sessionExercise: SessionExercise, type: SetType, fallbackWeight: number): Promise<number> {
+    if (type !== 'working' || sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
+      return fallbackWeight;
     }
     const exerciseId = sessionExercise.exerciseId;
     let weight: number | undefined;
@@ -1073,9 +1081,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
         break;
       }
       default:
-        return set.weight;
+        return fallbackWeight;
     }
-    return weight === undefined ? set.weight : this.applyManualDeload(sessionExercise, weight);
+    return weight === undefined ? fallbackWeight : this.applyManualDeload(sessionExercise, weight);
   }
 
   private async buildManualReplenishment(sourceSession: TrainingSession): Promise<TrainingSession> {
@@ -1097,7 +1105,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               set.targetReps !== undefined
                 ? (set.targetRepsMax ?? set.targetReps)
                 : this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
-            weight: await this.peekProgressionWeight(sessionExercise, set),
+            weight: await this.peekProgressionWeight(sessionExercise, set.type, set.weight),
             type: set.type,
             targetReps: set.targetReps,
             targetRepsMax: set.targetRepsMax,
@@ -1113,6 +1121,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         minReps: sessionExercise.minReps,
         minWeight: sessionExercise.minWeight,
         deloadAfterFailures: sessionExercise.deloadAfterFailures,
+        deloadType: sessionExercise.deloadType,
         deloadPercent: sessionExercise.deloadPercent,
         weightIncrement: sessionExercise.weightIncrement
       }))
@@ -1739,15 +1748,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // Manual sessions have no plan to hold this config - the same two fields
   // live directly on the session's own (editable, session-local) exercise
   // settings instead, and the failure streak is counted across all manual
-  // sessions rather than scoped to one plan's.
+  // sessions rather than scoped to one plan's. Unlike PlanExerciseConfig's
+  // always-percent deloadPercent, a manual exercise's deloadType picks
+  // whether that same field is a percentage or a flat weight amount.
   private applyManualDeload(sessionExercise: SessionExercise, weight: number): number {
     if (!sessionExercise.deloadAfterFailures || !sessionExercise.deloadPercent) {
       return weight;
     }
     const failures = this.consecutiveExerciseFailures(undefined, sessionExercise.exerciseId);
-    return failures >= sessionExercise.deloadAfterFailures
+    if (failures < sessionExercise.deloadAfterFailures) {
+      return weight;
+    }
+    return (sessionExercise.deloadType ?? 'WEIGHT') === 'PERCENT'
       ? this.reduceByPercent(weight, sessionExercise.deloadPercent)
-      : weight;
+      : Math.max(0, Math.round((weight - sessionExercise.deloadPercent) * 100) / 100);
   }
 
   private reduceByPercent(weight: number, percent: number): number {
@@ -2092,7 +2106,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
       weight = Number.isFinite(bufferedWeight) ? bufferedWeight : previousSet.weight;
     } else {
       reps = this.defaultReps(sessionExercise.exerciseId, type, sessionExercise.minReps);
-      weight = this.defaultWeight(sessionExercise.exerciseId, type, sessionExercise.minWeight);
+      // The exercise's own tracked progression state (with its deload
+      // applied on top) rather than the raw last-logged weight, so the very
+      // first set of a type in this session already reflects a just-missed
+      // target - same source buildManualReplenishment's own sets use.
+      const historyWeight = this.defaultWeight(sessionExercise.exerciseId, type, sessionExercise.minWeight);
+      weight = await this.peekProgressionWeight(sessionExercise, type, historyWeight);
     }
     const newSet: ExerciseSet = { id: crypto.randomUUID(), reps, weight, type };
     if (previousSet?.targetReps !== undefined) {
