@@ -11,6 +11,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
@@ -45,7 +46,10 @@ import { LinearProgressionState } from '../core/models/linear-progression.model'
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TIER_LINE_SCHEME } from '../core/data/tier-line-scheme';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
-import { computePrescribedReps } from '../core/utils/double-progression.util';
+import { computePrescribedReps, computeNextDoubleProgressionState } from '../core/utils/double-progression.util';
+import { computeNextRepGoalState } from '../core/utils/rep-goal.util';
+import { computeNextWaveProgressionState } from '../core/utils/wave-progression.util';
+import { computeNextLinearProgressionState } from '../core/utils/linear-progression.util';
 import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
 import { parseRepsRange } from '../core/utils/reps-range.util';
 import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/body-weight-lookup.util';
@@ -145,7 +149,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly waveProgressionService: WaveProgressionService,
     private readonly linearProgressionService: LinearProgressionService,
     private readonly bodyWeightService: BodyWeightService,
-    private readonly datePipe: DatePipe
+    private readonly datePipe: DatePipe,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   get dateFormat(): string {
@@ -845,6 +850,135 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // The value an increment scheme tracks for this exercise's last working
+  // set - its actual KG weight for Weight-Based, or its %1RM for
+  // Percentage-Based (falling back to weight/1RM when the set carries no
+  // percentage field of its own, e.g. a manually-managed Percentage-Based
+  // set - see peekProgressionWeight). Every scheme's state is a generic
+  // "currentWeight" number regardless of what it represents, so the same
+  // getOrInit*/recordSessionResult calls work for either unit unmodified.
+  private lastWorkingSetTrackedValue(sessionExercise: SessionExercise, workingSets: ExerciseSet[]): number {
+    const lastSet = workingSets[workingSets.length - 1];
+    if (!lastSet) {
+      return 0;
+    }
+    if (sessionExercise.exerciseType !== 'PERCENTAGE_BASED') {
+      return lastSet.weight;
+    }
+    return this.setPercentage(sessionExercise.exerciseId, lastSet);
+  }
+
+  // A Percentage-Based set's own %1RM - its stored percentage field when it
+  // has one (a plan-generated set), otherwise implied from its logged
+  // weight against the exercise's current 1RM (a manually-managed set,
+  // which never gets a percentage field of its own - see peekProgressionWeight).
+  private setPercentage(exerciseId: string, set: ExerciseSet): number {
+    if (set.percentage !== undefined) {
+      return set.percentage;
+    }
+    const oneRepMax = this.effectiveOneRepMax(exerciseId);
+    return oneRepMax ? Math.round((set.weight / oneRepMax) * 100) : 0;
+  }
+
+  // A dry run of recordManualProgressionProgress's own per-scheme
+  // computation, for the set-completion toast: what the tracked value
+  // (KG for Weight-Based, %1RM for Percentage-Based) WOULD become if this
+  // session were finished right now, without actually writing it - real
+  // recording still only happens at Finish, exactly once, so this can't
+  // double-apply the increment. Mirrors each getOrInit*State's own default
+  // shape for an exercise with no tracked state yet, seeded from this
+  // session's own last working set instead of persisting a fresh one.
+  // Undefined when there's no scheme, or nothing was actually logged.
+  private previewTrackedSchemeValue(sessionExercise: SessionExercise, workingSets: ExerciseSet[]): number | undefined {
+    if (
+      (sessionExercise.exerciseType !== 'WEIGHT_BASED' && sessionExercise.exerciseType !== 'PERCENTAGE_BASED') ||
+      !sessionExercise.incrementScheme ||
+      workingSets.length === 0
+    ) {
+      return undefined;
+    }
+    const exerciseId = sessionExercise.exerciseId;
+    const settings = this.settingsService.getSettings();
+    const category = this.exercises.find((exercise) => exercise.id === exerciseId)?.weightCategory ?? 'UPPER_BODY';
+    const lastSetWeight = this.lastWorkingSetTrackedValue(sessionExercise, workingSets);
+    const incrementOverride = sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT;
+    const incrementType = sessionExercise.incrementType;
+    switch (sessionExercise.incrementScheme) {
+      case 'LINEAR_PROGRESSION': {
+        if (workingSets.every((set) => set.weight === 0)) {
+          return undefined;
+        }
+        const state = this.linearProgressionStates.get(exerciseId) ?? {
+          id: exerciseId,
+          exerciseId,
+          currentWeight: lastSetWeight,
+          lastUpdated: new Date()
+        };
+        const success = workingSets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
+        return computeNextLinearProgressionState(state, success, { lastSetWeight }, category, incrementOverride, incrementType)
+          .currentWeight;
+      }
+      case 'DOUBLE_PROGRESSION': {
+        if (workingSets.every((set) => set.weight === 0)) {
+          return undefined;
+        }
+        const state = this.doubleProgressionStates.get(exerciseId) ?? {
+          id: exerciseId,
+          exerciseId,
+          currentWeight: lastSetWeight,
+          repsAddedThisCycle: 0,
+          lastUpdated: new Date()
+        };
+        const config: DoubleProgressionConfig = {
+          lowerReps: settings.doubleProgressionLowerReps,
+          upperReps: settings.doubleProgressionUpperReps,
+          mode: settings.doubleProgressionMode
+        };
+        const achievedReps = workingSets.map((set) => set.reps);
+        return computeNextDoubleProgressionState(state, config, { achievedReps, lastSetWeight }, category, incrementOverride, incrementType)
+          .currentWeight;
+      }
+      case 'REP_GOAL': {
+        if (workingSets.every((set) => set.reps === 0)) {
+          return undefined;
+        }
+        const state = this.repGoalStates.get(exerciseId) ?? {
+          id: exerciseId,
+          exerciseId,
+          currentWeight: lastSetWeight,
+          lastUpdated: new Date()
+        };
+        const config: RepGoalConfig = { totalRepGoal: settings.repGoalTotalRepGoal };
+        const totalReps = workingSets.reduce((sum, set) => sum + set.reps, 0);
+        return computeNextRepGoalState(state, config, { totalReps, lastSetWeight }, category, incrementOverride, incrementType)
+          .currentWeight;
+      }
+      case 'WAVE_PROGRESSION': {
+        if (workingSets.every((set) => set.weight === 0)) {
+          return undefined;
+        }
+        const config: WaveProgressionConfig = {
+          initialReps: settings.waveProgressionInitialReps,
+          finalReps: settings.waveProgressionFinalReps,
+          repsDecrement: settings.waveProgressionRepsDecrement
+        };
+        const state = this.waveProgressionStates.get(exerciseId) ?? {
+          id: exerciseId,
+          exerciseId,
+          currentWeight: lastSetWeight,
+          currentReps: config.initialReps,
+          waveStartWeight: lastSetWeight,
+          lastUpdated: new Date()
+        };
+        const achievedReps = workingSets.map((set) => set.reps);
+        return computeNextWaveProgressionState(state, config, { achievedReps, lastSetWeight }, category, incrementOverride, incrementType)
+          .currentWeight;
+      }
+      default:
+        return undefined;
+    }
+  }
+
   // Manual (non-plan) sessions have no exerciseConfigs to read a scheme's
   // settings from - unlike a plan exercise, a SessionExercise only carries
   // exerciseType/incrementScheme (plus minReps for Linear). So this mirrors
@@ -858,13 +992,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     const settings = this.settingsService.getSettings();
     for (const sessionExercise of session.exercises) {
-      if (sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
+      if (
+        (sessionExercise.exerciseType !== 'WEIGHT_BASED' && sessionExercise.exerciseType !== 'PERCENTAGE_BASED') ||
+        !sessionExercise.incrementScheme
+      ) {
         continue;
       }
       const exerciseId = sessionExercise.exerciseId;
       const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
       const category = this.exercises.find((exercise) => exercise.id === exerciseId)?.weightCategory ?? 'UPPER_BODY';
-      const lastSetWeight = workingSets.length > 0 ? workingSets[workingSets.length - 1].weight : 0;
+      // A Percentage-Based exercise's scheme tracks its working sets' own
+      // %1RM instead of a KG amount - same "current weight" state, just
+      // holding a 0-100 percentage - so its next session's sets can climb
+      // through more of the 1RM over time instead of staying pinned to
+      // whatever percentage they were first configured with.
+      const lastSetWeight = this.lastWorkingSetTrackedValue(sessionExercise, workingSets);
       // Passed to every getOrInit* below as its seed weight - the first time
       // a scheme is tracked for this exercise, its state must start from
       // what was actually just lifted, not the seed's own default of 0. On a
@@ -1054,61 +1196,141 @@ export class SessionsComponent implements OnInit, OnDestroy {
     void this.persist(session);
   }
 
-  // The weight a replenished or freshly-added set starts at: for a working
-  // set on an exercise that has a weight-based increment scheme with an
-  // already-tracked progression state, that state's current weight (the same
-  // source buildSessionFromPlan uses) with the exercise's own deload applied
-  // on top - otherwise just fallbackWeight as-is (a replenished set's own
-  // prior weight, or addSet's cross-session history lookup). Never triggers
-  // initState here: without the plan's full scheme config a manual session
-  // can't derive a sensible starting weight, so an untracked exercise falls
-  // back too.
+  // buildManualReplenishment's own per-set weight: a Percentage-Based
+  // exercise with an increment scheme scales each set from its OWN
+  // percentage (see scaledPercentageForNextSession) rather than every set
+  // collapsing onto whichever one the scheme happens to track - otherwise a
+  // 61/86/61 pyramid would flatten to three copies of one set's new value.
+  // Everything else (Weight-Based, no scheme, TIME_BASED) falls through to
+  // peekProgressionWeight unchanged.
+  private async replenishedSetWeight(sessionExercise: SessionExercise, set: ExerciseSet): Promise<number> {
+    if (set.type === 'working' && sessionExercise.exerciseType === 'PERCENTAGE_BASED' && sessionExercise.incrementScheme) {
+      const scaledPercentage = await this.scaledPercentageForNextSession(sessionExercise, set);
+      if (scaledPercentage !== undefined) {
+        const base = this.percentageSetWeight(sessionExercise.exerciseId, scaledPercentage);
+        return this.roundToWeightIncrement(this.applyManualDeload(sessionExercise, base));
+      }
+    }
+    return this.peekProgressionWeight(sessionExercise, set.type, set.weight);
+  }
+
+  // The scale (a ratio for a Percent-type increment, a flat delta for
+  // Weight-type) the scheme's own increment just applied to whichever
+  // working set it tracks (lastWorkingSetTrackedValue) - found by comparing
+  // that reference set's percentage in THIS just-finished session against
+  // the scheme's persisted post-increment state (recordManualProgressionProgress
+  // already ran by the time a session is replenished - see finishSession).
+  // Applying that same scale to `set`'s own percentage keeps a multi-
+  // percentage pyramid's shape intact instead of flattening it onto the
+  // reference set's new value. Undefined when there's nothing to scale from:
+  // no 1RM, no tracked state yet, or this set carries no percentage of its
+  // own to scale.
+  private async scaledPercentageForNextSession(sessionExercise: SessionExercise, set: ExerciseSet): Promise<number | undefined> {
+    const workingSets = sessionExercise.sets.filter((s) => s.type === 'working');
+    const referenceValue = this.lastWorkingSetTrackedValue(sessionExercise, workingSets);
+    const trackedValue = await this.trackedSchemeValue(sessionExercise);
+    return this.scalePercentageTo(sessionExercise, set, referenceValue, trackedValue);
+  }
+
+  // The actual scale/hold math scaledPercentageForNextSession and its
+  // pre-Finish preview (previewScaledPercentage) both need: `referenceValue`
+  // is whichever working set the scheme tracks' own %1RM before this
+  // session's outcome, `trackedValue` is that same number after (identical
+  // to `referenceValue` when the scheme held rather than moved). Applying
+  // the resulting ratio/delta to `set`'s own percentage - not overwriting it
+  // with `trackedValue` outright - is what keeps a multi-percentage pyramid
+  // intact instead of flattening every set onto whichever one the scheme
+  // happens to track. Undefined when there's nothing to scale from: no 1RM,
+  // no tracked state (yet), or this set carries no percentage of its own.
+  private scalePercentageTo(
+    sessionExercise: SessionExercise,
+    set: ExerciseSet,
+    referenceValue: number,
+    trackedValue: number | undefined
+  ): number | undefined {
+    if (!referenceValue || trackedValue === undefined) {
+      return undefined;
+    }
+    const thisSetPercentage = this.setPercentage(sessionExercise.exerciseId, set);
+    if (!thisSetPercentage) {
+      return undefined;
+    }
+    if (trackedValue === referenceValue) {
+      return thisSetPercentage;
+    }
+    return (sessionExercise.incrementType ?? 'WEIGHT') === 'PERCENT'
+      ? thisSetPercentage * (trackedValue / referenceValue)
+      : thisSetPercentage + (trackedValue - referenceValue);
+  }
+
+  // Same scale scaledPercentageForNextSession applies once a session is
+  // actually finished and replenished, but computed from
+  // previewTrackedSchemeValue's dry run instead - for the set-completion
+  // toast, which fires before the session is finished (recordManualProgress
+  // ionProgress hasn't run yet, so there's no real post-increment state to
+  // read). Whichever working set happens to be completed last (triggering
+  // the toast) isn't necessarily the same one the scheme tracks
+  // (lastWorkingSetTrackedValue always uses the last BY POSITION) - scaling
+  // from that set's own percentage instead of substituting the tracked
+  // reference's is what keeps the preview accurate regardless of the order
+  // sets were actually completed in.
+  private previewScaledPercentage(sessionExercise: SessionExercise, set: ExerciseSet, workingSets: ExerciseSet[]): number | undefined {
+    const referenceValue = this.lastWorkingSetTrackedValue(sessionExercise, workingSets);
+    const trackedValue = this.previewTrackedSchemeValue(sessionExercise, workingSets);
+    return this.scalePercentageTo(sessionExercise, set, referenceValue, trackedValue);
+  }
+
+  // The weight a freshly-added set starts at (addSet's own history lookup,
+  // when there's no previous set in this session to imitate instead): for a
+  // working set on an exercise that has an increment scheme with an
+  // already-tracked progression state, that state's current value (the same
+  // source buildManualReplenishment's own sets use) with the exercise's own
+  // deload applied on top - otherwise just fallbackWeight as-is. Never
+  // triggers initState here: without the plan's full scheme config a manual
+  // session can't derive a sensible starting weight, so an untracked
+  // exercise falls back too.
   private async peekProgressionWeight(sessionExercise: SessionExercise, type: SetType, fallbackWeight: number): Promise<number> {
     if (type !== 'working') {
       return fallbackWeight;
     }
-    // Percentage-Based has no incrementScheme/tracked state to pull a weight
-    // from - it just carries the previous set's weight forward as-is, so the
-    // exercise's own deload needs applying here same as every other type.
-    // (A percentage-based *plan* exercise's set instead carries its own
-    // percentage field, which initialSetWeight recomputes - and deloads -
-    // fresh from the exercise's current 1RM every time it's displayed,
-    // overriding whatever this returns; this only matters for a manually-
-    // managed Percentage-Based exercise, whose sets never get a percentage
-    // field to begin with.)
     if (sessionExercise.exerciseType === 'PERCENTAGE_BASED') {
-      return this.applyManualDeload(sessionExercise, fallbackWeight);
+      // A scheme here tracks this exercise's %1RM, not a KG amount (see
+      // lastWorkingSetTrackedValue/recordManualProgressionProgress) - so a
+      // tracked state's weight is computed fresh from the CURRENT 1RM at
+      // that percentage, same as any other Percentage-Based set, rather than
+      // read off the state directly. Without a scheme (or no state tracked
+      // yet), just the previous set's own weight carries forward as before.
+      const trackedPercentage = sessionExercise.incrementScheme ? await this.trackedSchemeValue(sessionExercise) : undefined;
+      const base =
+        trackedPercentage === undefined ? fallbackWeight : this.percentageSetWeight(sessionExercise.exerciseId, trackedPercentage);
+      return this.roundToWeightIncrement(this.applyManualDeload(sessionExercise, base));
     }
     if (sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
       return fallbackWeight;
     }
-    const exerciseId = sessionExercise.exerciseId;
-    let weight: number | undefined;
-    switch (sessionExercise.incrementScheme) {
-      case 'DOUBLE_PROGRESSION': {
-        const state = this.doubleProgressionStates.get(exerciseId) ?? (await this.doubleProgressionService.getState(exerciseId));
-        weight = state?.currentWeight;
-        break;
-      }
-      case 'REP_GOAL': {
-        const state = this.repGoalStates.get(exerciseId) ?? (await this.repGoalService.getState(exerciseId));
-        weight = state?.currentWeight;
-        break;
-      }
-      case 'WAVE_PROGRESSION': {
-        const state = this.waveProgressionStates.get(exerciseId) ?? (await this.waveProgressionService.getState(exerciseId));
-        weight = state?.currentWeight;
-        break;
-      }
-      case 'LINEAR_PROGRESSION': {
-        const state = this.linearProgressionStates.get(exerciseId) ?? (await this.linearProgressionService.getState(exerciseId));
-        weight = state?.currentWeight;
-        break;
-      }
-      default:
-        return fallbackWeight;
-    }
+    const weight = await this.trackedSchemeValue(sessionExercise);
     return weight === undefined ? fallbackWeight : this.applyManualDeload(sessionExercise, weight);
+  }
+
+  // The number a session-local increment scheme currently tracks for this
+  // exercise - a KG amount for Weight-Based, a %1RM for Percentage-Based
+  // (see lastWorkingSetTrackedValue). Falls back to IndexedDB when the
+  // state isn't in memory yet (e.g. right after load, before any session
+  // touched this exercise this session).
+  private async trackedSchemeValue(sessionExercise: SessionExercise): Promise<number | undefined> {
+    const exerciseId = sessionExercise.exerciseId;
+    switch (sessionExercise.incrementScheme) {
+      case 'DOUBLE_PROGRESSION':
+        return (this.doubleProgressionStates.get(exerciseId) ?? (await this.doubleProgressionService.getState(exerciseId)))?.currentWeight;
+      case 'REP_GOAL':
+        return (this.repGoalStates.get(exerciseId) ?? (await this.repGoalService.getState(exerciseId)))?.currentWeight;
+      case 'WAVE_PROGRESSION':
+        return (this.waveProgressionStates.get(exerciseId) ?? (await this.waveProgressionService.getState(exerciseId)))?.currentWeight;
+      case 'LINEAR_PROGRESSION':
+        return (this.linearProgressionStates.get(exerciseId) ?? (await this.linearProgressionService.getState(exerciseId)))?.currentWeight;
+      default:
+        return undefined;
+    }
   }
 
   private async buildManualReplenishment(sourceSession: TrainingSession): Promise<TrainingSession> {
@@ -1130,7 +1352,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               set.targetReps !== undefined
                 ? (set.targetRepsMax ?? set.targetReps)
                 : this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
-            weight: await this.peekProgressionWeight(sessionExercise, set.type, set.weight),
+            weight: await this.replenishedSetWeight(sessionExercise, set),
             type: set.type,
             targetReps: set.targetReps,
             targetRepsMax: set.targetRepsMax,
@@ -1648,36 +1870,43 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.progressionStates.get(this.progressionKey(exerciseId, planExercise.tier))?.currentWeight;
   }
 
-  private currentSchemeWeight(session: TrainingSession, sessionExercise: SessionExercise): number | undefined {
+  private currentSchemeWeight(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    failureCount?: number
+  ): number | undefined {
     if (sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
       return undefined;
     }
-    const exerciseId = sessionExercise.exerciseId;
-    let weight: number | undefined;
-    switch (sessionExercise.incrementScheme) {
-      case 'DOUBLE_PROGRESSION':
-        weight = this.doubleProgressionStates.get(exerciseId)?.currentWeight;
-        break;
-      case 'REP_GOAL':
-        weight = this.repGoalStates.get(exerciseId)?.currentWeight;
-        break;
-      case 'WAVE_PROGRESSION':
-        weight = this.waveProgressionStates.get(exerciseId)?.currentWeight;
-        break;
-      case 'LINEAR_PROGRESSION':
-        weight = this.linearProgressionStates.get(exerciseId)?.currentWeight;
-        break;
-      default:
-        return undefined;
-    }
+    const weight = this.trackedSchemeValueSync(sessionExercise);
     if (weight === undefined) {
       return weight;
     }
     if (!session.trainingPlanId) {
-      return this.applyManualDeload(sessionExercise, weight);
+      return this.applyManualDeload(sessionExercise, weight, failureCount);
     }
     const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
-    return plan ? this.applyDeload(plan, exerciseId, weight) : weight;
+    return plan ? this.applyDeload(plan, sessionExercise.exerciseId, weight, failureCount) : weight;
+  }
+
+  // Same lookup as trackedSchemeValue, without its IndexedDB fallback - for
+  // callers (the set-completion feedback preview, currentSchemeWeight) that
+  // must stay synchronous and only ever run once a session is already
+  // loaded, by which point every tracked scheme is in memory anyway.
+  private trackedSchemeValueSync(sessionExercise: SessionExercise): number | undefined {
+    const exerciseId = sessionExercise.exerciseId;
+    switch (sessionExercise.incrementScheme) {
+      case 'DOUBLE_PROGRESSION':
+        return this.doubleProgressionStates.get(exerciseId)?.currentWeight;
+      case 'REP_GOAL':
+        return this.repGoalStates.get(exerciseId)?.currentWeight;
+      case 'WAVE_PROGRESSION':
+        return this.waveProgressionStates.get(exerciseId)?.currentWeight;
+      case 'LINEAR_PROGRESSION':
+        return this.linearProgressionStates.get(exerciseId)?.currentWeight;
+      default:
+        return undefined;
+    }
   }
 
   // Counts back through this plan's own finished sessions for exerciseId
@@ -1711,6 +1940,29 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return count;
   }
 
+  // Same streak consecutiveExerciseFailures computes from finished sessions,
+  // but also folds in `session`'s own exercise as if it had already been
+  // decided - even though it isn't finished yet. Used only for the
+  // set-completion feedback toast, so a failing set's deload is visible the
+  // moment it's logged rather than only after the session is finished and
+  // replenished. A set that hasn't missed its target can't yet be called a
+  // win (later sets in the same exercise could still fail it), so only a
+  // miss moves the count off the historical baseline; once every working set
+  // is done and none missed, the exercise has genuinely succeeded and the
+  // streak resets to 0, same as consecutiveExerciseFailures' own success case.
+  private consecutiveExerciseFailuresPreview(session: TrainingSession, planId: string | undefined, exerciseId: string): number {
+    const baseline = this.consecutiveExerciseFailures(planId, exerciseId);
+    const sessionExercise = session.exercises.find((se) => se.exerciseId === exerciseId);
+    const workingSets = sessionExercise?.sets.filter((set) => set.type === 'working') ?? [];
+    if (!workingSets.some((set) => set.done)) {
+      return baseline;
+    }
+    if (workingSets.some((set) => set.done && set.targetReps !== undefined && set.reps < set.targetReps)) {
+      return baseline + 1;
+    }
+    return workingSets.every((set) => set.done) ? 0 : baseline;
+  }
+
   // Drives percentageBasedWorkingSets' week cycling: how many of this
   // plan's finished sessions have already included the exercise, used mod
   // weeks.length to pick the next week - so week 1 comes first, then 2, 3,
@@ -1742,7 +1994,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
       reps: set.reps,
       targetReps: set.reps,
       isAmrap: set.isAmrap,
-      weight: this.applyDeload(plan, exerciseId, this.percentageSetWeight(exerciseId, set.percentage)),
+      // Deload is a plain percentage/weight cut off the nominal %1RM weight,
+      // so it won't generally land back on a loadable plate increment on its
+      // own (e.g. 40 KG cut by 2% is 39.2) - round only after the cut, not
+      // before, so the set's displayed %1RM (computed from this final
+      // weight) reflects what's actually loaded on the bar.
+      weight: this.roundToWeightIncrement(this.applyDeload(plan, exerciseId, this.percentageSetWeight(exerciseId, set.percentage))),
       percentage: set.percentage,
       type: 'working' as SetType
     }));
@@ -1756,8 +2013,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (!oneRepMax) {
       return 0;
     }
+    return this.roundToWeightIncrement((oneRepMax * percentage) / 100);
+  }
+
+  // The smallest weight increment this app ever prescribes/rounds to - one
+  // plate pair's worth (2.5 KG or 5 lbs.), same convention used everywhere
+  // a raw computed weight (percentage-of-1RM, a deload cut) needs to land on
+  // something actually loadable on a bar.
+  private roundToWeightIncrement(weight: number): number {
     const increment = this.settingsService.getSettings().weightUnit === 'lbs' ? 5 : 2.5;
-    return Math.round((oneRepMax * percentage) / 100 / increment) * increment;
+    return Math.round(weight / increment) * increment;
   }
 
   // Applies the configured deload once the exercise has failed this many
@@ -1766,12 +2031,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // from the scheme's own stable base weight (not compounding further each
   // session the streak continues), and a single logged success naturally
   // clears it since consecutiveExerciseFailures stops counting there.
-  private applyDeload(plan: TrainingPlan, exerciseId: string, weight: number): number {
+  // failureCount overrides the computed streak - used by the set-completion
+  // feedback preview to judge this session's own (not-yet-finished) sets as
+  // if they were already decided, instead of only the finished sessions
+  // before it.
+  private applyDeload(plan: TrainingPlan, exerciseId: string, weight: number, failureCount?: number): number {
     const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
     if (!config?.deloadAfterFailures || !config.deloadPercent) {
       return weight;
     }
-    const failures = this.consecutiveExerciseFailures(plan.id, exerciseId);
+    const failures = failureCount ?? this.consecutiveExerciseFailures(plan.id, exerciseId);
     return failures >= config.deloadAfterFailures ? this.reduceByPercent(weight, config.deloadPercent) : weight;
   }
 
@@ -1781,11 +2050,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // sessions rather than scoped to one plan's. Unlike PlanExerciseConfig's
   // always-percent deloadPercent, a manual exercise's deloadType picks
   // whether that same field is a percentage or a flat weight amount.
-  private applyManualDeload(sessionExercise: SessionExercise, weight: number): number {
+  // failureCount - see applyDeload above.
+  private applyManualDeload(sessionExercise: SessionExercise, weight: number, failureCount?: number): number {
     if (!sessionExercise.deloadAfterFailures || !sessionExercise.deloadPercent) {
       return weight;
     }
-    const failures = this.consecutiveExerciseFailures(undefined, sessionExercise.exerciseId);
+    const failures = failureCount ?? this.consecutiveExerciseFailures(undefined, sessionExercise.exerciseId);
     if (failures < sessionExercise.deloadAfterFailures) {
       return weight;
     }
@@ -2321,7 +2591,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
           return weight;
         }
         const plan = this.trainingPlans.find((p) => p.id === session.trainingPlanId);
-        return plan ? this.applyDeload(plan, sessionExercise.exerciseId, weight) : this.applyManualDeload(sessionExercise, weight);
+        const deloaded = plan ? this.applyDeload(plan, sessionExercise.exerciseId, weight) : this.applyManualDeload(sessionExercise, weight);
+        return this.roundToWeightIncrement(deloaded);
       }
     }
     return set.weight;
@@ -2442,6 +2713,132 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.fieldBuffers.delete(set.id);
     void this.persist(session);
     void this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
+    // Judged across the whole exercise, not this one set alone - same
+    // "did every working set hit its target" convention as
+    // consecutiveExerciseFailures - so the toast only appears once, after
+    // the last working set, not after each one along the way.
+    const workingSets = sessionExercise.sets.filter((s) => s.type === 'working');
+    if (set.type === 'working' && workingSets.every((s) => s.done)) {
+      this.showSetFeedback(session, sessionExercise, set, workingSets);
+    }
+  }
+
+  // A brief, self-dismissing toast after logging an exercise's last working
+  // set - reads back encouraging (or not) depending on whether every working
+  // set hit its target, and previews the weight this exercise will carry
+  // into its next occurrence so a deload triggered by this session is
+  // visible immediately, rather than only once the session is finished and
+  // replenished.
+  private showSetFeedback(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    set: ExerciseSet,
+    workingSets: ExerciseSet[]
+  ): void {
+    const succeeded = workingSets.every((s) => s.targetReps === undefined || s.reps >= s.targetReps);
+    const weightText = this.nextWeightsSummaryText(session, sessionExercise, workingSets, !succeeded);
+    const message = this.translationService
+      .translate(succeeded ? 'sessions.setFeedbackSuccess' : 'sessions.setFeedbackFail')
+      .replace('{weight}', weightText);
+    this.snackBar.open(message, undefined, {
+      duration: 3000,
+      panelClass: succeeded ? 'set-feedback-success' : 'set-feedback-fail'
+    });
+  }
+
+  // The toast's own weight figure: the distinct next-occurrence values
+  // across this exercise's working sets, spelled out as a plain list
+  // ("47.50 KG (67%) and 65.00 KG (93%)") rather than one entry per set,
+  // since a pyramid with repeated values (e.g. 65/75/65%) would otherwise
+  // read out that same number twice - collapses to a single value when
+  // every set already shares one (including exercises with just one working
+  // set). On a failure, restricted to only the sets a deload actually just
+  // cut (their preview weight fell below what was logged this session) -
+  // reading out a set that's merely holding steady (no deload configured,
+  // or the failure streak hasn't reached the threshold yet) alongside ones
+  // that did drop would misreport it as also having been reduced. Falls
+  // back to the full list if the deload didn't actually change anything.
+  private nextWeightsSummaryText(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    workingSets: ExerciseSet[],
+    onlyReduced: boolean
+  ): string {
+    const previews = workingSets.map((workingSet) => ({
+      workingSet,
+      previewWeight: this.previewNextWeight(session, sessionExercise, workingSet, workingSets)
+    }));
+    const reduced = previews.filter(
+      ({ workingSet, previewWeight }) => previewWeight !== null && previewWeight < workingSet.weight
+    );
+    const source = onlyReduced && reduced.length > 0 ? reduced : previews;
+    const weightTexts = source.map(({ previewWeight }) =>
+      previewWeight === null ? '–' : this.weightWithOneRepMaxPercentText(sessionExercise.exerciseId, previewWeight)
+    );
+    return this.joinWithAnd([...new Set(weightTexts)]);
+  }
+
+  // "A", "A and B", or "A, B and C" - the natural-language conjunction this
+  // file's own translations don't otherwise need, so there's no ready-made
+  // pipe/component for it.
+  private joinWithAnd(items: string[]): string {
+    if (items.length <= 1) {
+      return items.join('');
+    }
+    const and = this.translationService.translate('common.and');
+    return `${items.slice(0, -1).join(', ')} ${and} ${items[items.length - 1]}`;
+  }
+
+  // The set-completion toast's weight figure, with its %1RM appended the
+  // same way the working-set weight field's own label already shows it (see
+  // workingSetOneRepMaxPercentage) - omitted when there's no 1RM recorded to
+  // compare against.
+  private weightWithOneRepMaxPercentText(exerciseId: string, weight: number): string {
+    const weightText = `${weight.toFixed(2)} ${this.weightUnitLabel}`;
+    const oneRepMax = this.effectiveOneRepMax(exerciseId);
+    if (!oneRepMax) {
+      return weightText;
+    }
+    return `${weightText} (${Math.round((weight / oneRepMax) * 100)}%)`;
+  }
+
+  // The weight this exercise's next occurrence would actually use for a set
+  // at this one's own percentage/scheme, if the current session were
+  // finished right now: previewTrackedSchemeValue's dry run of the scheme's
+  // own increment (not just today's still-unadvanced tracked value), with
+  // the exercise's own deload applied on top using
+  // consecutiveExerciseFailuresPreview's "as if decided now" streak instead
+  // of only past finished sessions. Null when there's no weight to base a
+  // preview on at all (e.g. no 1RM recorded yet).
+  private previewNextWeight(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    set: ExerciseSet,
+    workingSets: ExerciseSet[]
+  ): number | null {
+    const exerciseId = sessionExercise.exerciseId;
+    const plan = session.trainingPlanId ? this.trainingPlans.find((p) => p.id === session.trainingPlanId) : undefined;
+    const failures = this.consecutiveExerciseFailuresPreview(session, plan?.id, exerciseId);
+    if (sessionExercise.exerciseType === 'PERCENTAGE_BASED') {
+      const scaledPercentage = sessionExercise.incrementScheme
+        ? this.previewScaledPercentage(sessionExercise, set, workingSets)
+        : undefined;
+      const percentage = scaledPercentage ?? set.percentage;
+      const base = percentage !== undefined ? this.percentageSetWeight(exerciseId, percentage) : set.weight;
+      if (!base) {
+        return null;
+      }
+      const deloaded = plan ? this.applyDeload(plan, exerciseId, base, failures) : this.applyManualDeload(sessionExercise, base, failures);
+      return this.roundToWeightIncrement(deloaded);
+    }
+    const trackedValue = this.previewTrackedSchemeValue(sessionExercise, workingSets);
+    if (trackedValue !== undefined) {
+      return plan ? this.applyDeload(plan, exerciseId, trackedValue, failures) : this.applyManualDeload(sessionExercise, trackedValue, failures);
+    }
+    if (!set.weight) {
+      return null;
+    }
+    return plan ? this.applyDeload(plan, exerciseId, set.weight, failures) : this.applyManualDeload(sessionExercise, set.weight, failures);
   }
 
   resetSet(session: TrainingSession, set: ExerciseSet): void {

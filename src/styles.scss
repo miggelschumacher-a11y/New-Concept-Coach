@@ -81,6 +81,28 @@ body {
   max-width: 480px;
 }
 
+// The toast completeSet() shows after logging a working set - color alone
+// (via the MDC snackbar's own container-color token) carries whether the
+// set hit its target, without needing a separate icon.
+.set-feedback-success {
+  --mdc-snackbar-container-color: #2e7d32;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+}
+.set-feedback-fail {
+  --mdc-snackbar-container-color: #8d6e00;
+  --mdc-snackbar-supporting-text-color: #ffffff;
+}
+// MatSnackBarConfig's own horizontalPosition/verticalPosition only choose
+// among the screen's edges (e.g. bottom-center) - neither offers true
+// middle-of-viewport placement, so the wrapper CDK's GlobalPositionStrategy
+// centers the snack bar in (the flex box it lays the overlay pane out in)
+// is overridden directly for just these two panel classes.
+.cdk-global-overlay-wrapper:has(.set-feedback-success),
+.cdk-global-overlay-wrapper:has(.set-feedback-fail) {
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 // Inline icon that precedes a text label (nav link, heading, form-field
 // label, button, checkbox, ...). Sized relative to the surrounding text so
 // it scales with it instead of using mat-icon's fixed 24px default.
