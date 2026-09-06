@@ -131,6 +131,7 @@
 </ng-template>
 
 <ng-template #chartsTab>
+  <div class="chart-section">
   @if (exercisesWithHistory.length === 0) {
     <p>{{ 'history.chartNoExercises' | translate }}</p>
   } @else {
@@ -176,4 +177,31 @@
       </div>
     }
   }
+  </div>
+
+  <div class="chart-section">
+    <h3>{{ 'history.chartBodyWeightTitle' | translate }}</h3>
+    @if (bodyWeightChartPoints.length === 0) {
+      <p>{{ 'history.chartBodyWeightEmpty' | translate }}</p>
+    } @else {
+      <svg class="progress-chart" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet">
+        @for (line of bodyWeightChartGridLines(bodyWeightChartPoints); track line.y) {
+          <line x1="48" x2="584" [attr.y1]="line.y" [attr.y2]="line.y" class="chart-grid-line" />
+          <text x="4" [attr.y]="line.y + 4" class="chart-axis-label">{{ line.label }}</text>
+        }
+        <polyline [attr.points]="chartPolylinePoints(bodyWeightChartCoords(bodyWeightChartPoints))" class="chart-line chart-line-bodyweight" />
+        @for (coord of bodyWeightChartCoords(bodyWeightChartPoints); track $index) {
+          <circle [attr.cx]="coord.x" [attr.cy]="coord.y" r="3.5" class="chart-dot chart-dot-bodyweight">
+            <title>{{ bodyWeightPointLabel(bodyWeightChartPoints[$index]) }}</title>
+          </circle>
+        }
+      </svg>
+      <div class="chart-x-labels">
+        <span>{{ bodyWeightChartPoints[0].date | date: dateFormat }}</span>
+        @if (bodyWeightChartPoints.length > 1) {
+          <span>{{ bodyWeightChartPoints[bodyWeightChartPoints.length - 1].date | date: dateFormat }}</span>
+        }
+      </div>
+    }
+  </div>
 </ng-template>

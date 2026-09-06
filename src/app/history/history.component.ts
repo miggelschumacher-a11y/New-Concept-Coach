@@ -28,6 +28,11 @@ interface ExerciseChartPoint {
   oneRepMax: number;
 }
 
+interface BodyWeightChartPoint {
+  date: Date;
+  weight: number;
+}
+
 interface ChartCoord {
   x: number;
   y: number;
@@ -242,8 +247,7 @@ export class HistoryComponent implements OnInit {
       .filter((point): point is ExerciseChartPoint => point !== null);
   }
 
-  private chartYRange(points: ExerciseChartPoint[]): { min: number; max: number } {
-    const values = points.flatMap((point) => [point.weight, point.oneRepMax]);
+  private chartValueRange(values: number[]): { min: number; max: number } {
     const min = Math.min(...values);
     const max = Math.max(...values);
     const pad = (max - min) * 0.15 || Math.max(max * 0.1, 1);
@@ -262,7 +266,7 @@ export class HistoryComponent implements OnInit {
   }
 
   chartCoords(points: ExerciseChartPoint[], key: 'weight' | 'oneRepMax'): ChartCoord[] {
-    const range = this.chartYRange(points);
+    const range = this.chartValueRange(points.flatMap((point) => [point.weight, point.oneRepMax]));
     return points.map((point, index) => ({ x: this.chartX(index, points.length), y: this.chartY(point[key], range) }));
   }
 
@@ -270,8 +274,8 @@ export class HistoryComponent implements OnInit {
     return coords.map((coord) => `${coord.x},${coord.y}`).join(' ');
   }
 
-  chartGridLines(points: ExerciseChartPoint[]): { y: number; label: string }[] {
-    const range = this.chartYRange(points);
+  private gridLinesForValues(values: number[]): { y: number; label: string }[] {
+    const range = this.chartValueRange(values);
     const steps = 4;
     return Array.from({ length: steps + 1 }, (_, i) => {
       const value = range.min + ((range.max - range.min) * i) / steps;
@@ -279,9 +283,35 @@ export class HistoryComponent implements OnInit {
     });
   }
 
+  chartGridLines(points: ExerciseChartPoint[]): { y: number; label: string }[] {
+    return this.gridLinesForValues(points.flatMap((point) => [point.weight, point.oneRepMax]));
+  }
+
   chartPointLabel(point: ExerciseChartPoint): string {
     const dateText = this.datePipe.transform(point.date, this.settingsService.getSettings().dateFormat) ?? '';
     const oneRepMaxLabel = this.translationService.translate('history.chartOneRepMaxLegend');
     return `${dateText}: ${point.weight.toFixed(2)} ${this.weightUnitLabel} / ${oneRepMaxLabel} ${point.oneRepMax.toFixed(2)} ${this.weightUnitLabel}`;
+  }
+
+  // Oldest first, one point per logged body-weight entry - unlike the
+  // exercise chart, this isn't tied to sessions at all.
+  get bodyWeightChartPoints(): BodyWeightChartPoint[] {
+    return [...this.bodyWeightEntries]
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+      .map((entry) => ({ date: new Date(entry.timestamp), weight: entry.weight }));
+  }
+
+  bodyWeightChartCoords(points: BodyWeightChartPoint[]): ChartCoord[] {
+    const range = this.chartValueRange(points.map((point) => point.weight));
+    return points.map((point, index) => ({ x: this.chartX(index, points.length), y: this.chartY(point.weight, range) }));
+  }
+
+  bodyWeightChartGridLines(points: BodyWeightChartPoint[]): { y: number; label: string }[] {
+    return this.gridLinesForValues(points.map((point) => point.weight));
+  }
+
+  bodyWeightPointLabel(point: BodyWeightChartPoint): string {
+    const dateText = this.datePipe.transform(point.date, this.settingsService.getSettings().dateFormat) ?? '';
+    return `${dateText}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`;
   }
 }

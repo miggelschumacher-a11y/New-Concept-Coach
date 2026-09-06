@@ -110,6 +110,14 @@
   }
 }
 
+.chart-section {
+  margin-bottom: 2rem;
+
+  h3 {
+    margin: 0 0 0.75rem;
+  }
+}
+
 .chart-exercise-select-field {
   width: 100%;
   max-width: 24rem;
@@ -177,6 +185,14 @@
 
 .chart-dot-1rm {
   fill: #ffca28;
+}
+
+.chart-line-bodyweight {
+  stroke: #66bb6a;
+}
+
+.chart-dot-bodyweight {
+  fill: #66bb6a;
 }
 
 .chart-x-labels {

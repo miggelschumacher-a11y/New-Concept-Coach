@@ -235,6 +235,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'No exercise history yet.',
     'history.chartWeightLegend': 'Weight',
     'history.chartOneRepMaxLegend': 'Est. 1RM',
+    'history.chartBodyWeightTitle': 'Body Weight',
+    'history.chartBodyWeightEmpty': 'No body weight logged yet.',
 
     'config.title': 'Configuration',
     'config.weightUnit': 'Weight Unit',
@@ -534,6 +536,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'Noch kein Übungsverlauf.',
     'history.chartWeightLegend': 'Gewicht',
     'history.chartOneRepMaxLegend': 'Gesch. 1RM',
+    'history.chartBodyWeightTitle': 'Körpergewicht',
+    'history.chartBodyWeightEmpty': 'Noch kein Körpergewicht erfasst.',
 
     'config.title': 'Konfiguration',
     'config.weightUnit': 'Gewichtseinheit',
@@ -833,6 +837,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'Aún no hay historial de ejercicios.',
     'history.chartWeightLegend': 'Peso',
     'history.chartOneRepMaxLegend': '1RM est.',
+    'history.chartBodyWeightTitle': 'Peso corporal',
+    'history.chartBodyWeightEmpty': 'Aún no se ha registrado el peso corporal.',
 
     'config.title': 'Configuración',
     'config.weightUnit': 'Unidad de peso',
@@ -1132,6 +1138,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'Ainda não há histórico de exercícios.',
     'history.chartWeightLegend': 'Peso',
     'history.chartOneRepMaxLegend': '1RM est.',
+    'history.chartBodyWeightTitle': 'Peso corporal',
+    'history.chartBodyWeightEmpty': 'Ainda não há peso corporal registrado.',
 
     'config.title': 'Configuração',
     'config.weightUnit': 'Unidade de peso',
@@ -1431,6 +1439,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'Nessuno storico esercizi ancora.',
     'history.chartWeightLegend': 'Peso',
     'history.chartOneRepMaxLegend': '1RM stimato',
+    'history.chartBodyWeightTitle': 'Peso corporeo',
+    'history.chartBodyWeightEmpty': 'Nessun peso corporeo registrato ancora.',
 
     'config.title': 'Configurazione',
     'config.weightUnit': 'Unità di peso',
@@ -1730,6 +1740,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'Nog geen oefeningsgeschiedenis.',
     'history.chartWeightLegend': 'Gewicht',
     'history.chartOneRepMaxLegend': 'Gesch. 1RM',
+    'history.chartBodyWeightTitle': 'Lichaamsgewicht',
+    'history.chartBodyWeightEmpty': 'Nog geen lichaamsgewicht geregistreerd.',
 
     'config.title': 'Configuratie',
     'config.weightUnit': 'Gewichtseenheid',
@@ -2029,6 +2041,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'Brak jeszcze historii ćwiczeń.',
     'history.chartWeightLegend': 'Ciężar',
     'history.chartOneRepMaxLegend': 'Szac. 1RM',
+    'history.chartBodyWeightTitle': 'Masa ciała',
+    'history.chartBodyWeightEmpty': 'Brak jeszcze zapisanej masy ciała.',
 
     'config.title': 'Konfiguracja',
     'config.weightUnit': 'Jednostka wagi',
@@ -2328,6 +2342,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'Пока нет истории упражнений.',
     'history.chartWeightLegend': 'Вес',
     'history.chartOneRepMaxLegend': 'Расч. 1ПМ',
+    'history.chartBodyWeightTitle': 'Вес тела',
+    'history.chartBodyWeightEmpty': 'Вес тела ещё не зафиксирован.',
 
     'config.title': 'Настройки',
     'config.weightUnit': 'Единица веса',
@@ -2627,6 +2643,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'history.chartNoExercises': 'Még nincs gyakorlat-előzmény.',
     'history.chartWeightLegend': 'Súly',
     'history.chartOneRepMaxLegend': 'Becs. 1RM',
+    'history.chartBodyWeightTitle': 'Testsúly',
+    'history.chartBodyWeightEmpty': 'Még nincs rögzített testsúly.',
 
     'config.title': 'Beállítások',
     'config.weightUnit': 'Súlyegység',
