@@ -1,5 +1,15 @@
 <h2><mat-icon class="label-icon">history</mat-icon>{{ 'history.title' | translate }}</h2>
 
+<mat-tab-group class="history-tab-group">
+  <mat-tab [label]="'history.tabSessions' | translate">
+    <ng-container *ngTemplateOutlet="sessionsTab"></ng-container>
+  </mat-tab>
+  <mat-tab [label]="'history.tabCharts' | translate">
+    <ng-container *ngTemplateOutlet="chartsTab"></ng-container>
+  </mat-tab>
+</mat-tab-group>
+
+<ng-template #sessionsTab>
 @if (finishedSessions.length === 0) {
   <p>{{ 'history.empty' | translate }}</p>
 } @else {
@@ -118,3 +128,52 @@
     }
   </mat-accordion>
 }
+</ng-template>
+
+<ng-template #chartsTab>
+  @if (exercisesWithHistory.length === 0) {
+    <p>{{ 'history.chartNoExercises' | translate }}</p>
+  } @else {
+    <mat-form-field appearance="outline" class="chart-exercise-select-field">
+      <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'history.chartExerciseLabel' | translate }}</mat-label>
+      <mat-select [(ngModel)]="selectedChartExerciseId" name="chartExerciseId">
+        @for (exercise of exercisesWithHistory; track exercise.id) {
+          <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (selectedChartPoints.length === 0) {
+      <p>{{ 'history.chartNoExercises' | translate }}</p>
+    } @else {
+      <div class="chart-legend">
+        <span class="chart-legend-item"><span class="chart-legend-swatch chart-legend-weight"></span>{{ 'history.chartWeightLegend' | translate }}</span>
+        <span class="chart-legend-item"><span class="chart-legend-swatch chart-legend-1rm"></span>{{ 'history.chartOneRepMaxLegend' | translate }}</span>
+      </div>
+      <svg class="progress-chart" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet">
+        @for (line of chartGridLines(selectedChartPoints); track line.y) {
+          <line x1="48" x2="584" [attr.y1]="line.y" [attr.y2]="line.y" class="chart-grid-line" />
+          <text x="4" [attr.y]="line.y + 4" class="chart-axis-label">{{ line.label }}</text>
+        }
+        <polyline [attr.points]="chartPolylinePoints(chartCoords(selectedChartPoints, 'weight'))" class="chart-line chart-line-weight" />
+        <polyline [attr.points]="chartPolylinePoints(chartCoords(selectedChartPoints, 'oneRepMax'))" class="chart-line chart-line-1rm" />
+        @for (coord of chartCoords(selectedChartPoints, 'weight'); track $index) {
+          <circle [attr.cx]="coord.x" [attr.cy]="coord.y" r="3.5" class="chart-dot chart-dot-weight">
+            <title>{{ chartPointLabel(selectedChartPoints[$index]) }}</title>
+          </circle>
+        }
+        @for (coord of chartCoords(selectedChartPoints, 'oneRepMax'); track $index) {
+          <circle [attr.cx]="coord.x" [attr.cy]="coord.y" r="3.5" class="chart-dot chart-dot-1rm">
+            <title>{{ chartPointLabel(selectedChartPoints[$index]) }}</title>
+          </circle>
+        }
+      </svg>
+      <div class="chart-x-labels">
+        <span>{{ selectedChartPoints[0].date | date: dateFormat }}</span>
+        @if (selectedChartPoints.length > 1) {
+          <span>{{ selectedChartPoints[selectedChartPoints.length - 1].date | date: dateFormat }}</span>
+        }
+      </div>
+    }
+  }
+</ng-template>

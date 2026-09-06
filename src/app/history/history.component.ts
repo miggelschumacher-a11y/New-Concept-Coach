@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -13,8 +17,21 @@ import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/
 import { Exercise } from '../core/models/exercise.model';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { findBodyWeightForDate } from '../core/utils/body-weight-lookup.util';
+import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
+import { TranslationService } from '../core/services/translation.service';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SET_TYPES } from '../sessions/sessions.component';
+
+interface ExerciseChartPoint {
+  date: Date;
+  weight: number;
+  oneRepMax: number;
+}
+
+interface ChartCoord {
+  x: number;
+  y: number;
+}
 
 @Component({
   selector: 'app-history',
@@ -25,7 +42,12 @@ import { SET_TYPES } from '../sessions/sessions.component';
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    FormsModule,
     DatePipe,
+    NgTemplateOutlet,
     TranslatePipe
   ],
   providers: [DatePipe],
@@ -38,12 +60,19 @@ export class HistoryComponent implements OnInit {
   exercises: Exercise[] = [];
   bodyWeightEntries: BodyWeightEntry[] = [];
   pendingDeleteSessionId: string | null = null;
+  selectedChartExerciseId: string | null = null;
+
+  private readonly chartWidth = 600;
+  private readonly chartHeight = 260;
+  private readonly chartPadding = { top: 16, right: 16, bottom: 28, left: 48 };
 
   constructor(
     private readonly sessionsService: SessionsService,
     private readonly exercisesService: ExercisesService,
     private readonly settingsService: SettingsService,
-    private readonly bodyWeightService: BodyWeightService
+    private readonly bodyWeightService: BodyWeightService,
+    private readonly translationService: TranslationService,
+    private readonly datePipe: DatePipe
   ) {}
 
   get dateFormat(): string {
@@ -73,6 +102,7 @@ export class HistoryComponent implements OnInit {
     this.sessions = sessions;
     this.exercises = exercises;
     this.bodyWeightEntries = bodyWeightEntries;
+    this.selectedChartExerciseId = this.exercisesWithHistory[0]?.id ?? null;
   }
 
   exerciseName(id: string): string {
@@ -167,5 +197,91 @@ export class HistoryComponent implements OnInit {
     this.pendingDeleteSessionId = null;
     await this.sessionsService.delete(id);
     this.sessions = this.sessions.filter((session) => session.id !== id);
+  }
+
+  // Only exercises that have at least one completed working set in some
+  // finished session show up in the chart picker - every other exercise has
+  // nothing to plot.
+  get exercisesWithHistory(): Exercise[] {
+    const idsWithHistory = new Set(
+      this.finishedSessions.flatMap((session) =>
+        session.exercises
+          .filter((sessionExercise) => sessionExercise.sets.some((set) => set.type === 'working' && set.done))
+          .map((sessionExercise) => sessionExercise.exerciseId)
+      )
+    );
+    return this.exercises.filter((exercise) => idsWithHistory.has(exercise.id));
+  }
+
+  get selectedChartPoints(): ExerciseChartPoint[] {
+    return this.selectedChartExerciseId ? this.chartPoints(this.selectedChartExerciseId) : [];
+  }
+
+  // Oldest first, one point per finished session that logged this exercise -
+  // the point is the working set with the best estimated 1RM that session,
+  // so the weight/1RM lines both trace the same set rather than mismatched
+  // "heaviest weight this session" vs "best estimate this session" sets.
+  private chartPoints(exerciseId: string): ExerciseChartPoint[] {
+    return [...this.finishedSessions]
+      .reverse()
+      .map((session): ExerciseChartPoint | null => {
+        const sessionExercise = session.exercises.find((exercise) => exercise.exerciseId === exerciseId);
+        const doneWorkingSets = sessionExercise?.sets.filter((set) => set.type === 'working' && set.done) ?? [];
+        if (doneWorkingSets.length === 0) {
+          return null;
+        }
+        const bestSet = doneWorkingSets.reduce((best, set) =>
+          estimateOneRepMax(set.weight, set.reps) > estimateOneRepMax(best.weight, best.reps) ? set : best
+        );
+        return {
+          date: new Date(session.date),
+          weight: bestSet.weight,
+          oneRepMax: estimateOneRepMax(bestSet.weight, bestSet.reps)
+        };
+      })
+      .filter((point): point is ExerciseChartPoint => point !== null);
+  }
+
+  private chartYRange(points: ExerciseChartPoint[]): { min: number; max: number } {
+    const values = points.flatMap((point) => [point.weight, point.oneRepMax]);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const pad = (max - min) * 0.15 || Math.max(max * 0.1, 1);
+    return { min: Math.max(0, min - pad), max: max + pad };
+  }
+
+  private chartX(index: number, count: number): number {
+    const innerWidth = this.chartWidth - this.chartPadding.left - this.chartPadding.right;
+    return count <= 1 ? this.chartPadding.left + innerWidth / 2 : this.chartPadding.left + (innerWidth * index) / (count - 1);
+  }
+
+  private chartY(value: number, range: { min: number; max: number }): number {
+    const innerHeight = this.chartHeight - this.chartPadding.top - this.chartPadding.bottom;
+    const ratio = range.max === range.min ? 0.5 : (value - range.min) / (range.max - range.min);
+    return this.chartPadding.top + innerHeight * (1 - ratio);
+  }
+
+  chartCoords(points: ExerciseChartPoint[], key: 'weight' | 'oneRepMax'): ChartCoord[] {
+    const range = this.chartYRange(points);
+    return points.map((point, index) => ({ x: this.chartX(index, points.length), y: this.chartY(point[key], range) }));
+  }
+
+  chartPolylinePoints(coords: ChartCoord[]): string {
+    return coords.map((coord) => `${coord.x},${coord.y}`).join(' ');
+  }
+
+  chartGridLines(points: ExerciseChartPoint[]): { y: number; label: string }[] {
+    const range = this.chartYRange(points);
+    const steps = 4;
+    return Array.from({ length: steps + 1 }, (_, i) => {
+      const value = range.min + ((range.max - range.min) * i) / steps;
+      return { y: this.chartY(value, range), label: value.toFixed(1) };
+    });
+  }
+
+  chartPointLabel(point: ExerciseChartPoint): string {
+    const dateText = this.datePipe.transform(point.date, this.settingsService.getSettings().dateFormat) ?? '';
+    const oneRepMaxLabel = this.translationService.translate('history.chartOneRepMaxLegend');
+    return `${dateText}: ${point.weight.toFixed(2)} ${this.weightUnitLabel} / ${oneRepMaxLabel} ${point.oneRepMax.toFixed(2)} ${this.weightUnitLabel}`;
   }
 }

@@ -101,3 +101,88 @@
 .history-set-status.set-complete-fail {
   color: #d32f2f;
 }
+
+.history-tab-group {
+  margin-top: 0.5rem;
+
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    padding-top: 1rem;
+  }
+}
+
+.chart-exercise-select-field {
+  width: 100%;
+  max-width: 24rem;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: lightgrey;
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chart-legend-swatch {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 2px;
+}
+
+.chart-legend-weight {
+  background: #64b5f6;
+}
+
+.chart-legend-1rm {
+  background: #ffca28;
+}
+
+.progress-chart {
+  width: 100%;
+  height: auto;
+}
+
+.chart-grid-line {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+}
+
+.chart-axis-label {
+  fill: lightgrey;
+  font-size: 10px;
+}
+
+.chart-line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.chart-line-weight {
+  stroke: #64b5f6;
+}
+
+.chart-line-1rm {
+  stroke: #ffca28;
+}
+
+.chart-dot-weight {
+  fill: #64b5f6;
+}
+
+.chart-dot-1rm {
+  fill: #ffca28;
+}
+
+.chart-x-labels {
+  display: flex;
+  justify-content: space-between;
+  color: lightgrey;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
