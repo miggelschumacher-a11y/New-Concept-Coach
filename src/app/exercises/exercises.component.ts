@@ -94,12 +94,6 @@ export class ExercisesComponent implements OnInit {
 
   async updateEquipmentType(exercise: Exercise, value: ExerciseEquipmentType | ''): Promise<void> {
     exercise.equipmentType = value || undefined;
-    // The "Gewicht doppelt zählen" checkbox only shows for dumbbell
-    // exercises - clear it when switching away so a leftover checked value
-    // doesn't keep silently doubling this exercise's weight once hidden.
-    if (exercise.equipmentType !== 'DUMBBELL') {
-      exercise.doubleWeightCounting = false;
-    }
     await this.exercisesService.update(exercise);
   }
 
@@ -111,13 +105,6 @@ export class ExercisesComponent implements OnInit {
   async updateMuscleGroup(exercise: Exercise, value: MuscleGroup | ''): Promise<void> {
     exercise.muscleGroup = value || undefined;
     await this.exercisesService.update(exercise);
-  }
-
-  // Only relevant for dumbbell exercises, whose set weight is normally
-  // entered per dumbbell - see liftedWeight in one-rep-max.util for where
-  // this actually gets applied.
-  showDoubleWeightCounting(exercise: Exercise): boolean {
-    return exercise.equipmentType === 'DUMBBELL';
   }
 
   async updateDoubleWeightCounting(exercise: Exercise, checked: boolean): Promise<void> {
