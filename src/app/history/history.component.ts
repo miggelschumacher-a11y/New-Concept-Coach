@@ -88,14 +88,14 @@ export class HistoryComponent implements OnInit {
     return this.settingsService.getSettings().weightUnit.toUpperCase();
   }
 
+  // Sorted strictly by the session's own date/time - session.sequence is a
+  // Sessions-page-only concept (lets manually added sessions float to the
+  // top of the pending list ahead of plan-queued ones) and doesn't reflect
+  // when a finished session actually happened, so it's not used here.
   get finishedSessions(): TrainingSession[] {
     return this.sessions
       .filter((session) => session.finished)
-      .sort((a, b) => this.sortKey(b) - this.sortKey(a));
-  }
-
-  private sortKey(session: TrainingSession): number {
-    return session.sequence ?? new Date(session.date).getTime();
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
 
   async ngOnInit(): Promise<void> {
