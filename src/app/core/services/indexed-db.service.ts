@@ -83,7 +83,16 @@ const DB_NAME = 'trainings-app-db';
 // version past the `< DB_VERSION` gate without ever creating that store
 // (same race as the 32/33, 34/35 and 44/45 bumps above). Re-fires it for
 // anyone caught in that gap.
-const DB_VERSION = 48;
+// 49: adds the plates store (Config page's "Ausrüstung" > "Scheiben" tab),
+// alongside the dumbbells store, in the same file edit as the STORES entry
+// below - avoids repeating the 47/48 race by landing both in one go.
+// 50: 49 still landed as several file edits (STORES entry, component,
+// template, translations) across one dev-server session - a real,
+// already-open browser tab sharing this dev server reloaded on an
+// intermediate edit and got stuck at version 49 without ever creating the
+// plates store (same race as 32/33, 34/35, 44/45 and 47/48 above). Re-fires
+// it for anyone caught in that gap.
+const DB_VERSION = 50;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -106,7 +115,8 @@ export const STORES = {
   repGoalProgression: 'repGoalProgression',
   waveProgression: 'waveProgression',
   linearProgression: 'linearProgression',
-  dumbbells: 'dumbbells'
+  dumbbells: 'dumbbells',
+  plates: 'plates'
 } as const;
 
 const STORE_KEY_PATHS: Partial<Record<string, string>> = {

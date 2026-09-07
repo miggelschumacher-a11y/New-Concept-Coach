@@ -20,7 +20,7 @@ mat-card {
 }
 
 .dumbbell-name-field {
-  width: 20rem;
+  flex: 1 1 auto;
 }
 
 .dumbbell-weight-field,
@@ -35,6 +35,22 @@ mat-card {
 
 .dumbbell-duplicate-error {
   color: #ff8a80;
+}
+
+.plate-form {
+  margin-top: 1rem;
+}
+
+.plate-quantity-field,
+.plate-weight-field,
+.plate-diameter-field {
+  width: 106px;
+}
+
+.plate-quantity-input,
+.plate-weight-input,
+.plate-diameter-input {
+  text-align: right;
 }
 
 .increment-scheme-description {

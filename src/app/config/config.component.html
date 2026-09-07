@@ -355,7 +355,7 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="dumbbell-diameter-field" floatLabel="always">
-                <mat-label>{{ 'config.dumbbellDiameter' | translate }} (mm)</mat-label>
+                <mat-label>⌀ (mm)</mat-label>
                 <input
                   matInput
                   type="text"
@@ -392,7 +392,7 @@
                     <tr>
                       <th>{{ 'config.dumbbellName' | translate }}</th>
                       <th class="body-weight-column">{{ 'config.dumbbellWeight' | translate }}</th>
-                      <th class="body-weight-column">{{ 'config.dumbbellDiameter' | translate }}</th>
+                      <th class="body-weight-column">⌀</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -448,7 +448,129 @@
               </div>
             }
           </mat-tab>
-          <mat-tab [label]="'config.equipmentPlatesTab' | translate"></mat-tab>
+          <mat-tab [label]="'config.equipmentPlatesTab' | translate">
+            <div class="settings-form plate-form">
+              <mat-form-field appearance="outline" class="plate-quantity-field" floatLabel="always">
+                <mat-label>{{ 'config.plateQuantity' | translate }}</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  inputmode="numeric"
+                  class="plate-quantity-input"
+                  [value]="newPlateQuantity"
+                  selectOnFocus
+                  (input)="onPlateQuantityFieldInput($event)"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="plate-weight-field" floatLabel="always">
+                <mat-label>{{ 'config.dumbbellWeight' | translate }} ({{ weightUnitLabel }})</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  inputmode="decimal"
+                  class="plate-weight-input"
+                  [value]="newPlateWeight"
+                  selectOnFocus
+                  (input)="onPlateWeightFieldInput($event)"
+                  (blur)="onPlateWeightFieldBlur()"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="plate-diameter-field" floatLabel="always">
+                <mat-label>⌀ (mm)</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  inputmode="numeric"
+                  class="plate-diameter-input"
+                  [value]="newPlateDiameter"
+                  selectOnFocus
+                  (input)="onPlateDiameterFieldInput($event)"
+                />
+              </mat-form-field>
+
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="!newPlateQuantity || !newPlateWeight || !newPlateDiameter"
+                (click)="addPlateEntry()"
+                [matTooltip]="'config.dumbbellAdd' | translate"
+                [attr.aria-label]="'config.dumbbellAdd' | translate"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+
+            @if (plateDuplicateError) {
+              <p class="dumbbell-duplicate-error">{{ 'config.plateDuplicateError' | translate }}</p>
+            }
+
+            @if (sortedPlateEntries.length === 0) {
+              <p>{{ 'config.dumbbellEmpty' | translate }}</p>
+            } @else {
+              <div class="zones-table-wrapper">
+                <table class="zones-table">
+                  <thead>
+                    <tr>
+                      <th class="body-weight-column">{{ 'config.plateQuantity' | translate }}</th>
+                      <th class="body-weight-column">{{ 'config.dumbbellWeight' | translate }}</th>
+                      <th class="body-weight-column">⌀</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (entry of sortedPlateEntries; track entry.id) {
+                      <tr>
+                        <td class="body-weight-column">{{ entry.quantity }}</td>
+                        <td class="body-weight-column">{{ entry.weight | number: '1.2-2' }} {{ weightUnitLabel }}</td>
+                        <td class="body-weight-column">{{ entry.diameter }} mm</td>
+                        <td>
+                          @if (pendingDeletePlateId === entry.id) {
+                            <div class="confirm-dialog">
+                              <span class="confirm-label">{{ 'config.dumbbellDeleteConfirm' | translate }}</span>
+                              <div class="confirm-dialog-actions">
+                                <button
+                                  mat-icon-button
+                                  color="warn"
+                                  type="button"
+                                  (click)="confirmDeletePlateEntry(entry.id)"
+                                  [matTooltip]="'sessions.confirmYesDelete' | translate"
+                                  [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                                >
+                                  <mat-icon>check</mat-icon>
+                                </button>
+                                <button
+                                  mat-icon-button
+                                  type="button"
+                                  (click)="cancelDeletePlateEntry()"
+                                  [matTooltip]="'sessions.confirmCancel' | translate"
+                                  [attr.aria-label]="'sessions.confirmCancel' | translate"
+                                >
+                                  <mat-icon>close</mat-icon>
+                                </button>
+                              </div>
+                            </div>
+                          } @else {
+                            <button
+                              mat-icon-button
+                              color="warn"
+                              type="button"
+                              (click)="requestDeletePlateEntry(entry.id)"
+                              [matTooltip]="'common.delete' | translate"
+                              [attr.aria-label]="'common.delete' | translate"
+                            >
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </mat-tab>
         </mat-tab-group>
       </mat-expansion-panel>
     </mat-accordion>

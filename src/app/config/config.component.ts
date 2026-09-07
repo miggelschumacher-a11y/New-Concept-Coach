@@ -26,6 +26,8 @@ import { LANGUAGES } from '../core/services/translation.service';
 import { BodyWeightService } from '../core/services/body-weight.service';
 import { DumbbellsService } from '../core/services/dumbbells.service';
 import { DumbbellEntry } from '../core/models/dumbbell-entry.model';
+import { PlatesService } from '../core/services/plates.service';
+import { PlateEntry } from '../core/models/plate-entry.model';
 import { findHeartRateMax, parseHeartRateRange } from '../core/data/heart-rate-zones';
 import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
@@ -86,13 +88,20 @@ export class ConfigComponent implements OnInit {
   newDumbbellDiameter = '';
   pendingDeleteDumbbellId: string | null = null;
   dumbbellDuplicateError = false;
+  plateEntries: PlateEntry[] = [];
+  newPlateQuantity = '';
+  newPlateWeight = '';
+  newPlateDiameter = '';
+  pendingDeletePlateId: string | null = null;
+  plateDuplicateError = false;
 
   constructor(
     private readonly settingsService: SettingsService,
     private readonly indexedDbService: IndexedDbService,
     private readonly googleDriveService: GoogleDriveService,
     private readonly bodyWeightService: BodyWeightService,
-    private readonly dumbbellsService: DumbbellsService
+    private readonly dumbbellsService: DumbbellsService,
+    private readonly platesService: PlatesService
   ) {
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
@@ -126,6 +135,7 @@ export class ConfigComponent implements OnInit {
     this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
     this.bodyWeightEntries = await this.bodyWeightService.getAll();
     this.dumbbellEntries = await this.dumbbellsService.getAll();
+    this.plateEntries = await this.platesService.getAll();
   }
 
   private currentLocalDateTime(): string {
@@ -173,6 +183,10 @@ export class ConfigComponent implements OnInit {
 
   get sortedDumbbellEntries(): DumbbellEntry[] {
     return [...this.dumbbellEntries].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  get sortedPlateEntries(): PlateEntry[] {
+    return [...this.plateEntries].sort((a, b) => a.weight - b.weight || a.diameter - b.diameter);
   }
 
   zonePercentDisplay(zone: TrainingZone): string {
@@ -448,5 +462,87 @@ export class ConfigComponent implements OnInit {
     this.pendingDeleteDumbbellId = null;
     await this.dumbbellsService.delete(id);
     this.dumbbellEntries = this.dumbbellEntries.filter((entry) => entry.id !== id);
+  }
+
+  // Integer, 4 digits max - how many of this plate the user owns.
+  onPlateQuantityFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+    this.newPlateQuantity = input.value;
+  }
+
+  // Same 4-int/2-decimal mask as every other weight field in the app (see
+  // onBodyWeightValueInput above).
+  onPlateWeightFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+    this.newPlateWeight = input.value;
+  }
+
+  // Reformats to 2 decimal places with trailing zeros once the field is
+  // left, same convention as every other weight field's blur handler.
+  onPlateWeightFieldBlur(): void {
+    const parsed = parseFloat(this.newPlateWeight.replace(',', '.'));
+    if (Number.isFinite(parsed)) {
+      this.newPlateWeight = parsed.toFixed(2);
+    }
+  }
+
+  // Integer, 2 digits max (0-99mm) - a plate's center-hole diameter has no
+  // decimal place, unlike weight.
+  onPlateDiameterFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,2}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+    this.newPlateDiameter = input.value;
+  }
+
+  // Unlike dumbbells, plates have no name - the weight/diameter combination
+  // alone identifies one physical plate type, so it's the duplicate key;
+  // quantity is just how many of that type are owned.
+  private isDuplicatePlate(weight: number, diameter: number): boolean {
+    return this.plateEntries.some((entry) => entry.weight === weight && entry.diameter === diameter);
+  }
+
+  async addPlateEntry(): Promise<void> {
+    this.plateDuplicateError = false;
+    const quantity = parseInt(this.newPlateQuantity, 10);
+    const weight = Math.round(parseFloat(this.newPlateWeight.replace(',', '.')) * 100) / 100;
+    const diameter = parseInt(this.newPlateDiameter, 10);
+    if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(weight) || weight <= 0 || !Number.isFinite(diameter) || diameter <= 0) {
+      return;
+    }
+    if (this.isDuplicatePlate(weight, diameter)) {
+      this.plateDuplicateError = true;
+      return;
+    }
+    const entry: PlateEntry = { id: crypto.randomUUID(), quantity, weight, diameter };
+    await this.platesService.add(entry);
+    this.plateEntries = [...this.plateEntries, entry];
+    this.newPlateQuantity = '';
+    this.newPlateWeight = '';
+    this.newPlateDiameter = '';
+  }
+
+  requestDeletePlateEntry(id: string): void {
+    this.pendingDeletePlateId = id;
+  }
+
+  cancelDeletePlateEntry(): void {
+    this.pendingDeletePlateId = null;
+  }
+
+  async confirmDeletePlateEntry(id: string): Promise<void> {
+    this.pendingDeletePlateId = null;
+    await this.platesService.delete(id);
+    this.plateEntries = this.plateEntries.filter((entry) => entry.id !== id);
   }
 }
