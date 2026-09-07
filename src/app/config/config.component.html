@@ -399,9 +399,40 @@
                   <tbody>
                     @for (entry of sortedDumbbellEntries; track entry.id) {
                       <tr>
-                        <td>{{ entry.name }}</td>
-                        <td class="body-weight-column">{{ entry.weight | number: '1.2-2' }} {{ weightUnitLabel }}</td>
-                        <td class="body-weight-column">{{ entry.diameter }} mm</td>
+                        <td>
+                          <input
+                            type="text"
+                            maxlength="50"
+                            class="table-edit-input"
+                            [value]="entry.name"
+                            selectOnFocus
+                            (change)="updateDumbbellEntryName(entry, $event)"
+                          />
+                        </td>
+                        <td class="body-weight-column">
+                          <input
+                            type="text"
+                            inputmode="decimal"
+                            class="table-edit-input dumbbell-weight-input"
+                            [value]="entry.weight | number: '1.2-2'"
+                            selectOnFocus
+                            (input)="onDumbbellWeightEditInput($event)"
+                            (change)="updateDumbbellEntryWeight(entry, $event)"
+                          />
+                          {{ weightUnitLabel }}
+                        </td>
+                        <td class="body-weight-column">
+                          <input
+                            type="text"
+                            inputmode="numeric"
+                            class="table-edit-input dumbbell-diameter-input"
+                            [value]="entry.diameter"
+                            selectOnFocus
+                            (input)="onDumbbellDiameterEditInput($event)"
+                            (change)="updateDumbbellEntryDiameter(entry, $event)"
+                          />
+                          mm
+                        </td>
                         <td>
                           @if (pendingDeleteDumbbellId === entry.id) {
                             <div class="confirm-dialog">
@@ -522,9 +553,41 @@
                   <tbody>
                     @for (entry of sortedPlateEntries; track entry.id) {
                       <tr>
-                        <td class="body-weight-column">{{ entry.quantity }}</td>
-                        <td class="body-weight-column">{{ entry.weight | number: '1.2-2' }} {{ weightUnitLabel }}</td>
-                        <td class="body-weight-column">{{ entry.diameter }} mm</td>
+                        <td class="body-weight-column">
+                          <input
+                            type="text"
+                            inputmode="numeric"
+                            class="table-edit-input plate-quantity-input"
+                            [value]="entry.quantity"
+                            selectOnFocus
+                            (input)="onPlateQuantityEditInput($event)"
+                            (change)="updatePlateEntryQuantity(entry, $event)"
+                          />
+                        </td>
+                        <td class="body-weight-column">
+                          <input
+                            type="text"
+                            inputmode="decimal"
+                            class="table-edit-input plate-weight-input"
+                            [value]="entry.weight | number: '1.2-2'"
+                            selectOnFocus
+                            (input)="onPlateWeightEditInput($event)"
+                            (change)="updatePlateEntryWeight(entry, $event)"
+                          />
+                          {{ weightUnitLabel }}
+                        </td>
+                        <td class="body-weight-column">
+                          <input
+                            type="text"
+                            inputmode="numeric"
+                            class="table-edit-input plate-diameter-input"
+                            [value]="entry.diameter"
+                            selectOnFocus
+                            (input)="onPlateDiameterEditInput($event)"
+                            (change)="updatePlateEntryDiameter(entry, $event)"
+                          />
+                          mm
+                        </td>
                         <td>
                           @if (pendingDeletePlateId === entry.id) {
                             <div class="confirm-dialog">

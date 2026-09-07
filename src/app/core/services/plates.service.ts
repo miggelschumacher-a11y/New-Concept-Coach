@@ -14,6 +14,10 @@ export class PlatesService {
     return this.db.add(STORES.plates, entry);
   }
 
+  update(entry: PlateEntry): Promise<void> {
+    return this.db.put(STORES.plates, entry);
+  }
+
   delete(id: string): Promise<void> {
     return this.db.delete(STORES.plates, id);
   }

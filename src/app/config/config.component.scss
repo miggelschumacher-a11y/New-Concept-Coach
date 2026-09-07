@@ -53,6 +53,22 @@ mat-card {
   text-align: right;
 }
 
+.table-edit-input {
+  width: 100%;
+  max-width: 8rem;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.95);
+  font: inherit;
+  padding: 0.25rem 0;
+
+  &:focus {
+    outline: none;
+    border-bottom-color: #90caf9;
+  }
+}
+
 .increment-scheme-description {
   color: lightgrey;
   margin-top: 0;

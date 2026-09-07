@@ -425,9 +425,12 @@ export class ConfigComponent implements OnInit {
   // The name/weight/diameter combination identifies one physical dumbbell -
   // adding the same combination twice would just be a duplicate row with no
   // extra meaning, so it's rejected with dumbbellDuplicateError shown below
-  // the form (see addDumbbellEntry).
-  private isDuplicateDumbbell(name: string, weight: number, diameter: number): boolean {
-    return this.dumbbellEntries.some((entry) => entry.name === name && entry.weight === weight && entry.diameter === diameter);
+  // the form (see addDumbbellEntry). excludeId lets an edit to an existing
+  // entry check against every *other* entry without flagging itself.
+  private isDuplicateDumbbell(name: string, weight: number, diameter: number, excludeId?: string): boolean {
+    return this.dumbbellEntries.some(
+      (entry) => entry.id !== excludeId && entry.name === name && entry.weight === weight && entry.diameter === diameter
+    );
   }
 
   async addDumbbellEntry(): Promise<void> {
@@ -462,6 +465,87 @@ export class ConfigComponent implements OnInit {
     this.pendingDeleteDumbbellId = null;
     await this.dumbbellsService.delete(id);
     this.dumbbellEntries = this.dumbbellEntries.filter((entry) => entry.id !== id);
+  }
+
+  // Same masks as the add-form's own fields (onDumbbellWeightFieldInput /
+  // onDumbbellDiameterFieldInput above), just without the newDumbbell*
+  // component state - an existing row's input is edited in place, so the
+  // sanitized text only ever needs to land back in that same input element.
+  onDumbbellWeightEditInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  onDumbbellDiameterEditInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,2}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // Each of these commits on blur/change of its own field, re-running the
+  // same duplicate check as addDumbbellEntry (excluding this row itself) so
+  // an edit can never create a second identical dumbbell. An invalid or
+  // rejected edit reverts the input's DOM value directly, since Angular's
+  // property binding skips the DOM write when the bound model value (which
+  // an invalid/rejected edit never changes) hasn't changed.
+  async updateDumbbellEntryName(entry: DumbbellEntry, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const name = input.value.trim().slice(0, 50);
+    if (!name) {
+      input.value = entry.name;
+      return;
+    }
+    if (this.isDuplicateDumbbell(name, entry.weight, entry.diameter, entry.id)) {
+      this.dumbbellDuplicateError = true;
+      input.value = entry.name;
+      return;
+    }
+    this.dumbbellDuplicateError = false;
+    entry.name = name;
+    input.value = name;
+    await this.dumbbellsService.update(entry);
+  }
+
+  async updateDumbbellEntryWeight(entry: DumbbellEntry, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const parsed = parseFloat(input.value.replace(',', '.'));
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      input.value = entry.weight.toFixed(2);
+      return;
+    }
+    const weight = Math.round(parsed * 100) / 100;
+    if (this.isDuplicateDumbbell(entry.name, weight, entry.diameter, entry.id)) {
+      this.dumbbellDuplicateError = true;
+      input.value = entry.weight.toFixed(2);
+      return;
+    }
+    this.dumbbellDuplicateError = false;
+    entry.weight = weight;
+    input.value = weight.toFixed(2);
+    await this.dumbbellsService.update(entry);
+  }
+
+  async updateDumbbellEntryDiameter(entry: DumbbellEntry, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const parsed = parseInt(input.value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      input.value = String(entry.diameter);
+      return;
+    }
+    if (this.isDuplicateDumbbell(entry.name, entry.weight, parsed, entry.id)) {
+      this.dumbbellDuplicateError = true;
+      input.value = String(entry.diameter);
+      return;
+    }
+    this.dumbbellDuplicateError = false;
+    entry.diameter = parsed;
+    input.value = String(parsed);
+    await this.dumbbellsService.update(entry);
   }
 
   // Integer, 4 digits max - how many of this plate the user owns.
@@ -507,9 +591,11 @@ export class ConfigComponent implements OnInit {
 
   // Unlike dumbbells, plates have no name - the weight/diameter combination
   // alone identifies one physical plate type, so it's the duplicate key;
-  // quantity is just how many of that type are owned.
-  private isDuplicatePlate(weight: number, diameter: number): boolean {
-    return this.plateEntries.some((entry) => entry.weight === weight && entry.diameter === diameter);
+  // quantity is just how many of that type are owned. excludeId lets an edit
+  // to an existing entry check against every *other* entry without flagging
+  // itself.
+  private isDuplicatePlate(weight: number, diameter: number, excludeId?: string): boolean {
+    return this.plateEntries.some((entry) => entry.id !== excludeId && entry.weight === weight && entry.diameter === diameter);
   }
 
   async addPlateEntry(): Promise<void> {
@@ -544,5 +630,90 @@ export class ConfigComponent implements OnInit {
     this.pendingDeletePlateId = null;
     await this.platesService.delete(id);
     this.plateEntries = this.plateEntries.filter((entry) => entry.id !== id);
+  }
+
+  // Same masks as the add-form's own fields (onPlateQuantityFieldInput /
+  // onPlateWeightFieldInput / onPlateDiameterFieldInput above), just without
+  // the newPlate* component state - an existing row's input is edited in
+  // place, so the sanitized text only ever needs to land back in that same
+  // input element.
+  onPlateQuantityEditInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  onPlateWeightEditInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  onPlateDiameterEditInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,2}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // Each of these commits on blur/change of its own field. Weight/diameter
+  // re-run the same duplicate check as addPlateEntry (excluding this row
+  // itself) so an edit can never create a second identical plate; quantity
+  // isn't part of that identity, so it only needs its own bounds check. An
+  // invalid or rejected edit reverts the input's DOM value directly, since
+  // Angular's property binding skips the DOM write when the bound model
+  // value (which an invalid/rejected edit never changes) hasn't changed.
+  async updatePlateEntryQuantity(entry: PlateEntry, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const parsed = parseInt(input.value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      input.value = String(entry.quantity);
+      return;
+    }
+    entry.quantity = parsed;
+    input.value = String(parsed);
+    await this.platesService.update(entry);
+  }
+
+  async updatePlateEntryWeight(entry: PlateEntry, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const parsed = parseFloat(input.value.replace(',', '.'));
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      input.value = entry.weight.toFixed(2);
+      return;
+    }
+    const weight = Math.round(parsed * 100) / 100;
+    if (this.isDuplicatePlate(weight, entry.diameter, entry.id)) {
+      this.plateDuplicateError = true;
+      input.value = entry.weight.toFixed(2);
+      return;
+    }
+    this.plateDuplicateError = false;
+    entry.weight = weight;
+    input.value = weight.toFixed(2);
+    await this.platesService.update(entry);
+  }
+
+  async updatePlateEntryDiameter(entry: PlateEntry, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const parsed = parseInt(input.value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      input.value = String(entry.diameter);
+      return;
+    }
+    if (this.isDuplicatePlate(entry.weight, parsed, entry.id)) {
+      this.plateDuplicateError = true;
+      input.value = String(entry.diameter);
+      return;
+    }
+    this.plateDuplicateError = false;
+    entry.diameter = parsed;
+    input.value = String(parsed);
+    await this.platesService.update(entry);
   }
 }

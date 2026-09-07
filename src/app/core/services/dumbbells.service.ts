@@ -14,6 +14,10 @@ export class DumbbellsService {
     return this.db.add(STORES.dumbbells, entry);
   }
 
+  update(entry: DumbbellEntry): Promise<void> {
+    return this.db.put(STORES.dumbbells, entry);
+  }
+
   delete(id: string): Promise<void> {
     return this.db.delete(STORES.dumbbells, id);
   }
