@@ -69,6 +69,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Add notes on how to perform this exercise…',
     'exercises.animationTitle': 'Execution',
     'exercises.sourceAttributionPrefix': 'Source:',
+    'exercises.animationUnavailable': 'No image available',
 
     'trainingPlans.title': 'Training Plans',
     'trainingPlans.description': 'Description',
@@ -374,6 +375,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Notizen zur Ausführung dieser Übung hinzufügen…',
     'exercises.animationTitle': 'Ausführung',
     'exercises.sourceAttributionPrefix': 'Quelle:',
+    'exercises.animationUnavailable': 'Kein Bild verfügbar',
 
     'trainingPlans.title': 'Trainingspläne',
     'trainingPlans.description': 'Beschreibung',
@@ -679,6 +681,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Añade notas sobre cómo realizar este ejercicio…',
     'exercises.animationTitle': 'Ejecución',
     'exercises.sourceAttributionPrefix': 'Fuente:',
+    'exercises.animationUnavailable': 'Imagen no disponible',
 
     'trainingPlans.title': 'Planes de entrenamiento',
     'trainingPlans.description': 'Descripción',
@@ -984,6 +987,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Adicione notas sobre como executar este exercício…',
     'exercises.animationTitle': 'Execução',
     'exercises.sourceAttributionPrefix': 'Fonte:',
+    'exercises.animationUnavailable': 'Imagem não disponível',
 
     'trainingPlans.title': 'Planos de treino',
     'trainingPlans.description': 'Descrição',
@@ -1289,6 +1293,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Aggiungi note su come eseguire questo esercizio…',
     'exercises.animationTitle': 'Esecuzione',
     'exercises.sourceAttributionPrefix': 'Fonte:',
+    'exercises.animationUnavailable': 'Immagine non disponibile',
 
     'trainingPlans.title': 'Piani di allenamento',
     'trainingPlans.description': 'Descrizione',
@@ -1594,6 +1599,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Voeg notities toe over de uitvoering van deze oefening…',
     'exercises.animationTitle': 'Uitvoering',
     'exercises.sourceAttributionPrefix': 'Bron:',
+    'exercises.animationUnavailable': 'Geen afbeelding beschikbaar',
 
     'trainingPlans.title': 'Trainingsplannen',
     'trainingPlans.description': 'Beschrijving',
@@ -1899,6 +1905,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Dodaj notatki na temat wykonania tego ćwiczenia…',
     'exercises.animationTitle': 'Wykonanie',
     'exercises.sourceAttributionPrefix': 'Źródło:',
+    'exercises.animationUnavailable': 'Brak dostępnego obrazu',
 
     'trainingPlans.title': 'Plany treningowe',
     'trainingPlans.description': 'Opis',
@@ -2204,6 +2211,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Добавьте заметки о выполнении этого упражнения…',
     'exercises.animationTitle': 'Выполнение',
     'exercises.sourceAttributionPrefix': 'Источник:',
+    'exercises.animationUnavailable': 'Изображение недоступно',
 
     'trainingPlans.title': 'Планы тренировок',
     'trainingPlans.description': 'Описание',
@@ -2509,6 +2517,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.descriptionPlaceholder': 'Adj hozzá jegyzeteket a gyakorlat végrehajtásáról…',
     'exercises.animationTitle': 'Végrehajtás',
     'exercises.sourceAttributionPrefix': 'Forrás:',
+    'exercises.animationUnavailable': 'Nincs elérhető kép',
 
     'trainingPlans.title': 'Edzéstervek',
     'trainingPlans.description': 'Leírás',

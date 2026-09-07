@@ -39,7 +39,21 @@ const DB_NAME = 'trainings-app-db';
 // empty fields (not just no-ops on already-healed rows).
 // 37: adds sourced description/photo content for Cable-Row and Calf-Raises
 // too (same DEFAULT_EXERCISE_SOURCED_CONTENT backfill as 34/35/36).
-const DB_VERSION = 37;
+// 38: adds 5 more photo+description matches (Chin-Ups, Pull-Ups,
+// Back-Extension, Barbell-Row, Dips) plus description-only content for 4
+// more (Deadlift, Squat, Lat-Pull-Downs, Bent-Over-Dumbbell-Raise) - the
+// backfill's "already applied" check now looks at sourceUrl rather than
+// sourceImageUrl, since these last 4 never get an image at all.
+// 39: adds description-only content for Standing-Leg-Curls (the only
+// matching image found shows the lying/prone variant, not standing).
+// 40: adds "Leg-Curls" as a new default exercise (the lying/prone variant
+// image from 39 belongs here, not on Standing-Leg-Curls) - existing
+// installs now get any name added to DEFAULT_EXERCISE_NAMES after their
+// database was first created, not just brand-new installs.
+// 41: adds original (non-sourced) descriptions for the 7 exercises no
+// confident free/licensed match was found for (see
+// DEFAULT_EXERCISE_DESCRIPTIONS).
+const DB_VERSION = 41;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -87,6 +101,7 @@ const DEFAULT_EXERCISE_NAMES = [
   'Pull-Ups',
   'Dips',
   'Standing-Leg-Curls',
+  'Leg-Curls',
   'Neck-Extensions',
   'Neck-Curls',
   'Triceps-Push-Down'
@@ -115,6 +130,7 @@ const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightC
   Dips: 'UPPER_BODY',
   'Bent-Over-Dumbbell-Raise': 'UPPER_BODY',
   'Standing-Leg-Curls': 'LOWER_BODY',
+  'Leg-Curls': 'LOWER_BODY',
   'AB-Rollout': 'UPPER_BODY',
   'Back-Extension': 'LOWER_BODY',
   'Lat-Pull-Downs': 'UPPER_BODY',
@@ -125,7 +141,13 @@ const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightC
 
 interface SourcedExerciseContent {
   description: string;
-  sourceImageUrl: string;
+  // Some matched entries have a good description but no clean, correctly-
+  // matching image (e.g. the only available photo used different equipment
+  // than the description, or turned out to be a mismatched/copyrighted
+  // upload) - sourceLicense/sourceAttribution/sourceUrl still apply to the
+  // description text itself either way, since that's also sourced content
+  // requiring attribution under wger.de's CC-BY-SA license.
+  sourceImageUrl?: string;
   sourceLicense: string;
   sourceAttribution: string;
   sourceUrl: string;
@@ -169,10 +191,139 @@ const DEFAULT_EXERCISE_SOURCED_CONTENT: Partial<Record<string, SourcedExerciseCo
     sourceLicense: 'CC-BY-SA 4.0',
     sourceAttribution: 'clafal',
     sourceUrl: 'https://wger.de/en/exercise/622/view/'
+  },
+  'Chin-Ups': {
+    description: 'Wie normale Klimmzüge, aber im Untergriff.',
+    sourceImageUrl: '/exercise-images/chin-ups.png',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'Everkinetic',
+    sourceUrl: 'https://wger.de/en/exercise/152/view/'
+  },
+  'Pull-Ups': {
+    description:
+      'Greife die Klimmzugstange mit breitem Griff, der Körper hängt zunächst frei nach unten. Ziehe nun die Brust raus und bringe den Körper nach oben, bis dein Kinn über der Stange liegt (oder der Nacken sie berührt, wenn du nach hinten gezogen hast), gehe nun langsam nach unten und wiederhole.',
+    sourceImageUrl: '/exercise-images/pull-ups.jpg',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'wger.de',
+    sourceUrl: 'https://wger.de/en/exercise/475/view/'
+  },
+  'Back-Extension': {
+    description:
+      'Lege dich auf das Polster so, dass der Bauchnabel kurz vor der Vorderkante liegt, der Oberkörper hängt frei nach unten. Spanne die gesamte Rückenmuskulatur an, und bringe den Oberkörper nach oben bis er waagerecht ist (nicht höher). Gehe nun langsam wieder nach unten (Muskelanspannung nicht vergessen).',
+    sourceImageUrl: '/exercise-images/back-extension.png',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'Everkinetic',
+    sourceUrl: 'https://wger.de/en/exercise/301/view/'
+  },
+  'Barbell-Row': {
+    description:
+      'Greife die Langhantel mit breitem (etwas mehr als Schulterbreit) Griff und beuge dich nach vorne. Dabei ist der Oberkörper nicht ganz waagerecht, sondern ein bisschen steiler, der Kopf schaut nach vorn und die Brust ist rausgestreckt. Ziehe nun das Gewicht in Richtung Bauchnabel. Schwinge während der Bewegung den Oberkörper nicht und halte die Arme dicht am Körper, wenn du sie hochziehst. Bringe die Hantel langsam wieder nach unten.',
+    sourceImageUrl: '/exercise-images/barbell-row.png',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'Everkinetic',
+    sourceUrl: 'https://wger.de/en/exercise/83/view/'
+  },
+  Dips: {
+    description:
+      'Greife die Stangen an einer engen Stelle und drücke dich hoch. Strecke dabei die Arme nicht ganz aus, dann bleiben während des gesamten Bewegungsablaufs die Muskeln immer unter Spannung. Beuge nun die Arme und gehe so tief wie möglich runter, die Ellenbogen zeigen nach hinten. Du kannst an dieser Stelle einige Sekunden bleiben, bevor du die Übung weitermachst.',
+    sourceImageUrl: '/exercise-images/dips.png',
+    sourceLicense: 'CC-BY-SA 4.0',
+    sourceAttribution: 'cshep442',
+    sourceUrl: 'https://wger.de/en/exercise/194/view/'
+  },
+  // No clean, matching image found for these - the only candidate photo
+  // either used different equipment than the text describes (Deadlift) or
+  // was a generic muscle-group diagram rather than an execution photo
+  // (Squat, Lat-Pull-Downs, Bent-Over-Dumbbell-Raise). Description only.
+  Deadlift: {
+    description:
+      'Stelle dich mit etwas mehr als schulterbreitem Stand vor der Stange, die Füße zeigen leicht nach außen, die Stange ist direkt darüber und sehr nahe am Schienbein. Beuge die Knie (zeigen ebenfalls etwas nach außen) und neige den Oberkörper (bleibt während der ganzen Übung gerade). Greife die Stange schulterbreit mit einem Unter- und einem Obergriff.\n\nZiehe nun die Stange nach oben. An der höchsten Stelle mache ein leichtes Hohlkreuz und drücke die Schultern nach hinten. Gehe wieder runter, wobei du darauf achtest, dass der Rücken gerade bleibt und sich nicht krümmt. Du kannst unten angekommen eine kleine Pause einlegen oder sofort weitermachen.',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'wger.de',
+    sourceUrl: 'https://wger.de/en/exercise/184/view/'
+  },
+  Squat: {
+    description:
+      'Stelle die Halterung der Langhantel auf so eine Höhe ein, dass du sie bequem raus- und wieder reinbringen kannst. Bereite dich vor: die Stange ist etwas tiefer als Schulterhöhe, die Füße sind ziemlich auseinander und zeigen leicht nach außen, der Kopf ist im Nacken und schaut nach vorne/oben, die Brust wird nach außen gebracht.\n\nGehe nun langsam runter, bis der Oberschenkel einen rechten Winkel bildet, nicht tiefer. Die Knie zeigen leicht nach außen, dein Gesäß nach hinten. Mache eine kleine Pause und gehe mit so viel Energie wie du aufbringen kannst, wieder nach oben. Nach 2 Sekunden Pause gehe wieder runter.',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'wger.de',
+    sourceUrl: 'https://wger.de/en/exercise/615/view/'
+  },
+  'Lat-Pull-Downs': {
+    description:
+      'Aufrechte Sitzposition, Oberkörper leicht nach hinten beugen, Stange im Obergriff fassen, Stange vor dem Kopf nach unten zum Brustbein ziehen, Stange zurückführen, bis Ellenbogen leicht gebeugt.',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'wger.de',
+    sourceUrl: 'https://wger.de/en/exercise/723/view/'
+  },
+  'Bent-Over-Dumbbell-Raise': {
+    description:
+      'Setze dich auf den Rand einer Flachbank und beuge den Körper so weit nach vorne, dass er parallel zum Boden ist. Nimm nun die Hanteln und hebe sie seitwärts bis etwas über Schulterhöhe. Gehe langsam wieder runter.\n\nEs ist wichtig, während der Übung die Arme nicht nach vorn oder nach hinten zu bewegen, sie sollten stets einen rechten Winkel mit dem Körper haben. Wie beim Seitheben im Stehen sollten sich die Handflächen nicht drehen, sie zeigen also immer zum Boden oder zum Körper.',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'wger.de',
+    sourceUrl: 'https://wger.de/en/exercise/82/view/'
+  },
+  // Only image found for "Leg Curl" shows the lying/prone machine variant,
+  // not the standing one this exercise is named for - description only,
+  // since the text itself doesn't specify a body position.
+  'Standing-Leg-Curls': {
+    description:
+      'Der Beinbeuger, auch als Hamstring-Curl bekannt, ist eine Isolationsübung, die auf die hintere Oberschenkelmuskulatur abzielt. Bei der Übung wird der Unterschenkel gegen Widerstand in Richtung Gesäß gebeugt. Weitere Übungen, mit denen sich die hintere Oberschenkelmuskulatur stärken lässt, sind das Glute-Ham-Raise und das Kreuzheben.',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'BFad07',
+    sourceUrl: 'https://wger.de/en/exercise/364/view/'
+  },
+  // Same wger.de exercise (364) as Standing-Leg-Curls above, but here for
+  // the lying/prone machine variant its image actually shows.
+  'Leg-Curls': {
+    description:
+      'Der Beinbeuger, auch als Hamstring-Curl bekannt, ist eine Isolationsübung, die auf die hintere Oberschenkelmuskulatur abzielt. Bei der Übung wird der Unterschenkel gegen Widerstand in Richtung Gesäß gebeugt. Weitere Übungen, mit denen sich die hintere Oberschenkelmuskulatur stärken lässt, sind das Glute-Ham-Raise und das Kreuzheben.',
+    sourceImageUrl: '/exercise-images/leg-curls.png',
+    sourceLicense: 'CC-BY-SA 4.0',
+    sourceAttribution: 'wger.de',
+    sourceUrl: 'https://wger.de/en/exercise/364/view/'
   }
 };
 
+// Own descriptions for exercises no free/openly-licensed database entry
+// could be confidently matched to (see ExercisesComponent's edit history) -
+// no source/license fields, since this text isn't reused from anywhere.
+const DEFAULT_EXERCISE_DESCRIPTIONS: Partial<Record<string, string>> = {
+  'Overhead-Press': `Stelle dich schulterbreit hin, die Langhantel liegt auf Schlüsselbeinhöhe vor dem Körper, Griff etwas breiter als schulterbreit. Spanne Rumpf und Gesäß an und drücke die Hantel gerade nach oben, bis die Arme vollständig gestreckt sind - der Kopf schiebt sich beim Durchdrücken leicht nach vorne unter die Stange. Senke die Hantel kontrolliert wieder auf Schlüsselbeinhöhe ab.`,
+  'AB-Rollout': `Knie dich auf den Boden und greife die Langhantel (mit aufgesetzten Gewichtsscheiben) oder den Ab-Roller schulterbreit. Rolle das Gerät langsam nach vorne, während du den Körper streckst und den Rumpf fest anspannst - der Rücken bleibt dabei gerade, kein Hohlkreuz. Rolle zurück in die Ausgangsposition, kurz bevor der Körper den Boden berührt.`,
+  'Cable-Push-Down': `Stelle dich vor den Kabelzug mit hoch eingehängter Stange oder Seil, die Ellbogen eng am Körper und im rechten Winkel gebeugt. Drücke das Gewicht nach unten, bis die Arme fast vollständig gestreckt sind, ohne die Ellbogen dabei nach vorne wegzubewegen. Führe das Gewicht kontrolliert wieder nach oben.`,
+  'Triceps-Push-Down': `Stelle dich aufrecht vor den Kabelzug mit einer Stange oder einem Seil an der oberen Umlenkrolle, die Oberarme fest am Körper. Strecke die Unterarme nach unten, bis die Arme durchgestreckt sind, ohne die Ellbogen zu bewegen. Führe die Stange langsam wieder nach oben.`,
+  'Chest-Supported-Rows': `Lege dich mit der Brust auf eine Schrägbank oder eine Rudermaschine mit Brustpolster. Greife die Hanteln oder den Griff und ziehe die Ellbogen nach hinten, während du die Schulterblätter zusammenziehst - der Oberkörper bleibt dabei ruhig auf der Auflage liegen. Senke das Gewicht kontrolliert wieder ab.`,
+  'Neck-Extensions': `Setze oder knie dich an ein Nackengerät oder halte ein Widerstandsband am Hinterkopf. Neige den Kopf zunächst leicht nach vorne und drücke ihn dann langsam gegen den Widerstand nach hinten, bis der Nacken gestreckt ist. Führe die Bewegung kontrolliert wieder zurück.`,
+  'Neck-Curls': `Lege dich mit dem Gesicht nach oben, ein Widerstandsband oder ein leichtes Gewicht liegt an der Stirn an. Beuge den Kopf langsam nach vorne in Richtung Brust, bis eine leichte Dehnung im Nacken spürbar ist, und führe ihn dann kontrolliert zurück in die Ausgangsposition.`
+};
+
 export type StoreName = (typeof STORES)[keyof typeof STORES];
+
+// Shared by the new-database seed loop and the existing-install backfill
+// below, so a name added to DEFAULT_EXERCISE_NAMES after an install's
+// database was first created still gets built the same way.
+function buildDefaultExercise(name: string): Exercise {
+  const sourced = DEFAULT_EXERCISE_SOURCED_CONTENT[name];
+  const plainDescription = DEFAULT_EXERCISE_DESCRIPTIONS[name];
+  return {
+    id: crypto.randomUUID(),
+    name,
+    category: '',
+    weightCategory: DEFAULT_EXERCISE_WEIGHT_CATEGORIES[name],
+    ...(sourced
+      ? {
+          description: sourced.description,
+          sourceImageUrl: sourced.sourceImageUrl,
+          sourceLicense: sourced.sourceLicense,
+          sourceAttribution: sourced.sourceAttribution,
+          sourceUrl: sourced.sourceUrl
+        }
+      : plainDescription
+        ? { description: plainDescription }
+        : {})
+  };
+}
 
 function toPromise<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -226,22 +377,7 @@ export class IndexedDbService {
           const exercisesStore = request.transaction!.objectStore(STORES.exercises);
           const exerciseIdByName = new Map<string, string>();
           for (const name of DEFAULT_EXERCISE_NAMES) {
-            const sourced = DEFAULT_EXERCISE_SOURCED_CONTENT[name];
-            const exercise: Exercise = {
-              id: crypto.randomUUID(),
-              name,
-              category: '',
-              weightCategory: DEFAULT_EXERCISE_WEIGHT_CATEGORIES[name],
-              ...(sourced
-                ? {
-                    description: sourced.description,
-                    sourceImageUrl: sourced.sourceImageUrl,
-                    sourceLicense: sourced.sourceLicense,
-                    sourceAttribution: sourced.sourceAttribution,
-                    sourceUrl: sourced.sourceUrl
-                  }
-                : {})
-            };
+            const exercise = buildDefaultExercise(name);
             exercisesStore.add(exercise);
             exerciseIdByName.set(name, exercise.id);
           }
@@ -253,6 +389,24 @@ export class IndexedDbService {
             }
           }
         } else {
+          if (event.oldVersion < DB_VERSION && db.objectStoreNames.contains(STORES.exercises)) {
+            // Add any name from DEFAULT_EXERCISE_NAMES that doesn't exist yet
+            // on this install - covers a new default exercise introduced
+            // after the database was first created (e.g. Leg-Curls added
+            // alongside the already-seeded Standing-Leg-Curls).
+            const exercisesStore = request.transaction!.objectStore(STORES.exercises);
+            exercisesStore.getAll().onsuccess = (getAllEvent) => {
+              const existingNames = new Set(
+                (getAllEvent.target as IDBRequest<Exercise[]>).result.map((exercise) => exercise.name)
+              );
+              for (const name of DEFAULT_EXERCISE_NAMES) {
+                if (!existingNames.has(name)) {
+                  exercisesStore.add(buildDefaultExercise(name));
+                }
+              }
+            };
+          }
+
           if (event.oldVersion < 8 && db.objectStoreNames.contains(STORES.exercises)) {
             // Backfill weightCategory on existing installs' Squat/Deadlift/Bench-Press/
             // Overhead-Press rows so TierLine progression picks the right increment
@@ -292,7 +446,7 @@ export class IndexedDbService {
               if (defaultCategory && !updated.weightCategory) {
                 updated = { ...updated, weightCategory: defaultCategory };
               }
-              if (sourced && !updated.sourceImageUrl) {
+              if (sourced && !updated.sourceUrl) {
                 updated = {
                   ...updated,
                   description: updated.description ?? sourced.description,
@@ -301,6 +455,10 @@ export class IndexedDbService {
                   sourceAttribution: sourced.sourceAttribution,
                   sourceUrl: sourced.sourceUrl
                 };
+              }
+              const plainDescription = DEFAULT_EXERCISE_DESCRIPTIONS[exercise.name];
+              if (!sourced && plainDescription && !updated.description) {
+                updated = { ...updated, description: plainDescription };
               }
               if (updated !== exercise) {
                 cursor.update(updated);

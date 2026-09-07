@@ -20,42 +20,6 @@ import { oneRepMaxOverrideChecked, oneRepMaxOverrideDisabled } from '../core/uti
 const CUSTOM_ONE_REP_MAX_MIN = 0;
 const CUSTOM_ONE_REP_MAX_MAX = 1000;
 
-export type ExerciseAnimationKind = 'squat' | 'hinge' | 'push' | 'pull' | 'core' | 'generic';
-
-// Keyword-matched against an exercise's name + category (DE/EN terms) to
-// pick which built-in movement-pattern animation to show, since there's no
-// per-exercise animation data to draw on otherwise - checked in order, first
-// match wins.
-const ANIMATION_KEYWORDS: { kind: ExerciseAnimationKind; keywords: string[] }[] = [
-  { kind: 'squat', keywords: ['squat', 'kniebeuge', 'lunge', 'ausfallschritt', 'leg press', 'beinpresse', 'goblet'] },
-  {
-    kind: 'hinge',
-    keywords: ['deadlift', 'kreuzheben', 'hip thrust', 'hüftheben', 'rdl', 'good morning', 'hyperextension', 'rückenstrecker']
-  },
-  {
-    kind: 'push',
-    keywords: [
-      'press',
-      'drücken',
-      'bench',
-      'bankdrücken',
-      'push',
-      'dip',
-      'liegestütz',
-      'schulterdrücken',
-      'trizeps',
-      'triceps',
-      'fliegende',
-      'fly'
-    ]
-  },
-  {
-    kind: 'pull',
-    keywords: ['row', 'rudern', 'pull', 'klimmzug', 'latzug', 'curl', 'bizeps', 'biceps', 'lat pulldown', 'face pull']
-  },
-  { kind: 'core', keywords: ['plank', 'planke', 'rollout', 'crunch', 'sit-up', 'situp', 'bauch', 'core', 'ab-', 'abs'] }
-];
-
 @Component({
   selector: 'app-exercises',
   standalone: true,
@@ -128,12 +92,6 @@ export class ExercisesComponent implements OnInit {
   async updateDescription(exercise: Exercise, value: string): Promise<void> {
     exercise.description = value.trim() || undefined;
     await this.exercisesService.update(exercise);
-  }
-
-  animationKind(exercise: Exercise): ExerciseAnimationKind {
-    const haystack = `${exercise.name} ${exercise.category ?? ''}`.toLowerCase();
-    const match = ANIMATION_KEYWORDS.find(({ keywords }) => keywords.some((keyword) => haystack.includes(keyword)));
-    return match?.kind ?? 'generic';
   }
 
   hasWorkingSourceImage(exercise: Exercise): boolean {

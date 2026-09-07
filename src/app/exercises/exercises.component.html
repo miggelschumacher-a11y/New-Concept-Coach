@@ -94,31 +94,18 @@
               <div class="exercise-animation exercise-animation-photo">
                 <img [src]="exercise.sourceImageUrl" [alt]="exercise.name" loading="lazy" (error)="onSourceImageError(exercise)" />
               </div>
+            } @else {
+              <div class="exercise-animation exercise-animation-placeholder">
+                <mat-icon>image_not_supported</mat-icon>
+                <span>{{ 'exercises.animationUnavailable' | translate }}</span>
+              </div>
+            }
+            @if (exercise.sourceUrl) {
               <span class="exercise-source-attribution">
                 {{ 'exercises.sourceAttributionPrefix' | translate }}
                 <a [href]="exercise.sourceUrl" target="_blank" rel="noopener noreferrer">wger.de</a>
                 · {{ exercise.sourceLicense }} · {{ exercise.sourceAttribution }}
               </span>
-            } @else {
-              <div class="exercise-animation exercise-animation--{{ animationKind(exercise) }}">
-                <svg class="exercise-figure" viewBox="-20 0 160 160">
-                  <line class="figure-floor" x1="-12" y1="150" x2="132" y2="150" />
-                  <g class="figure-root">
-                    <g class="figure-body">
-                      <g class="figure-upper">
-                        <circle class="figure-head" cx="60" cy="25" r="10" />
-                        <line class="figure-torso" x1="60" y1="35" x2="60" y2="88" />
-                        <line class="figure-arm-left" x1="60" y1="48" x2="38" y2="70" />
-                        <line class="figure-arm-right" x1="60" y1="48" x2="82" y2="70" />
-                      </g>
-                      <g class="figure-lower">
-                        <line class="figure-leg-left" x1="60" y1="88" x2="42" y2="145" />
-                        <line class="figure-leg-right" x1="60" y1="88" x2="78" y2="145" />
-                      </g>
-                    </g>
-                  </g>
-                </svg>
-              </div>
             }
           </div>
 
