@@ -17,6 +17,16 @@
   margin-left: 0.35rem;
 }
 
+.session-notes-accordion {
+  // mat-accordion has no default display style of its own, so it falls
+  // back to the browser default for an unrecognized custom element
+  // (inline) - vertical margins on an inline box are ignored for layout,
+  // which silently no-op'd this spacing until display was forced to block.
+  display: block;
+  margin-top: 0.0625rem;
+  margin-bottom: 0.25rem;
+}
+
 mat-card {
   margin-bottom: 1.5rem;
 }

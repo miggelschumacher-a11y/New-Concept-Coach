@@ -313,6 +313,27 @@
           }
         </div>
 
+        <mat-accordion multi class="session-notes-accordion">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title><mat-icon class="label-icon">description</mat-icon>{{ 'sessions.notes' | translate }}</mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-form-field appearance="outline" class="notes-field">
+              <mat-label>
+                <span class="notes-char-count">({{ 500 - (session.notes?.length ?? 0) }}/500)</span>
+              </mat-label>
+              <textarea
+                matInput
+                maxlength="500"
+                rows="3"
+                name="notes-{{ session.id }}"
+                [(ngModel)]="session.notes"
+                (blur)="updateSessionNotes(session)"
+              ></textarea>
+            </mat-form-field>
+          </mat-expansion-panel>
+        </mat-accordion>
+
         <div class="session-timer">
           <span class="timer-display">{{ sessionDuration(session) }}</span>
 
@@ -376,21 +397,6 @@
         @if (finishBlockedSessionId === session.id) {
           <p class="finish-blocked-message">{{ 'sessions.finishRequiresName' | translate }}</p>
         }
-
-        <mat-form-field appearance="outline" class="notes-field">
-          <mat-label>
-            <mat-icon class="label-icon">description</mat-icon>{{ 'sessions.notes' | translate }}
-            <span class="notes-char-count">({{ 500 - (session.notes?.length ?? 0) }}/500)</span>
-          </mat-label>
-          <textarea
-            matInput
-            maxlength="500"
-            rows="3"
-            name="notes-{{ session.id }}"
-            [(ngModel)]="session.notes"
-            (blur)="updateSessionNotes(session)"
-          ></textarea>
-        </mat-form-field>
 
         <form class="exercise-form">
           <mat-form-field appearance="outline">
