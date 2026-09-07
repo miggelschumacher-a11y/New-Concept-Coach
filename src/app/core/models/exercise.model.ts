@@ -1,5 +1,10 @@
 import { ExerciseWeightCategory } from './tier-line-progression.model';
 
+// Purely informational categorization of what an exercise is performed
+// with - unset ("Keine Zuordnung"/no assignment) for anything not yet
+// classified, same convention as weightCategory being optional.
+export type ExerciseEquipmentType = 'BARBELL' | 'DUMBBELL' | 'MACHINE' | 'BODYWEIGHT';
+
 export interface Exercise {
   id: string;
   name: string;
@@ -7,6 +12,7 @@ export interface Exercise {
   description?: string;
   oneRepMax?: number;
   weightCategory?: ExerciseWeightCategory;
+  equipmentType?: ExerciseEquipmentType;
   // Manually entered 1RM override for Percentage-Based progression, used
   // instead of the auto-estimated oneRepMax above when useCustomOneRepMax
   // is on - see SessionsComponent.percentageSetWeight /

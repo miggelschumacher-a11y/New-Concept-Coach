@@ -21,6 +21,17 @@
         </mat-select>
       </mat-form-field>
 
+      <mat-form-field appearance="outline">
+        <mat-label><mat-icon class="label-icon">fitness_center</mat-icon>{{ 'exercises.equipmentType' | translate }}</mat-label>
+        <mat-select name="equipmentType" [(ngModel)]="equipmentType">
+          <mat-option [value]="''">{{ 'exercises.equipmentNone' | translate }}</mat-option>
+          <mat-option [value]="'BARBELL'">{{ 'exercises.equipmentBarbell' | translate }}</mat-option>
+          <mat-option [value]="'DUMBBELL'">{{ 'exercises.equipmentDumbbell' | translate }}</mat-option>
+          <mat-option [value]="'MACHINE'">{{ 'exercises.equipmentMachine' | translate }}</mat-option>
+          <mat-option [value]="'BODYWEIGHT'">{{ 'exercises.equipmentBodyweight' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <button
         mat-raised-button
         color="primary"
@@ -157,6 +168,19 @@
             >
               <mat-option [value]="'LOWER_BODY'">{{ 'exercises.lowerBody' | translate }}</mat-option>
               <mat-option [value]="'UPPER_BODY'">{{ 'exercises.upperBody' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="equipment-type-field">
+            <mat-select
+              [ngModel]="equipmentTypeValue(exercise)"
+              [matTooltip]="'exercises.equipmentType' | translate"
+              (selectionChange)="updateEquipmentType(exercise, $event.value)"
+            >
+              <mat-option [value]="''">{{ 'exercises.equipmentNone' | translate }}</mat-option>
+              <mat-option [value]="'BARBELL'">{{ 'exercises.equipmentBarbell' | translate }}</mat-option>
+              <mat-option [value]="'DUMBBELL'">{{ 'exercises.equipmentDumbbell' | translate }}</mat-option>
+              <mat-option [value]="'MACHINE'">{{ 'exercises.equipmentMachine' | translate }}</mat-option>
+              <mat-option [value]="'BODYWEIGHT'">{{ 'exercises.equipmentBodyweight' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>

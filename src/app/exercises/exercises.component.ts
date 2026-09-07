@@ -11,7 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
-import { Exercise } from '../core/models/exercise.model';
+import { Exercise, ExerciseEquipmentType } from '../core/models/exercise.model';
 import { ExerciseWeightCategory } from '../core/models/tier-line-progression.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
@@ -45,6 +45,9 @@ export class ExercisesComponent implements OnInit {
   name = '';
   category = '';
   weightCategory: ExerciseWeightCategory | null = null;
+  // '' rather than null - see equipmentTypeValue/updateEquipmentType below
+  // for why the "No Assignment" option needs an unambiguous string value.
+  equipmentType: ExerciseEquipmentType | '' = '';
   pendingDeleteExerciseId: string | null = null;
   // Exercise ids whose sourceImageUrl failed to load (blocked by an ad
   // blocker, offline, the source going down, ...) - falls back to the
@@ -76,16 +79,32 @@ export class ExercisesComponent implements OnInit {
       name: this.name.trim(),
       category: this.category.trim(),
       weightCategory: this.weightCategory ?? undefined,
+      equipmentType: this.equipmentType || undefined,
       customOneRepMax: 0,
       useCustomOneRepMax: true
     });
     this.name = '';
     this.category = '';
     this.weightCategory = null;
+    this.equipmentType = '';
     await this.load();
   }
 
   async updateWeightCategory(exercise: Exercise): Promise<void> {
+    await this.exercisesService.update(exercise);
+  }
+
+  // The select's "No Assignment" option uses '' rather than null/undefined
+  // as its value - mat-select comparing an option's value against undefined
+  // (exercise.equipmentType when unset) doesn't reliably mark that option as
+  // selected/displayed, so '' is used as an unambiguous sentinel instead and
+  // converted back to undefined here before persisting.
+  equipmentTypeValue(exercise: Exercise): ExerciseEquipmentType | '' {
+    return exercise.equipmentType ?? '';
+  }
+
+  async updateEquipmentType(exercise: Exercise, value: ExerciseEquipmentType | ''): Promise<void> {
+    exercise.equipmentType = value || undefined;
     await this.exercisesService.update(exercise);
   }
 

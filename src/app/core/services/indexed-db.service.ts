@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Exercise } from '../models/exercise.model';
+import { Exercise, ExerciseEquipmentType } from '../models/exercise.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
 import { buildDefault531Plan } from '../data/default-531-plan';
 import { buildDefault5x5Plan } from '../data/default-5x5-plan';
@@ -53,7 +53,13 @@ const DB_NAME = 'trainings-app-db';
 // 41: adds original (non-sourced) descriptions for the 7 exercises no
 // confident free/licensed match was found for (see
 // DEFAULT_EXERCISE_DESCRIPTIONS).
-const DB_VERSION = 41;
+// 42: backfills equipment type on the default exercises whose own
+// name/description names exactly one piece of equipment (see
+// DEFAULT_EXERCISE_EQUIPMENT_TYPES) - left unset on genuinely ambiguous
+// ones (e.g. Chest-Supported-Rows, Neck-Curls/Neck-Extensions).
+// 43: corrects Back-Extension's equipment from MACHINE (42's guess) to
+// BODYWEIGHT.
+const DB_VERSION = 43;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -137,6 +143,36 @@ const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightC
   'Neck-Curls': 'UPPER_BODY',
   'Calf-Raises': 'LOWER_BODY',
   'Neck-Extensions': 'UPPER_BODY'
+};
+
+// Best-effort equipment classification for the default exercises, based on
+// what each one's own name/description actually specifies - left unset
+// ("Keine Zuordnung") wherever an exercise's own description names more
+// than one piece of equipment as valid (e.g. Chest-Supported-Rows: dumbbells
+// or a machine) or the equipment is genuinely open-ended (Neck-Curls/
+// Neck-Extensions), rather than guessing.
+const DEFAULT_EXERCISE_EQUIPMENT_TYPES: Partial<Record<string, ExerciseEquipmentType>> = {
+  Squat: 'BARBELL',
+  Deadlift: 'BARBELL',
+  'Bench-Press': 'BARBELL',
+  'Overhead-Press': 'BARBELL',
+  'Barbell-Row': 'BARBELL',
+  // Distinguished from AB-Wheel by name/equipment on this app's own list -
+  // AB-Rollout is the barbell-loaded version, AB-Wheel the dedicated wheel.
+  'AB-Rollout': 'BARBELL',
+  'Bent-Over-Dumbbell-Raise': 'DUMBBELL',
+  'Chin-Ups': 'BODYWEIGHT',
+  'Pull-Ups': 'BODYWEIGHT',
+  Dips: 'BODYWEIGHT',
+  'AB-Wheel': 'BODYWEIGHT',
+  'Cable-Push-Down': 'MACHINE',
+  'Cable-Row': 'MACHINE',
+  'Triceps-Push-Down': 'MACHINE',
+  'Lat-Pull-Downs': 'MACHINE',
+  'Calf-Raises': 'MACHINE',
+  'Leg-Curls': 'MACHINE',
+  'Standing-Leg-Curls': 'MACHINE',
+  'Back-Extension': 'BODYWEIGHT'
 };
 
 interface SourcedExerciseContent {
@@ -311,6 +347,7 @@ function buildDefaultExercise(name: string): Exercise {
     name,
     category: '',
     weightCategory: DEFAULT_EXERCISE_WEIGHT_CATEGORIES[name],
+    equipmentType: DEFAULT_EXERCISE_EQUIPMENT_TYPES[name],
     ...(sourced
       ? {
           description: sourced.description,
@@ -459,6 +496,18 @@ export class IndexedDbService {
               const plainDescription = DEFAULT_EXERCISE_DESCRIPTIONS[exercise.name];
               if (!sourced && plainDescription && !updated.description) {
                 updated = { ...updated, description: plainDescription };
+              }
+              const defaultEquipment = DEFAULT_EXERCISE_EQUIPMENT_TYPES[exercise.name];
+              if (defaultEquipment && !updated.equipmentType) {
+                updated = { ...updated, equipmentType: defaultEquipment };
+              }
+              // Back-Extension's equipment was originally auto-classified as
+              // MACHINE by the very backfill above (in version 42) - corrected
+              // to BODYWEIGHT per explicit feedback. Only overwrites that
+              // exact prior auto-set value, never a different choice the user
+              // may have since picked themselves.
+              if (exercise.name === 'Back-Extension' && updated.equipmentType === 'MACHINE') {
+                updated = { ...updated, equipmentType: 'BODYWEIGHT' };
               }
               if (updated !== exercise) {
                 cursor.update(updated);
