@@ -2605,12 +2605,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return Math.min(MAX_COUNTDOWN_SECONDS, elapsed);
   }
 
-  // Captures the field's current value as the goal, then counts up from 0.
+  // Counts up from 0, beeping once the set's actual prescribed duration
+  // (targetSeconds) is reached - falls back to whatever's currently in the
+  // field only when the set has no real target, so a freshly reset set
+  // (seconds back at 0, no target set) doesn't beep the instant it starts.
   startCountdown(session: TrainingSession, set: ExerciseSet): void {
     if (this.countdownStarts.has(set.id)) {
       return;
     }
-    this.countdownStarts.set(set.id, { startedAt: Date.now(), targetSeconds: set.seconds ?? 0, beeped: false, session, set });
+    this.countdownStarts.set(set.id, {
+      startedAt: Date.now(),
+      targetSeconds: set.targetSeconds ?? set.seconds ?? 0,
+      beeped: false,
+      session,
+      set
+    });
   }
 
   // Ends a run (manual stop, hitting the field's max, or the session
@@ -2853,15 +2862,35 @@ export class SessionsComponent implements OnInit, OnDestroy {
     set: ExerciseSet,
     workingSets: ExerciseSet[]
   ): void {
-    const succeeded = workingSets.every((s) => s.targetReps === undefined || s.reps >= s.targetReps);
-    const weightText = this.nextWeightsSummaryText(session, sessionExercise, workingSets, !succeeded);
+    // Time-Based has no weight/1RM scheme to preview a next-session weight
+    // from - previews the prescribed duration instead, judged against
+    // targetSeconds (see setMetTarget) rather than the targetReps check
+    // below, which every Time-Based set leaves undefined.
+    const isTimeBased = sessionExercise.exerciseType === 'TIME_BASED';
+    const succeeded = isTimeBased
+      ? workingSets.every((s) => this.setMetTarget(s))
+      : workingSets.every((s) => s.targetReps === undefined || s.reps >= s.targetReps);
+    const previewText = isTimeBased
+      ? this.nextSecondsSummaryText(workingSets)
+      : this.nextWeightsSummaryText(session, sessionExercise, workingSets, !succeeded);
     const message = this.translationService
       .translate(succeeded ? 'sessions.setFeedbackSuccess' : 'sessions.setFeedbackFail')
-      .replace('{weight}', weightText);
+      .replace('{weight}', previewText);
     this.snackBar.open(message, undefined, {
       duration: 3000,
       panelClass: succeeded ? 'set-feedback-success' : 'set-feedback-fail'
     });
+  }
+
+  // Time-Based counterpart to nextWeightsSummaryText - the prescribed
+  // duration doesn't auto-progress like a weight scheme does, so this just
+  // reads back each working set's own target (falling back to its achieved
+  // seconds when no target was set), collapsed to one value when every set
+  // already shares it.
+  private nextSecondsSummaryText(workingSets: ExerciseSet[]): string {
+    const secondsUnit = this.translationService.translate('sessions.secondsField');
+    const secondsTexts = workingSets.map((s) => `${s.targetSeconds ?? s.seconds ?? 0} ${secondsUnit}`);
+    return this.joinWithAnd([...new Set(secondsTexts)]);
   }
 
   // The toast's own weight figure: the distinct next-occurrence values
@@ -2962,6 +2991,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
   resetSet(session: TrainingSession, set: ExerciseSet): void {
     set.done = false;
     set.reps = 0;
+    // Time-Based counterpart to reps above - without this a reset set kept
+    // showing whatever duration was last held instead of starting fresh.
+    set.seconds = 0;
     this.fieldBuffers.delete(set.id);
     this.countdownStarts.delete(set.id);
     void this.persist(session);

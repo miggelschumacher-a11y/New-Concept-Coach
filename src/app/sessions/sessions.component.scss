@@ -419,6 +419,17 @@ mat-expansion-panel mat-checkbox {
   opacity: 0.7;
 }
 
+// A running Time-Based countdown disables the seconds field (to block
+// editing while it's live-ticking) - Angular Material's disabled-input
+// color reads as too dim for a number that's actively counting up, so this
+// overrides it to a distinct blue for as long as a countdown owns the field.
+.countdown-running {
+  ::ng-deep input:disabled {
+    color: #90caf9 !important;
+    -webkit-text-fill-color: #90caf9 !important;
+  }
+}
+
 .set-complete-btn.set-complete-success {
   color: #4caf50;
 }
