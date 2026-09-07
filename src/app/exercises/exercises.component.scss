@@ -63,3 +63,238 @@ mat-card {
     height: 2.25rem;
   }
 }
+
+.exercise-master-accordion .mat-expansion-panel {
+  margin-bottom: 1rem;
+}
+
+.header-delete-action {
+  order: -1;
+  flex: 0 0 auto;
+}
+
+.exercise-detail-grid {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 1rem;
+}
+
+.exercise-animation-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.exercise-detail-label {
+  color: lightgrey;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.exercise-description-field {
+  flex: 1 1 16rem;
+  min-width: 16rem;
+}
+
+// A small stylized stick figure, looping through a movement pattern picked
+// by ExercisesComponent.animationKind - there's no real per-exercise
+// animation data to draw on, so this is illustrative rather than exact.
+.exercise-animation {
+  width: 140px;
+  height: 160px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  flex: 0 0 auto;
+}
+
+.exercise-figure {
+  width: 100%;
+  height: 100%;
+}
+
+.exercise-animation-photo {
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.exercise-source-attribution {
+  color: lightgrey;
+  font-size: 0.75rem;
+  max-width: 140px;
+
+  a {
+    color: #90caf9;
+  }
+}
+
+.figure-floor {
+  stroke: rgba(255, 255, 255, 0.2);
+  stroke-width: 2;
+}
+
+.figure-head {
+  fill: #64b5f6;
+}
+
+.figure-torso,
+.figure-arm-left,
+.figure-arm-right,
+.figure-leg-left,
+.figure-leg-right {
+  stroke: #64b5f6;
+  stroke-width: 6;
+  stroke-linecap: round;
+  fill: none;
+}
+
+@keyframes exercise-squat-body {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(16px);
+  }
+}
+@keyframes exercise-squat-leg-left {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+}
+@keyframes exercise-squat-leg-right {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+.exercise-animation--squat .figure-body {
+  animation: exercise-squat-body 1.8s ease-in-out infinite;
+}
+.exercise-animation--squat .figure-leg-left {
+  transform-origin: 60px 88px;
+  animation: exercise-squat-leg-left 1.8s ease-in-out infinite;
+}
+.exercise-animation--squat .figure-leg-right {
+  transform-origin: 60px 88px;
+  animation: exercise-squat-leg-right 1.8s ease-in-out infinite;
+}
+
+// hinge (deadlift-style): head/torso/arms fold forward together as one
+// rigid upper body, pivoting at the hips.
+@keyframes exercise-hinge-upper {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(35deg);
+  }
+}
+.exercise-animation--hinge .figure-upper {
+  transform-origin: 60px 88px;
+  animation: exercise-hinge-upper 1.8s ease-in-out infinite;
+}
+
+// push (press/bench/dip): arms swing outward from the shoulder and lengthen
+// slightly, as if extending a weight away from the body.
+@keyframes exercise-push-arm-left {
+  0%,
+  100% {
+    transform: rotate(0deg) scaleX(1);
+  }
+  50% {
+    transform: rotate(15deg) scaleX(1.3);
+  }
+}
+@keyframes exercise-push-arm-right {
+  0%,
+  100% {
+    transform: rotate(0deg) scaleX(1);
+  }
+  50% {
+    transform: rotate(-15deg) scaleX(1.3);
+  }
+}
+.exercise-animation--push .figure-arm-left {
+  transform-origin: 60px 48px;
+  animation: exercise-push-arm-left 1.6s ease-in-out infinite;
+}
+.exercise-animation--push .figure-arm-right {
+  transform-origin: 60px 48px;
+  animation: exercise-push-arm-right 1.6s ease-in-out infinite;
+}
+
+// pull (row/curl/pulldown): arms sweep inward toward the torso.
+@keyframes exercise-pull-arm-left {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-25deg);
+  }
+}
+@keyframes exercise-pull-arm-right {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(25deg);
+  }
+}
+.exercise-animation--pull .figure-arm-left {
+  transform-origin: 60px 48px;
+  animation: exercise-pull-arm-left 1.6s ease-in-out infinite;
+}
+.exercise-animation--pull .figure-arm-right {
+  transform-origin: 60px 48px;
+  animation: exercise-pull-arm-right 1.6s ease-in-out infinite;
+}
+
+// core (plank/rollout): the whole figure lies on its side (rotated to look
+// horizontal) and slides back and forth as one rigid body.
+@keyframes exercise-core-slide {
+  0%,
+  100% {
+    transform: translateY(-15px);
+  }
+  50% {
+    transform: translateY(15px);
+  }
+}
+.exercise-animation--core .figure-root {
+  transform: rotate(-90deg);
+  transform-origin: 60px 90px;
+}
+.exercise-animation--core .figure-body {
+  animation: exercise-core-slide 1.8s ease-in-out infinite;
+}
+
+// generic fallback for any exercise that doesn't match a more specific
+// movement pattern above - a plain rep-like up/down bob.
+@keyframes exercise-generic-body {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+.exercise-animation--generic .figure-body {
+  animation: exercise-generic-body 1.8s ease-in-out infinite;
+}

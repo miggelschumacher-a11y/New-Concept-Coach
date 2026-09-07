@@ -24,7 +24,22 @@ const DB_NAME = 'trainings-app-db';
 // 33: re-seeds GZCLP with its now-stable day-template ids (see
 // default-gzclp-plan.ts) - the reseed step below only runs on an actual
 // upgrade, so this needs its own bump to take effect for existing installs.
-const DB_VERSION = 33;
+// 34: backfills body region on the remaining default exercises and adds
+// sourced description/photo content for Bench-Press and AB-Wheel (see
+// DEFAULT_EXERCISE_SOURCED_CONTENT) - needs its own bump so every existing
+// install picks this up on next load, not just brand-new ones.
+// 35: the 34 backfill was landed as several separate file edits, each its
+// own dev-server rebuild/live-reload - a real, already-open browser tab
+// sharing this dev server could have reloaded on an intermediate edit
+// (DB_VERSION already 34, backfill body not yet added), permanently
+// advancing its stored version past the `< DB_VERSION` gate without the
+// backfill ever running (same race as the 32/33 bumps above). Re-fires it
+// for anyone caught in that gap.
+// 36: verified locally that the 34/35 backfill correctly fills in genuinely
+// empty fields (not just no-ops on already-healed rows).
+// 37: adds sourced description/photo content for Cable-Row and Calf-Raises
+// too (same DEFAULT_EXERCISE_SOURCED_CONTENT backfill as 34/35/36).
+const DB_VERSION = 37;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -80,11 +95,81 @@ const DEFAULT_EXERCISE_NAMES = [
 // The TierLine Basis plan's T1/T2 lifts need a body region to pick the right
 // weight increment (2.5 kg lower body / 1 kg upper body). Seeded here so
 // it's correct out of the box instead of requiring manual setup per install.
+// Every default exercise gets a sensible region so the Config page's
+// "Body Region" dropdown never starts blank - classified by primary muscle
+// group, with core/neck work bucketed under Upper Body since the field is
+// binary.
 const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightCategory>> = {
   Squat: 'LOWER_BODY',
   Deadlift: 'LOWER_BODY',
   'Bench-Press': 'UPPER_BODY',
-  'Overhead-Press': 'UPPER_BODY'
+  'Overhead-Press': 'UPPER_BODY',
+  'Cable-Row': 'UPPER_BODY',
+  'Triceps-Push-Down': 'UPPER_BODY',
+  'Chin-Ups': 'UPPER_BODY',
+  'Pull-Ups': 'UPPER_BODY',
+  'Cable-Push-Down': 'UPPER_BODY',
+  'AB-Wheel': 'UPPER_BODY',
+  'Chest-Supported-Rows': 'UPPER_BODY',
+  'Barbell-Row': 'UPPER_BODY',
+  Dips: 'UPPER_BODY',
+  'Bent-Over-Dumbbell-Raise': 'UPPER_BODY',
+  'Standing-Leg-Curls': 'LOWER_BODY',
+  'AB-Rollout': 'UPPER_BODY',
+  'Back-Extension': 'LOWER_BODY',
+  'Lat-Pull-Downs': 'UPPER_BODY',
+  'Neck-Curls': 'UPPER_BODY',
+  'Calf-Raises': 'LOWER_BODY',
+  'Neck-Extensions': 'UPPER_BODY'
+};
+
+interface SourcedExerciseContent {
+  description: string;
+  sourceImageUrl: string;
+  sourceLicense: string;
+  sourceAttribution: string;
+  sourceUrl: string;
+}
+
+// Execution photo + description sourced from wger.de (an open, CC-BY-SA
+// licensed exercise database) for the handful of default exercises with a
+// confident, well-matched entry there - see ExercisesComponent for the
+// fallback animated pictogram every other exercise uses instead. Photos are
+// bundled locally under public/exercise-images rather than hotlinked, since
+// wger.de doesn't reliably serve them to every network.
+const DEFAULT_EXERCISE_SOURCED_CONTENT: Partial<Record<string, SourcedExerciseContent>> = {
+  'Bench-Press': {
+    description:
+      'Lege dich auf die Bank, die Stange direkt über die Augen, die Knie etwas angewinkelt und die Füße fest auf dem Boden. Greife die Stange breit und lasse sie langsam und kontrolliert runter, dabei sollte die Stange kurz auf Brustwarzenhöhe den Körper berühren. Dann das Gewicht wieder hochdrücken bis die Arme durchgestreckt sind.\n\nBei hohem Gewicht, empfielt sich natürlich einen Spotter zu haben, der einen hilft falls man die Stange nicht alleine hochdrücken kann.\n\nMit der Breite des Griffs kann außerdem kontrolliert werden, welcher Bereich der Brust stärker belastet wird:\n\n* breiter Griff: äußere Brustmuskeln\n* enger Griff: innere Brustmuskeln und Trizeps',
+    sourceImageUrl: '/exercise-images/bench-press.png',
+    sourceLicense: 'CC-BY-SA 3.0',
+    sourceAttribution: 'Everkinetic',
+    sourceUrl: 'https://wger.de/en/exercise/73/view/'
+  },
+  'AB-Wheel': {
+    description:
+      'Ausgangsposition: Knie dich auf den Boden, mit dem Bauchroller vor dir. Greife den Roller: Halte die Griffe fest. Ausrollen: Rolle den Roller langsam nach vorn und strecke deinen Körper aus, während du den Rumpf angespannt hältst. Zurückkehren: Ziehe den Roller wieder zurück zu deinen Knien und halte die Spannung im Rumpf.',
+    sourceImageUrl: '/exercise-images/ab-wheel.png',
+    sourceLicense: 'CC-BY-SA 4.0',
+    sourceAttribution: 'lhegedus',
+    sourceUrl: 'https://wger.de/en/exercise/1573/view/'
+  },
+  'Cable-Row': {
+    description:
+      '1. Setze dich auf die Maschine, die Füße fest aufgesetzt und etwas mehr als schulterbreit. Drücke über die Fersen und spanne die Gesäßmuskulatur an. Greife den Kabelgriff.\n2. Sitze aufrecht mit leicht gebeugten Knien. Spanne Bauch und unteren Rücken an, um mit deinem Oberkörper einen rechten Winkel zum Boden zu halten.\n3. Rolle die Schultern nach hinten und unten. Ziehe sie beim Rudern zusammen und stelle dir vor, du würdest einen Stift zwischen ihnen einklemmen. Ziehe dabei den Griff zu dir heran, bis er knapp oberhalb deines Bauchnabels ankommt.\n4. Halte hier einen Moment inne, bevor du den Griff zurückführst, während du die Schulterblätter weiterhin zusammendrückst. Sobald du das Gewicht zum Stapel zurückgeführt hast, lass die Schulterblätter entspannen, ohne den Oberkörper nach vorne zu ziehen.\n5. Wiederhole die Bewegung.',
+    sourceImageUrl: '/exercise-images/cable-row.jpg',
+    sourceLicense: 'CC-BY-SA 4.0',
+    sourceAttribution: 'Franpol',
+    sourceUrl: 'https://wger.de/en/exercise/1117/view/'
+  },
+  'Calf-Raises': {
+    description:
+      'Die Füße werden auf die in der Maschine dafür vorgesehene Stelle positioniert, wobei man die Fersen (und damit die Wadenmuskeln) komplett nach unten austrecken kann. Halte den Körper gerade, mache kein Hohlkreuz und beuge die Beine nicht.\n\nZiehe nun die Wadenmuskeln zusammen und gehe so hoch es geht. Mache auf dem höchsten Punkt eine kurze Pause (1-2 sek.) und gehe dann runter.',
+    sourceImageUrl: '/exercise-images/calf-raises.jpeg',
+    sourceLicense: 'CC-BY-SA 4.0',
+    sourceAttribution: 'clafal',
+    sourceUrl: 'https://wger.de/en/exercise/622/view/'
+  }
 };
 
 export type StoreName = (typeof STORES)[keyof typeof STORES];
@@ -141,11 +226,21 @@ export class IndexedDbService {
           const exercisesStore = request.transaction!.objectStore(STORES.exercises);
           const exerciseIdByName = new Map<string, string>();
           for (const name of DEFAULT_EXERCISE_NAMES) {
+            const sourced = DEFAULT_EXERCISE_SOURCED_CONTENT[name];
             const exercise: Exercise = {
               id: crypto.randomUUID(),
               name,
               category: '',
-              weightCategory: DEFAULT_EXERCISE_WEIGHT_CATEGORIES[name]
+              weightCategory: DEFAULT_EXERCISE_WEIGHT_CATEGORIES[name],
+              ...(sourced
+                ? {
+                    description: sourced.description,
+                    sourceImageUrl: sourced.sourceImageUrl,
+                    sourceLicense: sourced.sourceLicense,
+                    sourceAttribution: sourced.sourceAttribution,
+                    sourceUrl: sourced.sourceUrl
+                  }
+                : {})
             };
             exercisesStore.add(exercise);
             exerciseIdByName.set(name, exercise.id);
@@ -172,6 +267,43 @@ export class IndexedDbService {
               const defaultCategory = DEFAULT_EXERCISE_WEIGHT_CATEGORIES[exercise.name];
               if (defaultCategory && !exercise.weightCategory) {
                 cursor.update({ ...exercise, weightCategory: defaultCategory });
+              }
+              cursor.continue();
+            };
+          }
+
+          if (event.oldVersion < DB_VERSION && db.objectStoreNames.contains(STORES.exercises)) {
+            // Self-healing backfill: fills in body region and sourced
+            // description/photo for the built-in exercises whenever that
+            // field is still empty, without touching anything the user has
+            // already changed - per-field rather than whole-record (unlike
+            // the training-plan reseed below) since these rows aren't
+            // read-only and can carry real user edits.
+            const exercisesStore = request.transaction!.objectStore(STORES.exercises);
+            exercisesStore.openCursor().onsuccess = (cursorEvent) => {
+              const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
+              if (!cursor) {
+                return;
+              }
+              const exercise = cursor.value as Exercise;
+              const defaultCategory = DEFAULT_EXERCISE_WEIGHT_CATEGORIES[exercise.name];
+              const sourced = DEFAULT_EXERCISE_SOURCED_CONTENT[exercise.name];
+              let updated = exercise;
+              if (defaultCategory && !updated.weightCategory) {
+                updated = { ...updated, weightCategory: defaultCategory };
+              }
+              if (sourced && !updated.sourceImageUrl) {
+                updated = {
+                  ...updated,
+                  description: updated.description ?? sourced.description,
+                  sourceImageUrl: sourced.sourceImageUrl,
+                  sourceLicense: sourced.sourceLicense,
+                  sourceAttribution: sourced.sourceAttribution,
+                  sourceUrl: sourced.sourceUrl
+                };
+              }
+              if (updated !== exercise) {
+                cursor.update(updated);
               }
               cursor.continue();
             };

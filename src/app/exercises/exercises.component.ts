@@ -4,11 +4,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { Exercise } from '../core/models/exercise.model';
@@ -20,6 +20,42 @@ import { oneRepMaxOverrideChecked, oneRepMaxOverrideDisabled } from '../core/uti
 const CUSTOM_ONE_REP_MAX_MIN = 0;
 const CUSTOM_ONE_REP_MAX_MAX = 1000;
 
+export type ExerciseAnimationKind = 'squat' | 'hinge' | 'push' | 'pull' | 'core' | 'generic';
+
+// Keyword-matched against an exercise's name + category (DE/EN terms) to
+// pick which built-in movement-pattern animation to show, since there's no
+// per-exercise animation data to draw on otherwise - checked in order, first
+// match wins.
+const ANIMATION_KEYWORDS: { kind: ExerciseAnimationKind; keywords: string[] }[] = [
+  { kind: 'squat', keywords: ['squat', 'kniebeuge', 'lunge', 'ausfallschritt', 'leg press', 'beinpresse', 'goblet'] },
+  {
+    kind: 'hinge',
+    keywords: ['deadlift', 'kreuzheben', 'hip thrust', 'hüftheben', 'rdl', 'good morning', 'hyperextension', 'rückenstrecker']
+  },
+  {
+    kind: 'push',
+    keywords: [
+      'press',
+      'drücken',
+      'bench',
+      'bankdrücken',
+      'push',
+      'dip',
+      'liegestütz',
+      'schulterdrücken',
+      'trizeps',
+      'triceps',
+      'fliegende',
+      'fly'
+    ]
+  },
+  {
+    kind: 'pull',
+    keywords: ['row', 'rudern', 'pull', 'klimmzug', 'latzug', 'curl', 'bizeps', 'biceps', 'lat pulldown', 'face pull']
+  },
+  { kind: 'core', keywords: ['plank', 'planke', 'rollout', 'crunch', 'sit-up', 'situp', 'bauch', 'core', 'ab-', 'abs'] }
+];
+
 @Component({
   selector: 'app-exercises',
   standalone: true,
@@ -29,11 +65,11 @@ const CUSTOM_ONE_REP_MAX_MAX = 1000;
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatListModule,
     MatCardModule,
     MatTooltipModule,
     MatSelectModule,
     MatCheckboxModule,
+    MatExpansionModule,
     TranslatePipe,
     SelectOnFocusDirective
   ],
@@ -46,6 +82,10 @@ export class ExercisesComponent implements OnInit {
   category = '';
   weightCategory: ExerciseWeightCategory | null = null;
   pendingDeleteExerciseId: string | null = null;
+  // Exercise ids whose sourceImageUrl failed to load (blocked by an ad
+  // blocker, offline, the source going down, ...) - falls back to the
+  // built-in animated pictogram instead of a broken image.
+  private readonly failedImageExerciseIds = new Set<string>();
 
   constructor(
     private readonly exercisesService: ExercisesService,
@@ -83,6 +123,25 @@ export class ExercisesComponent implements OnInit {
 
   async updateWeightCategory(exercise: Exercise): Promise<void> {
     await this.exercisesService.update(exercise);
+  }
+
+  async updateDescription(exercise: Exercise, value: string): Promise<void> {
+    exercise.description = value.trim() || undefined;
+    await this.exercisesService.update(exercise);
+  }
+
+  animationKind(exercise: Exercise): ExerciseAnimationKind {
+    const haystack = `${exercise.name} ${exercise.category ?? ''}`.toLowerCase();
+    const match = ANIMATION_KEYWORDS.find(({ keywords }) => keywords.some((keyword) => haystack.includes(keyword)));
+    return match?.kind ?? 'generic';
+  }
+
+  hasWorkingSourceImage(exercise: Exercise): boolean {
+    return !!exercise.sourceImageUrl && !this.failedImageExerciseIds.has(exercise.id);
+  }
+
+  onSourceImageError(exercise: Exercise): void {
+    this.failedImageExerciseIds.add(exercise.id);
   }
 
   customOneRepMaxDisplay(exercise: Exercise): string {

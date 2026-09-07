@@ -65,6 +65,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxLabel': 'Use Custom 1RM',
     'exercises.useCustomOneRepMaxTooltip': 'When checked, Percentage-Based progression uses Custom 1RM instead of the estimated max.',
     'exercises.confirmDeleteQuestion': 'Really delete this exercise?',
+    'exercises.descriptionLabel': 'Description',
+    'exercises.descriptionPlaceholder': 'Add notes on how to perform this exercise…',
+    'exercises.animationTitle': 'Execution',
+    'exercises.sourceAttributionPrefix': 'Source:',
 
     'trainingPlans.title': 'Training Plans',
     'trainingPlans.description': 'Description',
@@ -366,6 +370,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxTooltip':
       'Wenn aktiviert, verwendet Percentage-Based-Progression die eigene 1RM anstelle des geschätzten Max.',
     'exercises.confirmDeleteQuestion': 'Diese Übung wirklich löschen?',
+    'exercises.descriptionLabel': 'Beschreibung',
+    'exercises.descriptionPlaceholder': 'Notizen zur Ausführung dieser Übung hinzufügen…',
+    'exercises.animationTitle': 'Ausführung',
+    'exercises.sourceAttributionPrefix': 'Quelle:',
 
     'trainingPlans.title': 'Trainingspläne',
     'trainingPlans.description': 'Beschreibung',
@@ -667,6 +675,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxTooltip':
       'Si está marcado, la progresión basada en porcentaje usa el 1RM personalizado en lugar del máximo estimado.',
     'exercises.confirmDeleteQuestion': '¿Eliminar este ejercicio de verdad?',
+    'exercises.descriptionLabel': 'Descripción',
+    'exercises.descriptionPlaceholder': 'Añade notas sobre cómo realizar este ejercicio…',
+    'exercises.animationTitle': 'Ejecución',
+    'exercises.sourceAttributionPrefix': 'Fuente:',
 
     'trainingPlans.title': 'Planes de entrenamiento',
     'trainingPlans.description': 'Descripción',
@@ -968,6 +980,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxTooltip':
       'Quando marcado, a progressão baseada em percentual usa o 1RM personalizado em vez do máximo estimado.',
     'exercises.confirmDeleteQuestion': 'Excluir este exercício mesmo?',
+    'exercises.descriptionLabel': 'Descrição',
+    'exercises.descriptionPlaceholder': 'Adicione notas sobre como executar este exercício…',
+    'exercises.animationTitle': 'Execução',
+    'exercises.sourceAttributionPrefix': 'Fonte:',
 
     'trainingPlans.title': 'Planos de treino',
     'trainingPlans.description': 'Descrição',
@@ -1269,6 +1285,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxTooltip':
       'Se selezionato, la progressione basata su percentuale usa l\'1RM personalizzato al posto del massimale stimato.',
     'exercises.confirmDeleteQuestion': 'Eliminare davvero questo esercizio?',
+    'exercises.descriptionLabel': 'Descrizione',
+    'exercises.descriptionPlaceholder': 'Aggiungi note su come eseguire questo esercizio…',
+    'exercises.animationTitle': 'Esecuzione',
+    'exercises.sourceAttributionPrefix': 'Fonte:',
 
     'trainingPlans.title': 'Piani di allenamento',
     'trainingPlans.description': 'Descrizione',
@@ -1570,6 +1590,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxTooltip':
       'Indien aangevinkt, gebruikt Percentage-Based-progressie de eigen 1RM in plaats van het geschatte max.',
     'exercises.confirmDeleteQuestion': 'Deze oefening echt verwijderen?',
+    'exercises.descriptionLabel': 'Beschrijving',
+    'exercises.descriptionPlaceholder': 'Voeg notities toe over de uitvoering van deze oefening…',
+    'exercises.animationTitle': 'Uitvoering',
+    'exercises.sourceAttributionPrefix': 'Bron:',
 
     'trainingPlans.title': 'Trainingsplannen',
     'trainingPlans.description': 'Beschrijving',
@@ -1871,6 +1895,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxTooltip':
       'Gdy zaznaczone, progresja oparta na procentach używa własnego 1RM zamiast szacowanego maksimum.',
     'exercises.confirmDeleteQuestion': 'Czy na pewno usunąć to ćwiczenie?',
+    'exercises.descriptionLabel': 'Opis',
+    'exercises.descriptionPlaceholder': 'Dodaj notatki na temat wykonania tego ćwiczenia…',
+    'exercises.animationTitle': 'Wykonanie',
+    'exercises.sourceAttributionPrefix': 'Źródło:',
 
     'trainingPlans.title': 'Plany treningowe',
     'trainingPlans.description': 'Opis',
@@ -2172,6 +2200,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxTooltip':
       'Если отмечено, прогрессия на основе процента использует свой 1ПМ вместо оценочного максимума.',
     'exercises.confirmDeleteQuestion': 'Действительно удалить это упражнение?',
+    'exercises.descriptionLabel': 'Описание',
+    'exercises.descriptionPlaceholder': 'Добавьте заметки о выполнении этого упражнения…',
+    'exercises.animationTitle': 'Выполнение',
+    'exercises.sourceAttributionPrefix': 'Источник:',
 
     'trainingPlans.title': 'Планы тренировок',
     'trainingPlans.description': 'Описание',
@@ -2473,6 +2505,10 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.useCustomOneRepMaxTooltip':
       'Ha be van jelölve, a százalékalapú progresszió az egyéni 1RM-et használja a becsült maximum helyett.',
     'exercises.confirmDeleteQuestion': 'Valóban törlöd ezt a gyakorlatot?',
+    'exercises.descriptionLabel': 'Leírás',
+    'exercises.descriptionPlaceholder': 'Adj hozzá jegyzeteket a gyakorlat végrehajtásáról…',
+    'exercises.animationTitle': 'Végrehajtás',
+    'exercises.sourceAttributionPrefix': 'Forrás:',
 
     'trainingPlans.title': 'Edzéstervek',
     'trainingPlans.description': 'Leírás',

@@ -16,4 +16,13 @@ export interface Exercise {
   // Optional and treated as true when absent, so exercises saved before
   // this field existed keep the same default as newly added ones.
   useCustomOneRepMax?: boolean;
+  // Optional externally-sourced execution photo, filled in only for
+  // exercises matched to a free/openly-licensed entry in an exercise
+  // database (see ExercisesComponent) - required together whenever set.
+  // Every other exercise falls back to the generic animated pictogram
+  // instead, so these stay unset for most rows.
+  sourceImageUrl?: string;
+  sourceLicense?: string;
+  sourceAttribution?: string;
+  sourceUrl?: string;
 }
