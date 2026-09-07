@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Exercise, ExerciseEquipmentType } from '../models/exercise.model';
+import { Exercise, ExerciseEquipmentType, MuscleGroup } from '../models/exercise.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
 import { buildDefault531Plan } from '../data/default-531-plan';
 import { buildDefault5x5Plan } from '../data/default-5x5-plan';
@@ -59,7 +59,16 @@ const DB_NAME = 'trainings-app-db';
 // ones (e.g. Chest-Supported-Rows, Neck-Curls/Neck-Extensions).
 // 43: corrects Back-Extension's equipment from MACHINE (42's guess) to
 // BODYWEIGHT.
-const DB_VERSION = 43;
+// 44: backfills the primary muscle group on all default exercises (see
+// DEFAULT_EXERCISE_MUSCLE_GROUPS).
+// 45: the 44 backfill was landed as several separate file edits, each its
+// own dev-server rebuild/live-reload - a real, already-open browser tab
+// sharing this dev server could have reloaded on an intermediate edit
+// (DB_VERSION already 44, backfill body not yet added), permanently
+// advancing its stored version past the `< DB_VERSION` gate without the
+// backfill ever running (same race as the 32/33 and 34/35 bumps above).
+// Re-fires it for anyone caught in that gap.
+const DB_VERSION = 45;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -173,6 +182,38 @@ const DEFAULT_EXERCISE_EQUIPMENT_TYPES: Partial<Record<string, ExerciseEquipment
   'Leg-Curls': 'MACHINE',
   'Standing-Leg-Curls': 'MACHINE',
   'Back-Extension': 'BODYWEIGHT'
+};
+
+// Primary-mover muscle group for each default exercise - a single best-fit
+// choice for compound lifts that work more than one muscle (e.g. Squat is
+// classified as Quadriceps even though glutes/hamstrings assist too), since
+// the dropdown only allows one selection. Chin-Ups vs. Pull-Ups and Dips are
+// deliberately split from their close relatives (Biceps/Triceps vs. Back) to
+// keep the classification useful rather than lumping every pull/push
+// exercise under the same group.
+const DEFAULT_EXERCISE_MUSCLE_GROUPS: Partial<Record<string, MuscleGroup>> = {
+  Squat: 'QUADRICEPS',
+  Deadlift: 'HAMSTRINGS',
+  'Bench-Press': 'CHEST',
+  'Overhead-Press': 'SHOULDERS',
+  'AB-Rollout': 'ABS',
+  'AB-Wheel': 'ABS',
+  'Back-Extension': 'BACK',
+  'Barbell-Row': 'BACK',
+  'Bent-Over-Dumbbell-Raise': 'SHOULDERS',
+  'Cable-Push-Down': 'TRICEPS',
+  'Cable-Row': 'BACK',
+  'Calf-Raises': 'CALVES',
+  'Chest-Supported-Rows': 'BACK',
+  'Chin-Ups': 'BICEPS',
+  'Lat-Pull-Downs': 'BACK',
+  'Pull-Ups': 'BACK',
+  Dips: 'TRICEPS',
+  'Standing-Leg-Curls': 'HAMSTRINGS',
+  'Leg-Curls': 'HAMSTRINGS',
+  'Neck-Extensions': 'NECK',
+  'Neck-Curls': 'NECK',
+  'Triceps-Push-Down': 'TRICEPS'
 };
 
 interface SourcedExerciseContent {
@@ -348,6 +389,7 @@ function buildDefaultExercise(name: string): Exercise {
     category: '',
     weightCategory: DEFAULT_EXERCISE_WEIGHT_CATEGORIES[name],
     equipmentType: DEFAULT_EXERCISE_EQUIPMENT_TYPES[name],
+    muscleGroup: DEFAULT_EXERCISE_MUSCLE_GROUPS[name],
     ...(sourced
       ? {
           description: sourced.description,
@@ -508,6 +550,10 @@ export class IndexedDbService {
               // may have since picked themselves.
               if (exercise.name === 'Back-Extension' && updated.equipmentType === 'MACHINE') {
                 updated = { ...updated, equipmentType: 'BODYWEIGHT' };
+              }
+              const defaultMuscleGroup = DEFAULT_EXERCISE_MUSCLE_GROUPS[exercise.name];
+              if (defaultMuscleGroup && !updated.muscleGroup) {
+                updated = { ...updated, muscleGroup: defaultMuscleGroup };
               }
               if (updated !== exercise) {
                 cursor.update(updated);
