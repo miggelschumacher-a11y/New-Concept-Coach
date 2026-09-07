@@ -68,7 +68,12 @@ const DB_NAME = 'trainings-app-db';
 // advancing its stored version past the `< DB_VERSION` gate without the
 // backfill ever running (same race as the 32/33 and 34/35 bumps above).
 // Re-fires it for anyone caught in that gap.
-const DB_VERSION = 45;
+// 46: adds 9 more default exercises (Bicep-Curls, Hip-Thrust,
+// Lateral-Raise, Wrist-Curls, Leg-Press, Lunges, Incline-Bench-Press,
+// Face-Pulls, Chest-Fly) to fill in muscle groups that had no or barely
+// any default exercise (Biceps, Glutes, Forearms) - picked up by the
+// existing "add missing name from DEFAULT_EXERCISE_NAMES" backfill.
+const DB_VERSION = 46;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -119,7 +124,16 @@ const DEFAULT_EXERCISE_NAMES = [
   'Leg-Curls',
   'Neck-Extensions',
   'Neck-Curls',
-  'Triceps-Push-Down'
+  'Triceps-Push-Down',
+  'Bicep-Curls',
+  'Hip-Thrust',
+  'Lateral-Raise',
+  'Wrist-Curls',
+  'Leg-Press',
+  'Lunges',
+  'Incline-Bench-Press',
+  'Face-Pulls',
+  'Chest-Fly'
 ];
 
 // The TierLine Basis plan's T1/T2 lifts need a body region to pick the right
@@ -151,7 +165,16 @@ const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightC
   'Lat-Pull-Downs': 'UPPER_BODY',
   'Neck-Curls': 'UPPER_BODY',
   'Calf-Raises': 'LOWER_BODY',
-  'Neck-Extensions': 'UPPER_BODY'
+  'Neck-Extensions': 'UPPER_BODY',
+  'Bicep-Curls': 'UPPER_BODY',
+  'Hip-Thrust': 'LOWER_BODY',
+  'Lateral-Raise': 'UPPER_BODY',
+  'Wrist-Curls': 'UPPER_BODY',
+  'Leg-Press': 'LOWER_BODY',
+  Lunges: 'LOWER_BODY',
+  'Incline-Bench-Press': 'UPPER_BODY',
+  'Face-Pulls': 'UPPER_BODY',
+  'Chest-Fly': 'UPPER_BODY'
 };
 
 // Best-effort equipment classification for the default exercises, based on
@@ -181,7 +204,16 @@ const DEFAULT_EXERCISE_EQUIPMENT_TYPES: Partial<Record<string, ExerciseEquipment
   'Calf-Raises': 'MACHINE',
   'Leg-Curls': 'MACHINE',
   'Standing-Leg-Curls': 'MACHINE',
-  'Back-Extension': 'BODYWEIGHT'
+  'Back-Extension': 'BODYWEIGHT',
+  'Bicep-Curls': 'BARBELL',
+  'Hip-Thrust': 'BARBELL',
+  'Lateral-Raise': 'DUMBBELL',
+  'Wrist-Curls': 'DUMBBELL',
+  'Leg-Press': 'MACHINE',
+  Lunges: 'BODYWEIGHT',
+  'Incline-Bench-Press': 'BARBELL',
+  'Face-Pulls': 'MACHINE',
+  'Chest-Fly': 'DUMBBELL'
 };
 
 // Primary-mover muscle group for each default exercise - a single best-fit
@@ -213,7 +245,16 @@ const DEFAULT_EXERCISE_MUSCLE_GROUPS: Partial<Record<string, MuscleGroup>> = {
   'Leg-Curls': 'HAMSTRINGS',
   'Neck-Extensions': 'NECK',
   'Neck-Curls': 'NECK',
-  'Triceps-Push-Down': 'TRICEPS'
+  'Triceps-Push-Down': 'TRICEPS',
+  'Bicep-Curls': 'BICEPS',
+  'Hip-Thrust': 'GLUTES',
+  'Lateral-Raise': 'SHOULDERS',
+  'Wrist-Curls': 'FOREARMS',
+  'Leg-Press': 'QUADRICEPS',
+  Lunges: 'QUADRICEPS',
+  'Incline-Bench-Press': 'CHEST',
+  'Face-Pulls': 'SHOULDERS',
+  'Chest-Fly': 'CHEST'
 };
 
 interface SourcedExerciseContent {
@@ -372,7 +413,16 @@ const DEFAULT_EXERCISE_DESCRIPTIONS: Partial<Record<string, string>> = {
   'Triceps-Push-Down': `Stelle dich aufrecht vor den Kabelzug mit einer Stange oder einem Seil an der oberen Umlenkrolle, die Oberarme fest am Körper. Strecke die Unterarme nach unten, bis die Arme durchgestreckt sind, ohne die Ellbogen zu bewegen. Führe die Stange langsam wieder nach oben.`,
   'Chest-Supported-Rows': `Lege dich mit der Brust auf eine Schrägbank oder eine Rudermaschine mit Brustpolster. Greife die Hanteln oder den Griff und ziehe die Ellbogen nach hinten, während du die Schulterblätter zusammenziehst - der Oberkörper bleibt dabei ruhig auf der Auflage liegen. Senke das Gewicht kontrolliert wieder ab.`,
   'Neck-Extensions': `Setze oder knie dich an ein Nackengerät oder halte ein Widerstandsband am Hinterkopf. Neige den Kopf zunächst leicht nach vorne und drücke ihn dann langsam gegen den Widerstand nach hinten, bis der Nacken gestreckt ist. Führe die Bewegung kontrolliert wieder zurück.`,
-  'Neck-Curls': `Lege dich mit dem Gesicht nach oben, ein Widerstandsband oder ein leichtes Gewicht liegt an der Stirn an. Beuge den Kopf langsam nach vorne in Richtung Brust, bis eine leichte Dehnung im Nacken spürbar ist, und führe ihn dann kontrolliert zurück in die Ausgangsposition.`
+  'Neck-Curls': `Lege dich mit dem Gesicht nach oben, ein Widerstandsband oder ein leichtes Gewicht liegt an der Stirn an. Beuge den Kopf langsam nach vorne in Richtung Brust, bis eine leichte Dehnung im Nacken spürbar ist, und führe ihn dann kontrolliert zurück in die Ausgangsposition.`,
+  'Bicep-Curls': `Stehe aufrecht, die Langhantel im Untergriff vor dem Körper haltend, die Ellbogen eng am Oberkörper. Beuge die Arme und hebe die Stange kontrolliert bis zur Schulter, ohne den Oberkörper zu schwingen. Senke die Stange langsam wieder ab, bis die Arme fast vollständig gestreckt sind.`,
+  'Hip-Thrust': `Setze dich mit dem oberen Rücken an eine Bank gelehnt auf den Boden, eine gepolsterte Langhantel liegt über den Hüften. Stelle die Füße hüftbreit auf und drücke die Hüfte nach oben, bis der Körper von den Schultern bis zu den Knien eine gerade Linie bildet. Senke die Hüfte kontrolliert wieder ab, ohne den Boden ganz zu berühren.`,
+  'Lateral-Raise': `Stehe aufrecht, in jeder Hand eine Kurzhantel seitlich am Körper. Hebe die Arme mit leicht gebeugten Ellbogen seitlich an, bis sie etwa auf Schulterhöhe sind. Senke die Arme langsam wieder kontrolliert ab.`,
+  'Wrist-Curls': `Setze dich hin und lege die Unterarme mit den Handflächen nach oben auf die Oberschenkel oder eine Bank, die Handgelenke ragen über die Kante hinaus. Halte in jeder Hand eine Kurzhantel und beuge die Handgelenke nach oben. Senke die Hände langsam wieder ab, bis die Handgelenke leicht überstreckt sind.`,
+  'Leg-Press': `Setze dich in die Beinpresse, die Füße schulterbreit auf der Fußplatte. Löse die Arretierung und beuge die Knie, bis sie etwa einen rechten Winkel bilden, ohne den unteren Rücken von der Rückenlehne abzuheben. Drücke die Platte wieder nach oben, bis die Beine fast, aber nicht vollständig gestreckt sind.`,
+  Lunges: `Stehe aufrecht, die Hände in die Hüften gestützt. Mache einen großen Schritt nach vorne und senke den Körper ab, bis beide Knie etwa einen rechten Winkel bilden, das hintere Knie knapp über dem Boden. Drücke dich über die vordere Ferse wieder zurück in die Ausgangsposition.`,
+  'Incline-Bench-Press': `Lege dich auf eine Schrägbank mit etwa 30-45 Grad Neigung und greife die Langhantel etwas breiter als schulterbreit. Senke die Stange kontrolliert bis zum oberen Brustbereich ab. Drücke sie wieder nach oben, bis die Arme fast vollständig gestreckt sind.`,
+  'Face-Pulls': `Stelle dich vor den Kabelzug mit einem Seilgriff auf Kopfhöhe eingehängt. Ziehe das Seil zum Gesicht, während du die Ellbogen hoch und nach außen führst und die Schulterblätter zusammenziehst. Führe das Seil kontrolliert wieder zurück in die Ausgangsposition.`,
+  'Chest-Fly': `Lege dich auf eine Flachbank, in jeder Hand eine Kurzhantel mit den Handflächen zueinander über der Brust. Senke die Arme mit leicht gebeugten Ellbogen seitlich ab, bis eine Dehnung in der Brust spürbar ist. Führe die Hanteln wieder in einer bogenförmigen Bewegung über der Brust zusammen.`
 };
 
 export type StoreName = (typeof STORES)[keyof typeof STORES];
