@@ -11,6 +11,32 @@ mat-card {
   align-items: center;
 }
 
+.equipment-tab-group {
+  margin-top: 0.5rem;
+}
+
+.dumbbell-form {
+  margin-top: 1rem;
+}
+
+.dumbbell-name-field {
+  width: 20rem;
+}
+
+.dumbbell-weight-field,
+.dumbbell-diameter-field {
+  width: 106px;
+}
+
+.dumbbell-weight-input,
+.dumbbell-diameter-input {
+  text-align: right;
+}
+
+.dumbbell-duplicate-error {
+  color: #ff8a80;
+}
+
 .increment-scheme-description {
   color: lightgrey;
   margin-top: 0;

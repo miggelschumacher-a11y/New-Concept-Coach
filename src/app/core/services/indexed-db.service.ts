@@ -73,7 +73,17 @@ const DB_NAME = 'trainings-app-db';
 // Face-Pulls, Chest-Fly) to fill in muscle groups that had no or barely
 // any default exercise (Biceps, Glutes, Forearms) - picked up by the
 // existing "add missing name from DEFAULT_EXERCISE_NAMES" backfill.
-const DB_VERSION = 46;
+// 47: adds the dumbbells store (Config page's new "Ausrüstung" > "Hanteln"
+// tab) - picked up by the generic "create any store not already present"
+// loop below.
+// 48: 47 landed as separate file edits, each its own dev-server rebuild/
+// live-reload - a real, already-open browser tab sharing this dev server
+// could have reloaded on an intermediate edit (DB_VERSION already 47,
+// dumbbells not yet added to STORES), permanently advancing its stored
+// version past the `< DB_VERSION` gate without ever creating that store
+// (same race as the 32/33, 34/35 and 44/45 bumps above). Re-fires it for
+// anyone caught in that gap.
+const DB_VERSION = 48;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -95,7 +105,8 @@ export const STORES = {
   doubleProgression: 'doubleProgression',
   repGoalProgression: 'repGoalProgression',
   waveProgression: 'waveProgression',
-  linearProgression: 'linearProgression'
+  linearProgression: 'linearProgression',
+  dumbbells: 'dumbbells'
 } as const;
 
 const STORE_KEY_PATHS: Partial<Record<string, string>> = {

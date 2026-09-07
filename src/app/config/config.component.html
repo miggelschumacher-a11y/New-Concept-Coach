@@ -325,6 +325,137 @@
 </mat-card>
 
 <mat-card>
+  <mat-card-content>
+    <mat-accordion class="equipment-accordion">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title><mat-icon class="label-icon">fitness_center</mat-icon>{{ 'config.equipmentTitle' | translate }}</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-tab-group class="equipment-tab-group">
+          <mat-tab [label]="'config.equipmentDumbbellsTab' | translate">
+            <div class="settings-form dumbbell-form">
+              <mat-form-field appearance="outline" class="dumbbell-name-field" floatLabel="always">
+                <mat-label>{{ 'config.dumbbellName' | translate }}</mat-label>
+                <input matInput type="text" maxlength="50" [(ngModel)]="newDumbbellName" selectOnFocus />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="dumbbell-weight-field" floatLabel="always">
+                <mat-label>{{ 'config.dumbbellWeight' | translate }} ({{ weightUnitLabel }})</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  inputmode="decimal"
+                  class="dumbbell-weight-input"
+                  [value]="newDumbbellWeight"
+                  selectOnFocus
+                  (input)="onDumbbellWeightFieldInput($event)"
+                  (blur)="onDumbbellWeightFieldBlur()"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="dumbbell-diameter-field" floatLabel="always">
+                <mat-label>{{ 'config.dumbbellDiameter' | translate }} (mm)</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  inputmode="numeric"
+                  class="dumbbell-diameter-input"
+                  [value]="newDumbbellDiameter"
+                  selectOnFocus
+                  (input)="onDumbbellDiameterFieldInput($event)"
+                />
+              </mat-form-field>
+
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="!newDumbbellName || !newDumbbellWeight || !newDumbbellDiameter"
+                (click)="addDumbbellEntry()"
+                [matTooltip]="'config.dumbbellAdd' | translate"
+                [attr.aria-label]="'config.dumbbellAdd' | translate"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+
+            @if (dumbbellDuplicateError) {
+              <p class="dumbbell-duplicate-error">{{ 'config.dumbbellDuplicateError' | translate }}</p>
+            }
+
+            @if (sortedDumbbellEntries.length === 0) {
+              <p>{{ 'config.dumbbellEmpty' | translate }}</p>
+            } @else {
+              <div class="zones-table-wrapper">
+                <table class="zones-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'config.dumbbellName' | translate }}</th>
+                      <th class="body-weight-column">{{ 'config.dumbbellWeight' | translate }}</th>
+                      <th class="body-weight-column">{{ 'config.dumbbellDiameter' | translate }}</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (entry of sortedDumbbellEntries; track entry.id) {
+                      <tr>
+                        <td>{{ entry.name }}</td>
+                        <td class="body-weight-column">{{ entry.weight | number: '1.2-2' }} {{ weightUnitLabel }}</td>
+                        <td class="body-weight-column">{{ entry.diameter }} mm</td>
+                        <td>
+                          @if (pendingDeleteDumbbellId === entry.id) {
+                            <div class="confirm-dialog">
+                              <span class="confirm-label">{{ 'config.dumbbellDeleteConfirm' | translate }}</span>
+                              <div class="confirm-dialog-actions">
+                                <button
+                                  mat-icon-button
+                                  color="warn"
+                                  type="button"
+                                  (click)="confirmDeleteDumbbellEntry(entry.id)"
+                                  [matTooltip]="'sessions.confirmYesDelete' | translate"
+                                  [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                                >
+                                  <mat-icon>check</mat-icon>
+                                </button>
+                                <button
+                                  mat-icon-button
+                                  type="button"
+                                  (click)="cancelDeleteDumbbellEntry()"
+                                  [matTooltip]="'sessions.confirmCancel' | translate"
+                                  [attr.aria-label]="'sessions.confirmCancel' | translate"
+                                >
+                                  <mat-icon>close</mat-icon>
+                                </button>
+                              </div>
+                            </div>
+                          } @else {
+                            <button
+                              mat-icon-button
+                              color="warn"
+                              type="button"
+                              (click)="requestDeleteDumbbellEntry(entry.id)"
+                              [matTooltip]="'common.delete' | translate"
+                              [attr.aria-label]="'common.delete' | translate"
+                            >
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </mat-tab>
+          <mat-tab [label]="'config.equipmentPlatesTab' | translate"></mat-tab>
+        </mat-tab-group>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </mat-card-content>
+</mat-card>
+
+<mat-card>
   <mat-card-header>
     <mat-card-title><mat-icon class="label-icon">storage</mat-icon>{{ 'config.data' | translate }}</mat-card-title>
   </mat-card-header>

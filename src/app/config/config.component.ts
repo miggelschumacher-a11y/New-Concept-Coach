@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatTabsModule } from '@angular/material/tabs';
 import {
   SettingsService,
   WeightUnit,
@@ -23,6 +24,8 @@ import { IndexedDbService } from '../core/services/indexed-db.service';
 import { DriveBackupFile, GoogleDriveService } from '../core/services/google-drive.service';
 import { LANGUAGES } from '../core/services/translation.service';
 import { BodyWeightService } from '../core/services/body-weight.service';
+import { DumbbellsService } from '../core/services/dumbbells.service';
+import { DumbbellEntry } from '../core/models/dumbbell-entry.model';
 import { findHeartRateMax, parseHeartRateRange } from '../core/data/heart-rate-zones';
 import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
@@ -45,6 +48,7 @@ const BODY_WEIGHT_MAX = 300;
     MatTooltipModule,
     MatExpansionModule,
     MatRadioModule,
+    MatTabsModule,
     DatePipe,
     DecimalPipe,
     TranslatePipe,
@@ -76,12 +80,19 @@ export class ConfigComponent implements OnInit {
   newBodyWeightValue = '';
   newBodyWeightTimestamp = this.currentLocalDateTime();
   pendingDeleteBodyWeightId: string | null = null;
+  dumbbellEntries: DumbbellEntry[] = [];
+  newDumbbellName = '';
+  newDumbbellWeight = '';
+  newDumbbellDiameter = '';
+  pendingDeleteDumbbellId: string | null = null;
+  dumbbellDuplicateError = false;
 
   constructor(
     private readonly settingsService: SettingsService,
     private readonly indexedDbService: IndexedDbService,
     private readonly googleDriveService: GoogleDriveService,
-    private readonly bodyWeightService: BodyWeightService
+    private readonly bodyWeightService: BodyWeightService,
+    private readonly dumbbellsService: DumbbellsService
   ) {
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
@@ -114,6 +125,7 @@ export class ConfigComponent implements OnInit {
     this.waveProgressionFinalReps = settings.waveProgressionFinalReps;
     this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
     this.bodyWeightEntries = await this.bodyWeightService.getAll();
+    this.dumbbellEntries = await this.dumbbellsService.getAll();
   }
 
   private currentLocalDateTime(): string {
@@ -157,6 +169,10 @@ export class ConfigComponent implements OnInit {
     return [...this.bodyWeightEntries].sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
+  }
+
+  get sortedDumbbellEntries(): DumbbellEntry[] {
+    return [...this.dumbbellEntries].sort((a, b) => a.name.localeCompare(b.name));
   }
 
   zonePercentDisplay(zone: TrainingZone): string {
@@ -359,5 +375,78 @@ export class ConfigComponent implements OnInit {
     this.pendingDeleteBodyWeightId = null;
     await this.bodyWeightService.delete(id);
     this.bodyWeightEntries = this.bodyWeightEntries.filter((entry) => entry.id !== id);
+  }
+
+  // Same 4-int/2-decimal mask as every other weight field in the app (see
+  // onBodyWeightValueInput above).
+  onDumbbellWeightFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+    this.newDumbbellWeight = input.value;
+  }
+
+  // Reformats to 2 decimal places with trailing zeros once the field is
+  // left, same convention as every other weight field's blur handler.
+  onDumbbellWeightFieldBlur(): void {
+    const parsed = parseFloat(this.newDumbbellWeight.replace(',', '.'));
+    if (Number.isFinite(parsed)) {
+      this.newDumbbellWeight = parsed.toFixed(2);
+    }
+  }
+
+  // Integer, 2 digits max (0-99mm) - a dumbbell handle's diameter has no
+  // decimal place, unlike weight.
+  onDumbbellDiameterFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,2}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+    this.newDumbbellDiameter = input.value;
+  }
+
+  // The name/weight/diameter combination identifies one physical dumbbell -
+  // adding the same combination twice would just be a duplicate row with no
+  // extra meaning, so it's rejected with dumbbellDuplicateError shown below
+  // the form (see addDumbbellEntry).
+  private isDuplicateDumbbell(name: string, weight: number, diameter: number): boolean {
+    return this.dumbbellEntries.some((entry) => entry.name === name && entry.weight === weight && entry.diameter === diameter);
+  }
+
+  async addDumbbellEntry(): Promise<void> {
+    this.dumbbellDuplicateError = false;
+    const name = this.newDumbbellName.trim().slice(0, 50);
+    const weight = Math.round(parseFloat(this.newDumbbellWeight.replace(',', '.')) * 100) / 100;
+    const diameter = parseInt(this.newDumbbellDiameter, 10);
+    if (!name || !Number.isFinite(weight) || weight <= 0 || !Number.isFinite(diameter) || diameter <= 0) {
+      return;
+    }
+    if (this.isDuplicateDumbbell(name, weight, diameter)) {
+      this.dumbbellDuplicateError = true;
+      return;
+    }
+    const entry: DumbbellEntry = { id: crypto.randomUUID(), name, weight, diameter };
+    await this.dumbbellsService.add(entry);
+    this.dumbbellEntries = [...this.dumbbellEntries, entry];
+    this.newDumbbellName = '';
+    this.newDumbbellWeight = '';
+    this.newDumbbellDiameter = '';
+  }
+
+  requestDeleteDumbbellEntry(id: string): void {
+    this.pendingDeleteDumbbellId = id;
+  }
+
+  cancelDeleteDumbbellEntry(): void {
+    this.pendingDeleteDumbbellId = null;
+  }
+
+  async confirmDeleteDumbbellEntry(id: string): Promise<void> {
+    this.pendingDeleteDumbbellId = null;
+    await this.dumbbellsService.delete(id);
+    this.dumbbellEntries = this.dumbbellEntries.filter((entry) => entry.id !== id);
   }
 }
