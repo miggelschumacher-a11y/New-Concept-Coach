@@ -22,6 +22,11 @@
   gap: 0.35rem;
 }
 
+.starting-weights-1rm-hint {
+  color: lightgrey;
+  font-size: 0.85rem;
+}
+
 .starting-weights-percentage-icon {
   color: #90caf9;
   font-size: 1.1em;
@@ -36,6 +41,10 @@
   ::ng-deep .mat-mdc-text-field-wrapper {
     height: 2.5rem;
   }
+}
+
+.starting-weights-input {
+  text-align: right;
 }
 
 .starting-weights-actions {

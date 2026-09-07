@@ -1454,7 +1454,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
         exerciseId,
         exerciseName: this.exerciseName(exerciseId),
         isPercentageBased: false,
-        weight: this.defaultWeight(exerciseId, 'working')
+        weight: this.defaultWeight(exerciseId, 'working'),
+        oneRepMax: this.effectiveOneRepMax(exerciseId),
+        oneRepMaxLabelKey: this.exerciseOneRepMaxLabelKey(exerciseId)
       }));
     }
     const rows: PlanStartingWeightRow[] = [];
@@ -1464,13 +1466,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
         continue;
       }
       const isPercentageBased = config.exerciseType === 'PERCENTAGE_BASED';
+      const oneRepMax = this.effectiveOneRepMax(exerciseId);
       rows.push({
         exerciseId,
         exerciseName: this.exerciseName(exerciseId),
         isPercentageBased,
         weight: isPercentageBased
-          ? (this.effectiveOneRepMax(exerciseId) ?? 0)
-          : (config.workingSetTargets?.[0]?.weight ?? this.defaultWeight(exerciseId, 'working'))
+          ? (oneRepMax ?? 0)
+          : (config.workingSetTargets?.[0]?.weight ?? this.defaultWeight(exerciseId, 'working')),
+        oneRepMax,
+        oneRepMaxLabelKey: this.exerciseOneRepMaxLabelKey(exerciseId)
       });
     }
     return rows;
