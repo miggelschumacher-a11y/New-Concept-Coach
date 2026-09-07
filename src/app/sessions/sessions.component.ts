@@ -56,7 +56,7 @@ import { computePrescribedReps, computeNextDoubleProgressionState } from '../cor
 import { computeNextRepGoalState } from '../core/utils/rep-goal.util';
 import { computeNextWaveProgressionState } from '../core/utils/wave-progression.util';
 import { computeNextLinearProgressionState } from '../core/utils/linear-progression.util';
-import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
+import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked, liftedWeight } from '../core/utils/one-rep-max.util';
 import { parseRepsRange } from '../core/utils/reps-range.util';
 import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/body-weight-lookup.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
@@ -3121,12 +3121,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   private async updateEstimatedOneRepMax(exerciseId: string, set: ExerciseSet): Promise<void> {
-    const oneRepMax = estimateOneRepMax(set.weight, set.reps);
-    if (oneRepMax <= 0) {
-      return;
-    }
     const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
     if (!exercise) {
+      return;
+    }
+    const oneRepMax = estimateOneRepMax(liftedWeight(exercise, set.weight), set.reps);
+    if (oneRepMax <= 0) {
       return;
     }
     exercise.oneRepMax = oneRepMax;

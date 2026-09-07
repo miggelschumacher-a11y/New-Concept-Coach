@@ -183,6 +183,15 @@
               <mat-option [value]="'BODYWEIGHT'">{{ 'exercises.equipmentBodyweight' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
+          @if (showDoubleWeightCounting(exercise)) {
+            <mat-checkbox
+              [checked]="exercise.doubleWeightCounting ?? false"
+              (change)="updateDoubleWeightCounting(exercise, $event.checked)"
+              [matTooltip]="'exercises.doubleWeightCountingTooltip' | translate"
+            >
+              {{ 'exercises.doubleWeightCounting' | translate }}
+            </mat-checkbox>
+          }
         </div>
       </mat-expansion-panel>
     }

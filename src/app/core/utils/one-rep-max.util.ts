@@ -32,3 +32,16 @@ export function oneRepMaxOverrideChecked(exercise: OneRepMaxOverrideSource): boo
 export function effectiveOneRepMax(exercise: OneRepMaxOverrideSource): number | undefined {
   return oneRepMaxOverrideChecked(exercise) ? (exercise.customOneRepMax ?? 0) : exercise.oneRepMax;
 }
+
+export interface DoubleWeightCountingSource {
+  doubleWeightCounting?: boolean;
+}
+
+// A dumbbell exercise's set weight is normally entered per dumbbell -
+// doubling it here (only when the exercise's "Gewicht doppelt zählen"
+// checkbox is on) reflects the actual total load moved by both arms for
+// oneRepMax estimation and history charts, without touching the raw
+// per-set value the user actually typed in.
+export function liftedWeight(exercise: DoubleWeightCountingSource, weight: number): number {
+  return exercise.doubleWeightCounting ? weight * 2 : weight;
+}

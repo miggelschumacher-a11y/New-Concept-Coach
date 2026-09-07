@@ -31,6 +31,13 @@ export interface Exercise {
   weightCategory?: ExerciseWeightCategory;
   equipmentType?: ExerciseEquipmentType;
   muscleGroup?: MuscleGroup;
+  // Only meaningful (and only shown in the UI) for equipmentType 'DUMBBELL' -
+  // a dumbbell exercise's weight is normally entered per dumbbell, so this
+  // doubles it when estimating oneRepMax and on the history chart, to
+  // reflect the actual total load moved by both arms. Optional/falsy for
+  // every other exercise, same convention as the other classification
+  // fields being unset by default.
+  doubleWeightCounting?: boolean;
   // Manually entered 1RM override for Percentage-Based progression, used
   // instead of the auto-estimated oneRepMax above when useCustomOneRepMax
   // is on - see SessionsComponent.percentageSetWeight /

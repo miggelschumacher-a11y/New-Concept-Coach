@@ -17,7 +17,7 @@ import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/
 import { Exercise } from '../core/models/exercise.model';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { findBodyWeightForDate } from '../core/utils/body-weight-lookup.util';
-import { estimateOneRepMax } from '../core/utils/one-rep-max.util';
+import { estimateOneRepMax, liftedWeight } from '../core/utils/one-rep-max.util';
 import { TranslationService } from '../core/services/translation.service';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SET_TYPES } from '../sessions/sessions.component';
@@ -227,6 +227,7 @@ export class HistoryComponent implements OnInit {
   // so the weight/1RM lines both trace the same set rather than mismatched
   // "heaviest weight this session" vs "best estimate this session" sets.
   private chartPoints(exerciseId: string): ExerciseChartPoint[] {
+    const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
     return [...this.finishedSessions]
       .reverse()
       .map((session): ExerciseChartPoint | null => {
@@ -236,12 +237,15 @@ export class HistoryComponent implements OnInit {
           return null;
         }
         const bestSet = doneWorkingSets.reduce((best, set) =>
-          estimateOneRepMax(set.weight, set.reps) > estimateOneRepMax(best.weight, best.reps) ? set : best
+          estimateOneRepMax(liftedWeight(exercise ?? {}, set.weight), set.reps) >
+          estimateOneRepMax(liftedWeight(exercise ?? {}, best.weight), best.reps)
+            ? set
+            : best
         );
         return {
           date: new Date(session.date),
-          weight: bestSet.weight,
-          oneRepMax: estimateOneRepMax(bestSet.weight, bestSet.reps)
+          weight: liftedWeight(exercise ?? {}, bestSet.weight),
+          oneRepMax: estimateOneRepMax(liftedWeight(exercise ?? {}, bestSet.weight), bestSet.reps)
         };
       })
       .filter((point): point is ExerciseChartPoint => point !== null);
