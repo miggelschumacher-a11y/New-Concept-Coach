@@ -103,12 +103,20 @@
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
                         <div class="history-set-row">
                           <span class="set-index">#{{ i + 1 }}</span>
-                          <span
-                            >{{ set.reps }} {{ 'sessions.reps' | translate }}@if (targetRepsHint(set); as targetHint) {
-                              ({{ targetHint }})
-                            }</span
-                          >
-                          <span>{{ set.weight }} {{ weightUnitLabel }}</span>
+                          @if (isTimeBasedExercise(sessionExercise)) {
+                            <span [matTooltip]="'sessions.achievedSecondsTooltip' | translate"
+                              >{{ set.seconds ?? 0 }} {{ 'sessions.secondsField' | translate }}@if (targetSecondsHint(set); as targetHint) {
+                                ({{ targetHint }})
+                              }</span
+                            >
+                          } @else {
+                            <span
+                              >{{ set.reps }} {{ 'sessions.reps' | translate }}@if (targetRepsHint(set); as targetHint) {
+                                ({{ targetHint }})
+                              }</span
+                            >
+                            <span>{{ set.weight }} {{ weightUnitLabel }}</span>
+                          }
                           <mat-icon
                             class="history-set-status"
                             [class.set-complete-success]="set.done && setMetTarget(set)"

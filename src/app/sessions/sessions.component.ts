@@ -1367,7 +1367,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
             type: set.type,
             targetReps: set.targetReps,
             targetRepsMax: set.targetRepsMax,
-            isAmrap: set.isAmrap
+            isAmrap: set.isAmrap,
+            // Time-Based counterpart to targetReps above: carries the
+            // just-finished set's prescribed duration forward, but always
+            // resets the achieved seconds back to 0 rather than carrying
+            // over what was actually held last time.
+            seconds: 0,
+            targetSeconds: set.targetSeconds
           }))
         ),
         countWarmupSets: sessionExercise.countWarmupSets,
@@ -2305,7 +2311,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (sets.length === 0 || !sets.every((set) => set.done)) {
       return null;
     }
-    const allMet = sets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
+    const allMet = sets.every((set) => this.setMetTarget(set));
     return allMet ? 'success' : 'fail';
   }
 
@@ -2538,6 +2544,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       newSet.targetReps = DEFAULT_TARGET_REPS;
     }
     newSet.seconds = previousSet?.seconds ?? 0;
+    newSet.targetSeconds = previousSet?.targetSeconds;
     sessionExercise.sets = [...sessionExercise.sets, newSet];
     await this.persist(session);
   }
@@ -3047,7 +3054,53 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   setMetTarget(set: ExerciseSet): boolean {
+    if (set.targetSeconds !== undefined) {
+      return (set.seconds ?? 0) >= set.targetSeconds;
+    }
     return set.targetReps === undefined || set.reps >= set.targetReps;
+  }
+
+  // Time-Based counterpart to targetRepsHint - shown next to the seconds
+  // field for as long as a target exists, same "stays visible even once
+  // done" behavior.
+  targetSecondsHint(set: ExerciseSet): string | null {
+    return set.targetSeconds !== undefined ? String(set.targetSeconds) : null;
+  }
+
+  // Editable counterpart to targetSecondsHint, mirroring targetRepsInputValue.
+  targetSecondsInputValue(set: ExerciseSet): string {
+    return this.targetSecondsHint(set) ?? '';
+  }
+
+  // Same 5-digit sanitization as onSecondsFieldInput.
+  onTargetSecondsFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,5}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // Applies to every not-yet-done set of the exercise, same "describes the
+  // whole exercise" convention as updateTargetReps - also prefills the
+  // achieved-seconds field with the target, so hitting it needs no typing,
+  // just confirming the set.
+  async updateTargetSeconds(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const trimmed = value.trim();
+    const parsed = trimmed === '' ? undefined : parseInt(trimmed, 10);
+    const targetSeconds = parsed !== undefined && Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_COUNTDOWN_SECONDS) : undefined;
+
+    for (const candidate of sessionExercise.sets) {
+      if (candidate.done) {
+        continue;
+      }
+      candidate.targetSeconds = targetSeconds;
+      if (targetSeconds !== undefined) {
+        candidate.seconds = targetSeconds;
+      }
+    }
+
+    await this.persist(session);
   }
 
   // Editable counterpart to targetRepsHint, for sets in non-default sessions

@@ -27,6 +27,12 @@ export interface ExerciseSet {
   // Only meaningful for a Time-Based exercise's set - a held/timed duration
   // in seconds (0-99999) instead of reps/weight.
   seconds?: number;
+  // The prescribed hold duration this set was generated with, if any -
+  // Time-Based counterpart to targetReps above, entered via the exercise's
+  // own "Target Seconds" quick-entry field (see SessionsComponent.
+  // updateTargetSeconds) since Time-Based exercises don't currently carry a
+  // prescribed duration from a training plan.
+  targetSeconds?: number;
 }
 
 export interface SessionExercise {

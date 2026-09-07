@@ -944,12 +944,32 @@
                                 />
                               </mat-form-field>
                             } @else {
-                              <mat-form-field appearance="outline" class="set-field">
+                              @if (canEditExerciseTypeInSession(session)) {
+                                <mat-form-field appearance="outline" class="set-field set-field-target-reps-input">
+                                  <mat-label>{{ 'sessions.targetSecondsField' | translate }}</mat-label>
+                                  <input
+                                    matInput
+                                    type="text"
+                                    inputmode="numeric"
+                                    [value]="targetSecondsInputValue(set)"
+                                    name="targetSeconds-{{ set.id }}"
+                                    [readonly]="set.done"
+                                    [disabled]="isPaused(session)"
+                                    selectOnFocus
+                                    (input)="onTargetSecondsFieldInput($event)"
+                                    (change)="updateTargetSeconds(session, sessionExercise, $any($event.target).value)"
+                                  />
+                                </mat-form-field>
+                              }
+                              <mat-form-field appearance="outline" class="set-field" [class.set-field-reps-target]="targetSecondsHint(set)">
                                 <mat-label>
                                   @if (isCountdownRunning(set)) {
                                     {{ set.seconds ?? 0 }}
                                   } @else {
                                     {{ 'sessions.secondsField' | translate }}
+                                  }
+                                  @if (targetSecondsHint(set); as targetHint) {
+                                    &nbsp;({{ targetHint }})
                                   }
                                 </mat-label>
                                 <input

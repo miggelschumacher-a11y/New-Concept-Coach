@@ -149,6 +149,13 @@ export class HistoryComponent implements OnInit {
     return this.countedSets(sessionExercise).length;
   }
 
+  // Mirrors SessionsComponent.sessionExerciseTypeDisplay - a Time-Based
+  // exercise's sets carry a duration in `seconds`, not `reps`/`weight`,
+  // which were otherwise being shown here regardless of exercise type.
+  isTimeBasedExercise(sessionExercise: SessionExercise): boolean {
+    return sessionExercise.exerciseType === 'TIME_BASED';
+  }
+
   private exerciseWeightLifted(sessionExercise: SessionExercise): number {
     return this.countedSets(sessionExercise)
       .filter((set) => set.done)
@@ -171,7 +178,7 @@ export class HistoryComponent implements OnInit {
     if (sets.length === 0 || !sets.every((set) => set.done)) {
       return null;
     }
-    const allMet = sets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
+    const allMet = sets.every((set) => this.setMetTarget(set));
     return allMet ? 'success' : 'fail';
   }
 
@@ -187,7 +194,15 @@ export class HistoryComponent implements OnInit {
   }
 
   setMetTarget(set: ExerciseSet): boolean {
+    if (set.targetSeconds !== undefined) {
+      return (set.seconds ?? 0) >= set.targetSeconds;
+    }
     return set.targetReps === undefined || set.reps >= set.targetReps;
+  }
+
+  // Mirrors SessionsComponent.targetSecondsHint.
+  targetSecondsHint(set: ExerciseSet): string | null {
+    return set.targetSeconds !== undefined ? String(set.targetSeconds) : null;
   }
 
   requestDeleteSession(id: string): void {
