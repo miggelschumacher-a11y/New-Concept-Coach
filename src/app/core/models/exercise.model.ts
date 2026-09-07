@@ -5,6 +5,23 @@ import { ExerciseWeightCategory } from './tier-line-progression.model';
 // classified, same convention as weightCategory being optional.
 export type ExerciseEquipmentType = 'BARBELL' | 'DUMBBELL' | 'MACHINE' | 'BODYWEIGHT';
 
+// Purely informational categorization of the primary muscle group an
+// exercise trains - unset ("Keine Zuordnung"/no assignment) for anything
+// not yet classified, same convention as equipmentType being optional.
+export type MuscleGroup =
+  | 'CHEST'
+  | 'BACK'
+  | 'SHOULDERS'
+  | 'BICEPS'
+  | 'TRICEPS'
+  | 'FOREARMS'
+  | 'ABS'
+  | 'GLUTES'
+  | 'QUADRICEPS'
+  | 'HAMSTRINGS'
+  | 'CALVES'
+  | 'NECK';
+
 export interface Exercise {
   id: string;
   name: string;
@@ -13,6 +30,7 @@ export interface Exercise {
   oneRepMax?: number;
   weightCategory?: ExerciseWeightCategory;
   equipmentType?: ExerciseEquipmentType;
+  muscleGroup?: MuscleGroup;
   // Manually entered 1RM override for Percentage-Based progression, used
   // instead of the auto-estimated oneRepMax above when useCustomOneRepMax
   // is on - see SessionsComponent.percentageSetWeight /

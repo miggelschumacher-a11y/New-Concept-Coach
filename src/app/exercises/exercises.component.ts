@@ -11,8 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
-import { Exercise, ExerciseEquipmentType } from '../core/models/exercise.model';
-import { ExerciseWeightCategory } from '../core/models/tier-line-progression.model';
+import { Exercise, ExerciseEquipmentType, MuscleGroup } from '../core/models/exercise.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 import { oneRepMaxOverrideChecked, oneRepMaxOverrideDisabled } from '../core/utils/one-rep-max.util';
@@ -43,11 +42,6 @@ const CUSTOM_ONE_REP_MAX_MAX = 1000;
 export class ExercisesComponent implements OnInit {
   exercises: Exercise[] = [];
   name = '';
-  category = '';
-  weightCategory: ExerciseWeightCategory | null = null;
-  // '' rather than null - see equipmentTypeValue/updateEquipmentType below
-  // for why the "No Assignment" option needs an unambiguous string value.
-  equipmentType: ExerciseEquipmentType | '' = '';
   pendingDeleteExerciseId: string | null = null;
   // Exercise ids whose sourceImageUrl failed to load (blocked by an ad
   // blocker, offline, the source going down, ...) - falls back to the
@@ -77,16 +71,11 @@ export class ExercisesComponent implements OnInit {
     }
     await this.exercisesService.add({
       name: this.name.trim(),
-      category: this.category.trim(),
-      weightCategory: this.weightCategory ?? undefined,
-      equipmentType: this.equipmentType || undefined,
+      category: '',
       customOneRepMax: 0,
       useCustomOneRepMax: true
     });
     this.name = '';
-    this.category = '';
-    this.weightCategory = null;
-    this.equipmentType = '';
     await this.load();
   }
 
@@ -105,6 +94,16 @@ export class ExercisesComponent implements OnInit {
 
   async updateEquipmentType(exercise: Exercise, value: ExerciseEquipmentType | ''): Promise<void> {
     exercise.equipmentType = value || undefined;
+    await this.exercisesService.update(exercise);
+  }
+
+  // Same '' sentinel pattern as equipmentTypeValue/updateEquipmentType above.
+  muscleGroupValue(exercise: Exercise): MuscleGroup | '' {
+    return exercise.muscleGroup ?? '';
+  }
+
+  async updateMuscleGroup(exercise: Exercise, value: MuscleGroup | ''): Promise<void> {
+    exercise.muscleGroup = value || undefined;
     await this.exercisesService.update(exercise);
   }
 

@@ -8,30 +8,6 @@
         <input matInput name="name" [(ngModel)]="name" required selectOnFocus />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label><mat-icon class="label-icon">category</mat-icon>{{ 'exercises.category' | translate }}</mat-label>
-        <input matInput name="category" [(ngModel)]="category" selectOnFocus />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label><mat-icon class="label-icon">accessibility_new</mat-icon>{{ 'exercises.bodyRegion' | translate }}</mat-label>
-        <mat-select name="weightCategory" [(ngModel)]="weightCategory">
-          <mat-option [value]="'LOWER_BODY'">{{ 'exercises.lowerBody' | translate }}</mat-option>
-          <mat-option [value]="'UPPER_BODY'">{{ 'exercises.upperBody' | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label><mat-icon class="label-icon">fitness_center</mat-icon>{{ 'exercises.equipmentType' | translate }}</mat-label>
-        <mat-select name="equipmentType" [(ngModel)]="equipmentType">
-          <mat-option [value]="''">{{ 'exercises.equipmentNone' | translate }}</mat-option>
-          <mat-option [value]="'BARBELL'">{{ 'exercises.equipmentBarbell' | translate }}</mat-option>
-          <mat-option [value]="'DUMBBELL'">{{ 'exercises.equipmentDumbbell' | translate }}</mat-option>
-          <mat-option [value]="'MACHINE'">{{ 'exercises.equipmentMachine' | translate }}</mat-option>
-          <mat-option [value]="'BODYWEIGHT'">{{ 'exercises.equipmentBodyweight' | translate }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
       <button
         mat-raised-button
         color="primary"
@@ -160,20 +136,44 @@
           >
             {{ 'exercises.useCustomOneRepMaxLabel' | translate }}
           </mat-checkbox>
+        </div>
+
+        <div class="exercise-classification-row">
           <mat-form-field appearance="outline" class="body-region-field">
+            <mat-label>{{ 'exercises.bodyRegion' | translate }}</mat-label>
             <mat-select
               [(ngModel)]="exercise.weightCategory"
-              [matTooltip]="'exercises.bodyRegion' | translate"
               (selectionChange)="updateWeightCategory(exercise)"
             >
               <mat-option [value]="'LOWER_BODY'">{{ 'exercises.lowerBody' | translate }}</mat-option>
               <mat-option [value]="'UPPER_BODY'">{{ 'exercises.upperBody' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
+          <mat-form-field appearance="outline" class="muscle-group-field">
+            <mat-label>{{ 'exercises.muscleGroup' | translate }}</mat-label>
+            <mat-select
+              [ngModel]="muscleGroupValue(exercise)"
+              (selectionChange)="updateMuscleGroup(exercise, $event.value)"
+            >
+              <mat-option [value]="''">{{ 'exercises.muscleNone' | translate }}</mat-option>
+              <mat-option [value]="'CHEST'">{{ 'exercises.muscleChest' | translate }}</mat-option>
+              <mat-option [value]="'BACK'">{{ 'exercises.muscleBack' | translate }}</mat-option>
+              <mat-option [value]="'SHOULDERS'">{{ 'exercises.muscleShoulders' | translate }}</mat-option>
+              <mat-option [value]="'BICEPS'">{{ 'exercises.muscleBiceps' | translate }}</mat-option>
+              <mat-option [value]="'TRICEPS'">{{ 'exercises.muscleTriceps' | translate }}</mat-option>
+              <mat-option [value]="'FOREARMS'">{{ 'exercises.muscleForearms' | translate }}</mat-option>
+              <mat-option [value]="'ABS'">{{ 'exercises.muscleAbs' | translate }}</mat-option>
+              <mat-option [value]="'GLUTES'">{{ 'exercises.muscleGlutes' | translate }}</mat-option>
+              <mat-option [value]="'QUADRICEPS'">{{ 'exercises.muscleQuadriceps' | translate }}</mat-option>
+              <mat-option [value]="'HAMSTRINGS'">{{ 'exercises.muscleHamstrings' | translate }}</mat-option>
+              <mat-option [value]="'CALVES'">{{ 'exercises.muscleCalves' | translate }}</mat-option>
+              <mat-option [value]="'NECK'">{{ 'exercises.muscleNeck' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
           <mat-form-field appearance="outline" class="equipment-type-field">
+            <mat-label>{{ 'exercises.equipmentType' | translate }}</mat-label>
             <mat-select
               [ngModel]="equipmentTypeValue(exercise)"
-              [matTooltip]="'exercises.equipmentType' | translate"
               (selectionChange)="updateEquipmentType(exercise, $event.value)"
             >
               <mat-option [value]="''">{{ 'exercises.equipmentNone' | translate }}</mat-option>

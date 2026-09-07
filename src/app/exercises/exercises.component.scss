@@ -73,6 +73,24 @@ mat-card {
   }
 }
 
+.muscle-group-field {
+  width: 150px;
+  font-size: 0.85rem;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 2.25rem;
+  }
+}
+
+.exercise-classification-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
 .exercise-master-accordion .mat-expansion-panel {
   margin-bottom: 1rem;
 }
