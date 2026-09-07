@@ -104,18 +104,54 @@
                         <div class="history-set-row">
                           <span class="set-index">#{{ i + 1 }}</span>
                           @if (isTimeBasedExercise(sessionExercise)) {
-                            <span [matTooltip]="'sessions.achievedSecondsTooltip' | translate"
-                              >{{ set.seconds ?? 0 }} {{ 'sessions.secondsField' | translate }}@if (targetSecondsHint(set); as targetHint) {
-                                ({{ targetHint }})
-                              }</span
-                            >
+                            <mat-form-field appearance="outline" class="history-set-field">
+                              <mat-label>
+                                {{ 'sessions.secondsField' | translate }}
+                                @if (targetSecondsHint(set); as targetHint) {
+                                  ({{ targetHint }})
+                                }
+                              </mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="numeric"
+                                [value]="historySetSecondsDisplay(set)"
+                                [matTooltip]="'sessions.achievedSecondsTooltip' | translate"
+                                selectOnFocus
+                                (input)="onHistorySecondsFieldInput($event)"
+                                (change)="updateHistorySetSeconds(session, set, $any($event.target).value)"
+                              />
+                            </mat-form-field>
                           } @else {
-                            <span
-                              >{{ set.reps }} {{ 'sessions.reps' | translate }}@if (targetRepsHint(set); as targetHint) {
-                                ({{ targetHint }})
-                              }</span
-                            >
-                            <span>{{ set.weight }} {{ weightUnitLabel }}</span>
+                            <mat-form-field appearance="outline" class="history-set-field">
+                              <mat-label>
+                                {{ 'sessions.reps' | translate }}
+                                @if (targetRepsHint(set); as targetHint) {
+                                  ({{ targetHint }})
+                                }
+                              </mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="numeric"
+                                [value]="historySetRepsDisplay(set)"
+                                selectOnFocus
+                                (input)="onHistoryRepsFieldInput($event)"
+                                (change)="updateHistorySetReps(session, set, $any($event.target).value)"
+                              />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="history-set-field">
+                              <mat-label>{{ weightUnitLabel }}</mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="decimal"
+                                [value]="historySetWeightDisplay(set)"
+                                selectOnFocus
+                                (input)="onHistoryWeightFieldInput($event)"
+                                (change)="updateHistorySetWeight(session, set, $any($event.target).value)"
+                              />
+                            </mat-form-field>
                           }
                           <mat-icon
                             class="history-set-status"

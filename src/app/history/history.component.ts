@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
@@ -20,6 +21,7 @@ import { findBodyWeightForDate } from '../core/utils/body-weight-lookup.util';
 import { estimateOneRepMax, liftedWeight } from '../core/utils/one-rep-max.util';
 import { TranslationService } from '../core/services/translation.service';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
+import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 import { SET_TYPES } from '../sessions/sessions.component';
 
 interface ExerciseChartPoint {
@@ -49,11 +51,13 @@ interface ChartCoord {
     MatTooltipModule,
     MatTabsModule,
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
     FormsModule,
     DatePipe,
     NgTemplateOutlet,
-    TranslatePipe
+    TranslatePipe,
+    SelectOnFocusDirective
   ],
   providers: [DatePipe],
   templateUrl: './history.component.html',
@@ -203,6 +207,67 @@ export class HistoryComponent implements OnInit {
   // Mirrors SessionsComponent.targetSecondsHint.
   targetSecondsHint(set: ExerciseSet): string | null {
     return set.targetSeconds !== undefined ? String(set.targetSeconds) : null;
+  }
+
+  // Lets a finished session's own logged numbers be corrected after the
+  // fact (e.g. a typo caught later) - a pure historical-record edit, since
+  // it only rewrites this one set's field and never touches anything
+  // already derived from it (the exercise's oneRepMax, a later session's
+  // starting weight, deload streaks, ...), all of which were computed once
+  // at completion time from whatever was logged then and are left alone.
+  historySetRepsDisplay(set: ExerciseSet): string {
+    return String(set.reps);
+  }
+
+  onHistoryRepsFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/\D/g, '').slice(0, 5);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateHistorySetReps(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    set.reps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 10000) : 0;
+    await this.sessionsService.update(session);
+  }
+
+  historySetWeightDisplay(set: ExerciseSet): string {
+    return set.weight.toFixed(2);
+  }
+
+  onHistoryWeightFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateHistorySetWeight(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    set.weight = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 9999) : 0;
+    await this.sessionsService.update(session);
+  }
+
+  historySetSecondsDisplay(set: ExerciseSet): string {
+    return String(set.seconds ?? 0);
+  }
+
+  // Same 5-digit sanitization as SessionsComponent.onSecondsFieldInput.
+  onHistorySecondsFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,5}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateHistorySetSeconds(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    set.seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : 0;
+    await this.sessionsService.update(session);
   }
 
   requestDeleteSession(id: string): void {

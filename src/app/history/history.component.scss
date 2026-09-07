@@ -85,6 +85,19 @@
   margin: 0.35rem 0 0.35rem 1.5rem;
 }
 
+.history-set-field {
+  width: 6rem;
+  font-size: 0.85rem;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 2.25rem;
+  }
+
+  input {
+    text-align: right;
+  }
+}
+
 .set-index {
   min-width: 4.5rem;
   color: lightgrey;
