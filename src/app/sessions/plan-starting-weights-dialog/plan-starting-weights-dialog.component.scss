@@ -1,0 +1,44 @@
+.starting-weights-intro {
+  color: lightgrey;
+  margin-top: 0;
+}
+
+.starting-weights-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.starting-weights-name {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.starting-weights-percentage-icon {
+  color: #90caf9;
+  font-size: 1.1em;
+  height: 1.1em;
+  width: 1.1em;
+}
+
+.starting-weights-field {
+  width: 7rem;
+  flex: 0 0 auto;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 2.5rem;
+  }
+}
+
+.starting-weights-actions {
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

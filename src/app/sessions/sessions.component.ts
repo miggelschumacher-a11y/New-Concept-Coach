@@ -12,7 +12,13 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  PlanStartingWeightsDialogComponent,
+  PlanStartingWeightRow
+} from './plan-starting-weights-dialog/plan-starting-weights-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -97,6 +103,7 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
     MatCheckboxModule,
     DragDropModule,
     MatTooltipModule,
+    MatDialogModule,
     DatePipe,
     NgTemplateOutlet,
     TranslatePipe,
@@ -150,7 +157,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly linearProgressionService: LinearProgressionService,
     private readonly bodyWeightService: BodyWeightService,
     private readonly datePipe: DatePipe,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly dialog: MatDialog
   ) {}
 
   get dateFormat(): string {
@@ -614,7 +622,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   };
 
-  private async getOrInitProgressionState(planExercise: TierLinePlanExercise): Promise<TierLineProgressionState> {
+  private async getOrInitProgressionState(
+    planExercise: TierLinePlanExercise,
+    seedWeight = 0
+  ): Promise<TierLineProgressionState> {
     const key = this.progressionKey(planExercise.exerciseId, planExercise.tier);
     const cached = this.progressionStates.get(key);
     if (cached) {
@@ -626,7 +637,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       (await this.tierLineProgressionService.initState(
         planExercise.exerciseId,
         planExercise.tier,
-        0,
+        seedWeight,
         planExercise.stage
       ));
     this.progressionStates.set(key, state);
@@ -1406,17 +1417,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (!plan) {
       return;
     }
+    const startingWeightByExerciseId = await this.resolveStartingWeights(plan);
     const baseSequence = Date.now();
     const newSessions =
       plan.planSessions && plan.planSessions.length > 0
         ? await Promise.all(
             plan.planSessions.map((planSession, index) =>
-              this.buildSessionFromPlan(plan, planSession, baseSequence + index)
+              this.buildSessionFromPlan(plan, planSession, baseSequence + index, undefined, undefined, startingWeightByExerciseId)
             )
           )
         : plan.oneExercisePerSession
-          ? await this.buildOneExercisePerSessionCycle(plan, baseSequence)
-          : [await this.buildSessionFromPlan(plan, null, baseSequence)];
+          ? await this.buildOneExercisePerSessionCycle(plan, baseSequence, startingWeightByExerciseId)
+          : [await this.buildSessionFromPlan(plan, null, baseSequence, undefined, undefined, startingWeightByExerciseId)];
     for (const session of newSessions) {
       this.unsavedSessionIds.add(session.id);
     }
@@ -1424,6 +1436,83 @@ export class SessionsComponent implements OnInit, OnDestroy {
     for (const session of newSessions) {
       await this.persist(session);
     }
+  }
+
+  // Every exercise "Create from Plan" would actually generate a working set
+  // for, one row each - skips Time-Based exercises (no weight concept) and
+  // returns an empty list for a plan with nothing weight-relevant, so the
+  // dialog is never shown pointlessly.
+  private planStartingWeightRows(plan: TrainingPlan): PlanStartingWeightRow[] {
+    if (plan.planSessions && plan.planSessions.length > 0) {
+      const exerciseIds = new Set<string>();
+      for (const planSession of plan.planSessions) {
+        for (const planExercise of planSession.exercises) {
+          exerciseIds.add(planExercise.exerciseId);
+        }
+      }
+      return [...exerciseIds].map((exerciseId) => ({
+        exerciseId,
+        exerciseName: this.exerciseName(exerciseId),
+        isPercentageBased: false,
+        weight: this.defaultWeight(exerciseId, 'working')
+      }));
+    }
+    const rows: PlanStartingWeightRow[] = [];
+    for (const exerciseId of plan.exerciseIds) {
+      const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
+      if (!config || config.exerciseType === 'TIME_BASED') {
+        continue;
+      }
+      const isPercentageBased = config.exerciseType === 'PERCENTAGE_BASED';
+      rows.push({
+        exerciseId,
+        exerciseName: this.exerciseName(exerciseId),
+        isPercentageBased,
+        weight: isPercentageBased
+          ? (this.effectiveOneRepMax(exerciseId) ?? 0)
+          : (config.workingSetTargets?.[0]?.weight ?? this.defaultWeight(exerciseId, 'working'))
+      });
+    }
+    return rows;
+  }
+
+  // Shows the starting-weights dialog and applies its result: a
+  // Percentage-Based row updates the exercise's own 1RM directly (so
+  // percentageSetWeight picks it up immediately, same as if the user had
+  // set it on the Exercises page), while every other row is returned for
+  // buildSessionFromPlan to seed its first progression state with. Returns
+  // undefined (no overrides at all) when the plan has nothing to prefill,
+  // or the user skips the dialog.
+  private async resolveStartingWeights(plan: TrainingPlan): Promise<Map<string, number> | undefined> {
+    const rows = this.planStartingWeightRows(plan);
+    if (rows.length === 0) {
+      return undefined;
+    }
+    const result = await firstValueFrom(
+      this.dialog
+        .open(PlanStartingWeightsDialogComponent, { data: { rows, weightUnitLabel: this.weightUnitLabel } })
+        .afterClosed()
+    );
+    if (!result) {
+      return undefined;
+    }
+    const overrides = new Map<string, number>();
+    for (const row of result) {
+      if (!(row.weight > 0)) {
+        continue;
+      }
+      if (row.isPercentageBased) {
+        const exercise = this.exercises.find((candidate) => candidate.id === row.exerciseId);
+        if (exercise) {
+          exercise.customOneRepMax = row.weight;
+          exercise.useCustomOneRepMax = true;
+          await this.exercisesService.update(exercise);
+        }
+      } else {
+        overrides.set(row.exerciseId, row.weight);
+      }
+    }
+    return overrides;
   }
 
   // For a oneExercisePerSession plan (e.g. 5/3/1), generates every week of
@@ -1435,7 +1524,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // to match the order they'd actually be trained in, not exercise-by-
   // exercise. An exercise with fewer weeks than another simply stops
   // appearing once its own weeks are exhausted.
-  private async buildOneExercisePerSessionCycle(plan: TrainingPlan, baseSequence: number): Promise<TrainingSession[]> {
+  private async buildOneExercisePerSessionCycle(
+    plan: TrainingPlan,
+    baseSequence: number,
+    startingWeightByExerciseId?: Map<string, number>
+  ): Promise<TrainingSession[]> {
     const weeksCountFor = (exerciseId: string): number =>
       plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId)?.percentageWeeks?.length || 1;
     const maxWeeks = Math.max(...plan.exerciseIds.map(weeksCountFor));
@@ -1448,7 +1541,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       }
     }
     return Promise.all(
-      jobs.map((job, index) => this.buildSessionFromPlan(plan, null, baseSequence + index, job.exerciseId, job.weekIndex))
+      jobs.map((job, index) =>
+        this.buildSessionFromPlan(plan, null, baseSequence + index, job.exerciseId, job.weekIndex, startingWeightByExerciseId)
+      )
     );
   }
 
@@ -1457,7 +1552,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     planSession: TierLinePlanSession | null,
     sequence: number,
     onlyExerciseId?: string,
-    weekIndexOverride?: number
+    weekIndexOverride?: number,
+    startingWeightByExerciseId?: Map<string, number>
   ): Promise<TrainingSession> {
     const now = new Date();
     const name = planSession
@@ -1478,7 +1574,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
       ? await Promise.all(
           planSession.exercises.map(async (planExercise) => {
             if (isTierLine) {
-              const state = await this.getOrInitProgressionState(planExercise);
+              const state = await this.getOrInitProgressionState(
+                planExercise,
+                startingWeightByExerciseId?.get(planExercise.exerciseId)
+              );
               const scheme = TIER_LINE_SCHEME[state.tier][state.stage];
               return {
                 exerciseId: planExercise.exerciseId,
@@ -1582,7 +1681,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
             // keep deriving reps from their own scheme config as before.
             const workingSetTargets = hasIncrementScheme ? config.workingSetTargets : undefined;
             const workingSetCount = workingSetTargets?.length ?? config.workingSets;
-            const seedWeight = workingSetTargets?.[0]?.weight ?? this.defaultWeight(exerciseId, 'working');
+            const startingWeightOverride = startingWeightByExerciseId?.get(exerciseId);
+            const seedWeight =
+              startingWeightOverride ?? workingSetTargets?.[0]?.weight ?? this.defaultWeight(exerciseId, 'working');
             let workingSets: SessionExercise['sets'];
             if (hasIncrementScheme && config.incrementScheme === 'DOUBLE_PROGRESSION' && config.doubleProgression) {
               const state = await this.getOrInitDoubleProgressionState(exerciseId, seedWeight);
@@ -1626,10 +1727,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
             } else if (hasIncrementScheme) {
               // NONE scheme - no tracked progression state, so each working
               // set always starts from its own configured target reps and
-              // weight, same as the plan editor shows.
+              // weight, same as the plan editor shows - unless a starting-
+              // weight override applies uniformly to every set instead.
               workingSets = workingSetTargets
-                ? buildTargetSets(workingSetTargets, 'working', (target) => this.applyDeload(plan, exerciseId, target.weight))
-                : buildSets(config.workingSets, 'working');
+                ? buildTargetSets(workingSetTargets, 'working', (target) =>
+                    this.applyDeload(plan, exerciseId, startingWeightOverride ?? target.weight)
+                  )
+                : buildSets(config.workingSets, 'working').map((set) =>
+                    startingWeightOverride !== undefined ? { ...set, weight: startingWeightOverride } : set
+                  );
             } else if (config.exerciseType === 'PERCENTAGE_BASED') {
               workingSets =
                 this.percentageBasedWorkingSets(

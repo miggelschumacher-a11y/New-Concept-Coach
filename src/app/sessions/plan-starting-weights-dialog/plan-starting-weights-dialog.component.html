@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>{{ 'sessions.startingWeightsTitle' | translate }}</h2>
+<div mat-dialog-content>
+  <p class="starting-weights-intro">{{ 'sessions.startingWeightsIntro' | translate }}</p>
+  @for (row of data.rows; track row.exerciseId) {
+    <div class="starting-weights-row">
+      <span class="starting-weights-name">
+        {{ row.exerciseName }}
+        @if (row.isPercentageBased) {
+          <mat-icon class="label-icon starting-weights-percentage-icon" [matTooltip]="'sessions.startingWeightsPercentageTooltip' | translate"
+            >info</mat-icon
+          >
+        }
+      </span>
+      <mat-form-field appearance="outline" class="starting-weights-field">
+        <mat-label>{{ data.weightUnitLabel }}</mat-label>
+        <input matInput type="number" min="0" step="0.5" [(ngModel)]="row.weight" name="startingWeight-{{ row.exerciseId }}" />
+      </mat-form-field>
+    </div>
+  }
+</div>
+<div mat-dialog-actions class="starting-weights-actions">
+  <button mat-stroked-button type="button" (click)="skip()">{{ 'sessions.startingWeightsSkip' | translate }}</button>
+  <button mat-raised-button color="primary" type="button" (click)="confirm()">{{ 'sessions.startingWeightsConfirm' | translate }}</button>
+</div>
