@@ -1,5 +1,5 @@
 .starting-weights-intro {
-  color: lightgrey;
+  color: var(--app-muted-text);
   margin-top: 0;
 }
 
@@ -9,7 +9,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(var(--app-fg-rgb), 0.08);
 
   &:last-child {
     border-bottom: none;
@@ -23,7 +23,7 @@
 }
 
 .starting-weights-1rm-hint {
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-size: 0.85rem;
 }
 

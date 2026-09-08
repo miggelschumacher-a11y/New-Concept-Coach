@@ -22,13 +22,13 @@
 }
 
 .set-equipment-plate-breakdown {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(var(--app-fg-rgb), 0.12);
   border-radius: 4px;
   padding: 0.5rem 0.75rem;
 }
 
 .set-equipment-plate-breakdown-label {
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -41,7 +41,7 @@
 
 .set-equipment-plate-empty {
   margin: 0.35rem 0 0;
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 .set-equipment-plate-remainder {
@@ -60,5 +60,5 @@
   flex-direction: column;
   gap: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(var(--app-fg-rgb), 0.12);
 }

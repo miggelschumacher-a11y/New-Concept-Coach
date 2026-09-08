@@ -11,7 +11,7 @@
 }
 
 .notes-char-count {
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-weight: normal;
   font-size: 0.85em;
   margin-left: 0.35rem;
@@ -75,7 +75,7 @@ mat-expansion-panel-header .mat-content {
   align-items: center;
   flex: 0 0 auto;
   padding: 0 0.5rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(var(--app-fg-rgb), 0.5);
   cursor: grab;
   touch-action: none;
 }
@@ -102,12 +102,12 @@ mat-expansion-panel-header .mat-content {
 
 .session-card mat-select {
   font-size: 1.15rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 ::ng-deep .exercise-select-panel .mat-mdc-option {
   font-size: 1.15rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 ::ng-deep .exercise-select-panel .mat-mdc-option.mdc-list-item--selected {
@@ -124,11 +124,11 @@ mat-expansion-panel-header .mat-content {
 .timer-display {
   font-size: 1.5rem;
   font-variant-numeric: tabular-nums;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(var(--app-fg-rgb), 0.95);
 }
 
 .finish-confirm-label {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(var(--app-fg-rgb), 0.95);
   font-weight: 500;
   align-self: center;
 }
@@ -140,7 +140,7 @@ mat-expansion-panel-header .mat-content {
 }
 
 .paused-hint {
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-style: italic;
 }
 
@@ -154,7 +154,7 @@ mat-expansion-panel-header .mat-content {
   position: fixed;
   z-index: 1000;
   width: 320px;
-  background: linear-gradient(145deg, #3d4058, #24263a);
+  background: linear-gradient(145deg, var(--app-popup-gradient-start), var(--app-popup-gradient-end));
   border-radius: 10px;
   padding: 0.65rem 0.85rem;
   transform: perspective(700px) rotateX(4deg);
@@ -163,16 +163,16 @@ mat-expansion-panel-header .mat-content {
     0 1px 2px rgba(0, 0, 0, 0.35),
     0 8px 16px rgba(0, 0, 0, 0.45),
     0 24px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(var(--app-fg-rgb), 0.08);
 
   p {
     margin: 0.25rem 0;
-    color: lightgrey;
+    color: var(--app-muted-text);
     font-size: 0.85rem;
   }
 
   strong {
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(var(--app-fg-rgb), 0.95);
   }
 }
 
@@ -188,14 +188,14 @@ mat-expansion-panel-header .mat-content {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background: linear-gradient(145deg, #3d4058, #24263a);
+  background: linear-gradient(145deg, var(--app-popup-gradient-start), var(--app-popup-gradient-end));
   border-radius: 10px;
   padding: 0.65rem 0.85rem;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.35),
     0 8px 16px rgba(0, 0, 0, 0.45),
     0 24px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(var(--app-fg-rgb), 0.08);
 }
 
 .set-field-copy-popup button {
@@ -210,7 +210,7 @@ mat-expansion-panel mat-checkbox {
 
 .exercise-settings-readonly-info {
   margin: 0 0 0.75rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-size: 0.9rem;
 }
 
@@ -225,7 +225,7 @@ mat-expansion-panel mat-checkbox {
   position: fixed;
   z-index: 1000;
   width: 340px;
-  background: linear-gradient(145deg, #3d4058, #24263a);
+  background: linear-gradient(145deg, var(--app-popup-gradient-start), var(--app-popup-gradient-end));
   border-radius: 10px;
   padding: 0.65rem 0.85rem;
   transform: perspective(700px) rotateX(4deg);
@@ -234,7 +234,7 @@ mat-expansion-panel mat-checkbox {
     0 1px 2px rgba(0, 0, 0, 0.35),
     0 8px 16px rgba(0, 0, 0, 0.45),
     0 24px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(var(--app-fg-rgb), 0.08);
 }
 
 .exercise-settings-info-popup mat-checkbox {
@@ -258,8 +258,8 @@ mat-expansion-panel mat-checkbox {
   margin: -0.65rem -0.85rem 0.5rem;
   padding: 0.5rem 0.85rem;
   border-radius: 10px 10px 0 0;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
+  background: rgba(var(--app-fg-rgb), 0.08);
+  color: rgba(var(--app-fg-rgb), 0.7);
   font-size: 0.8rem;
   cursor: grab;
   touch-action: none;
@@ -303,7 +303,7 @@ mat-expansion-panel mat-checkbox {
 
   legend {
     padding: 0 0 0.35rem;
-    color: rgba(255, 255, 255, 0.87);
+    color: rgba(var(--app-fg-rgb), 0.87);
     font-size: 0.875rem;
   }
 }
@@ -321,8 +321,8 @@ mat-expansion-panel mat-checkbox {
   // (the session-wide popup's same-shaped buttons are pure broadcast
   // actions and never mark either one active).
   button.active {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(var(--app-fg-rgb), 0.14);
+    border-color: rgba(var(--app-fg-rgb), 0.5);
   }
 }
 
@@ -332,13 +332,13 @@ mat-expansion-panel mat-checkbox {
 
 .set-count {
   margin-left: 0.5rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-weight: normal;
 }
 
 .tier-badge {
   margin-left: 0.5rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-size: 0.8rem;
   font-weight: normal;
 }
@@ -364,7 +364,7 @@ mat-expansion-panel mat-checkbox {
 }
 
 .session-body-weight {
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 .set-edit-blocked-hint {
@@ -383,7 +383,7 @@ mat-expansion-panel mat-checkbox {
 
 .set-row .set-index {
   min-width: 2rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 .set-fields {

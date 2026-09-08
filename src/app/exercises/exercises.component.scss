@@ -43,15 +43,15 @@ mat-card {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(var(--app-fg-rgb), 0.95);
 }
 
 .unit-label {
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 .confirm-label {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(var(--app-fg-rgb), 0.95);
   font-weight: 500;
 }
 
@@ -114,7 +114,7 @@ mat-card {
 }
 
 .exercise-detail-label {
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -127,7 +127,7 @@ mat-card {
 .exercise-animation {
   width: 140px;
   height: 160px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(var(--app-fg-rgb), 0.04);
   border-radius: 8px;
   flex: 0 0 auto;
 }
@@ -148,7 +148,7 @@ mat-card {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(var(--app-fg-rgb), 0.4);
   text-align: center;
   padding: 0.5rem;
 
@@ -158,7 +158,7 @@ mat-card {
 }
 
 .exercise-source-attribution {
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-size: 0.75rem;
   max-width: 140px;
 

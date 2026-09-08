@@ -6,7 +6,7 @@ $trainings-app-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
 $trainings-app-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
 $trainings-app-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
-$trainings-app-theme: mat.m2-define-dark-theme((
+$trainings-app-dark-theme: mat.m2-define-dark-theme((
   color: (
     primary: $trainings-app-primary,
     accent: $trainings-app-accent,
@@ -14,13 +14,56 @@ $trainings-app-theme: mat.m2-define-dark-theme((
   )
 ));
 
-@include mat.all-component-themes($trainings-app-theme);
+$trainings-app-light-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $trainings-app-primary,
+    accent: $trainings-app-accent,
+    warn: $trainings-app-warn,
+  )
+));
+
+// Dark is the app's default, so it gets the full theme (structure +
+// typography + density + color). The light-theme class (toggled by
+// ThemeService, see Config > "Helles Design") only needs to swap the color
+// layer at runtime, which all-component-colors emits on its own without
+// duplicating the structural/typography CSS a second time.
+@include mat.all-component-themes($trainings-app-dark-theme);
+
+html.light-theme {
+  @include mat.all-component-colors($trainings-app-light-theme);
+}
 
 // The selected option in a mat-select dropdown otherwise renders in the
 // theme's primary indigo (#3f51b5), which reads as too dark/muddy against
 // this app's dark background - lighten it to match the other (white) options.
+// Light mode doesn't have that problem (the page behind is already light),
+// so it just falls back to Material's own default there.
 :root {
   --mat-option-selected-state-label-text-color: white;
+}
+html.light-theme {
+  --mat-option-selected-state-label-text-color: initial;
+}
+
+// Ad-hoc utility colors used throughout the app's own (non-Material)
+// component styles - always written as rgba(var(--app-fg-rgb), alpha) so a
+// single flip here re-themes every one of them, light or dark, at whatever
+// alpha each call site already chose.
+:root {
+  --app-fg-rgb: 255, 255, 255;
+  --app-muted-text: lightgrey;
+  --app-popup-gradient-start: #3d4058;
+  --app-popup-gradient-end: #24263a;
+  --app-confirm-gradient-start: #3c3c3c;
+  --app-confirm-gradient-end: #262626;
+}
+html.light-theme {
+  --app-fg-rgb: 0, 0, 0;
+  --app-muted-text: #5f6368;
+  --app-popup-gradient-start: #ffffff;
+  --app-popup-gradient-end: #e4e6f0;
+  --app-confirm-gradient-start: #ffffff;
+  --app-confirm-gradient-end: #e0e0e0;
 }
 
 html, body { height: 100%; }
@@ -29,6 +72,10 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: #121212;
   color: rgba(255, 255, 255, 0.87);
+}
+html.light-theme body {
+  background-color: #fafafa;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 @keyframes confirm-dialog-pop-in {
@@ -52,9 +99,9 @@ body {
   gap: 0.75rem;
   padding: 0.5rem 1rem;
   border-radius: 10px;
-  background: linear-gradient(145deg, #3c3c3c, #262626);
+  background: linear-gradient(145deg, var(--app-confirm-gradient-start), var(--app-confirm-gradient-end));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(var(--app-fg-rgb), 0.1),
     inset 0 -6px 10px rgba(0, 0, 0, 0.4),
     0 10px 20px rgba(0, 0, 0, 0.55),
     0 3px 6px rgba(0, 0, 0, 0.4);

@@ -6,6 +6,7 @@ export type WeightUnit = 'kg' | 'lbs';
 export type DateFormat = 'dd.MM.yyyy' | 'MM/dd/yyyy';
 export type Language = 'de' | 'en' | 'es' | 'pt' | 'it' | 'nl' | 'pl' | 'ru' | 'hu';
 export type FinishedSessionReplenishMode = 'always' | 'never' | 'ask';
+export type Theme = 'dark' | 'light';
 
 export interface AppSettings {
   weightUnit: WeightUnit;
@@ -13,6 +14,7 @@ export interface AppSettings {
   language: Language;
   dateOfBirth?: string;
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
+  theme: Theme;
   // Default Double Progression increment scheme (Config page). Copied into a
   // plan exercise's own config the first time it's switched to
   // DOUBLE_PROGRESSION, then editable per exercise from there on.
@@ -51,6 +53,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   dateFormat: 'dd.MM.yyyy',
   language: 'en',
   finishedSessionReplenishMode: 'always',
+  theme: 'dark',
   doubleProgressionLowerReps: 8,
   doubleProgressionUpperReps: 10,
   doubleProgressionMode: 'ADD_TO_ALL_SETS',

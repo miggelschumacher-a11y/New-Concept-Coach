@@ -23,7 +23,7 @@
 }
 
 .finish-confirm-label {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(var(--app-fg-rgb), 0.95);
   font-weight: 500;
   align-self: center;
 }
@@ -38,11 +38,11 @@
 
 .session-body-weight,
 .session-duration {
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 .history-notes {
-  color: lightgrey;
+  color: var(--app-muted-text);
   white-space: pre-line;
 }
 
@@ -52,7 +52,7 @@
 
 .set-count {
   margin-left: 0.5rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-weight: normal;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .history-set-type-label {
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-weight: 500;
 }
 
@@ -100,11 +100,11 @@
 
 .set-index {
   min-width: 4.5rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 .history-set-status {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(var(--app-fg-rgb), 0.4);
 }
 
 .history-set-status.set-complete-success {
@@ -140,7 +140,7 @@
   display: flex;
   gap: 1.5rem;
   margin-bottom: 0.5rem;
-  color: lightgrey;
+  color: var(--app-muted-text);
 }
 
 .chart-legend-item {
@@ -170,12 +170,12 @@
 }
 
 .chart-grid-line {
-  stroke: rgba(255, 255, 255, 0.12);
+  stroke: rgba(var(--app-fg-rgb), 0.12);
   stroke-width: 1;
 }
 
 .chart-axis-label {
-  fill: lightgrey;
+  fill: var(--app-muted-text);
   font-size: 10px;
 }
 
@@ -211,7 +211,7 @@
 .chart-x-labels {
   display: flex;
   justify-content: space-between;
-  color: lightgrey;
+  color: var(--app-muted-text);
   font-size: 0.8rem;
   margin-top: 0.25rem;
 }

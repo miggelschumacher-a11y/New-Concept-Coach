@@ -39,6 +39,17 @@
         <mat-option value="ask">{{ 'config.finishedSessionReplenishAsk' | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <div class="settings-form-break"></div>
+
+    <div class="theme-toggle-group">
+      <mat-checkbox [ngModel]="isDarkTheme" (ngModelChange)="onDarkThemeChange($event)">
+        {{ 'config.darkTheme' | translate }}
+      </mat-checkbox>
+      <mat-checkbox [ngModel]="isLightTheme" (ngModelChange)="onLightThemeChange($event)">
+        {{ 'config.lightTheme' | translate }}
+      </mat-checkbox>
+    </div>
   </mat-card-content>
 </mat-card>
 

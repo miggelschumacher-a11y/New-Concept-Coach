@@ -11,14 +11,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   SettingsService,
   WeightUnit,
   DateFormat,
   Language,
   LANGUAGE_DATE_FORMATS,
-  FinishedSessionReplenishMode
+  FinishedSessionReplenishMode,
+  Theme
 } from '../core/services/settings.service';
+import { ThemeService } from '../core/services/theme.service';
 import { DoubleProgressionMode } from '../core/models/training-plan.model';
 import { IndexedDbService } from '../core/services/indexed-db.service';
 import { DriveBackupFile, GoogleDriveService } from '../core/services/google-drive.service';
@@ -58,6 +61,7 @@ interface FileSystemFileHandleLike {
     MatExpansionModule,
     MatRadioModule,
     MatTabsModule,
+    MatCheckboxModule,
     DatePipe,
     DecimalPipe,
     TranslatePipe,
@@ -74,6 +78,7 @@ export class ConfigComponent implements OnInit {
   language: Language;
   dateOfBirth: string;
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
+  theme: Theme;
   doubleProgressionLowerReps: number;
   doubleProgressionUpperReps: number;
   doubleProgressionMode: DoubleProgressionMode;
@@ -104,6 +109,7 @@ export class ConfigComponent implements OnInit {
 
   constructor(
     private readonly settingsService: SettingsService,
+    private readonly themeService: ThemeService,
     private readonly indexedDbService: IndexedDbService,
     private readonly googleDriveService: GoogleDriveService,
     private readonly bodyWeightService: BodyWeightService,
@@ -116,6 +122,7 @@ export class ConfigComponent implements OnInit {
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
+    this.theme = settings.theme;
     this.doubleProgressionLowerReps = settings.doubleProgressionLowerReps;
     this.doubleProgressionUpperReps = settings.doubleProgressionUpperReps;
     this.doubleProgressionMode = settings.doubleProgressionMode;
@@ -133,6 +140,7 @@ export class ConfigComponent implements OnInit {
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
+    this.theme = settings.theme;
     this.doubleProgressionLowerReps = settings.doubleProgressionLowerReps;
     this.doubleProgressionUpperReps = settings.doubleProgressionUpperReps;
     this.doubleProgressionMode = settings.doubleProgressionMode;
@@ -229,6 +237,31 @@ export class ConfigComponent implements OnInit {
 
   async onFinishedSessionReplenishModeChange(): Promise<void> {
     await this.settingsService.updateSettings({ finishedSessionReplenishMode: this.finishedSessionReplenishMode });
+  }
+
+  get isDarkTheme(): boolean {
+    return this.theme === 'dark';
+  }
+
+  get isLightTheme(): boolean {
+    return this.theme === 'light';
+  }
+
+  // Exactly one of the two checkboxes is always checked - unchecking one is
+  // treated as picking the other, the same "two checkboxes acting like a
+  // radio group" convention used by the set-equipment dialog's copy-target
+  // checkboxes.
+  async onDarkThemeChange(checked: boolean): Promise<void> {
+    await this.setTheme(checked ? 'dark' : 'light');
+  }
+
+  async onLightThemeChange(checked: boolean): Promise<void> {
+    await this.setTheme(checked ? 'light' : 'dark');
+  }
+
+  private async setTheme(theme: Theme): Promise<void> {
+    this.theme = theme;
+    await this.themeService.setTheme(theme);
   }
 
   onRepRangeInput(event: Event): void {
