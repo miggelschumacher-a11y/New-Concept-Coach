@@ -10,6 +10,13 @@
   width: 100%;
 }
 
+.set-equipment-weight-field {
+  // The floated label sits above the outline, right against the dialog's
+  // own top edge for the content's first field - without this gap it gets
+  // visually clipped there.
+  margin-top: 1.25rem;
+}
+
 .set-equipment-weight-input {
   text-align: right;
 }
