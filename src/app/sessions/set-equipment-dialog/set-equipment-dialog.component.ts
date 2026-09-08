@@ -161,23 +161,25 @@ export class SetEquipmentDialogComponent {
   // Renders plateLoadingResult as an actual loaded barbell rather than just
   // a text list - null when there's nothing to draw (no equipment picked
   // or no plates needed), same guard the text breakdown itself uses. Only
-  // one side is drawn (this popup's field is already "per side"), heaviest
-  // plate closest to x=0 (the grip end, off-diagram) same as a real bar.
+  // one side is drawn (this popup's field is already "per side"); sorted
+  // heaviest-first and placed starting at x=0 (the grip end, off-diagram)
+  // so the heaviest plates sit closest to the middle of the bar, same as
+  // how a real barbell is loaded.
   get barbellDiagram(): BarbellDiagram | null {
     const result = this.plateLoadingResult;
     if (result.perSide.length === 0) {
       return null;
     }
     const sleeveLength = this.diagramWidth - this.startMargin - this.endMargin;
-    const maxDiameter = Math.max(1, ...this.data.plates.map((plate) => plate.diameter || 0));
     const maxWeight = Math.max(1, ...result.perSide.map((item) => item.weight));
 
-    const groups = result.perSide.map((item) => {
-      const diameter = this.data.plates.find((plate) => plate.weight === item.weight)?.diameter || maxDiameter;
-      const perPlateThickness =
-        this.minPlateThickness + (this.maxPlateThickness - this.minPlateThickness) * (item.weight / maxWeight);
-      return { weight: item.weight, diameter, count: item.count, perPlateThickness };
-    });
+    const groups = [...result.perSide]
+      .sort((a, b) => b.weight - a.weight)
+      .map((item) => {
+        const perPlateThickness =
+          this.minPlateThickness + (this.maxPlateThickness - this.minPlateThickness) * (item.weight / maxWeight);
+        return { weight: item.weight, count: item.count, perPlateThickness };
+      });
 
     // Shrinks every plate proportionally if the sleeve is too short to fit
     // them at their natural thickness, rather than letting them overflow
@@ -190,11 +192,13 @@ export class SetEquipmentDialogComponent {
     const labels: BarbellPlateLabel[] = [];
     for (const group of groups) {
       const width = group.perPlateThickness * scale;
-      // True proportional sizing (height scales linearly with diameter, no
-      // min/max blending) so e.g. a plate with 2/3 the diameter of the
-      // largest one on hand actually draws at 2/3 the height - a floor
-      // keeps very small plates from disappearing entirely.
-      const height = Math.max(this.minPlateHeight, (group.diameter / maxDiameter) * this.maxPlateHeight);
+      // True proportional sizing (height scales linearly with weight, no
+      // min/max blending) so a 10 KG plate actually draws twice as tall as
+      // a 5 KG one - a floor keeps very light plates from disappearing
+      // entirely. Weight (not the configured diameter) drives this so the
+      // visual size always tracks what the plate actually is, even when
+      // several plates share the same diameter.
+      const height = Math.max(this.minPlateHeight, (group.weight / maxWeight) * this.maxPlateHeight);
       const groupStartX = offset;
       for (let i = 0; i < group.count; i++) {
         plates.push({ x: offset, y: this.diagramCenterY - height / 2, width, height, weight: group.weight });
