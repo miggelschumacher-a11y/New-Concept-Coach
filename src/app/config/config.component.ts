@@ -280,7 +280,7 @@ export class ConfigComponent implements OnInit {
 
   async startDriveBackup(): Promise<void> {
     const data = await this.indexedDbService.exportAll();
-    this.driveFileName = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    this.driveFileName = `concept-coach-backup-${new Date().toISOString().slice(0, 10)}.json`;
     this.pendingDriveBackupJson = JSON.stringify(data, null, 2);
   }
 
@@ -348,7 +348,7 @@ export class ConfigComponent implements OnInit {
   async backupToLocalFile(): Promise<void> {
     const data = await this.indexedDbService.exportAll();
     const json = JSON.stringify(data, null, 2);
-    const fileName = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const fileName = `concept-coach-backup-${new Date().toISOString().slice(0, 10)}.json`;
     const showSaveFilePicker = (window as unknown as { showSaveFilePicker?: (options: unknown) => Promise<FileSystemFileHandleLike> })
       .showSaveFilePicker;
     if (showSaveFilePicker) {

@@ -23,5 +23,5 @@ import { TranslatePipe } from './core/pipes/translate.pipe';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'trainings-app';
+  title = 'Concept Coach';
 }
