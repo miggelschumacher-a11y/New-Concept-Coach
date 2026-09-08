@@ -853,7 +853,11 @@
           </div>
         }
 
-        @if ((!plan.planSessions || plan.planSessions.length === 0) && plan.exerciseIds.length > 0) {
+        @if (
+          (!plan.planSessions || plan.planSessions.length === 0) &&
+          (!plan.dayGroups || plan.dayGroups.length === 0) &&
+          plan.exerciseIds.length > 0
+        ) {
           <mat-accordion multi class="exercise-accordion">
             @for (exerciseId of plan.exerciseIds; track exerciseId) {
               <mat-expansion-panel>
@@ -1529,6 +1533,33 @@
                           <input type="text" readonly [value]="setValueDisplay(planExercise, setNumber)" />
                         </div>
                       }
+                    </mat-expansion-panel>
+                  }
+                </mat-accordion>
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        }
+
+        @if (plan.dayGroups && plan.dayGroups.length > 0) {
+          <mat-accordion multi class="plan-session-accordion">
+            @for (dayGroup of plan.dayGroups; track dayGroup.id) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>{{ dayGroup.name }}</mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <mat-accordion multi class="exercise-accordion">
+                  @for (exerciseId of dayGroup.exerciseIds; track exerciseId) {
+                    <mat-expansion-panel>
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          {{ exerciseName(exerciseId) }}
+                          <span class="set-count"
+                            >({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }}@if (exerciseOneRepMax(exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
+                          >
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
                     </mat-expansion-panel>
                   }
                 </mat-accordion>

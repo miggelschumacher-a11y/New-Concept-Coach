@@ -10,6 +10,7 @@ import { buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
 import { buildDefaultHstPlan } from '../data/default-hst-plan';
 import { buildDefaultGvtPlan } from '../data/default-gvt-plan';
 import { buildDefaultBbbPlan } from '../data/default-bbb-plan';
+import { buildDefaultTriumviratePlan } from '../data/default-triumvirate-plan';
 
 const DB_NAME = 'trainings-app-db';
 // Bumped from 28 with no new store/content of its own - some installs ended
@@ -102,7 +103,9 @@ const DB_NAME = 'trainings-app-db';
 // otherwise a race with the dev server's live-reload).
 // 52: adds the 5/3/1 BBB (Boring But Big) default plan, same self-healing
 // pattern, added in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
-const DB_VERSION = 52;
+// 53: adds the 5/3/1 Triumvirate default plan, same self-healing pattern,
+// added in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
+const DB_VERSION = 53;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -113,7 +116,8 @@ const DEFAULT_PLAN_BUILDERS = [
   buildDefaultHeavyDutyPlan,
   buildDefaultHstPlan,
   buildDefaultGvtPlan,
-  buildDefaultBbbPlan
+  buildDefaultBbbPlan,
+  buildDefaultTriumviratePlan
 ];
 
 export const STORES = {

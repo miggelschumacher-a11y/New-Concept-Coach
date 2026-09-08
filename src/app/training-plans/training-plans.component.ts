@@ -46,6 +46,7 @@ import { DEFAULT_HEAVYDUTY_PLAN_ID } from '../core/data/default-heavyduty-plan';
 import { DEFAULT_HST_PLAN_ID } from '../core/data/default-hst-plan';
 import { DEFAULT_GVT_PLAN_ID } from '../core/data/default-gvt-plan';
 import { DEFAULT_BBB_PLAN_ID } from '../core/data/default-bbb-plan';
+import { DEFAULT_TRIUMVIRATE_PLAN_ID } from '../core/data/default-triumvirate-plan';
 
 const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_531_PLAN_ID]: 'trainingPlans.plan531Description',
@@ -56,7 +57,8 @@ const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_HEAVYDUTY_PLAN_ID]: 'trainingPlans.planHeavyDutyDescription',
   [DEFAULT_HST_PLAN_ID]: 'trainingPlans.planHstDescription',
   [DEFAULT_GVT_PLAN_ID]: 'trainingPlans.planGvtDescription',
-  [DEFAULT_BBB_PLAN_ID]: 'trainingPlans.planBbbDescription'
+  [DEFAULT_BBB_PLAN_ID]: 'trainingPlans.planBbbDescription',
+  [DEFAULT_TRIUMVIRATE_PLAN_ID]: 'trainingPlans.planTriumvirateDescription'
 };
 
 const DEFAULT_WARMUP_SETS = 0;
