@@ -63,8 +63,16 @@
   </mat-checkbox>
 
   <div class="set-equipment-copy-actions">
-    <button mat-stroked-button type="button" (click)="copyToIncompleteSets()">{{ 'trainingPlans.copyToUnsetSets' | translate }}</button>
-    <button mat-stroked-button type="button" (click)="copyToAllSets()">{{ 'trainingPlans.copyToAllSets' | translate }}</button>
+    <mat-checkbox
+      [ngModel]="copyToIncomplete"
+      (ngModelChange)="onCopyToIncompleteChange($event)"
+      name="setEquipmentCopyToIncomplete"
+    >
+      {{ 'trainingPlans.copyToUnsetSets' | translate }}
+    </mat-checkbox>
+    <mat-checkbox [ngModel]="copyToAll" (ngModelChange)="onCopyToAllChange($event)" name="setEquipmentCopyToAll">
+      {{ 'trainingPlans.copyToAllSets' | translate }}
+    </mat-checkbox>
   </div>
 </div>
 <div mat-dialog-actions class="set-equipment-actions">

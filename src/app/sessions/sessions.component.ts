@@ -505,6 +505,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     equipmentId?: string;
     doubleWeightCounting?: boolean;
     singleSidedLoading?: boolean;
+    // The source set's own achieved-reps value, copied alongside weight and
+    // equipment when copyEquipment is set - the dialog is duplicating that
+    // set's whole setup, not just its weight.
+    repsValue?: string;
   } | null = null;
 
   onSetFieldMouseDown(
@@ -584,9 +588,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
         copyEquipment: true,
         equipmentId: result.equipmentId,
         doubleWeightCounting: result.doubleWeightCounting,
-        singleSidedLoading: result.singleSidedLoading
+        singleSidedLoading: result.singleSidedLoading,
+        repsValue: this.fieldBuffer(set, session, sessionExercise).reps
       };
-      await this.applySetFieldCopy(result.copyTo === 'incomplete');
+      await this.applySetFieldCopy(result.copyTo === 'all');
     } else {
       await this.persist(session);
     }
@@ -636,20 +641,22 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.closeSetFieldCopyPopup();
   }
 
+  // "Incomplete sets" means "not yet done"; "all sets" means literally every
+  // set, done ones included (see applySetFieldCopy's includeDoneSets param).
   async copySetFieldToUnsetSets(): Promise<void> {
-    await this.applySetFieldCopy(true);
-  }
-
-  async copySetFieldToAllSets(): Promise<void> {
     await this.applySetFieldCopy(false);
   }
 
-  private async applySetFieldCopy(onlyUnset: boolean): Promise<void> {
+  async copySetFieldToAllSets(): Promise<void> {
+    await this.applySetFieldCopy(true);
+  }
+
+  private async applySetFieldCopy(includeDoneSets: boolean): Promise<void> {
     const ctx = this.setFieldCopyContext;
     if (!ctx) {
       return;
     }
-    const { session, sessionExercise, kind, sourceValue, copyEquipment, equipmentId, doubleWeightCounting, singleSidedLoading } = ctx;
+    const { session, sessionExercise, kind, sourceValue, copyEquipment, equipmentId, doubleWeightCounting, singleSidedLoading, repsValue } = ctx;
     this.closeSetFieldCopyPopup();
 
     if (kind === 'targetReps') {
@@ -662,13 +669,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
         sessionExercise.minReps = targetRepsMax ?? targetReps;
       }
       for (const candidate of sessionExercise.sets) {
-        if (candidate.done || (onlyUnset && candidate.targetReps !== undefined)) {
+        if (!includeDoneSets && candidate.done) {
           continue;
         }
         candidate.targetReps = targetReps;
         candidate.targetRepsMax = targetRepsMax;
         candidate.isAmrap = isAmrap;
-        if (targetReps !== undefined) {
+        // A done set's Reps field shows its actual logged performance, not
+        // the target - the buffer refresh below is only meaningful pre-done,
+        // where fieldBuffer's own initial value IS the target reps.
+        if (targetReps !== undefined && !candidate.done) {
           this.fieldBuffer(candidate).reps = String(targetRepsMax ?? targetReps);
         }
       }
@@ -678,15 +688,26 @@ export class SessionsComponent implements OnInit, OnDestroy {
         return;
       }
       for (const candidate of sessionExercise.sets) {
-        if (candidate.done) {
-          continue;
-        }
-        const currentWeight = parseFloat(this.fieldBuffer(candidate).weight.replace(',', '.'));
-        if (onlyUnset && Number.isFinite(currentWeight) && currentWeight !== 0) {
+        if (!includeDoneSets && candidate.done) {
           continue;
         }
         this.fieldBuffer(candidate).weight = weight.toFixed(2);
+        // A done set's weight/reps are already committed to the model
+        // itself (see completeSet) rather than staying buffer-only, so
+        // "copy to all sets" has to write through to those fields directly
+        // for an already-done candidate, or the change would just be
+        // silently discarded on the next reload.
+        if (candidate.done) {
+          candidate.weight = weight;
+        }
         if (copyEquipment) {
+          if (repsValue !== undefined) {
+            this.fieldBuffer(candidate).reps = repsValue;
+            const repsParsed = parseInt(repsValue, 10);
+            if (candidate.done && Number.isFinite(repsParsed)) {
+              candidate.reps = repsParsed;
+            }
+          }
           candidate.equipmentId = equipmentId;
           candidate.doubleWeightCounting = doubleWeightCounting;
           candidate.singleSidedLoading = singleSidedLoading;
@@ -698,14 +719,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
         return;
       }
       for (const candidate of sessionExercise.sets) {
-        if (candidate.done) {
-          continue;
-        }
-        const currentReps = parseInt(this.fieldBuffer(candidate).reps, 10);
-        if (onlyUnset && Number.isFinite(currentReps) && currentReps !== 0) {
+        if (!includeDoneSets && candidate.done) {
           continue;
         }
         this.fieldBuffer(candidate).reps = String(reps);
+        if (candidate.done) {
+          candidate.reps = reps;
+        }
       }
     }
 

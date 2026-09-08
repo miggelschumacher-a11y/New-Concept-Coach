@@ -64,6 +64,12 @@ export class SetEquipmentDialogComponent {
   equipmentId: string | null;
   doubleWeightCounting: boolean;
   singleSidedLoading: boolean;
+  // Mutually exclusive - "all sets" is a superset of "incomplete sets", so
+  // checking one clears the other (see onCopyToIncompleteChange/
+  // onCopyToAllChange) rather than leaving an ambiguous combination for
+  // save() to resolve.
+  copyToIncomplete = false;
+  copyToAll = false;
 
   constructor(
     public readonly dialogRef: MatDialogRef<SetEquipmentDialogComponent, SetEquipmentDialogResult | undefined>,
@@ -107,30 +113,33 @@ export class SetEquipmentDialogComponent {
     return calculatePlateLoading(target, equipment.weight, this.data.plates, this.singleSidedLoading);
   }
 
+  onCopyToIncompleteChange(checked: boolean): void {
+    this.copyToIncomplete = checked;
+    if (checked) {
+      this.copyToAll = false;
+    }
+  }
+
+  onCopyToAllChange(checked: boolean): void {
+    this.copyToAll = checked;
+    if (checked) {
+      this.copyToIncomplete = false;
+    }
+  }
+
   save(): void {
-    this.dialogRef.close(this.buildResult());
-  }
-
-  copyToIncompleteSets(): void {
-    this.dialogRef.close(this.buildResult('incomplete'));
-  }
-
-  copyToAllSets(): void {
-    this.dialogRef.close(this.buildResult('all'));
-  }
-
-  cancel(): void {
-    this.dialogRef.close(undefined);
-  }
-
-  private buildResult(copyTo?: 'incomplete' | 'all'): SetEquipmentDialogResult {
+    const copyTo = this.copyToAll ? 'all' : this.copyToIncomplete ? 'incomplete' : undefined;
     const parsed = parseFloat(this.weightText.replace(',', '.'));
-    return {
+    this.dialogRef.close({
       weight: Number.isFinite(parsed) ? parsed : 0,
       equipmentId: this.equipmentId ?? undefined,
       doubleWeightCounting: this.doubleWeightCounting,
       singleSidedLoading: this.singleSidedLoading,
       copyTo
-    };
+    });
+  }
+
+  cancel(): void {
+    this.dialogRef.close(undefined);
   }
 }
