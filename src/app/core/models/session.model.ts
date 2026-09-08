@@ -33,6 +33,25 @@ export interface ExerciseSet {
   // updateTargetSeconds) since Time-Based exercises don't currently carry a
   // prescribed duration from a training plan.
   targetSeconds?: number;
+  // Which piece of equipment (a DumbbellEntry from Config > Ausrüstung >
+  // Hanteln) this set is loaded on, chosen via the weight field's long-press
+  // popup (see SessionsComponent.openSetEquipmentDialog) - drives the plate
+  // breakdown shown there. Unset means no specific equipment was chosen.
+  // Inherited from the previous set of the same exercise when a new set is
+  // added (same convention as reps/weight), same as this field's convention.
+  equipmentId?: string;
+  // Per-set override of Exercise.doubleWeightCounting, editable from the
+  // same popup - wins over the exercise's own default when set (see
+  // liftedWeight's overrideDoubleWeightCounting parameter). Defaults from
+  // the owning exercise's own field when a set is first created and there's
+  // no previous set of the same exercise to inherit from instead.
+  doubleWeightCounting?: boolean;
+  // Per-set flag from the same popup: when true, the entered weight is
+  // already the load on ONE side only (e.g. a single-sided landmine/loaded
+  // press), so the plate breakdown must not split it across two sides -
+  // see calculatePlateLoading's singleSided parameter. Inherited the same
+  // way as equipmentId/doubleWeightCounting above.
+  singleSidedLoading?: boolean;
 }
 
 export interface SessionExercise {

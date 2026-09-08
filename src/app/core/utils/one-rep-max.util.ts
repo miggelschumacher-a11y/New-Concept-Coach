@@ -38,10 +38,19 @@ export interface DoubleWeightCountingSource {
 }
 
 // A dumbbell (or single-side-loaded machine) exercise's set weight is
-// normally entered per side - doubling it here (only when the exercise's
-// "Gewicht doppelt zählen" checkbox is on) reflects the actual total load
-// moved by both arms for oneRepMax estimation and history charts, without
-// touching the raw per-set value the user actually typed in.
-export function liftedWeight(exercise: DoubleWeightCountingSource, weight: number): number {
-  return exercise.doubleWeightCounting ? weight * 2 : weight;
+// normally entered per side - doubling it here (only when "Gewicht doppelt
+// zählen" is on) reflects the actual total load moved by both arms for
+// oneRepMax estimation and history charts, without touching the raw per-set
+// value the user actually typed in. overrideDoubleWeightCounting is a
+// specific set's own choice (see ExerciseSet.doubleWeightCounting) - it wins
+// over the exercise's own default when provided, since a set logged with
+// e.g. a machine that has independently loaded sides might not match the
+// exercise's usual equipment.
+export function liftedWeight(
+  exercise: DoubleWeightCountingSource,
+  weight: number,
+  overrideDoubleWeightCounting?: boolean
+): number {
+  const doubleWeightCounting = overrideDoubleWeightCounting ?? exercise.doubleWeightCounting;
+  return doubleWeightCounting ? weight * 2 : weight;
 }

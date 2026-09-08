@@ -19,6 +19,11 @@ import {
   PlanStartingWeightsDialogComponent,
   PlanStartingWeightRow
 } from './plan-starting-weights-dialog/plan-starting-weights-dialog.component';
+import {
+  SetEquipmentDialogComponent,
+  SetEquipmentDialogData,
+  SetEquipmentDialogResult
+} from './set-equipment-dialog/set-equipment-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -30,8 +35,12 @@ import { RepGoalService } from '../core/services/rep-goal.service';
 import { WaveProgressionService } from '../core/services/wave-progression.service';
 import { LinearProgressionService } from '../core/services/linear-progression.service';
 import { BodyWeightService } from '../core/services/body-weight.service';
+import { DumbbellsService } from '../core/services/dumbbells.service';
+import { PlatesService } from '../core/services/plates.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
 import { Exercise } from '../core/models/exercise.model';
+import { DumbbellEntry } from '../core/models/dumbbell-entry.model';
+import { PlateEntry } from '../core/models/plate-entry.model';
 import {
   TrainingPlan,
   TierLinePlanSession,
@@ -119,6 +128,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   sessions: TrainingSession[] = [];
   exercises: Exercise[] = [];
   trainingPlans: TrainingPlan[] = [];
+  dumbbells: DumbbellEntry[] = [];
+  plates: PlateEntry[] = [];
   selectedPlanId: string | null = null;
   pendingPlanId: string | null = null;
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
@@ -157,6 +168,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly waveProgressionService: WaveProgressionService,
     private readonly linearProgressionService: LinearProgressionService,
     private readonly bodyWeightService: BodyWeightService,
+    private readonly dumbbellsService: DumbbellsService,
+    private readonly platesService: PlatesService,
     private readonly datePipe: DatePipe,
     private readonly snackBar: MatSnackBar,
     private readonly dialog: MatDialog
@@ -194,7 +207,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // load(), not merely alongside it: running load() in the same
     // Promise.all as these let it win the race on a fast load and cache a
     // deload-less weight forever, from a still-empty trainingPlans/exercises.
-    await Promise.all([this.loadExercises(), this.loadTrainingPlans(), this.loadProgressionStates(), this.loadBodyWeightEntries()]);
+    await Promise.all([
+      this.loadExercises(),
+      this.loadTrainingPlans(),
+      this.loadProgressionStates(),
+      this.loadBodyWeightEntries(),
+      this.loadDumbbells(),
+      this.loadPlates()
+    ]);
     await this.load();
     this.timerTickerId = setInterval(() => this.tickCountdowns(), 1000);
     document.addEventListener('click', this.handleDocumentClick, true);
@@ -248,6 +268,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async loadTrainingPlans(): Promise<void> {
     this.trainingPlans = await this.trainingPlansService.getAll();
+  }
+
+  async loadDumbbells(): Promise<void> {
+    this.dumbbells = await this.dumbbellsService.getAll();
+  }
+
+  async loadPlates(): Promise<void> {
+    this.plates = await this.platesService.getAll();
   }
 
   async loadProgressionStates(): Promise<void> {
@@ -467,20 +495,101 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sessionExercise: SessionExercise;
     kind: 'targetReps' | 'reps' | 'weight';
     sourceValue: string;
+    // Only set when the copy originates from the equipment/plate dialog's
+    // own "copy to sets" buttons - the weight field's plain right-click copy
+    // popup omits this flag, so it keeps copying just the weight value as
+    // before. equipmentId itself may legitimately be undefined here (the
+    // dialog's "none" option), so a separate flag is needed to tell that
+    // apart from "not copying equipment at all".
+    copyEquipment?: boolean;
+    equipmentId?: string;
+    doubleWeightCounting?: boolean;
+    singleSidedLoading?: boolean;
   } | null = null;
 
   onSetFieldMouseDown(
     event: MouseEvent,
     session: TrainingSession,
     sessionExercise: SessionExercise,
-    kind: 'targetReps' | 'reps' | 'weight'
+    kind: 'targetReps' | 'reps' | 'weight',
+    set?: ExerciseSet
   ): void {
     this.clearLongPressTimer();
     const triggerEl = event.currentTarget as HTMLInputElement;
     this.longPressTimeoutId = setTimeout(() => {
       this.longPressTimeoutId = null;
+      // The weight field's long-press opens the equipment/plate dialog
+      // instead of the copy-to-sets popup below - that popup stays reachable
+      // for weight via right-click instead (see onWeightFieldContextMenu).
+      if (kind === 'weight' && set) {
+        triggerEl.blur();
+        this.openSetEquipmentDialog(session, sessionExercise, set);
+        return;
+      }
       this.openSetFieldCopyPopup(session, sessionExercise, kind, triggerEl);
     }, 500);
+  }
+
+  // Right-click on the weight field is how the copy-to-sets popup (see
+  // openSetFieldCopyPopup) stays reachable now that the field's long-press
+  // opens the equipment/plate dialog instead.
+  onWeightFieldContextMenu(event: MouseEvent, session: TrainingSession, sessionExercise: SessionExercise): void {
+    event.preventDefault();
+    this.clearLongPressTimer();
+    const triggerEl = event.currentTarget as HTMLInputElement;
+    this.openSetFieldCopyPopup(session, sessionExercise, 'weight', triggerEl);
+  }
+
+  // Opens the weight/equipment/plate-breakdown popup for one specific set -
+  // reuses the exact same weight text the inline field itself is showing
+  // (fieldBuffer), and only commits its result back into that same buffer
+  // (not set.weight directly), matching how every other in-progress edit to
+  // a set's weight stays buffer-only until the set is completed (see
+  // completeSet). equipmentId/doubleWeightCounting have no such deferred
+  // buffer, so they're written straight onto the set and persisted
+  // immediately, same as e.g. updateSetSeconds.
+  private async openSetEquipmentDialog(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    set: ExerciseSet
+  ): Promise<void> {
+    const exercise = this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId);
+    const data: SetEquipmentDialogData = {
+      weightText: this.fieldBuffer(set, session, sessionExercise).weight,
+      weightUnitLabel: this.weightUnitLabel,
+      equipmentId: set.equipmentId,
+      doubleWeightCounting: set.doubleWeightCounting ?? exercise?.doubleWeightCounting ?? false,
+      singleSidedLoading: set.singleSidedLoading ?? false,
+      dumbbells: this.dumbbells,
+      plates: this.plates
+    };
+    const result = await firstValueFrom(
+      this.dialog.open<SetEquipmentDialogComponent, SetEquipmentDialogData, SetEquipmentDialogResult>(SetEquipmentDialogComponent, { data }).afterClosed()
+    );
+    if (!result) {
+      return;
+    }
+    this.fieldBuffer(set, session, sessionExercise).weight = result.weight.toFixed(2);
+    set.equipmentId = result.equipmentId;
+    set.doubleWeightCounting = result.doubleWeightCounting;
+    set.singleSidedLoading = result.singleSidedLoading;
+    if (result.copyTo) {
+      // Reuses the exact same propagation logic as the reps/targetReps
+      // fields' own copy popup (applySetFieldCopy), which also persists.
+      this.setFieldCopyContext = {
+        session,
+        sessionExercise,
+        kind: 'weight',
+        sourceValue: result.weight.toFixed(2),
+        copyEquipment: true,
+        equipmentId: result.equipmentId,
+        doubleWeightCounting: result.doubleWeightCounting,
+        singleSidedLoading: result.singleSidedLoading
+      };
+      await this.applySetFieldCopy(result.copyTo === 'incomplete');
+    } else {
+      await this.persist(session);
+    }
   }
 
   onSetFieldMouseUp(): void {
@@ -540,7 +649,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (!ctx) {
       return;
     }
-    const { session, sessionExercise, kind, sourceValue } = ctx;
+    const { session, sessionExercise, kind, sourceValue, copyEquipment, equipmentId, doubleWeightCounting, singleSidedLoading } = ctx;
     this.closeSetFieldCopyPopup();
 
     if (kind === 'targetReps') {
@@ -577,6 +686,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
           continue;
         }
         this.fieldBuffer(candidate).weight = weight.toFixed(2);
+        if (copyEquipment) {
+          candidate.equipmentId = equipmentId;
+          candidate.doubleWeightCounting = doubleWeightCounting;
+          candidate.singleSidedLoading = singleSidedLoading;
+        }
       }
     } else {
       const reps = parseInt(sourceValue, 10);
@@ -1843,9 +1957,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
               ? buildTargetSets(cooldownSetTargets, 'cooldown')
               : buildSets(config.cooldownSets, 'cooldown');
 
+            // Freshly generated sets have no "previous set" to inherit
+            // equipmentId/doubleWeightCounting from (see addSet's own
+            // comment on that convention) - equipmentId stays unset,
+            // doubleWeightCounting defaults from the exercise's own setting.
+            const exerciseDoubleWeightCounting = this.exercises.find((candidate) => candidate.id === exerciseId)?.doubleWeightCounting;
+            const allSets = [...warmupSets, ...workingSets, ...cooldownSets].map((set) => ({
+              ...set,
+              doubleWeightCounting: exerciseDoubleWeightCounting
+            }));
+
             return {
               exerciseId,
-              sets: [...warmupSets, ...workingSets, ...cooldownSets],
+              sets: allSets,
               countWarmupSets: true,
               countCooldownSets: true,
               // Defaults to hidden rather than an empty, pointless "(0)"
@@ -2630,6 +2754,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     newSet.seconds = previousSet?.seconds ?? 0;
     newSet.targetSeconds = previousSet?.targetSeconds;
+    // Same "copy the previous set of this exercise" convention as
+    // reps/weight above; with no previous set to copy from, equipmentId has
+    // nothing sensible to default to (stays unset) but doubleWeightCounting
+    // still falls back to the exercise's own setting.
+    if (previousSet) {
+      newSet.equipmentId = previousSet.equipmentId;
+      newSet.doubleWeightCounting = previousSet.doubleWeightCounting;
+      newSet.singleSidedLoading = previousSet.singleSidedLoading;
+    } else {
+      const exercise = this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId);
+      newSet.doubleWeightCounting = exercise?.doubleWeightCounting;
+    }
     sessionExercise.sets = [...sessionExercise.sets, newSet];
     await this.persist(session);
   }
@@ -3295,7 +3431,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (!exercise) {
       return;
     }
-    const oneRepMax = estimateOneRepMax(liftedWeight(exercise, set.weight), set.reps);
+    const oneRepMax = estimateOneRepMax(liftedWeight(exercise, set.weight, set.doubleWeightCounting), set.reps);
     if (oneRepMax <= 0) {
       return;
     }

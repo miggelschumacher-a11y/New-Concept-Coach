@@ -1,0 +1,73 @@
+<h2 mat-dialog-title>{{ 'sessions.setEquipmentDialogTitle' | translate }}</h2>
+<div mat-dialog-content>
+  <mat-form-field appearance="outline" class="set-equipment-weight-field">
+    <mat-label>{{ data.weightUnitLabel }}</mat-label>
+    <input
+      matInput
+      type="text"
+      inputmode="decimal"
+      class="set-equipment-weight-input"
+      [(ngModel)]="weightText"
+      name="setEquipmentWeight"
+      selectOnFocus
+      (input)="onWeightFieldInput($event)"
+      (blur)="onWeightFieldBlur()"
+    />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="set-equipment-select-field">
+    <mat-label>{{ 'sessions.setEquipmentLabel' | translate }}</mat-label>
+    <mat-select [(ngModel)]="equipmentId" name="setEquipmentId">
+      <mat-option [value]="null">{{ 'sessions.setEquipmentNone' | translate }}</mat-option>
+      @for (entry of data.dumbbells; track entry.id) {
+        <mat-option [value]="entry.id">{{ entry.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (selectedEquipment) {
+    <div class="set-equipment-plate-breakdown">
+      <span class="set-equipment-plate-breakdown-label">{{ 'sessions.setEquipmentPlateBreakdownLabel' | translate }}</span>
+      @if (plateLoadingResult.perSide.length === 0) {
+        <p class="set-equipment-plate-empty">{{ 'sessions.setEquipmentNoPlatesNeeded' | translate }}</p>
+      } @else {
+        <ul class="set-equipment-plate-list">
+          @for (item of plateLoadingResult.perSide; track item.weight) {
+            <li>{{ item.count }} × {{ item.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}</li>
+          }
+        </ul>
+      }
+      @if (plateLoadingResult.remainingPerSide > 0) {
+        <p class="set-equipment-plate-remainder">
+          {{ 'sessions.setEquipmentPlateRemainderHint' | translate }}
+          ({{ plateLoadingResult.remainingPerSide | number: '1.2-2' }} {{ data.weightUnitLabel }})
+        </p>
+      }
+    </div>
+  }
+
+  <mat-checkbox
+    [(ngModel)]="doubleWeightCounting"
+    name="setEquipmentDoubleWeightCounting"
+    [matTooltip]="'exercises.doubleWeightCountingTooltip' | translate"
+  >
+    {{ 'exercises.doubleWeightCounting' | translate }}
+  </mat-checkbox>
+
+  <mat-checkbox
+    [(ngModel)]="singleSidedLoading"
+    name="setEquipmentSingleSidedLoading"
+    [matTooltip]="'sessions.setEquipmentSingleSidedTooltip' | translate"
+  >
+    {{ 'sessions.setEquipmentSingleSided' | translate }}
+  </mat-checkbox>
+
+  <div class="set-equipment-copy-actions">
+    <button mat-stroked-button type="button" (click)="copyToIncompleteSets()">{{ 'trainingPlans.copyToUnsetSets' | translate }}</button>
+    <button mat-stroked-button type="button" (click)="copyToAllSets()">{{ 'trainingPlans.copyToAllSets' | translate }}</button>
+  </div>
+</div>
+<div mat-dialog-actions class="set-equipment-actions">
+  <button mat-stroked-button type="button" (click)="cancel()">{{ 'sessions.confirmCancel' | translate }}</button>
+  <button mat-raised-button color="primary" type="button" (click)="save()">{{ 'sessions.setEquipmentSave' | translate }}</button>
+</div>

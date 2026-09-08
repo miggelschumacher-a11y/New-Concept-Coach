@@ -317,15 +317,15 @@ export class HistoryComponent implements OnInit {
           return null;
         }
         const bestSet = doneWorkingSets.reduce((best, set) =>
-          estimateOneRepMax(liftedWeight(exercise ?? {}, set.weight), set.reps) >
-          estimateOneRepMax(liftedWeight(exercise ?? {}, best.weight), best.reps)
+          estimateOneRepMax(liftedWeight(exercise ?? {}, set.weight, set.doubleWeightCounting), set.reps) >
+          estimateOneRepMax(liftedWeight(exercise ?? {}, best.weight, best.doubleWeightCounting), best.reps)
             ? set
             : best
         );
         return {
           date: new Date(session.date),
-          weight: liftedWeight(exercise ?? {}, bestSet.weight),
-          oneRepMax: estimateOneRepMax(liftedWeight(exercise ?? {}, bestSet.weight), bestSet.reps)
+          weight: liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting),
+          oneRepMax: estimateOneRepMax(liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting), bestSet.reps)
         };
       })
       .filter((point): point is ExerciseChartPoint => point !== null);

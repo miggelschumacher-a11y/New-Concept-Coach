@@ -938,9 +938,10 @@
                                   (focus)="onSetFieldFocus(set, $event)"
                                   (input)="onWeightFieldInput($event)"
                                   (blur)="onWeightFieldBlur(sessionExercise, set)"
-                                  (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'weight')"
+                                  (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'weight', set)"
                                   (mouseup)="onSetFieldMouseUp()"
                                   (mouseleave)="onSetFieldMouseLeave()"
+                                  (contextmenu)="onWeightFieldContextMenu($event, session, sessionExercise)"
                                 />
                               </mat-form-field>
                             } @else {
