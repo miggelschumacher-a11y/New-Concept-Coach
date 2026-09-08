@@ -38,20 +38,23 @@ export interface SetEquipmentDialogResult {
 
 const EMPTY_PLATE_RESULT: PlateLoadingResult = { perSide: [], remainingPerSide: 0 };
 
-// One drawn block on the barbell diagram - one per distinct weight in
-// plateLoadingResult.perSide (all plates of that weight merged into a
-// single block, width scaling with count), not one per physical plate -
-// keeps the label placement simple and avoids a cluttered stack of
-// identically-labelled slices.
+// One drawn rect per physical plate (not merged per weight) - a stack of
+// e.g. two 5.00 KG plates draws as two adjacent rects with a visible seam
+// between them, same as the real disks on a bar.
 export interface BarbellPlateRect {
   x: number;
   y: number;
   width: number;
   height: number;
   weight: number;
-  labelX: number;
-  labelY: number;
-  label: string;
+}
+
+// One label per distinct weight group, centered over that group's full run
+// of plates - avoids repeating the same value once per physical plate.
+export interface BarbellPlateLabel {
+  x: number;
+  y: number;
+  text: string;
 }
 
 export interface BarbellDiagram {
@@ -62,6 +65,7 @@ export interface BarbellDiagram {
   barX1: number;
   barX2: number;
   plates: BarbellPlateRect[];
+  labels: BarbellPlateLabel[];
 }
 
 @Component({
@@ -168,43 +172,40 @@ export class SetEquipmentDialogComponent {
     const maxDiameter = Math.max(1, ...this.data.plates.map((plate) => plate.diameter || 0));
     const maxWeight = Math.max(1, ...result.perSide.map((item) => item.weight));
 
-    // One block per distinct weight (not per physical plate) - width scales
-    // with how many of that plate are used, so the block is still wider for
-    // "2 × 20.00" than "1 × 20.00".
     const groups = result.perSide.map((item) => {
       const diameter = this.data.plates.find((plate) => plate.weight === item.weight)?.diameter || maxDiameter;
       const perPlateThickness =
         this.minPlateThickness + (this.maxPlateThickness - this.minPlateThickness) * (item.weight / maxWeight);
-      return { weight: item.weight, diameter, thickness: perPlateThickness * item.count };
+      return { weight: item.weight, diameter, count: item.count, perPlateThickness };
     });
 
-    // Shrinks every block proportionally if the sleeve is too short to fit
+    // Shrinks every plate proportionally if the sleeve is too short to fit
     // them at their natural thickness, rather than letting them overflow
     // past the end of the bar.
-    const totalThickness = groups.reduce((sum, group) => sum + group.thickness, 0);
+    const totalThickness = groups.reduce((sum, group) => sum + group.perPlateThickness * group.count, 0);
     const scale = totalThickness > sleeveLength ? sleeveLength / totalThickness : 1;
 
     let offset = this.startMargin;
-    const plates: BarbellPlateRect[] = groups.map((group) => {
-      const width = group.thickness * scale;
-      // True proportional sizing (height scales linearly with diameter,
-      // no min/max blending) so e.g. a plate with 2/3 the diameter of the
+    const plates: BarbellPlateRect[] = [];
+    const labels: BarbellPlateLabel[] = [];
+    for (const group of groups) {
+      const width = group.perPlateThickness * scale;
+      // True proportional sizing (height scales linearly with diameter, no
+      // min/max blending) so e.g. a plate with 2/3 the diameter of the
       // largest one on hand actually draws at 2/3 the height - a floor
       // keeps very small plates from disappearing entirely.
       const height = Math.max(this.minPlateHeight, (group.diameter / maxDiameter) * this.maxPlateHeight);
-      const x = offset;
-      offset += width;
-      return {
-        x,
-        y: this.diagramCenterY - height / 2,
-        width,
-        height,
-        weight: group.weight,
-        labelX: x + width / 2,
-        labelY: this.diagramCenterY - height / 2 - 6,
-        label: group.weight.toFixed(2)
-      };
-    });
+      const groupStartX = offset;
+      for (let i = 0; i < group.count; i++) {
+        plates.push({ x: offset, y: this.diagramCenterY - height / 2, width, height, weight: group.weight });
+        offset += width;
+      }
+      labels.push({
+        x: (groupStartX + offset) / 2,
+        y: this.diagramCenterY - height / 2 - 6,
+        text: group.weight.toFixed(2)
+      });
+    }
 
     return {
       width: this.diagramWidth,
@@ -213,7 +214,8 @@ export class SetEquipmentDialogComponent {
       barThickness: this.barThickness,
       barX1: 0,
       barX2: this.diagramWidth,
-      plates
+      plates,
+      labels
     };
   }
 
