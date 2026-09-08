@@ -164,16 +164,26 @@ mat-card {
 }
 
 .data-actions {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  display: grid;
+  // [button][label] pairs, two per row - explicit column tracks (rather
+  // than flex-wrap) so a button in one row lines up with the button above/
+  // below it regardless of how long the other row's label text is.
+  grid-template-columns: auto 1fr auto 1fr;
+  align-items: center;
+  column-gap: 1.5rem;
+  row-gap: 0.75rem;
   margin-top: 0.5rem;
 }
 
 .data-action-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  display: contents;
+}
+
+// The Google Drive backup/restore confirmation blocks are plain (non-
+// .data-action-group) children of the grid above - without an explicit
+// span they'd only get auto-placed into the narrow first (button) column.
+.data-actions > .confirm-dialog {
+  grid-column: 1 / -1;
 }
 
 .data-action-label {
