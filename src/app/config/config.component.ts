@@ -427,9 +427,17 @@ export class ConfigComponent implements OnInit {
   // extra meaning, so it's rejected with dumbbellDuplicateError shown below
   // the form (see addDumbbellEntry). excludeId lets an edit to an existing
   // entry check against every *other* entry without flagging itself.
+  // Case-insensitive on the name ("langhantel" and "Langhantel" are the same
+  // dumbbell) - weight and diameter still compare as plain numbers, which
+  // have no case to normalize.
   private isDuplicateDumbbell(name: string, weight: number, diameter: number, excludeId?: string): boolean {
+    const normalizedName = name.toLowerCase();
     return this.dumbbellEntries.some(
-      (entry) => entry.id !== excludeId && entry.name === name && entry.weight === weight && entry.diameter === diameter
+      (entry) =>
+        entry.id !== excludeId &&
+        entry.name.toLowerCase() === normalizedName &&
+        entry.weight === weight &&
+        entry.diameter === diameter
     );
   }
 
