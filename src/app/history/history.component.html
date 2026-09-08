@@ -1,5 +1,19 @@
 <h2><mat-icon class="label-icon">history</mat-icon>{{ 'history.title' | translate }}</h2>
 
+<div class="history-date-filter">
+  <mat-form-field appearance="outline">
+    <mat-label><mat-icon class="label-icon">event</mat-icon>{{ 'history.dateFromLabel' | translate }}</mat-label>
+    <input matInput type="date" [(ngModel)]="dateFrom" [attr.lang]="language" selectOnFocus />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label><mat-icon class="label-icon">event</mat-icon>{{ 'history.dateToLabel' | translate }}</mat-label>
+    <input matInput type="date" [(ngModel)]="dateTo" [attr.lang]="language" selectOnFocus />
+  </mat-form-field>
+  @if (dateRangeInvalid) {
+    <span class="history-date-filter-error">{{ 'history.dateRangeInvalid' | translate }}</span>
+  }
+</div>
+
 <mat-tab-group class="history-tab-group">
   <mat-tab [label]="'history.tabSessions' | translate">
     <ng-container *ngTemplateOutlet="sessionsTab"></ng-container>

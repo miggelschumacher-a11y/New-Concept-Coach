@@ -70,6 +70,12 @@ export class HistoryComponent implements OnInit {
   bodyWeightEntries: BodyWeightEntry[] = [];
   pendingDeleteSessionId: string | null = null;
   selectedChartExerciseId: string | null = null;
+  // Plain component-local filter state (not persisted) - narrows the
+  // sessions shown in both the Sessions tab and the Charts tab, since the
+  // latter's exercisesWithHistory/chartPoints are derived from
+  // finishedSessions too (see below).
+  dateFrom = '';
+  dateTo = '';
 
   private readonly chartWidth = 600;
   private readonly chartHeight = 260;
@@ -92,14 +98,58 @@ export class HistoryComponent implements OnInit {
     return this.settingsService.getSettings().weightUnit.toUpperCase();
   }
 
+  get language(): string {
+    return this.settingsService.getSettings().language;
+  }
+
+  // True only once both fields hold a date and they're the wrong way round -
+  // an empty field on either side means "no bound on that side", not an
+  // error. While invalid, the date filter below is skipped entirely (shows
+  // every finished session) rather than silently applying a half-broken
+  // range.
+  get dateRangeInvalid(): boolean {
+    if (!this.dateFrom || !this.dateTo) {
+      return false;
+    }
+    return new Date(this.dateTo).getTime() < new Date(this.dateFrom).getTime();
+  }
+
   // Sorted strictly by the session's own date/time - session.sequence is a
   // Sessions-page-only concept (lets manually added sessions float to the
   // top of the pending list ahead of plan-queued ones) and doesn't reflect
   // when a finished session actually happened, so it's not used here.
+  //
+  // Also the single source both history tabs filter through: the Charts
+  // tab's exercisesWithHistory/chartPoints are derived from this same
+  // getter, so narrowing it here narrows both tabs at once.
   get finishedSessions(): TrainingSession[] {
-    return this.sessions
+    const sorted = this.sessions
       .filter((session) => session.finished)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    if (this.dateRangeInvalid) {
+      return sorted;
+    }
+    const fromTime = this.dateFrom ? new Date(this.dateFrom).getTime() : null;
+    const toTime = this.dateTo ? this.endOfDayTime(this.dateTo) : null;
+    return sorted.filter((session) => {
+      const time = new Date(session.date).getTime();
+      if (fromTime !== null && time < fromTime) {
+        return false;
+      }
+      if (toTime !== null && time > toTime) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  // The "to" field is a plain date (no time-of-day), so a session logged
+  // later that same day must still count as within range - compare against
+  // the end of that day rather than its midnight start.
+  private endOfDayTime(dateText: string): number {
+    const date = new Date(dateText);
+    date.setHours(23, 59, 59, 999);
+    return date.getTime();
   }
 
   async ngOnInit(): Promise<void> {

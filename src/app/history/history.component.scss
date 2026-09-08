@@ -1,3 +1,15 @@
+.history-date-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.history-date-filter-error {
+  color: #ff8a80;
+}
+
 .session-accordion .session-card {
   margin-bottom: 1.5rem;
 }
