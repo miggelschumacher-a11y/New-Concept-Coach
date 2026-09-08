@@ -36,6 +36,7 @@ import {
   TrainingPlan,
   TierLinePlanSession,
   TierLinePlanExercise,
+  PlanDayGroup,
   DoubleProgressionConfig,
   RepGoalConfig,
   WaveProgressionConfig,
@@ -1432,9 +1433,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
               this.buildSessionFromPlan(plan, planSession, baseSequence + index, undefined, undefined, startingWeightByExerciseId)
             )
           )
-        : plan.oneExercisePerSession
-          ? await this.buildOneExercisePerSessionCycle(plan, baseSequence, startingWeightByExerciseId)
-          : [await this.buildSessionFromPlan(plan, null, baseSequence, undefined, undefined, startingWeightByExerciseId)];
+        : plan.dayGroups && plan.dayGroups.length > 0
+          ? await this.buildDayGroupCycle(plan, baseSequence, startingWeightByExerciseId)
+          : plan.oneExercisePerSession
+            ? await this.buildOneExercisePerSessionCycle(plan, baseSequence, startingWeightByExerciseId)
+            : [await this.buildSessionFromPlan(plan, null, baseSequence, undefined, undefined, startingWeightByExerciseId)];
     for (const session of newSessions) {
       this.unsavedSessionIds.add(session.id);
     }
@@ -1526,6 +1529,47 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return overrides;
   }
 
+  // For a plan using dayGroups (e.g. BBB's 2-day upper/lower split),
+  // generates every week of each group's percentage cycle up front, one
+  // session per group per week - same "generate the whole cycle" idea as
+  // buildOneExercisePerSessionCycle below, just grouped by day instead of by
+  // single exercise. A group's own week count is the max among its member
+  // exercises' own percentage cycles (falls back to 1 for a group with no
+  // percentage-based member, e.g. a pure-assistance day).
+  private async buildDayGroupCycle(
+    plan: TrainingPlan,
+    baseSequence: number,
+    startingWeightByExerciseId?: Map<string, number>
+  ): Promise<TrainingSession[]> {
+    const weeksCountForExercise = (exerciseId: string): number =>
+      plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId)?.percentageWeeks?.length || 1;
+    const groups = plan.dayGroups ?? [];
+    const weeksCountForGroup = (group: PlanDayGroup): number =>
+      Math.max(1, ...group.exerciseIds.map(weeksCountForExercise));
+    const maxWeeks = Math.max(1, ...groups.map(weeksCountForGroup));
+    const jobs: { group: PlanDayGroup; weekIndex: number }[] = [];
+    for (let week = 0; week < maxWeeks; week++) {
+      for (const group of groups) {
+        if (week < weeksCountForGroup(group)) {
+          jobs.push({ group, weekIndex: week });
+        }
+      }
+    }
+    return Promise.all(
+      jobs.map((job, index) =>
+        this.buildSessionFromPlan(
+          plan,
+          null,
+          baseSequence + index,
+          undefined,
+          job.weekIndex,
+          startingWeightByExerciseId,
+          job.group
+        )
+      )
+    );
+  }
+
   // For a oneExercisePerSession plan (e.g. 5/3/1), generates every week of
   // each exercise's percentage cycle up front - not just one session per
   // exercise that would only reach later weeks through replenishment - so
@@ -1564,22 +1608,31 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sequence: number,
     onlyExerciseId?: string,
     weekIndexOverride?: number,
-    startingWeightByExerciseId?: Map<string, number>
+    startingWeightByExerciseId?: Map<string, number>,
+    dayGroup?: PlanDayGroup
   ): Promise<TrainingSession> {
     const now = new Date();
     const name = planSession
       ? `${plan.name} – ${planSession.name}`
-      : onlyExerciseId
-        ? // "W{week}T{day}" (Wendler-style week/day shorthand) identifies
-          // which of the cycle's sessions this is - kept as a prefix since
-          // it's the detail readers scan for first, and short enough to
-          // still leave room for the exercise name (which follows next,
-          // ahead of the plan name, so it's what stays visible once the
-          // collapsed session row's ellipsis truncation kicks in).
-          (weekIndexOverride !== undefined
-            ? `W${weekIndexOverride + 1}T${plan.exerciseIds.indexOf(onlyExerciseId) + 1} `
-            : '') + `${this.exerciseName(onlyExerciseId)} – ${plan.name}`
-        : plan.name;
+      : dayGroup
+        ? // Same "W{week}T{day}" shorthand as the one-exercise-per-session
+          // case below, just keyed off the group's own order instead of an
+          // exercise's index - a day group bundles several exercises into
+          // one session, so the group's own name (not an exercise's) is what
+          // stays visible once truncation kicks in.
+          (weekIndexOverride !== undefined ? `W${weekIndexOverride + 1}T${dayGroup.order + 1} ` : '') +
+          `${dayGroup.name} – ${plan.name}`
+        : onlyExerciseId
+          ? // "W{week}T{day}" (Wendler-style week/day shorthand) identifies
+            // which of the cycle's sessions this is - kept as a prefix since
+            // it's the detail readers scan for first, and short enough to
+            // still leave room for the exercise name (which follows next,
+            // ahead of the plan name, so it's what stays visible once the
+            // collapsed session row's ellipsis truncation kicks in).
+            (weekIndexOverride !== undefined
+              ? `W${weekIndexOverride + 1}T${plan.exerciseIds.indexOf(onlyExerciseId) + 1} `
+              : '') + `${this.exerciseName(onlyExerciseId)} – ${plan.name}`
+          : plan.name;
     const isTierLine = plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION;
     const exercises: SessionExercise[] = planSession
       ? await Promise.all(
@@ -1634,7 +1687,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
           })
         )
       : await Promise.all(
-          (onlyExerciseId ? [onlyExerciseId] : plan.exerciseIds).map(async (exerciseId) => {
+          (dayGroup ? dayGroup.exerciseIds : onlyExerciseId ? [onlyExerciseId] : plan.exerciseIds).map(async (exerciseId) => {
             const config = plan.exerciseConfigs?.find((c) => c.exerciseId === exerciseId);
             if (!config) {
               return {
@@ -1753,7 +1806,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
                   plan,
                   exerciseId,
                   config.percentageWeeks ?? [],
-                  exerciseId === onlyExerciseId && weekIndexOverride !== undefined
+                  (dayGroup !== undefined || exerciseId === onlyExerciseId) && weekIndexOverride !== undefined
                     ? weekIndexOverride
                     : this.planExerciseFinishedSessionCount(plan.id, exerciseId)
                 ) ?? buildSets(config.workingSets, 'working');
@@ -1799,6 +1852,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       date: toDateTimeLocalValue(now),
       trainingPlanId: plan.id,
       planSessionId: planSession?.id,
+      dayGroupId: dayGroup?.id,
       sequence,
       exercises,
       timerElapsedMs: 0,
@@ -1833,9 +1887,24 @@ export class SessionsComponent implements OnInit, OnDestroy {
       // Day template no longer exists on the plan; nothing to replenish.
       return null;
     }
+    const dayGroup = sourceSession.dayGroupId
+      ? (plan.dayGroups?.find((group) => group.id === sourceSession.dayGroupId) ?? null)
+      : null;
+    if (sourceSession.dayGroupId && !dayGroup) {
+      // Day group no longer exists on the plan; nothing to replenish.
+      return null;
+    }
     const onlyExerciseId =
-      !planSession && plan.oneExercisePerSession ? sourceSession.exercises[0]?.exerciseId : undefined;
-    return this.buildSessionFromPlan(plan, planSession, Date.now(), onlyExerciseId);
+      !planSession && !dayGroup && plan.oneExercisePerSession ? sourceSession.exercises[0]?.exerciseId : undefined;
+    return this.buildSessionFromPlan(
+      plan,
+      planSession,
+      Date.now(),
+      onlyExerciseId,
+      undefined,
+      undefined,
+      dayGroup ?? undefined
+    );
   }
 
   private async persist(session: TrainingSession): Promise<void> {

@@ -9,6 +9,7 @@ import { buildDefaultNsunsPlan } from '../data/default-nsuns-plan';
 import { buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
 import { buildDefaultHstPlan } from '../data/default-hst-plan';
 import { buildDefaultGvtPlan } from '../data/default-gvt-plan';
+import { buildDefaultBbbPlan } from '../data/default-bbb-plan';
 
 const DB_NAME = 'trainings-app-db';
 // Bumped from 28 with no new store/content of its own - some installs ended
@@ -99,7 +100,9 @@ const DB_NAME = 'trainings-app-db';
 // that adds it to DEFAULT_PLAN_BUILDERS above (see the 47/48 and 49/50
 // comments above for why splitting a plan/store addition across edits is
 // otherwise a race with the dev server's live-reload).
-const DB_VERSION = 51;
+// 52: adds the 5/3/1 BBB (Boring But Big) default plan, same self-healing
+// pattern, added in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
+const DB_VERSION = 52;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -109,7 +112,8 @@ const DEFAULT_PLAN_BUILDERS = [
   buildDefaultNsunsPlan,
   buildDefaultHeavyDutyPlan,
   buildDefaultHstPlan,
-  buildDefaultGvtPlan
+  buildDefaultGvtPlan,
+  buildDefaultBbbPlan
 ];
 
 export const STORES = {

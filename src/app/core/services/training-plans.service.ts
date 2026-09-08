@@ -10,6 +10,7 @@ import { DEFAULT_NSUNS_PLAN_ID, buildDefaultNsunsPlan } from '../data/default-ns
 import { DEFAULT_HEAVYDUTY_PLAN_ID, buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
 import { DEFAULT_HST_PLAN_ID, buildDefaultHstPlan } from '../data/default-hst-plan';
 import { DEFAULT_GVT_PLAN_ID, buildDefaultGvtPlan } from '../data/default-gvt-plan';
+import { DEFAULT_BBB_PLAN_ID, buildDefaultBbbPlan } from '../data/default-bbb-plan';
 
 const DEFAULT_PLANS = [
   { id: DEFAULT_531_PLAN_ID, build: buildDefault531Plan },
@@ -19,7 +20,8 @@ const DEFAULT_PLANS = [
   { id: DEFAULT_NSUNS_PLAN_ID, build: buildDefaultNsunsPlan },
   { id: DEFAULT_HEAVYDUTY_PLAN_ID, build: buildDefaultHeavyDutyPlan },
   { id: DEFAULT_HST_PLAN_ID, build: buildDefaultHstPlan },
-  { id: DEFAULT_GVT_PLAN_ID, build: buildDefaultGvtPlan }
+  { id: DEFAULT_GVT_PLAN_ID, build: buildDefaultGvtPlan },
+  { id: DEFAULT_BBB_PLAN_ID, build: buildDefaultBbbPlan }
 ];
 
 @Injectable({ providedIn: 'root' })

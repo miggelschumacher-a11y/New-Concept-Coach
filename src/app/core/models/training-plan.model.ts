@@ -204,6 +204,19 @@ export interface CustomPlanSession {
   exerciseType?: PlanExerciseType;
 }
 
+// A named day within a plain (non-tier-line) plan's weekly split, e.g. BBB's
+// "Oberkörper"/"Unterkörper" - unlike TierLinePlanSession, its exercises are
+// plain ids into the plan's own exerciseIds/exerciseConfigs (mixing
+// PERCENTAGE_BASED and WEIGHT_BASED exercises freely), reusing every
+// existing per-exercise progression/deload/increment rule as-is instead of
+// GZCL's tier semantics. See TrainingPlan.dayGroups.
+export interface PlanDayGroup {
+  id: string;
+  name: string;
+  order: number;
+  exerciseIds: string[];
+}
+
 export interface TrainingPlan {
   id: string;
   name: string;
@@ -222,5 +235,14 @@ export interface TrainingPlan {
   // replenishment generate one session per exerciseId instead of a single
   // session bundling every exercise, e.g. 5/3/1's one-lift-per-day split.
   oneExercisePerSession?: boolean;
+  // Only meaningful when planSessions is unset - groups exerciseIds into
+  // named multi-exercise training days (e.g. BBB's 2-day upper/lower split),
+  // generating one session per group instead of one session per exercise
+  // (oneExercisePerSession) or a single session bundling everything. Takes
+  // precedence over oneExercisePerSession when both are set. Every
+  // exerciseId still needs its own entry in exerciseConfigs as usual - this
+  // only controls how "Create from Plan"/replenishment group them into
+  // sessions.
+  dayGroups?: PlanDayGroup[];
   isDefault?: boolean;
 }

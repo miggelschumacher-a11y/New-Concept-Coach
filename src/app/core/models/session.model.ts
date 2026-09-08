@@ -80,6 +80,13 @@ export interface TrainingSession {
   date: string;
   trainingPlanId?: string;
   planSessionId?: string;
+  // Which of the plan's dayGroups this session was generated for, if any -
+  // same idea as planSessionId, but for a plain (non-tier-line) plan's named
+  // multi-exercise training day (see TrainingPlan.dayGroups). Lets
+  // replenishment regenerate the same day's session again with its own
+  // exercises, rather than falling back to the one-exercise-per-session or
+  // single-bundled-session behavior.
+  dayGroupId?: string;
   sequence?: number;
   exercises: SessionExercise[];
   notes?: string;
