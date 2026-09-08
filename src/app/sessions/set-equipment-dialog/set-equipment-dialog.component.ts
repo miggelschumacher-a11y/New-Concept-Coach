@@ -38,6 +38,27 @@ export interface SetEquipmentDialogResult {
 
 const EMPTY_PLATE_RESULT: PlateLoadingResult = { perSide: [], remainingPerSide: 0 };
 
+// One drawn plate on the barbell diagram - a real plate, not a {weight,
+// count} group, since each one needs its own x position along the sleeve.
+export interface BarbellPlateRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  weight: number;
+}
+
+export interface BarbellDiagram {
+  width: number;
+  height: number;
+  barY: number;
+  barThickness: number;
+  barX1: number;
+  barX2: number;
+  leftPlates: BarbellPlateRect[];
+  rightPlates: BarbellPlateRect[];
+}
+
 @Component({
   selector: 'app-set-equipment-dialog',
   standalone: true,
@@ -70,6 +91,19 @@ export class SetEquipmentDialogComponent {
   // save() to resolve.
   copyToIncomplete = false;
   copyToAll = false;
+
+  // Fixed geometry (viewBox units) for the barbell diagram below.
+  private readonly diagramWidth = 320;
+  private readonly diagramHeight = 110;
+  private readonly diagramCenterY = 55;
+  private readonly barThickness = 6;
+  private readonly barMargin = 8;
+  private readonly gripHalfWidth = 26;
+  private readonly sleeveMargin = 14;
+  private readonly minPlateHeight = 24;
+  private readonly maxPlateHeight = 90;
+  private readonly minPlateThickness = 7;
+  private readonly maxPlateThickness = 16;
 
   constructor(
     public readonly dialogRef: MatDialogRef<SetEquipmentDialogComponent, SetEquipmentDialogResult | undefined>,
@@ -111,6 +145,63 @@ export class SetEquipmentDialogComponent {
       return EMPTY_PLATE_RESULT;
     }
     return calculatePlateLoading(target, equipment.weight, this.data.plates, this.singleSidedLoading);
+  }
+
+  // Renders plateLoadingResult as an actual loaded barbell rather than just
+  // a text list - null when there's nothing to draw (no equipment picked
+  // or no plates needed), same guard the text breakdown itself uses.
+  get barbellDiagram(): BarbellDiagram | null {
+    const result = this.plateLoadingResult;
+    if (result.perSide.length === 0) {
+      return null;
+    }
+    const centerX = this.diagramWidth / 2;
+    const sleeveLength = centerX - this.gripHalfWidth - this.sleeveMargin;
+    const maxDiameter = Math.max(1, ...this.data.plates.map((plate) => plate.diameter || 0));
+    const maxWeight = Math.max(1, ...result.perSide.map((item) => item.weight));
+
+    // Expand each {weight, count} group (already heaviest-first, see
+    // calculatePlateLoading) into individual plates, heaviest stacked
+    // closest to the grip - matches how a real barbell is loaded.
+    const plates: { weight: number; diameter: number; thickness: number }[] = [];
+    for (const item of result.perSide) {
+      const diameter = this.data.plates.find((plate) => plate.weight === item.weight)?.diameter || maxDiameter;
+      const thickness =
+        this.minPlateThickness + (this.maxPlateThickness - this.minPlateThickness) * (item.weight / maxWeight);
+      for (let i = 0; i < item.count; i++) {
+        plates.push({ weight: item.weight, diameter, thickness });
+      }
+    }
+
+    // Shrinks every plate proportionally if the sleeve is too short to fit
+    // them at their natural thickness, rather than letting them overflow
+    // past the end of the bar.
+    const totalThickness = plates.reduce((sum, plate) => sum + plate.thickness, 0);
+    const scale = totalThickness > sleeveLength ? sleeveLength / totalThickness : 1;
+
+    const buildSide = (direction: 1 | -1): BarbellPlateRect[] => {
+      let offset = this.gripHalfWidth;
+      return plates.map((plate) => {
+        const width = plate.thickness * scale;
+        const height = this.minPlateHeight + (this.maxPlateHeight - this.minPlateHeight) * (plate.diameter / maxDiameter);
+        const x = direction === 1 ? centerX + offset : centerX - offset - width;
+        offset += width;
+        return { x, y: this.diagramCenterY - height / 2, width, height, weight: plate.weight };
+      });
+    };
+
+    return {
+      width: this.diagramWidth,
+      height: this.diagramHeight,
+      barY: this.diagramCenterY - this.barThickness / 2,
+      barThickness: this.barThickness,
+      barX1: this.barMargin,
+      barX2: this.diagramWidth - this.barMargin,
+      // Single-sided loading piles every plate onto one side (the right) -
+      // the other side stays a bare bar, matching "Gewicht nur auf einer Seite".
+      rightPlates: buildSide(1),
+      leftPlates: this.singleSidedLoading ? [] : buildSide(-1)
+    };
   }
 
   onCopyToIncompleteChange(checked: boolean): void {

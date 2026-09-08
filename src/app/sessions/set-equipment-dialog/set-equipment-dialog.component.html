@@ -33,6 +33,32 @@
   @if (selectedEquipment) {
     <div class="set-equipment-plate-breakdown">
       <span class="set-equipment-plate-breakdown-label">{{ 'sessions.setEquipmentPlateBreakdownLabel' | translate }}</span>
+      @if (barbellDiagram; as diagram) {
+        <svg
+          class="set-equipment-barbell-diagram"
+          [attr.viewBox]="'0 0 ' + diagram.width + ' ' + diagram.height"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <rect
+            [attr.x]="diagram.barX1"
+            [attr.y]="diagram.barY"
+            [attr.width]="diagram.barX2 - diagram.barX1"
+            [attr.height]="diagram.barThickness"
+            rx="2"
+            class="barbell-bar"
+          />
+          @for (plate of diagram.leftPlates; track $index) {
+            <rect [attr.x]="plate.x" [attr.y]="plate.y" [attr.width]="plate.width" [attr.height]="plate.height" rx="1.5" class="barbell-plate">
+              <title>{{ plate.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}</title>
+            </rect>
+          }
+          @for (plate of diagram.rightPlates; track $index) {
+            <rect [attr.x]="plate.x" [attr.y]="plate.y" [attr.width]="plate.width" [attr.height]="plate.height" rx="1.5" class="barbell-plate">
+              <title>{{ plate.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}</title>
+            </rect>
+          }
+        </svg>
+      }
       @if (plateLoadingResult.perSide.length === 0) {
         <p class="set-equipment-plate-empty">{{ 'sessions.setEquipmentNoPlatesNeeded' | translate }}</p>
       } @else {
