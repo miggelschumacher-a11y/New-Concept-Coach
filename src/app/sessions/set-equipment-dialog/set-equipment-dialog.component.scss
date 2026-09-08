@@ -37,7 +37,9 @@
 .set-equipment-barbell-diagram {
   display: block;
   width: 100%;
-  height: 70px;
+  // Matches the diagram's own viewBox ratio (200x110) so it fills the
+  // available width instead of being height-bound and letterboxed.
+  aspect-ratio: 200 / 110;
   margin-top: 0.4rem;
 }
 
@@ -49,6 +51,12 @@
   fill: #5c6bc0;
   stroke: #303f9f;
   stroke-width: 1;
+}
+
+.barbell-plate-label {
+  fill: var(--app-muted-text);
+  font-size: 11px;
+  text-anchor: middle;
 }
 
 .set-equipment-plate-list {

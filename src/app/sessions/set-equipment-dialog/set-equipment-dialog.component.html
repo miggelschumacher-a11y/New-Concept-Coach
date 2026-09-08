@@ -47,15 +47,11 @@
             rx="2"
             class="barbell-bar"
           />
-          @for (plate of diagram.leftPlates; track $index) {
+          @for (plate of diagram.plates; track $index) {
             <rect [attr.x]="plate.x" [attr.y]="plate.y" [attr.width]="plate.width" [attr.height]="plate.height" rx="1.5" class="barbell-plate">
               <title>{{ plate.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}</title>
             </rect>
-          }
-          @for (plate of diagram.rightPlates; track $index) {
-            <rect [attr.x]="plate.x" [attr.y]="plate.y" [attr.width]="plate.width" [attr.height]="plate.height" rx="1.5" class="barbell-plate">
-              <title>{{ plate.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}</title>
-            </rect>
+            <text [attr.x]="plate.labelX" [attr.y]="plate.labelY" class="barbell-plate-label">{{ plate.label }}</text>
           }
         </svg>
       }
