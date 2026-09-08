@@ -887,7 +887,7 @@
                                     [disabled]="isPaused(session)"
                                     selectOnFocus
                                     (input)="onTargetRepsFieldInput($event)"
-                                    (change)="updateTargetReps(session, sessionExercise, $any($event.target).value)"
+                                    (change)="updateTargetReps(session, sessionExercise, set, $any($event.target).value)"
                                     (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
                                     (mouseup)="onSetFieldMouseUp()"
                                     (mouseleave)="onSetFieldMouseLeave()"
@@ -924,7 +924,7 @@
                                     &nbsp;({{ oneRepMaxPercentage }}%)
                                   }
                                   @if (set.done) {
-                                    &nbsp;({{ setVolume(set).toFixed(2) }})
+                                    &nbsp;({{ setVolume(set, sessionExercise).toFixed(2) }})
                                   }
                                 </mat-label>
                                 <input

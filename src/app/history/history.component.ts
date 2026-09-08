@@ -161,9 +161,10 @@ export class HistoryComponent implements OnInit {
   }
 
   private exerciseWeightLifted(sessionExercise: SessionExercise): number {
+    const exercise = this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId);
     return this.countedSets(sessionExercise)
       .filter((set) => set.done)
-      .reduce((sum, set) => sum + set.reps * set.weight, 0);
+      .reduce((sum, set) => sum + set.reps * (exercise ? liftedWeight(exercise, set.weight, set.doubleWeightCounting) : set.weight), 0);
   }
 
   totalWeightLifted(sessionExercise: SessionExercise): string {

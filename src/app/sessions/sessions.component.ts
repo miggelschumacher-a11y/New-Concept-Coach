@@ -2545,9 +2545,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   private exerciseWeightLifted(sessionExercise: SessionExercise): number {
+    const exercise = this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId);
     return this.countedSets(sessionExercise)
       .filter((set) => set.done)
-      .reduce((sum, set) => sum + set.reps * set.weight, 0);
+      .reduce((sum, set) => sum + set.reps * (exercise ? liftedWeight(exercise, set.weight, set.doubleWeightCounting) : set.weight), 0);
   }
 
   totalWeightLifted(sessionExercise: SessionExercise): string {
@@ -2966,14 +2967,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return set.weight;
   }
 
-  // The total load of a done set, shown in the weight field's own label.
-  setVolume(set: ExerciseSet): number {
+  // The total load of a done set, shown in the weight field's own label -
+  // doubled when the set's own "Gewicht doppelt zählen" flag is on, same as
+  // updateEstimatedOneRepMax/exerciseWeightLifted's own use of liftedWeight.
+  setVolume(set: ExerciseSet, sessionExercise?: SessionExercise): number {
     const buffer = this.fieldBuffer(set);
     const reps = parseInt(buffer.reps, 10);
     const weight = parseFloat(buffer.weight.replace(',', '.'));
     const validReps = Number.isFinite(reps) ? reps : 0;
     const validWeight = Number.isFinite(weight) ? weight : 0;
-    return Math.round(validReps * validWeight * 100) / 100;
+    const exercise = sessionExercise ? this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId) : undefined;
+    const loadedWeight = exercise ? liftedWeight(exercise, validWeight, set.doubleWeightCounting) : validWeight;
+    return Math.round(validReps * loadedWeight * 100) / 100;
   }
 
   onRepsFieldInput(event: Event): void {
@@ -3354,10 +3359,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Applies to every not-yet-done set of the exercise, same "describes the
-  // whole exercise" convention as updateTargetReps - also prefills the
-  // achieved-seconds field with the target, so hitting it needs no typing,
-  // just confirming the set.
+  // Applies to every not-yet-done set of the exercise - unlike
+  // updateTargetReps, there's no long-press copy popup for this field, so
+  // this stays the only way to propagate a target across the exercise's
+  // sets. Also prefills the achieved-seconds field with the target, so
+  // hitting it needs no typing, just confirming the set.
   async updateTargetSeconds(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
     const trimmed = value.trim();
     const parsed = trimmed === '' ? undefined : parseInt(trimmed, 10);
@@ -3391,13 +3397,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Applies to every not-yet-done set of the exercise, not just the one just
-  // edited - a rep prescription describes the whole exercise, and sets
-  // already marked done keep whatever they were actually prescribed at the
-  // time. Also keeps minReps (Linear Progression's target - see
-  // recordManualProgressionProgress) in lockstep with the top of whatever
-  // was just typed here, since that's the same number a manual session's
-  // "hit the top of your range" target represents.
   // Shared by this component's own target-reps field and by
   // buildSessionFromPlan when seeding a working set's target straight from
   // a plan's own working-set-target text (same format: plain number, a
@@ -3418,7 +3417,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return { targetReps, targetRepsMax, isAmrap: !!match[3] };
   }
 
-  async updateTargetReps(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+  // Only updates the one set the field belongs to - propagating to the
+  // exercise's other sets is the long-press copy popup's job now (see
+  // onSetFieldMouseDown/applySetFieldCopy's 'targetReps' branch), not
+  // something every edit here should do automatically.
+  async updateTargetReps(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, value: string): Promise<void> {
     const trimmed = value.trim();
     if (trimmed !== '' && this.parseTargetRepsText(trimmed).targetReps === undefined) {
       return;
@@ -3427,20 +3430,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (targetReps !== undefined) {
       sessionExercise.minReps = targetRepsMax ?? targetReps;
     }
-
-    for (const candidate of sessionExercise.sets) {
-      if (candidate.done) {
-        continue;
-      }
-      candidate.targetReps = targetReps;
-      candidate.targetRepsMax = targetRepsMax;
-      candidate.isAmrap = isAmrap;
-      // Prefills the achieved-reps field with the top of the prescription -
-      // e.g. "8-12" or "10+" both prefill 10/12, so hitting the target needs
-      // no typing at all, just confirming the set.
-      if (targetReps !== undefined) {
-        this.fieldBuffer(candidate).reps = String(targetRepsMax ?? targetReps);
-      }
+    if (set.done) {
+      return;
+    }
+    set.targetReps = targetReps;
+    set.targetRepsMax = targetRepsMax;
+    set.isAmrap = isAmrap;
+    // Prefills the achieved-reps field with the top of the prescription -
+    // e.g. "8-12" or "10+" both prefill 10/12, so hitting the target needs
+    // no typing at all, just confirming the set.
+    if (targetReps !== undefined) {
+      this.fieldBuffer(set).reps = String(targetRepsMax ?? targetReps);
     }
 
     await this.persist(session);
