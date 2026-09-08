@@ -731,6 +731,19 @@
       }
 
       <div class="data-action-group">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="backupToLocalFile()"
+          [matTooltip]="'config.backupToFileLabel' | translate"
+          [attr.aria-label]="'config.backupToFileLabel' | translate"
+        >
+          <mat-icon>save</mat-icon>
+        </button>
+        <span class="data-action-label">{{ 'config.backupToFileLabel' | translate }}</span>
+      </div>
+
+      <div class="data-action-group">
         <input #restoreFileInput type="file" accept="application/json" hidden (change)="onRestoreFileSelected($event)" />
         <button
           mat-stroked-button

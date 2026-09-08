@@ -36,6 +36,13 @@ import { SelectOnFocusDirective } from '../core/directives/select-on-focus.direc
 
 const BODY_WEIGHT_MAX = 300;
 
+// Minimal shape of the File System Access API's save-file handle - not in
+// TypeScript's default lib, and only needed for the two calls
+// backupToLocalFile makes on it.
+interface FileSystemFileHandleLike {
+  createWritable(): Promise<{ write(data: string): Promise<void>; close(): Promise<void> }>;
+}
+
 @Component({
   selector: 'app-config',
   standalone: true,
@@ -330,6 +337,47 @@ export class ConfigComponent implements OnInit {
     } catch {
       this.statusMessageKey = 'config.importError';
     }
+  }
+
+  // Counterpart to onRestoreFileSelected below: exports the same
+  // exportAll() payload the Drive backup uses, but saves it to a
+  // user-chosen local folder/filename via the File System Access API's
+  // native save dialog. Falls back to a plain browser download (no folder
+  // picker, but the browser's own "always ask where to save" setting still
+  // lets the user redirect it) on browsers without that API, e.g. Firefox.
+  async backupToLocalFile(): Promise<void> {
+    const data = await this.indexedDbService.exportAll();
+    const json = JSON.stringify(data, null, 2);
+    const fileName = `trainings-app-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const showSaveFilePicker = (window as unknown as { showSaveFilePicker?: (options: unknown) => Promise<FileSystemFileHandleLike> })
+      .showSaveFilePicker;
+    if (showSaveFilePicker) {
+      try {
+        const handle = await showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(json);
+        await writable.close();
+        this.statusMessageKey = 'config.exportSuccess';
+      } catch (error) {
+        // The user closing the picker without choosing a file isn't a
+        // failure worth reporting.
+        if ((error as DOMException)?.name !== 'AbortError') {
+          this.statusMessageKey = 'config.exportError';
+        }
+      }
+      return;
+    }
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+    this.statusMessageKey = 'config.exportSuccess';
   }
 
   async onRestoreFileSelected(event: Event): Promise<void> {
