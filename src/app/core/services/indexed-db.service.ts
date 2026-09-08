@@ -8,6 +8,7 @@ import { buildDefaultGreyskullPlan } from '../data/default-greyskull-plan';
 import { buildDefaultNsunsPlan } from '../data/default-nsuns-plan';
 import { buildDefaultHeavyDutyPlan } from '../data/default-heavyduty-plan';
 import { buildDefaultHstPlan } from '../data/default-hst-plan';
+import { buildDefaultGvtPlan } from '../data/default-gvt-plan';
 
 const DB_NAME = 'trainings-app-db';
 // Bumped from 28 with no new store/content of its own - some installs ended
@@ -92,7 +93,13 @@ const DB_NAME = 'trainings-app-db';
 // intermediate edit and got stuck at version 49 without ever creating the
 // plates store (same race as 32/33, 34/35, 44/45 and 47/48 above). Re-fires
 // it for anyone caught in that gap.
-const DB_VERSION = 50;
+// 51: adds the German Volume Training (GVT) default plan - picked up by
+// DEFAULT_PLAN_BUILDERS/DEFAULT_PLANS's self-healing check like every other
+// default plan, so this bump only needs to happen once, in this same edit
+// that adds it to DEFAULT_PLAN_BUILDERS above (see the 47/48 and 49/50
+// comments above for why splitting a plan/store addition across edits is
+// otherwise a race with the dev server's live-reload).
+const DB_VERSION = 51;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -101,7 +108,8 @@ const DEFAULT_PLAN_BUILDERS = [
   buildDefaultGreyskullPlan,
   buildDefaultNsunsPlan,
   buildDefaultHeavyDutyPlan,
-  buildDefaultHstPlan
+  buildDefaultHstPlan,
+  buildDefaultGvtPlan
 ];
 
 export const STORES = {
