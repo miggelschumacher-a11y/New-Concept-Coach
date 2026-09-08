@@ -1556,7 +1556,7 @@
                         <mat-panel-title>
                           {{ exerciseName(exerciseId) }}
                           <span class="set-count"
-                            >({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }}@if (exerciseOneRepMax(exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
+                            >({{ dayGroupExerciseTotalSets(plan, dayGroup, exerciseId) }} {{ 'sessions.setsWord' | translate }}@if (exerciseOneRepMax(exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
                           >
                         </mat-panel-title>
                       </mat-expansion-panel-header>

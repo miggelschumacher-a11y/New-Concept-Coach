@@ -12,6 +12,8 @@ import { DEFAULT_HST_PLAN_ID, buildDefaultHstPlan } from '../data/default-hst-pl
 import { DEFAULT_GVT_PLAN_ID, buildDefaultGvtPlan } from '../data/default-gvt-plan';
 import { DEFAULT_BBB_PLAN_ID, buildDefaultBbbPlan } from '../data/default-bbb-plan';
 import { DEFAULT_TRIUMVIRATE_PLAN_ID, buildDefaultTriumviratePlan } from '../data/default-triumvirate-plan';
+import { DEFAULT_INDJS_PLAN_ID, buildDefaultIndjsPlan } from '../data/default-indjs-plan';
+import { DEFAULT_TEXAS_METHOD_PLAN_ID, buildDefaultTexasMethodPlan } from '../data/default-texas-method-plan';
 
 const DEFAULT_PLANS = [
   { id: DEFAULT_531_PLAN_ID, build: buildDefault531Plan },
@@ -23,7 +25,9 @@ const DEFAULT_PLANS = [
   { id: DEFAULT_HST_PLAN_ID, build: buildDefaultHstPlan },
   { id: DEFAULT_GVT_PLAN_ID, build: buildDefaultGvtPlan },
   { id: DEFAULT_BBB_PLAN_ID, build: buildDefaultBbbPlan },
-  { id: DEFAULT_TRIUMVIRATE_PLAN_ID, build: buildDefaultTriumviratePlan }
+  { id: DEFAULT_TRIUMVIRATE_PLAN_ID, build: buildDefaultTriumviratePlan },
+  { id: DEFAULT_INDJS_PLAN_ID, build: buildDefaultIndjsPlan },
+  { id: DEFAULT_TEXAS_METHOD_PLAN_ID, build: buildDefaultTexasMethodPlan }
 ];
 
 @Injectable({ providedIn: 'root' })

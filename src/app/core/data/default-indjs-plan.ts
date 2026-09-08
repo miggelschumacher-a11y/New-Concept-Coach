@@ -1,0 +1,79 @@
+import { PercentageWeek, PlanExerciseConfig, TrainingPlan } from '../models/training-plan.model';
+
+// Fixed id (not a random UUID) so the seed is idempotent to re-check and the
+// plan is unambiguously identifiable as THE default INDJS plan across
+// installs.
+export const DEFAULT_INDJS_PLAN_ID = 'default-plan-531-indjs';
+
+const DEFAULT_INDJS_LIFT_NAMES = ['Overhead-Press', 'Deadlift', 'Bench-Press', 'Squat'];
+
+// Same 5/3/1 main-lift wave as the base program - I'm Not Doing Jack Shit's
+// entire point is that nothing else gets added to it (no BBB-style extra
+// volume, no assistance work at all), for phases with little time/high
+// stress.
+const DEFAULT_INDJS_PERCENTAGE_WEEKS: PercentageWeek[] = [
+  {
+    sets: [
+      { percentage: 65, reps: 5, isAmrap: false },
+      { percentage: 75, reps: 5, isAmrap: false },
+      { percentage: 85, reps: 5, isAmrap: true }
+    ]
+  },
+  {
+    sets: [
+      { percentage: 70, reps: 3, isAmrap: false },
+      { percentage: 80, reps: 3, isAmrap: false },
+      { percentage: 90, reps: 3, isAmrap: true }
+    ]
+  },
+  {
+    sets: [
+      { percentage: 75, reps: 5, isAmrap: false },
+      { percentage: 85, reps: 3, isAmrap: false },
+      { percentage: 95, reps: 1, isAmrap: true }
+    ]
+  },
+  {
+    sets: [
+      { percentage: 40, reps: 5, isAmrap: false },
+      { percentage: 50, reps: 5, isAmrap: false },
+      { percentage: 60, reps: 5, isAmrap: false }
+    ]
+  }
+];
+
+// Builds the default INDJS plan from whichever of the 4 lifts exist by name.
+// Returns null if none of them do (e.g. all were deleted on an existing
+// install), rather than seeding an empty default plan.
+export function buildDefaultIndjsPlan(exerciseIdByName: ReadonlyMap<string, string>): TrainingPlan | null {
+  const exerciseIds = DEFAULT_INDJS_LIFT_NAMES.map((name) => exerciseIdByName.get(name)).filter(
+    (id): id is string => !!id
+  );
+  if (exerciseIds.length === 0) {
+    return null;
+  }
+  const exerciseConfigs: PlanExerciseConfig[] = exerciseIds.map((exerciseId) => ({
+    exerciseId,
+    exerciseType: 'PERCENTAGE_BASED',
+    warmupSets: 0,
+    workingSets: 3,
+    cooldownSets: 0,
+    percentageWeeks: DEFAULT_INDJS_PERCENTAGE_WEEKS.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) }))
+  }));
+  return {
+    id: DEFAULT_INDJS_PLAN_ID,
+    // Attributed by name per Jim Wendler's own stated terms for using 5/3/1
+    // (and its named templates) in a program: free to use, but should credit
+    // him, same reasoning already applied to the base 5/3/1 plan, BBB, and
+    // The Triumvirate.
+    name: "5/3/1 I'm Not Doing Jack Shit",
+    exerciseIds,
+    exerciseConfigs,
+    // One session per lift, four sessions a week (Overhead-Press, Deadlift,
+    // Bench-Press, Squat) - same split as the base 5/3/1 plan. No dayGroups
+    // needed here since every day is already just the one main lift with
+    // nothing else attached.
+    oneExercisePerSession: true,
+    isDefault: true
+  };
+}

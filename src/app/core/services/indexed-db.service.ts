@@ -11,6 +11,8 @@ import { buildDefaultHstPlan } from '../data/default-hst-plan';
 import { buildDefaultGvtPlan } from '../data/default-gvt-plan';
 import { buildDefaultBbbPlan } from '../data/default-bbb-plan';
 import { buildDefaultTriumviratePlan } from '../data/default-triumvirate-plan';
+import { buildDefaultIndjsPlan } from '../data/default-indjs-plan';
+import { buildDefaultTexasMethodPlan } from '../data/default-texas-method-plan';
 
 const DB_NAME = 'trainings-app-db';
 // Bumped from 28 with no new store/content of its own - some installs ended
@@ -105,7 +107,11 @@ const DB_NAME = 'trainings-app-db';
 // pattern, added in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
 // 53: adds the 5/3/1 Triumvirate default plan, same self-healing pattern,
 // added in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
-const DB_VERSION = 53;
+// 54: adds the 5/3/1 I'm Not Doing Jack Shit default plan, same self-healing
+// pattern, added in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
+// 55: adds the Texas Method default plan, same self-healing pattern, added
+// in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
+const DB_VERSION = 55;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -117,7 +123,9 @@ const DEFAULT_PLAN_BUILDERS = [
   buildDefaultHstPlan,
   buildDefaultGvtPlan,
   buildDefaultBbbPlan,
-  buildDefaultTriumviratePlan
+  buildDefaultTriumviratePlan,
+  buildDefaultIndjsPlan,
+  buildDefaultTexasMethodPlan
 ];
 
 export const STORES = {

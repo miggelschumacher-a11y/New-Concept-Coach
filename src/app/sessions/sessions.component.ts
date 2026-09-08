@@ -1736,6 +1736,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
               });
 
             const hasIncrementScheme = config.exerciseType === 'WEIGHT_BASED';
+            // A day group's own per-exercise override (see
+            // PlanDayGroup.exerciseOverrides) takes over this exercise's
+            // working-set list for this day only, e.g. Texas Method's squat
+            // carrying a different set count on each of its 3 training days
+            // - synthesized the same shape as a plan config's own
+            // workingSetTargets so it flows through the exact same branches
+            // below.
+            const dayGroupOverride = dayGroup?.exerciseOverrides?.[exerciseId];
             // The exercise's own working-set list (WDH + weight per set) -
             // its length is the working-set count for any weight-based
             // scheme, and its first row's weight seeds a scheme's tracked
@@ -1743,7 +1751,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
             // above). Its own per-set targets are what actually generates
             // the sets for None/Linear Progression; Double/Rep Goal/Wave
             // keep deriving reps from their own scheme config as before.
-            const workingSetTargets = hasIncrementScheme ? config.workingSetTargets : undefined;
+            const workingSetTargets = hasIncrementScheme
+              ? dayGroupOverride
+                ? Array.from({ length: dayGroupOverride.workingSets }, () => ({
+                    id: crypto.randomUUID(),
+                    targetReps: dayGroupOverride.targetReps,
+                    weight: 0
+                  }))
+                : config.workingSetTargets
+              : undefined;
             const workingSetCount = workingSetTargets?.length ?? config.workingSets;
             const startingWeightOverride = startingWeightByExerciseId?.get(exerciseId);
             const seedWeight =

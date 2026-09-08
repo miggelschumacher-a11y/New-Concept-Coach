@@ -29,7 +29,8 @@ import {
   WorkingSetTarget,
   PercentageSet,
   CustomPlanSession,
-  CustomSessionExercise
+  CustomSessionExercise,
+  PlanDayGroup
 } from '../core/models/training-plan.model';
 import { Exercise } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
@@ -47,6 +48,8 @@ import { DEFAULT_HST_PLAN_ID } from '../core/data/default-hst-plan';
 import { DEFAULT_GVT_PLAN_ID } from '../core/data/default-gvt-plan';
 import { DEFAULT_BBB_PLAN_ID } from '../core/data/default-bbb-plan';
 import { DEFAULT_TRIUMVIRATE_PLAN_ID } from '../core/data/default-triumvirate-plan';
+import { DEFAULT_INDJS_PLAN_ID } from '../core/data/default-indjs-plan';
+import { DEFAULT_TEXAS_METHOD_PLAN_ID } from '../core/data/default-texas-method-plan';
 
 const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_531_PLAN_ID]: 'trainingPlans.plan531Description',
@@ -58,7 +61,9 @@ const DEFAULT_PLAN_DESCRIPTION_KEYS: Record<string, string> = {
   [DEFAULT_HST_PLAN_ID]: 'trainingPlans.planHstDescription',
   [DEFAULT_GVT_PLAN_ID]: 'trainingPlans.planGvtDescription',
   [DEFAULT_BBB_PLAN_ID]: 'trainingPlans.planBbbDescription',
-  [DEFAULT_TRIUMVIRATE_PLAN_ID]: 'trainingPlans.planTriumvirateDescription'
+  [DEFAULT_TRIUMVIRATE_PLAN_ID]: 'trainingPlans.planTriumvirateDescription',
+  [DEFAULT_INDJS_PLAN_ID]: 'trainingPlans.planIndjsDescription',
+  [DEFAULT_TEXAS_METHOD_PLAN_ID]: 'trainingPlans.planTexasMethodDescription'
 };
 
 const DEFAULT_WARMUP_SETS = 0;
@@ -916,6 +921,17 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       cooldownSets = config.cooldownSetTargets?.length ?? 0;
     }
     return warmupSets + workingSets + cooldownSets;
+  }
+
+  // Same as planExerciseTotalSets, but honors a day group's own per-exercise
+  // override (see PlanDayGroup.exerciseOverrides) when this exercise has
+  // one for this day - otherwise the shared exerciseConfigs entry's set
+  // count would be shown on every day, even ones where the actual generated
+  // session carries a different count (e.g. Texas Method's squat: 5 sets on
+  // the volume day but only 2 or 1 on the other two).
+  dayGroupExerciseTotalSets(plan: TrainingPlan, dayGroup: PlanDayGroup, exerciseId: string): number {
+    const override = dayGroup.exerciseOverrides?.[exerciseId];
+    return override ? override.workingSets : this.planExerciseTotalSets(plan, exerciseId);
   }
 
   // A plan whose percentage scheme repeats identically every session (e.g.

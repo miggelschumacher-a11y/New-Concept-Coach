@@ -215,6 +215,18 @@ export interface PlanDayGroup {
   name: string;
   order: number;
   exerciseIds: string[];
+  // Per-exercise working-set override for THIS day only, keyed by
+  // exerciseId - lets the same exercise carry a different set count/target
+  // reps on different days of the same plan (e.g. Texas Method's squat:
+  // 5x5 on the volume day, 2x5 on the recovery day, 1x5 on the intensity
+  // day) instead of always falling back to the plan's single shared
+  // exerciseConfigs entry for that exerciseId. Only meaningful for
+  // WEIGHT_BASED exercises (same as PlanExerciseConfig.workingSetTargets,
+  // which this replaces for the day); weight always starts at 0 (same
+  // "self-chosen, increase once it's stable" convention as every other
+  // manual WEIGHT_BASED plan). An exerciseId not listed here uses the
+  // shared exerciseConfigs entry as before.
+  exerciseOverrides?: Record<string, { workingSets: number; targetReps: string }>;
 }
 
 export interface TrainingPlan {
