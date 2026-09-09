@@ -49,8 +49,7 @@ export interface BarbellPlateRect {
   weight: number;
 }
 
-// One label per distinct weight group, centered over that group's full run
-// of plates - avoids repeating the same value once per physical plate.
+// One label per physical plate, centered on that plate's own rect.
 export interface BarbellPlateLabel {
   x: number;
   y: number;
@@ -171,7 +170,12 @@ export class SetEquipmentDialogComponent {
       return null;
     }
     const sleeveLength = this.diagramWidth - this.startMargin - this.endMargin;
-    const maxWeight = Math.max(1, ...result.perSide.map((item) => item.weight));
+    // Scaled against every plate weight in the equipment master data (Config
+    // > Ausrüstung > Scheiben), not just the ones this particular breakdown
+    // happens to use - otherwise the heaviest plate actually loaded would
+    // always draw at max height, even if the user owns much heavier plates
+    // that just weren't needed for this target weight.
+    const maxWeight = Math.max(1, ...this.data.plates.map((plate) => plate.weight));
 
     const groups = [...result.perSide]
       .sort((a, b) => a.weight - b.weight)
@@ -199,16 +203,12 @@ export class SetEquipmentDialogComponent {
       // visual size always tracks what the plate actually is, even when
       // several plates share the same diameter.
       const height = Math.max(this.minPlateHeight, (group.weight / maxWeight) * this.maxPlateHeight);
-      const groupStartX = offset;
       for (let i = 0; i < group.count; i++) {
-        plates.push({ x: offset, y: this.diagramCenterY - height / 2, width, height, weight: group.weight });
+        const x = offset;
+        plates.push({ x, y: this.diagramCenterY - height / 2, width, height, weight: group.weight });
+        labels.push({ x: x + width / 2, y: this.diagramCenterY, text: group.weight.toFixed(2) });
         offset += width;
       }
-      labels.push({
-        x: (groupStartX + offset) / 2,
-        y: this.diagramCenterY,
-        text: group.weight.toFixed(2)
-      });
     }
 
     return {
