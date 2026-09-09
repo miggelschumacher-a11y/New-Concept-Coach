@@ -124,7 +124,17 @@ const DB_NAME = 'trainings-app-db';
 // (DB_VERSION already 56, the 14 names not yet added) and got stuck there
 // without ever adding them (same race as 32/33, 34/35, 44/45, 47/48 and
 // 49/50 above). Re-fires the backfill for anyone caught in that gap.
-const DB_VERSION = 57;
+// 58: adds 12 general cooldown/stretching exercises (Quadrizeps-Dehnung,
+// Hamstring-Dehnung, Waden-Dehnung, Taubenhaltung, Schmetterlingsdehnung,
+// Brustdehnung, Trizeps-Dehnung, Latissimus-Dehnung, Nackendehnung,
+// Kindhaltung, Katze-Kuh, Liegende-Rumpfdrehung), requested by the user -
+// same self-healing DEFAULT_EXERCISE_NAMES backfill as 56 above.
+// 59: 58 landed as several separate file edits again (same race as 32/33,
+// 34/35, 44/45, 47/48, 49/50 and 56/57 above) - a real, already-open
+// browser tab sharing this dev server reloaded on an intermediate edit
+// (DB_VERSION already 58, the 12 names not yet added) and got stuck there.
+// Re-fires the backfill for anyone caught in that gap.
+const DB_VERSION = 59;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -205,7 +215,19 @@ const DEFAULT_EXERCISE_NAMES = [
   'Schulterkreisen',
   'Wall-Slides',
   'Handgelenkskreisen',
-  'Knöchelmobilisation'
+  'Knöchelmobilisation',
+  'Quadrizeps-Dehnung',
+  'Hamstring-Dehnung',
+  'Waden-Dehnung',
+  'Taubenhaltung',
+  'Schmetterlingsdehnung',
+  'Brustdehnung',
+  'Trizeps-Dehnung',
+  'Latissimus-Dehnung',
+  'Nackendehnung',
+  'Kindhaltung',
+  'Katze-Kuh',
+  'Liegende-Rumpfdrehung'
 ];
 
 // The TierLine Basis plan's T1/T2 lifts need a body region to pick the right
@@ -260,7 +282,19 @@ const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightC
   Schulterkreisen: 'UPPER_BODY',
   'Wall-Slides': 'UPPER_BODY',
   Handgelenkskreisen: 'UPPER_BODY',
-  Knöchelmobilisation: 'LOWER_BODY'
+  Knöchelmobilisation: 'LOWER_BODY',
+  'Quadrizeps-Dehnung': 'LOWER_BODY',
+  'Hamstring-Dehnung': 'LOWER_BODY',
+  'Waden-Dehnung': 'LOWER_BODY',
+  Taubenhaltung: 'LOWER_BODY',
+  Schmetterlingsdehnung: 'LOWER_BODY',
+  Brustdehnung: 'UPPER_BODY',
+  'Trizeps-Dehnung': 'UPPER_BODY',
+  'Latissimus-Dehnung': 'UPPER_BODY',
+  Nackendehnung: 'UPPER_BODY',
+  Kindhaltung: 'UPPER_BODY',
+  'Katze-Kuh': 'UPPER_BODY',
+  'Liegende-Rumpfdrehung': 'UPPER_BODY'
 };
 
 // Best-effort equipment classification for the default exercises, based on
@@ -314,7 +348,19 @@ const DEFAULT_EXERCISE_EQUIPMENT_TYPES: Partial<Record<string, ExerciseEquipment
   Schulterkreisen: 'BODYWEIGHT',
   'Wall-Slides': 'BODYWEIGHT',
   Handgelenkskreisen: 'BODYWEIGHT',
-  Knöchelmobilisation: 'BODYWEIGHT'
+  Knöchelmobilisation: 'BODYWEIGHT',
+  'Quadrizeps-Dehnung': 'BODYWEIGHT',
+  'Hamstring-Dehnung': 'BODYWEIGHT',
+  'Waden-Dehnung': 'BODYWEIGHT',
+  Taubenhaltung: 'BODYWEIGHT',
+  Schmetterlingsdehnung: 'BODYWEIGHT',
+  Brustdehnung: 'BODYWEIGHT',
+  'Trizeps-Dehnung': 'BODYWEIGHT',
+  'Latissimus-Dehnung': 'BODYWEIGHT',
+  Nackendehnung: 'BODYWEIGHT',
+  Kindhaltung: 'BODYWEIGHT',
+  'Katze-Kuh': 'BODYWEIGHT',
+  'Liegende-Rumpfdrehung': 'BODYWEIGHT'
 };
 
 // Primary-mover muscle group for each default exercise - a single best-fit
@@ -369,7 +415,19 @@ const DEFAULT_EXERCISE_MUSCLE_GROUPS: Partial<Record<string, MuscleGroup>> = {
   Schulterkreisen: 'SHOULDERS',
   'Wall-Slides': 'SHOULDERS',
   Handgelenkskreisen: 'FOREARMS',
-  Knöchelmobilisation: 'CALVES'
+  Knöchelmobilisation: 'CALVES',
+  'Quadrizeps-Dehnung': 'QUADRICEPS',
+  'Hamstring-Dehnung': 'HAMSTRINGS',
+  'Waden-Dehnung': 'CALVES',
+  Taubenhaltung: 'GLUTES',
+  Schmetterlingsdehnung: 'GLUTES',
+  Brustdehnung: 'CHEST',
+  'Trizeps-Dehnung': 'TRICEPS',
+  'Latissimus-Dehnung': 'BACK',
+  Nackendehnung: 'NECK',
+  Kindhaltung: 'BACK',
+  'Katze-Kuh': 'BACK',
+  'Liegende-Rumpfdrehung': 'ABS'
 };
 
 interface SourcedExerciseContent {
@@ -551,7 +609,19 @@ const DEFAULT_EXERCISE_DESCRIPTIONS: Partial<Record<string, string>> = {
   Schulterkreisen: `Kreise die Schultern locker nach vorne und danach nach hinten, um die Schultergelenke zu mobilisieren.`,
   'Wall-Slides': `Stelle dich mit dem Rücken an eine Wand, die Arme im rechten Winkel angelegt, und schiebe die Arme kontrolliert an der Wand entlang nach oben und wieder herunter, ohne den Kontakt zur Wand zu verlieren.`,
   Handgelenkskreisen: `Kreise beide Handgelenke locker in beide Richtungen, um sie vor Übungen mit Frontgriff oder hoher Belastung zu mobilisieren.`,
-  Knöchelmobilisation: `Kreise die Fußgelenke abwechselnd in beide Richtungen oder gehe kontrolliert in die Knie-zur-Wand-Position, um die Knöchelbeweglichkeit vor Kniebeugen zu verbessern.`
+  Knöchelmobilisation: `Kreise die Fußgelenke abwechselnd in beide Richtungen oder gehe kontrolliert in die Knie-zur-Wand-Position, um die Knöchelbeweglichkeit vor Kniebeugen zu verbessern.`,
+  'Quadrizeps-Dehnung': `Stehe aufrecht, halte dich bei Bedarf an einer Wand fest, und ziehe eine Ferse Richtung Gesäß, das Knie zeigt nach unten. Halte die Dehnung 20-30 Sekunden und wechsle die Seite.`,
+  'Hamstring-Dehnung': `Setze dich hin oder stelle ein leicht angewinkeltes Bein nach vorne auf eine erhöhte Fläche, und beuge den Oberkörper mit geradem Rücken nach vorne, bis eine Dehnung an der Rückseite des Oberschenkels spürbar ist. Halte die Position und wechsle die Seite.`,
+  'Waden-Dehnung': `Stelle dich mit gestrecktem hinteren Bein vor eine Wand, die Ferse bleibt am Boden, und lehne dich mit dem Oberkörper nach vorne, bis eine Dehnung in der Wade spürbar ist. Halte die Position und wechsle die Seite.`,
+  Taubenhaltung: `Setze dich mit einem angewinkelten Bein vor dem Körper und dem anderen Bein gestreckt nach hinten auf den Boden. Beuge dich mit geradem Rücken über das vordere Bein nach vorne, bis eine Dehnung in der Hüfte spürbar ist. Halte die Position und wechsle die Seite.`,
+  Schmetterlingsdehnung: `Setze dich hin, die Fußsohlen zeigen zueinander und liegen nah am Körper. Drücke die Knie sanft mit den Ellbogen in Richtung Boden, bis eine Dehnung in der Leiste spürbar ist.`,
+  Brustdehnung: `Stelle dich in einen Türrahmen, den Unterarm im rechten Winkel an den Rahmen gelegt, und drehe den Oberkörper leicht von der Tür weg, bis eine Dehnung in der Brust spürbar ist. Halte die Position und wechsle die Seite.`,
+  'Trizeps-Dehnung': `Führe einen Arm gebeugt hinter den Kopf, die Hand liegt zwischen den Schulterblättern, und ziehe den Ellbogen mit der anderen Hand sanft weiter nach hinten, bis eine Dehnung im Trizeps spürbar ist. Halte die Position und wechsle die Seite.`,
+  'Latissimus-Dehnung': `Greife mit einer Hand eine feste Stange oder einen Türrahmen über Kopfhöhe und lehne den Oberkörper seitlich vom Arm weg, bis eine Dehnung an der seitlichen Rückenmuskulatur spürbar ist. Halte die Position und wechsle die Seite.`,
+  Nackendehnung: `Neige den Kopf zur Seite, das Ohr Richtung Schulter, und ziehe ihn mit der Hand sanft weiter, bis eine Dehnung im seitlichen Nacken spürbar ist. Halte die Position und wechsle die Seite.`,
+  Kindhaltung: `Knie dich auf den Boden, setze dich mit dem Gesäß auf die Fersen und strecke den Oberkörper mit ausgestreckten Armen nach vorne auf den Boden ab, bis eine Dehnung im unteren Rücken und den Schultern spürbar ist.`,
+  'Katze-Kuh': `Gehe in den Vierfüßlerstand. Runde beim Ausatmen den Rücken nach oben (Katze), und senke ihn beim Einatmen in ein Hohlkreuz ab, während der Blick nach oben geht (Kuh). Wiederhole die Bewegung locker im Atemrhythmus.`,
+  'Liegende-Rumpfdrehung': `Lege dich auf den Rücken, ziehe ein Knie zur Brust und lasse es kontrolliert über den Körper zur gegenüberliegenden Seite absinken, die Schultern bleiben am Boden. Halte die Position und wechsle die Seite.`
 };
 
 export type StoreName = (typeof STORES)[keyof typeof STORES];
