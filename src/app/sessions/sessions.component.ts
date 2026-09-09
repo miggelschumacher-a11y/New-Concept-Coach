@@ -29,6 +29,11 @@ import {
   SessionNotesDialogData,
   SessionNotesDialogResult
 } from './session-notes-dialog/session-notes-dialog.component';
+import {
+  AddDefaultWarmupDialogComponent,
+  AddDefaultWarmupDialogData,
+  AddDefaultWarmupRow
+} from './add-default-warmup-dialog/add-default-warmup-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -43,7 +48,7 @@ import { BodyWeightService } from '../core/services/body-weight.service';
 import { DumbbellsService } from '../core/services/dumbbells.service';
 import { PlatesService } from '../core/services/plates.service';
 import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
-import { Exercise } from '../core/models/exercise.model';
+import { Exercise, WarmupRampStep } from '../core/models/exercise.model';
 import { DumbbellEntry } from '../core/models/dumbbell-entry.model';
 import { PlateEntry } from '../core/models/plate-entry.model';
 import {
@@ -1988,7 +1993,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
             // TrainingPlansComponent.planExerciseConfig's self-heal), so an
             // absent-vs-empty distinction here would make this fallback
             // vanish the instant the plan author touches anything else.
-            const warmupRamp = hasIncrementScheme ? this.exercises.find((candidate) => candidate.id === exerciseId)?.warmupRamp : undefined;
+            const warmupRamp =
+              hasIncrementScheme && !config.warmupRampDisabled
+                ? this.exercises.find((candidate) => candidate.id === exerciseId)?.warmupRamp
+                : undefined;
             const warmupSets = warmupSetTargets?.length
               ? buildTargetSets(warmupSetTargets, 'warmup')
               : warmupRamp?.length && config.warmupSets === 0
@@ -2442,26 +2450,69 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const existingByExerciseId = new Map(
       session.exercises.map((sessionExercise) => [sessionExercise.exerciseId, sessionExercise])
     );
+    // Manually adding an exercise here has no plan config to fall back to
+    // (see buildSessionFromPlan's own ramp handling for the generated-
+    // session case) - this is the only other place a session exercise gets
+    // created, so it gets its own prompt instead: offer the ramp for every
+    // newly added exercise that has one, once, rather than silently using
+    // or silently ignoring it.
+    const newlyAddedIds = exerciseIds.filter((exerciseId) => !existingByExerciseId.has(exerciseId));
+    const newlyAddedWithRamp = newlyAddedIds
+      .map((exerciseId) => ({
+        exerciseId,
+        exerciseName: this.exerciseName(exerciseId),
+        ramp: this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp
+      }))
+      .filter((candidate): candidate is { exerciseId: string; exerciseName: string; ramp: WarmupRampStep[] } => !!candidate.ramp?.length);
+    const warmupRows: AddDefaultWarmupRow[] = newlyAddedWithRamp.map((candidate) => ({
+      exerciseId: candidate.exerciseId,
+      exerciseName: candidate.exerciseName,
+      selected: true
+    }));
+
+    let confirmedExerciseIds = new Set<string>();
+    if (warmupRows.length > 0) {
+      const data: AddDefaultWarmupDialogData = { rows: warmupRows };
+      const result = await firstValueFrom(
+        this.dialog.open<AddDefaultWarmupDialogComponent, AddDefaultWarmupDialogData, string[]>(AddDefaultWarmupDialogComponent, { data }).afterClosed()
+      );
+      confirmedExerciseIds = new Set(result ?? []);
+    }
+
     // A freshly added exercise starts with whatever the session's own
     // options currently hold (default true/true/true/true until the user
     // has touched the session-options popup, its actual values afterward),
     // rather than always hardcoding true regardless of that setting.
     const sessionSettings = this.sessionSettingsBuffer(session);
-    session.exercises = exerciseIds.map(
-      (exerciseId) =>
-        existingByExerciseId.get(exerciseId) ?? {
-          exerciseId,
-          sets: [],
-          countWarmupSets: sessionSettings.countWarmupSets,
-          countCooldownSets: sessionSettings.countCooldownSets,
-          showWarmupSets: sessionSettings.showWarmupSets,
-          showCooldownSets: sessionSettings.showCooldownSets,
-          // Matches Training Plans' own default for a freshly added exercise.
-          exerciseType: 'WEIGHT_BASED',
-          incrementScheme: 'LINEAR_PROGRESSION',
-          weightIncrement: DEFAULT_WEIGHT_INCREMENT
-        }
-    );
+    const weightUnit = this.settingsService.getSettings().weightUnit;
+    session.exercises = exerciseIds.map((exerciseId) => {
+      const existing = existingByExerciseId.get(exerciseId);
+      if (existing) {
+        return existing;
+      }
+      const ramp = confirmedExerciseIds.has(exerciseId) ? this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp : undefined;
+      const sets = ramp?.length
+        ? calculateWarmupSets(this.defaultWeight(exerciseId, 'working'), ramp, weightUnit).map((target) => ({
+            id: crypto.randomUUID(),
+            reps: parseInt(target.targetReps, 10) || 0,
+            targetReps: parseInt(target.targetReps, 10) || 0,
+            weight: target.weight,
+            type: 'warmup' as SetType
+          }))
+        : [];
+      return {
+        exerciseId,
+        sets,
+        countWarmupSets: sessionSettings.countWarmupSets,
+        countCooldownSets: sessionSettings.countCooldownSets,
+        showWarmupSets: sessionSettings.showWarmupSets,
+        showCooldownSets: sessionSettings.showCooldownSets,
+        // Matches Training Plans' own default for a freshly added exercise.
+        exerciseType: 'WEIGHT_BASED' as const,
+        incrementScheme: 'LINEAR_PROGRESSION' as const,
+        weightIncrement: DEFAULT_WEIGHT_INCREMENT
+      };
+    });
     await this.persist(session);
   }
 

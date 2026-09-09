@@ -1172,6 +1172,34 @@
                           />
                         </mat-form-field>
                       }
+
+                      <!-- Only relevant while this exercise has no warm-up of its
+                           own configured yet - that's exactly when
+                           SessionsComponent.buildSessionFromPlan falls back to the
+                           exercise's own ramp default instead of a plain empty list. -->
+                      @if (
+                        !plan.isDefault &&
+                        planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED' &&
+                        !planExerciseConfig(plan, exerciseId).warmupSetTargets?.length &&
+                        exerciseWarmupRamp(exerciseId); as ramp
+                      ) {
+                        <div class="warmup-ramp-hint-row">
+                          @if (!planExerciseConfig(plan, exerciseId).warmupRampDisabled) {
+                            <p class="warmup-ramp-hint">
+                              {{ 'trainingPlans.warmupRampHintPrefix' | translate }}
+                              @for (step of ramp; track step.id; let last = $last) {
+                                {{ step.percentage }}%×{{ step.reps }}{{ last ? '' : ', ' }}
+                              }
+                            </p>
+                          }
+                          <mat-checkbox
+                            [checked]="planExerciseConfig(plan, exerciseId).warmupRampDisabled ?? false"
+                            (change)="updateWarmupRampDisabled(plan, exerciseId, $event.checked)"
+                          >
+                            {{ 'trainingPlans.disableWarmupRamp' | translate }}
+                          </mat-checkbox>
+                        </div>
+                      }
                     </mat-expansion-panel>
                   }
 

@@ -113,6 +113,13 @@ export interface PlanExerciseConfig {
   // literal per-set reps/weight prescription.
   warmupSetTargets?: WorkingSetTarget[];
   cooldownSetTargets?: WorkingSetTarget[];
+  // Opts this plan-exercise out of the exercise's own warm-up ramp default
+  // (see Exercise.warmupRamp / SessionsComponent.buildSessionFromPlan) -
+  // only meaningful while warmupSetTargets is empty/absent and warmupSets
+  // is 0, i.e. exactly the situation the ramp would otherwise fill in.
+  // Optional/falsy, so every plan keeps using the ramp until an author
+  // explicitly turns it off for this one exercise.
+  warmupRampDisabled?: boolean;
   // Only used when exerciseType is PERCENTAGE_BASED - a wave of weeks, each
   // with its own set-by-set %1RM/reps/AMRAP, e.g. a 5/3/1 style cycle.
   // Cycles through by position, one week per session, wrapping back to the

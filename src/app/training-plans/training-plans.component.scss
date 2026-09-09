@@ -24,6 +24,19 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
+.warmup-ramp-hint-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+}
+
+.warmup-ramp-hint {
+  margin: 0;
+  color: var(--app-muted-text);
+  font-size: 0.85rem;
+}
+
 // Material always renders mat-panel-title/description first in the header's
 // flex layout regardless of source order, so this needs `order: -1` to
 // actually appear before the title.

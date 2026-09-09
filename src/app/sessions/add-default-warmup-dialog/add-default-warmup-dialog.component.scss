@@ -1,0 +1,17 @@
+[mat-dialog-content] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 280px;
+}
+
+.add-default-warmup-intro {
+  margin: 0 0 0.25rem;
+  color: var(--app-muted-text);
+  font-size: 0.9rem;
+}
+
+.add-default-warmup-actions {
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

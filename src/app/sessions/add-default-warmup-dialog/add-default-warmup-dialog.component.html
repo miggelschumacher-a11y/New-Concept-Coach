@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>{{ 'sessions.addDefaultWarmupTitle' | translate }}</h2>
+<div mat-dialog-content>
+  <p class="add-default-warmup-intro">{{ 'sessions.addDefaultWarmupIntro' | translate }}</p>
+  @for (row of data.rows; track row.exerciseId) {
+    <mat-checkbox [(ngModel)]="row.selected" name="addDefaultWarmup-{{ row.exerciseId }}">
+      {{ row.exerciseName }}
+    </mat-checkbox>
+  }
+</div>
+<div mat-dialog-actions class="add-default-warmup-actions">
+  <button mat-stroked-button type="button" (click)="skip()">{{ 'sessions.confirmCancel' | translate }}</button>
+  <button mat-raised-button color="primary" type="button" (click)="confirm()">{{ 'common.add' | translate }}</button>
+</div>

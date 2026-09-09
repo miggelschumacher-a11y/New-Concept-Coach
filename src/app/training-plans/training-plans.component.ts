@@ -32,7 +32,7 @@ import {
   CustomSessionExercise,
   PlanDayGroup
 } from '../core/models/training-plan.model';
-import { Exercise } from '../core/models/exercise.model';
+import { Exercise, WarmupRampStep } from '../core/models/exercise.model';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
@@ -1234,6 +1234,16 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async updatePlanExerciseShowCooldownSets(plan: TrainingPlan, exerciseId: string, checked: boolean): Promise<void> {
     await this.updateConfig(plan, exerciseId, { showCooldownSets: checked });
+  }
+
+  // The exercise's own warm-up ramp (Stammdaten) - undefined when it has
+  // none, in which case the hint/opt-out below never renders.
+  exerciseWarmupRamp(exerciseId: string): WarmupRampStep[] | undefined {
+    return this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp;
+  }
+
+  async updateWarmupRampDisabled(plan: TrainingPlan, exerciseId: string, disabled: boolean): Promise<void> {
+    await this.updateConfig(plan, exerciseId, { warmupRampDisabled: disabled });
   }
 
   private async updatePercentageSet(
