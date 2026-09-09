@@ -162,9 +162,9 @@ export class SetEquipmentDialogComponent {
   // a text list - null when there's nothing to draw (no equipment picked
   // or no plates needed), same guard the text breakdown itself uses. Only
   // one side is drawn (this popup's field is already "per side"); sorted
-  // heaviest-first and placed starting at x=0 (the grip end, off-diagram)
-  // so the heaviest plates sit closest to the middle of the bar, same as
-  // how a real barbell is loaded.
+  // lightest-first and placed starting at x=0 (the outer end of the bar)
+  // so the lightest plates end up at that end and the heaviest end up
+  // closest to the middle of the bar.
   get barbellDiagram(): BarbellDiagram | null {
     const result = this.plateLoadingResult;
     if (result.perSide.length === 0) {
@@ -174,7 +174,7 @@ export class SetEquipmentDialogComponent {
     const maxWeight = Math.max(1, ...result.perSide.map((item) => item.weight));
 
     const groups = [...result.perSide]
-      .sort((a, b) => b.weight - a.weight)
+      .sort((a, b) => a.weight - b.weight)
       .map((item) => {
         const perPlateThickness =
           this.minPlateThickness + (this.maxPlateThickness - this.minPlateThickness) * (item.weight / maxWeight);
@@ -206,7 +206,7 @@ export class SetEquipmentDialogComponent {
       }
       labels.push({
         x: (groupStartX + offset) / 2,
-        y: this.diagramCenterY - height / 2 - 6,
+        y: this.diagramCenterY,
         text: group.weight.toFixed(2)
       });
     }

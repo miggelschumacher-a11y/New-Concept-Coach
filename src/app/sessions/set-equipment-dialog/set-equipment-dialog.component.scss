@@ -54,9 +54,13 @@
 }
 
 .barbell-plate-label {
-  fill: var(--app-muted-text);
-  font-size: 11px;
+  // Sits on top of the plate's own fill (not the dialog background), so it
+  // needs a fixed light color rather than the theme-dependent muted-text
+  // token - white reads reliably on the plate's indigo in both themes.
+  fill: #fff;
+  font-size: 7px;
   text-anchor: middle;
+  dominant-baseline: middle;
 }
 
 .set-equipment-plate-list {
