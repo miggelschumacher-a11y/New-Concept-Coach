@@ -2618,6 +2618,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
+  // Purely a reference list of other exercises to warm up/cool down with -
+  // never generates sets, unlike the session's own top-level exercise
+  // select. See SessionExercise.warmupExerciseIds/cooldownExerciseIds.
+  async updateWarmupReferenceExercises(session: TrainingSession, sessionExercise: SessionExercise, exerciseIds: string[]): Promise<void> {
+    sessionExercise.warmupExerciseIds = exerciseIds;
+    await this.persist(session);
+  }
+
+  async updateCooldownReferenceExercises(session: TrainingSession, sessionExercise: SessionExercise, exerciseIds: string[]): Promise<void> {
+    sessionExercise.cooldownExerciseIds = exerciseIds;
+    await this.persist(session);
+  }
+
   isPendingDeleteExercise(session: TrainingSession, exerciseId: string): boolean {
     return this.pendingDeleteExerciseKey === `${session.id}:${exerciseId}`;
   }

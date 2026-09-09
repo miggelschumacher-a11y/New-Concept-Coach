@@ -91,6 +91,14 @@ export interface SessionExercise {
   // percentage - unset is treated as 'WEIGHT' (the default), same
   // dual-purpose convention as this exercise's own deloadType.
   incrementType?: 'WEIGHT' | 'PERCENT';
+  // Other exercises picked purely as a reminder of what to warm up/cool
+  // down with before/after this one - e.g. a couple of general mobility
+  // drills before a main lift. Selecting an exercise here never creates
+  // any sets for it (unlike the session's own exercise-select at the top,
+  // which does) - these ids are only ever displayed back in this same
+  // dropdown, nothing else reads them.
+  warmupExerciseIds?: string[];
+  cooldownExerciseIds?: string[];
 }
 
 export interface TrainingSession {
