@@ -822,29 +822,61 @@
                         </mat-panel-title>
                       </mat-expansion-panel-header>
 
-                      @if (setType.value === 'warmup' && hasWarmupRamp(sessionExercise.exerciseId)) {
-                        <button
-                          mat-stroked-button
-                          type="button"
-                          class="add-default-warmup-button"
-                          (click)="addDefaultWarmupToSessionExercise(session, sessionExercise)"
-                          [matTooltip]="'sessions.addDefaultWarmupButtonTooltip' | translate"
-                        >
-                          <mat-icon>whatshot</mat-icon>
-                          {{ 'sessions.addDefaultWarmupButton' | translate }}
-                        </button>
+                      @if (setType.value === 'warmup') {
+                        @if (hasWarmupRamp(sessionExercise.exerciseId)) {
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            class="add-default-warmup-button"
+                            (click)="addDefaultWarmupToSessionExercise(session, sessionExercise)"
+                            [matTooltip]="'sessions.addDefaultWarmupButtonTooltip' | translate"
+                          >
+                            <mat-icon>whatshot</mat-icon>
+                            {{ 'sessions.addDefaultWarmupButton' | translate }}
+                          </button>
+                        }
+                        <mat-form-field appearance="outline" class="reference-exercises-field">
+                          <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
+                          <mat-select
+                            [ngModel]="sessionExercise.warmupExerciseIds ?? []"
+                            multiple
+                            name="warmupReferenceExercises-{{ sessionExercise.exerciseId }}"
+                            panelClass="exercise-select-panel"
+                            (selectionChange)="updateWarmupReferenceExercises(session, sessionExercise, $event.value)"
+                          >
+                            @for (exercise of exercises; track exercise.id) {
+                              <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
                       }
-                      @if (setType.value === 'cooldown' && hasCooldownRamp(sessionExercise.exerciseId)) {
-                        <button
-                          mat-stroked-button
-                          type="button"
-                          class="add-default-warmup-button"
-                          (click)="addDefaultCooldownToSessionExercise(session, sessionExercise)"
-                          [matTooltip]="'sessions.addDefaultCooldownButtonTooltip' | translate"
-                        >
-                          <mat-icon>ac_unit</mat-icon>
-                          {{ 'sessions.addDefaultCooldownButton' | translate }}
-                        </button>
+                      @if (setType.value === 'cooldown') {
+                        @if (hasCooldownRamp(sessionExercise.exerciseId)) {
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            class="add-default-warmup-button"
+                            (click)="addDefaultCooldownToSessionExercise(session, sessionExercise)"
+                            [matTooltip]="'sessions.addDefaultCooldownButtonTooltip' | translate"
+                          >
+                            <mat-icon>ac_unit</mat-icon>
+                            {{ 'sessions.addDefaultCooldownButton' | translate }}
+                          </button>
+                        }
+                        <mat-form-field appearance="outline" class="reference-exercises-field">
+                          <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
+                          <mat-select
+                            [ngModel]="sessionExercise.cooldownExerciseIds ?? []"
+                            multiple
+                            name="cooldownReferenceExercises-{{ sessionExercise.exerciseId }}"
+                            panelClass="exercise-select-panel"
+                            (selectionChange)="updateCooldownReferenceExercises(session, sessionExercise, $event.value)"
+                          >
+                            @for (exercise of exercises; track exercise.id) {
+                              <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
                       }
 
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
@@ -1050,39 +1082,6 @@
                       >
                         <mat-icon>add</mat-icon>
                       </button>
-
-                      @if (setType.value === 'warmup') {
-                        <mat-form-field appearance="outline" class="reference-exercises-field">
-                          <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
-                          <mat-select
-                            [ngModel]="sessionExercise.warmupExerciseIds ?? []"
-                            multiple
-                            name="warmupReferenceExercises-{{ sessionExercise.exerciseId }}"
-                            panelClass="exercise-select-panel"
-                            (selectionChange)="updateWarmupReferenceExercises(session, sessionExercise, $event.value)"
-                          >
-                            @for (exercise of exercises; track exercise.id) {
-                              <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
-                            }
-                          </mat-select>
-                        </mat-form-field>
-                      }
-                      @if (setType.value === 'cooldown') {
-                        <mat-form-field appearance="outline" class="reference-exercises-field">
-                          <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
-                          <mat-select
-                            [ngModel]="sessionExercise.cooldownExerciseIds ?? []"
-                            multiple
-                            name="cooldownReferenceExercises-{{ sessionExercise.exerciseId }}"
-                            panelClass="exercise-select-panel"
-                            (selectionChange)="updateCooldownReferenceExercises(session, sessionExercise, $event.value)"
-                          >
-                            @for (exercise of exercises; track exercise.id) {
-                              <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
-                            }
-                          </mat-select>
-                        </mat-form-field>
-                      }
                     </mat-expansion-panel>
                     }
                   }
