@@ -45,6 +45,10 @@ mat-card {
   align-items: center;
 }
 
+.description-info-popup p {
+  white-space: pre-line;
+}
+
 .description-info-popup {
   position: fixed;
   z-index: 1000;

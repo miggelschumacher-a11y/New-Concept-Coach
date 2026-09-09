@@ -6,6 +6,11 @@
 
 .session-notes-dialog-field {
   width: 100%;
+  // The floated label sits above the outline, right against the dialog's
+  // own top edge for the content's first (only) field - without this gap
+  // it gets visually clipped there (same fix as the weight field in
+  // SetEquipmentDialogComponent).
+  margin-top: 1.25rem;
 }
 
 .notes-char-count {

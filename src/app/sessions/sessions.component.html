@@ -362,16 +362,6 @@
 
             <button
               mat-stroked-button
-              type="button"
-              (click)="openSessionNotesDialog(session)"
-              [matTooltip]="'sessions.notes' | translate"
-              [attr.aria-label]="'sessions.notes' | translate"
-            >
-              <mat-icon>description</mat-icon>
-            </button>
-
-            <button
-              mat-stroked-button
               color="warn"
               type="button"
               (click)="requestFinishSession(session)"
@@ -379,6 +369,16 @@
               [attr.aria-label]="'sessions.finish' | translate"
             >
               <mat-icon>stop</mat-icon>
+            </button>
+
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="openSessionNotesDialog(session)"
+              [matTooltip]="'sessions.notes' | translate"
+              [attr.aria-label]="'sessions.notes' | translate"
+            >
+              <mat-icon>description</mat-icon>
             </button>
           }
         </div>

@@ -23,7 +23,7 @@
           <mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}
           <span class="description-char-count">({{ descriptionMaxLength - description.length }}/{{ descriptionMaxLength }})</span>
         </mat-label>
-        <input matInput name="description" [maxlength]="descriptionMaxLength" [(ngModel)]="description" selectOnFocus />
+        <textarea matInput name="description" rows="3" [maxlength]="descriptionMaxLength" [(ngModel)]="description" selectOnFocus></textarea>
       </mat-form-field>
     </form>
   </mat-card-content>
@@ -460,7 +460,14 @@
                 <mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}
                 <span class="description-char-count">({{ descriptionMaxLength - editDescription.length }}/{{ descriptionMaxLength }})</span>
               </mat-label>
-              <input matInput name="editDescription-{{ plan.id }}" [maxlength]="descriptionMaxLength" [(ngModel)]="editDescription" selectOnFocus />
+              <textarea
+                matInput
+                name="editDescription-{{ plan.id }}"
+                rows="3"
+                [maxlength]="descriptionMaxLength"
+                [(ngModel)]="editDescription"
+                selectOnFocus
+              ></textarea>
             </mat-form-field>
           </form>
         } @else {
