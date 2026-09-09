@@ -1,0 +1,21 @@
+[mat-dialog-content] {
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+}
+
+.session-notes-dialog-field {
+  width: 100%;
+}
+
+.notes-char-count {
+  color: var(--app-muted-text);
+  font-weight: normal;
+  font-size: 0.85em;
+  margin-left: 0.35rem;
+}
+
+.session-notes-dialog-actions {
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

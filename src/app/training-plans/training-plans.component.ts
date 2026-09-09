@@ -113,6 +113,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   exercises: Exercise[] = [];
   name = '';
   description = '';
+  readonly descriptionMaxLength = 1000;
   editingPlanId: string | null = null;
   editName = '';
   editDescription = '';

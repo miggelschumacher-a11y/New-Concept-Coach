@@ -24,6 +24,11 @@ import {
   SetEquipmentDialogData,
   SetEquipmentDialogResult
 } from './set-equipment-dialog/set-equipment-dialog.component';
+import {
+  SessionNotesDialogComponent,
+  SessionNotesDialogData,
+  SessionNotesDialogResult
+} from './session-notes-dialog/session-notes-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -3461,6 +3466,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async updateSessionNotes(session: TrainingSession): Promise<void> {
     await this.persist(session);
+  }
+
+  // Notes now live in their own popup rather than an inline accordion - opened
+  // from the button next to the finish/stop control.
+  async openSessionNotesDialog(session: TrainingSession): Promise<void> {
+    const data: SessionNotesDialogData = { notes: session.notes ?? '' };
+    const result = await firstValueFrom(
+      this.dialog.open<SessionNotesDialogComponent, SessionNotesDialogData, SessionNotesDialogResult>(SessionNotesDialogComponent, { data }).afterClosed()
+    );
+    if (!result) {
+      return;
+    }
+    session.notes = result.notes;
+    await this.updateSessionNotes(session);
   }
 
   async updateSessionName(session: TrainingSession): Promise<void> {

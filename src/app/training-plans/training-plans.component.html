@@ -8,11 +8,6 @@
         <input matInput name="name" [(ngModel)]="name" required selectOnFocus />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label><mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}</mat-label>
-        <input matInput name="description" [(ngModel)]="description" selectOnFocus />
-      </mat-form-field>
-
       <button
         mat-raised-button
         color="primary"
@@ -22,6 +17,14 @@
       >
         <mat-icon>add</mat-icon>
       </button>
+
+      <mat-form-field appearance="outline" class="plan-description-field">
+        <mat-label>
+          <mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}
+          <span class="description-char-count">({{ descriptionMaxLength - description.length }}/{{ descriptionMaxLength }})</span>
+        </mat-label>
+        <input matInput name="description" [maxlength]="descriptionMaxLength" [(ngModel)]="description" selectOnFocus />
+      </mat-form-field>
     </form>
   </mat-card-content>
 </mat-card>
@@ -433,11 +436,6 @@
               <input matInput name="editName-{{ plan.id }}" [(ngModel)]="editName" required selectOnFocus />
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label><mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}</mat-label>
-              <input matInput name="editDescription-{{ plan.id }}" [(ngModel)]="editDescription" selectOnFocus />
-            </mat-form-field>
-
             <button
               mat-icon-button
               color="primary"
@@ -456,6 +454,14 @@
             >
               <mat-icon>close</mat-icon>
             </button>
+
+            <mat-form-field appearance="outline" class="plan-description-field">
+              <mat-label>
+                <mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}
+                <span class="description-char-count">({{ descriptionMaxLength - editDescription.length }}/{{ descriptionMaxLength }})</span>
+              </mat-label>
+              <input matInput name="editDescription-{{ plan.id }}" [maxlength]="descriptionMaxLength" [(ngModel)]="editDescription" selectOnFocus />
+            </mat-form-field>
           </form>
         } @else {
           @if (planDescription(plan)) {

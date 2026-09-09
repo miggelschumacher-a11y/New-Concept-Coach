@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{ 'sessions.notes' | translate }}</h2>
+<div mat-dialog-content>
+  <mat-form-field appearance="outline" class="session-notes-dialog-field">
+    <mat-label>
+      <span class="notes-char-count">({{ maxLength - notes.length }}/{{ maxLength }})</span>
+    </mat-label>
+    <textarea
+      matInput
+      [maxlength]="maxLength"
+      rows="8"
+      name="sessionNotesDialogNotes"
+      [(ngModel)]="notes"
+      selectOnFocus
+    ></textarea>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions class="session-notes-dialog-actions">
+  <button mat-stroked-button type="button" (click)="cancel()">{{ 'sessions.confirmCancel' | translate }}</button>
+  <button mat-raised-button color="primary" type="button" (click)="save()">{{ 'common.save' | translate }}</button>
+</div>

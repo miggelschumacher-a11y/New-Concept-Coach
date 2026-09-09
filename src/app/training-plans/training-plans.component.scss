@@ -5,6 +5,21 @@
   flex-wrap: wrap;
 }
 
+// Forces the description field onto its own full-width row below
+// name/save/cancel, which - being flex-basis 100% - can't share a row with
+// anything else in this wrapping flex container.
+.plan-description-field {
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+.description-char-count {
+  color: var(--app-muted-text);
+  font-weight: normal;
+  font-size: 0.85em;
+  margin-left: 0.35rem;
+}
+
 mat-card {
   margin-bottom: 1.5rem;
 }
