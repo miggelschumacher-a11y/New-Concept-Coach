@@ -88,6 +88,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Only usable as a warm-up exercise',
     'exercises.useAsCooldownExercise': 'Also usable as a cooldown exercise',
     'exercises.onlyAsCooldownExercise': 'Only usable as a cooldown exercise',
+    'exercises.useAsWarmupExerciseTooltip':
+      "Also lets this exercise be picked in another exercise's warm-up reference list, without removing it from the normal exercise picker for sessions and plans.",
+    'exercises.onlyAsWarmupExerciseTooltip':
+      "Only lets this exercise be picked in another exercise's warm-up reference list - hides it from the normal exercise picker for sessions and plans.",
+    'exercises.useAsCooldownExerciseTooltip':
+      "Also lets this exercise be picked in another exercise's cooldown reference list, without removing it from the normal exercise picker for sessions and plans.",
+    'exercises.onlyAsCooldownExerciseTooltip':
+      "Only lets this exercise be picked in another exercise's cooldown reference list - hides it from the normal exercise picker for sessions and plans.",
     'exercises.empty': 'No exercises yet.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -481,6 +489,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Nur als Aufwärmübung nehmen',
     'exercises.useAsCooldownExercise': 'Auch als Cooldown-Übung nehmen',
     'exercises.onlyAsCooldownExercise': 'Nur als Cooldown-Übung nehmen',
+    'exercises.useAsWarmupExerciseTooltip':
+      'Diese Übung erscheint zusätzlich in der Aufwärm-Auswahlliste anderer Übungen, bleibt aber weiterhin in der normalen Übungsauswahl für Trainingseinheiten und -pläne wählbar.',
+    'exercises.onlyAsWarmupExerciseTooltip':
+      'Diese Übung erscheint nur noch in der Aufwärm-Auswahlliste anderer Übungen - sie wird aus der normalen Übungsauswahl für Trainingseinheiten und -pläne entfernt.',
+    'exercises.useAsCooldownExerciseTooltip':
+      'Diese Übung erscheint zusätzlich in der Cooldown-Auswahlliste anderer Übungen, bleibt aber weiterhin in der normalen Übungsauswahl für Trainingseinheiten und -pläne wählbar.',
+    'exercises.onlyAsCooldownExerciseTooltip':
+      'Diese Übung erscheint nur noch in der Cooldown-Auswahlliste anderer Übungen - sie wird aus der normalen Übungsauswahl für Trainingseinheiten und -pläne entfernt.',
     'exercises.empty': 'Noch keine Übungen vorhanden.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -876,6 +892,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Solo utilizable como ejercicio de calentamiento',
     'exercises.useAsCooldownExercise': 'También utilizable como ejercicio de enfriamiento',
     'exercises.onlyAsCooldownExercise': 'Solo utilizable como ejercicio de enfriamiento',
+    'exercises.useAsWarmupExerciseTooltip':
+      'Este ejercicio también aparecerá en la lista de calentamiento de otros ejercicios, sin dejar de estar disponible en la selección normal de ejercicios para sesiones y planes.',
+    'exercises.onlyAsWarmupExerciseTooltip':
+      'Este ejercicio solo aparecerá en la lista de calentamiento de otros ejercicios - se ocultará de la selección normal de ejercicios para sesiones y planes.',
+    'exercises.useAsCooldownExerciseTooltip':
+      'Este ejercicio también aparecerá en la lista de enfriamiento de otros ejercicios, sin dejar de estar disponible en la selección normal de ejercicios para sesiones y planes.',
+    'exercises.onlyAsCooldownExerciseTooltip':
+      'Este ejercicio solo aparecerá en la lista de enfriamiento de otros ejercicios - se ocultará de la selección normal de ejercicios para sesiones y planes.',
     'exercises.empty': 'Aún no hay ejercicios.',
     'exercises.oneRepMaxEstimated': 'Máx. ≈',
     'exercises.oneRepMaxCustom': 'Máx. =',
@@ -1271,6 +1295,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Apenas utilizável como exercício de aquecimento',
     'exercises.useAsCooldownExercise': 'Também utilizável como exercício de desaquecimento',
     'exercises.onlyAsCooldownExercise': 'Apenas utilizável como exercício de desaquecimento',
+    'exercises.useAsWarmupExerciseTooltip':
+      'Este exercício também aparecerá na lista de aquecimento de outros exercícios, continuando disponível na seleção normal de exercícios para sessões e planos.',
+    'exercises.onlyAsWarmupExerciseTooltip':
+      'Este exercício só aparecerá na lista de aquecimento de outros exercícios - será ocultado da seleção normal de exercícios para sessões e planos.',
+    'exercises.useAsCooldownExerciseTooltip':
+      'Este exercício também aparecerá na lista de desaquecimento de outros exercícios, continuando disponível na seleção normal de exercícios para sessões e planos.',
+    'exercises.onlyAsCooldownExerciseTooltip':
+      'Este exercício só aparecerá na lista de desaquecimento de outros exercícios - será ocultado da seleção normal de exercícios para sessões e planos.',
     'exercises.empty': 'Ainda não há exercícios.',
     'exercises.oneRepMaxEstimated': 'Máx. ≈',
     'exercises.oneRepMaxCustom': 'Máx. =',
@@ -1666,6 +1698,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Utilizzabile solo come esercizio di riscaldamento',
     'exercises.useAsCooldownExercise': 'Utilizzabile anche come esercizio di defaticamento',
     'exercises.onlyAsCooldownExercise': 'Utilizzabile solo come esercizio di defaticamento',
+    'exercises.useAsWarmupExerciseTooltip':
+      "Questo esercizio comparirà anche nell'elenco di riscaldamento di altri esercizi, restando comunque selezionabile normalmente per sessioni e piani.",
+    'exercises.onlyAsWarmupExerciseTooltip':
+      "Questo esercizio comparirà solo nell'elenco di riscaldamento di altri esercizi - non sarà più selezionabile normalmente per sessioni e piani.",
+    'exercises.useAsCooldownExerciseTooltip':
+      "Questo esercizio comparirà anche nell'elenco di defaticamento di altri esercizi, restando comunque selezionabile normalmente per sessioni e piani.",
+    'exercises.onlyAsCooldownExerciseTooltip':
+      "Questo esercizio comparirà solo nell'elenco di defaticamento di altri esercizi - non sarà più selezionabile normalmente per sessioni e piani.",
     'exercises.empty': 'Nessun esercizio ancora presente.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -2061,6 +2101,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Alleen bruikbaar als warming-up-oefening',
     'exercises.useAsCooldownExercise': 'Ook bruikbaar als cooling-down-oefening',
     'exercises.onlyAsCooldownExercise': 'Alleen bruikbaar als cooling-down-oefening',
+    'exercises.useAsWarmupExerciseTooltip':
+      "Deze oefening verschijnt ook in de warming-up-lijst van andere oefeningen, en blijft daarnaast gewoon kiesbaar in de normale oefeningselectie voor sessies en schema's.",
+    'exercises.onlyAsWarmupExerciseTooltip':
+      "Deze oefening verschijnt alleen nog in de warming-up-lijst van andere oefeningen - ze wordt uit de normale oefeningselectie voor sessies en schema's verwijderd.",
+    'exercises.useAsCooldownExerciseTooltip':
+      "Deze oefening verschijnt ook in de cooling-down-lijst van andere oefeningen, en blijft daarnaast gewoon kiesbaar in de normale oefeningselectie voor sessies en schema's.",
+    'exercises.onlyAsCooldownExerciseTooltip':
+      "Deze oefening verschijnt alleen nog in de cooling-down-lijst van andere oefeningen - ze wordt uit de normale oefeningselectie voor sessies en schema's verwijderd.",
     'exercises.empty': 'Nog geen oefeningen aanwezig.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -2456,6 +2504,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Można użyć tylko jako ćwiczenie rozgrzewkowe',
     'exercises.useAsCooldownExercise': 'Można też użyć jako ćwiczenie wyciszające',
     'exercises.onlyAsCooldownExercise': 'Można użyć tylko jako ćwiczenie wyciszające',
+    'exercises.useAsWarmupExerciseTooltip':
+      'To ćwiczenie pojawi się także na liście rozgrzewkowej innych ćwiczeń, pozostając nadal dostępne w zwykłym wyborze ćwiczeń dla sesji i planów.',
+    'exercises.onlyAsWarmupExerciseTooltip':
+      'To ćwiczenie pojawi się tylko na liście rozgrzewkowej innych ćwiczeń - zniknie ze zwykłego wyboru ćwiczeń dla sesji i planów.',
+    'exercises.useAsCooldownExerciseTooltip':
+      'To ćwiczenie pojawi się także na liście wyciszającej innych ćwiczeń, pozostając nadal dostępne w zwykłym wyborze ćwiczeń dla sesji i planów.',
+    'exercises.onlyAsCooldownExerciseTooltip':
+      'To ćwiczenie pojawi się tylko na liście wyciszającej innych ćwiczeń - zniknie ze zwykłego wyboru ćwiczeń dla sesji i planów.',
     'exercises.empty': 'Brak ćwiczeń.',
     'exercises.oneRepMaxEstimated': 'Maks. ≈',
     'exercises.oneRepMaxCustom': 'Maks. =',
@@ -2851,6 +2907,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Можно использовать только как разминочное упражнение',
     'exercises.useAsCooldownExercise': 'Также можно использовать как заминочное упражнение',
     'exercises.onlyAsCooldownExercise': 'Можно использовать только как заминочное упражнение',
+    'exercises.useAsWarmupExerciseTooltip':
+      'Это упражнение также появится в списке разминочных упражнений для других упражнений, оставаясь при этом доступным в обычном выборе упражнений для тренировок и планов.',
+    'exercises.onlyAsWarmupExerciseTooltip':
+      'Это упражнение будет доступно только в списке разминочных упражнений для других упражнений - оно исчезнет из обычного выбора упражнений для тренировок и планов.',
+    'exercises.useAsCooldownExerciseTooltip':
+      'Это упражнение также появится в списке заминочных упражнений для других упражнений, оставаясь при этом доступным в обычном выборе упражнений для тренировок и планов.',
+    'exercises.onlyAsCooldownExerciseTooltip':
+      'Это упражнение будет доступно только в списке заминочных упражнений для других упражнений - оно исчезнет из обычного выбора упражнений для тренировок и планов.',
     'exercises.empty': 'Упражнений пока нет.',
     'exercises.oneRepMaxEstimated': 'Макс. ≈',
     'exercises.oneRepMaxCustom': 'Макс. =',
@@ -3246,6 +3310,14 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.onlyAsWarmupExercise': 'Csak bemelegítő gyakorlatként használható',
     'exercises.useAsCooldownExercise': 'Levezető gyakorlatként is használható',
     'exercises.onlyAsCooldownExercise': 'Csak levezető gyakorlatként használható',
+    'exercises.useAsWarmupExerciseTooltip':
+      'Ez a gyakorlat más gyakorlatok bemelegítő-listájában is megjelenik, miközben továbbra is kiválasztható marad az edzések és edzéstervek szokásos gyakorlatválasztójában.',
+    'exercises.onlyAsWarmupExerciseTooltip':
+      'Ez a gyakorlat csak más gyakorlatok bemelegítő-listájában jelenik meg - eltűnik az edzések és edzéstervek szokásos gyakorlatválasztójából.',
+    'exercises.useAsCooldownExerciseTooltip':
+      'Ez a gyakorlat más gyakorlatok levezető-listájában is megjelenik, miközben továbbra is kiválasztható marad az edzések és edzéstervek szokásos gyakorlatválasztójában.',
+    'exercises.onlyAsCooldownExerciseTooltip':
+      'Ez a gyakorlat csak más gyakorlatok levezető-listájában jelenik meg - eltűnik az edzések és edzéstervek szokásos gyakorlatválasztójából.',
     'exercises.empty': 'Még nincsenek gyakorlatok.',
     'exercises.oneRepMaxEstimated': 'Max. ≈',
     'exercises.oneRepMaxCustom': 'Max. =',

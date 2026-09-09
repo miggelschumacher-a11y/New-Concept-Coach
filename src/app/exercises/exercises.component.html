@@ -204,12 +204,14 @@
               <mat-checkbox
                 [checked]="exercise.useAsWarmupExercise ?? false"
                 (change)="updateUseAsWarmupExercise(exercise, $event.checked)"
+                [matTooltip]="'exercises.useAsWarmupExerciseTooltip' | translate"
               >
                 {{ 'exercises.useAsWarmupExercise' | translate }}
               </mat-checkbox>
               <mat-checkbox
                 [checked]="exercise.onlyAsWarmupExercise ?? false"
                 (change)="updateOnlyAsWarmupExercise(exercise, $event.checked)"
+                [matTooltip]="'exercises.onlyAsWarmupExerciseTooltip' | translate"
               >
                 {{ 'exercises.onlyAsWarmupExercise' | translate }}
               </mat-checkbox>
@@ -273,12 +275,14 @@
               <mat-checkbox
                 [checked]="exercise.useAsCooldownExercise ?? false"
                 (change)="updateUseAsCooldownExercise(exercise, $event.checked)"
+                [matTooltip]="'exercises.useAsCooldownExerciseTooltip' | translate"
               >
                 {{ 'exercises.useAsCooldownExercise' | translate }}
               </mat-checkbox>
               <mat-checkbox
                 [checked]="exercise.onlyAsCooldownExercise ?? false"
                 (change)="updateOnlyAsCooldownExercise(exercise, $event.checked)"
+                [matTooltip]="'exercises.onlyAsCooldownExerciseTooltip' | translate"
               >
                 {{ 'exercises.onlyAsCooldownExercise' | translate }}
               </mat-checkbox>
