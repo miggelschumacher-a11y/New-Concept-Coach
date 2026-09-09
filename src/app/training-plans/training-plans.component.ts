@@ -33,6 +33,12 @@ import {
   PlanDayGroup
 } from '../core/models/training-plan.model';
 import { Exercise, WarmupRampStep } from '../core/models/exercise.model';
+import { calculateWarmupSets } from '../core/utils/warmup-ramp.util';
+import {
+  AddDefaultWarmupDialogComponent,
+  AddDefaultWarmupDialogData,
+  AddDefaultWarmupRow
+} from '../sessions/add-default-warmup-dialog/add-default-warmup-dialog.component';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
@@ -538,25 +544,132 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   // Keeps each retained exercise's own working-set list intact - only
   // newly-added exercises start with an empty one, same convenience as
-  // updatePlanExercises does for the old plan-level exerciseConfigs.
+  // updatePlanExercises does for the old plan-level exerciseConfigs. A
+  // newly-added exercise with its own warm-up ramp gets the same add-
+  // default-warmup prompt as adding it to a live session (see
+  // SessionsComponent.updateSessionExercises) - a plan has no "current
+  // working weight" yet, so the ramp is scaled off 0 until the plan
+  // author fills one in themselves (or uses addDefaultWarmupTo... below
+  // again afterward to rescale it).
   async updateCustomSessionExercises(plan: TrainingPlan, sessionId: string, exerciseIds: string[]): Promise<void> {
+    const session = (plan.customSessions ?? []).find((candidate) => candidate.id === sessionId);
+    const existingByExerciseId = new Map((session?.exercises ?? []).map((exercise) => [exercise.exerciseId, exercise]));
+    const newlyAddedIds = exerciseIds.filter((exerciseId) => !existingByExerciseId.has(exerciseId));
+    const confirmedExerciseIds = await this.confirmDefaultWarmupForExercises(newlyAddedIds);
+
+    plan.customSessions = (plan.customSessions ?? []).map((candidate) => {
+      if (candidate.id !== sessionId) {
+        return candidate;
+      }
+      const sessionExercises: CustomSessionExercise[] = exerciseIds.map((exerciseId) => {
+        const existing = existingByExerciseId.get(exerciseId);
+        if (existing) {
+          return existing;
+        }
+        const ramp = confirmedExerciseIds.has(exerciseId) ? this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp : undefined;
+        return {
+          exerciseId,
+          workingSetTargets: [],
+          warmupSetTargets: ramp?.length ? calculateWarmupSets(0, ramp, this.settingsService.getSettings().weightUnit) : undefined,
+          showWarmupSets: ramp?.length ? true : undefined,
+          incrementScheme: DEFAULT_INCREMENT_SCHEME,
+          weightIncrement: DEFAULT_WEIGHT_INCREMENT
+        };
+      });
+      return { ...candidate, exerciseIds, exercises: sessionExercises };
+    });
+    await this.trainingPlansService.update(plan);
+  }
+
+  // Removes one exercise from a custom session - same immediate-delete
+  // behavior (no confirm step) as a flat plan's own per-exercise delete
+  // button below.
+  async removeCustomSessionExercise(plan: TrainingPlan, sessionId: string, exerciseId: string): Promise<void> {
     plan.customSessions = (plan.customSessions ?? []).map((session) => {
       if (session.id !== sessionId) {
         return session;
       }
-      const existingByExerciseId = new Map((session.exercises ?? []).map((exercise) => [exercise.exerciseId, exercise]));
-      const sessionExercises: CustomSessionExercise[] = exerciseIds.map(
-        (exerciseId) =>
-          existingByExerciseId.get(exerciseId) ?? {
-            exerciseId,
-            workingSetTargets: [],
-            incrementScheme: DEFAULT_INCREMENT_SCHEME,
-            weightIncrement: DEFAULT_WEIGHT_INCREMENT
-          }
-      );
-      return { ...session, exerciseIds, exercises: sessionExercises };
+      return {
+        ...session,
+        exerciseIds: session.exerciseIds.filter((id) => id !== exerciseId),
+        exercises: (session.exercises ?? []).filter((exercise) => exercise.exerciseId !== exerciseId)
+      };
     });
     await this.trainingPlansService.update(plan);
+  }
+
+  // Shared by every "add exercise(s) to a plan" entry point that should
+  // offer the exercise's own warm-up ramp - filters candidateIds down to
+  // the ones that actually have a ramp, skips the dialog entirely when
+  // there's nothing to ask about, and returns the ids the user opted
+  // into (same dialog SessionsComponent.updateSessionExercises uses).
+  private async confirmDefaultWarmupForExercises(candidateIds: string[]): Promise<Set<string>> {
+    const rows: AddDefaultWarmupRow[] = candidateIds
+      .map((exerciseId) => ({
+        exerciseId,
+        exerciseName: this.exerciseName(exerciseId),
+        ramp: this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp
+      }))
+      .filter((candidate): candidate is { exerciseId: string; exerciseName: string; ramp: WarmupRampStep[] } => !!candidate.ramp?.length)
+      .map(({ exerciseId, exerciseName }) => ({ exerciseId, exerciseName, selected: true }));
+    if (rows.length === 0) {
+      return new Set();
+    }
+    const data: AddDefaultWarmupDialogData = { rows };
+    const result = await firstValueFrom(
+      this.dialog.open<AddDefaultWarmupDialogComponent, AddDefaultWarmupDialogData, string[]>(AddDefaultWarmupDialogComponent, { data }).afterClosed()
+    );
+    return new Set(result ?? []);
+  }
+
+  // Retroactively (re)applies the exercise's warm-up ramp to one custom-
+  // session exercise, replacing whatever warm-up targets it has now - for
+  // whenever the initial add-prompt was declined, or the ramp was only
+  // added to the exercise afterward. Scaled off this exercise's own first
+  // working-set weight, same as a session's first working set feeds the
+  // ramp in SessionsComponent.buildSessionFromPlan.
+  async addDefaultWarmupToCustomSessionExercise(plan: TrainingPlan, sessionId: string, exerciseId: string): Promise<void> {
+    const ramp = this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp;
+    if (!ramp?.length) {
+      return;
+    }
+    plan.customSessions = (plan.customSessions ?? []).map((session) => {
+      if (session.id !== sessionId) {
+        return session;
+      }
+      return {
+        ...session,
+        exercises: (session.exercises ?? []).map((exercise) => {
+          if (exercise.exerciseId !== exerciseId) {
+            return exercise;
+          }
+          const baseWeight = exercise.workingSetTargets?.[0]?.weight ?? 0;
+          return {
+            ...exercise,
+            warmupSetTargets: calculateWarmupSets(baseWeight, ramp, this.settingsService.getSettings().weightUnit),
+            showWarmupSets: true
+          };
+        })
+      };
+    });
+    await this.trainingPlansService.update(plan);
+  }
+
+  // Same idea as addDefaultWarmupToCustomSessionExercise, for a flat
+  // plan's own exerciseConfigs entry - also clears a prior opt-out, since
+  // clicking this button is an explicit request to use the ramp now.
+  async addDefaultWarmupToPlanExercise(plan: TrainingPlan, exerciseId: string): Promise<void> {
+    const ramp = this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp;
+    if (!ramp?.length) {
+      return;
+    }
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const baseWeight = config.workingSetTargets?.[0]?.weight ?? 0;
+    await this.updateConfig(plan, exerciseId, {
+      warmupSetTargets: calculateWarmupSets(baseWeight, ramp, this.settingsService.getSettings().weightUnit),
+      showWarmupSets: true,
+      warmupRampDisabled: false
+    });
   }
 
   async updateCustomSessionExerciseType(plan: TrainingPlan, sessionId: string, exerciseType: PlanExerciseType): Promise<void> {

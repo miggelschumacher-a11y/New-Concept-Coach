@@ -528,6 +528,17 @@
                         @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
                           <mat-expansion-panel>
                             <mat-expansion-panel-header>
+                              <div class="header-delete-action">
+                                <button
+                                  mat-icon-button
+                                  color="warn"
+                                  (click)="removeCustomSessionExercise(plan, session.id, sessionExercise.exerciseId); $event.stopPropagation()"
+                                  [matTooltip]="'common.delete' | translate"
+                                  [attr.aria-label]="'common.delete' | translate"
+                                >
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                              </div>
                               <mat-panel-title>
                                 {{ exerciseName(sessionExercise.exerciseId) }}
                                 @if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {
@@ -821,6 +832,17 @@
                                     <mat-panel-title>{{ 'sessions.warmupSets' | translate }}</mat-panel-title>
                                     <mat-panel-description>{{ sessionExercise.warmupSetTargets?.length ?? 0 }}</mat-panel-description>
                                   </mat-expansion-panel-header>
+                                  @if (exerciseWarmupRamp(sessionExercise.exerciseId)) {
+                                    <button
+                                      mat-stroked-button
+                                      type="button"
+                                      (click)="addDefaultWarmupToCustomSessionExercise(plan, session.id, sessionExercise.exerciseId)"
+                                      [matTooltip]="'sessions.addDefaultWarmupButtonTooltip' | translate"
+                                    >
+                                      <mat-icon>whatshot</mat-icon>
+                                      {{ 'sessions.addDefaultWarmupButton' | translate }}
+                                    </button>
+                                  }
                                   <ng-container
                                     [ngTemplateOutlet]="customSetTargetRows"
                                     [ngTemplateOutletContext]="{ field: 'warmupSetTargets', targets: sessionExercise.warmupSetTargets ?? [] }"
@@ -1192,6 +1214,15 @@
                               }
                             </p>
                           }
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            (click)="addDefaultWarmupToPlanExercise(plan, exerciseId)"
+                            [matTooltip]="'sessions.addDefaultWarmupButtonTooltip' | translate"
+                          >
+                            <mat-icon>whatshot</mat-icon>
+                            {{ 'sessions.addDefaultWarmupButton' | translate }}
+                          </button>
                           <mat-checkbox
                             [checked]="planExerciseConfig(plan, exerciseId).warmupRampDisabled ?? false"
                             (change)="updateWarmupRampDisabled(plan, exerciseId, $event.checked)"

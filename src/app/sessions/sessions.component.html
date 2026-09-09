@@ -822,6 +822,18 @@
                         </mat-panel-title>
                       </mat-expansion-panel-header>
 
+                      @if (setType.value === 'warmup' && hasWarmupRamp(sessionExercise.exerciseId)) {
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          (click)="addDefaultWarmupToSessionExercise(session, sessionExercise)"
+                          [matTooltip]="'sessions.addDefaultWarmupButtonTooltip' | translate"
+                        >
+                          <mat-icon>whatshot</mat-icon>
+                          {{ 'sessions.addDefaultWarmupButton' | translate }}
+                        </button>
+                      }
+
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
                         @if (doneAttemptFieldKey === set.id) {
                           <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>

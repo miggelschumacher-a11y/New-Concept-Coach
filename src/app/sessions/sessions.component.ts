@@ -36,7 +36,7 @@ import {
 } from './add-default-warmup-dialog/add-default-warmup-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
-import { SettingsService } from '../core/services/settings.service';
+import { SettingsService, WeightUnit } from '../core/services/settings.service';
 import { TranslationService } from '../core/services/translation.service';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { TierLineProgressionService } from '../core/services/tier-line-progression.service';
@@ -2491,21 +2491,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
         return existing;
       }
       const ramp = confirmedExerciseIds.has(exerciseId) ? this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp : undefined;
-      const sets = ramp?.length
-        ? calculateWarmupSets(this.defaultWeight(exerciseId, 'working'), ramp, weightUnit).map((target) => ({
-            id: crypto.randomUUID(),
-            reps: parseInt(target.targetReps, 10) || 0,
-            targetReps: parseInt(target.targetReps, 10) || 0,
-            weight: target.weight,
-            type: 'warmup' as SetType
-          }))
-        : [];
+      const sets = ramp?.length ? this.buildWarmupSetsFromRamp(ramp, this.defaultWeight(exerciseId, 'working'), weightUnit) : [];
       return {
         exerciseId,
         sets,
         countWarmupSets: sessionSettings.countWarmupSets,
         countCooldownSets: sessionSettings.countCooldownSets,
-        showWarmupSets: sessionSettings.showWarmupSets,
+        // Forced visible whenever the ramp actually added sets, regardless
+        // of the session's own current default - otherwise confirming the
+        // add-default-warmup prompt could silently produce sets the user
+        // can't even see.
+        showWarmupSets: sets.length > 0 ? true : sessionSettings.showWarmupSets,
         showCooldownSets: sessionSettings.showCooldownSets,
         // Matches Training Plans' own default for a freshly added exercise.
         exerciseType: 'WEIGHT_BASED' as const,
@@ -2513,6 +2509,45 @@ export class SessionsComponent implements OnInit, OnDestroy {
         weightIncrement: DEFAULT_WEIGHT_INCREMENT
       };
     });
+    await this.persist(session);
+  }
+
+  // Shared by updateSessionExercises (initial add-prompt) and
+  // addDefaultWarmupToSessionExercise (retroactive button) - turns an
+  // exercise's percentage ramp into literal warm-up ExerciseSets.
+  private buildWarmupSetsFromRamp(ramp: WarmupRampStep[], baseWeight: number, weightUnit: WeightUnit): ExerciseSet[] {
+    return calculateWarmupSets(baseWeight, ramp, weightUnit).map((target) => ({
+      id: crypto.randomUUID(),
+      reps: parseInt(target.targetReps, 10) || 0,
+      targetReps: parseInt(target.targetReps, 10) || 0,
+      weight: target.weight,
+      type: 'warmup' as SetType
+    }));
+  }
+
+  // Whether this exercise has its own warm-up ramp defined - gates the
+  // "add default warm-up" button in the template.
+  hasWarmupRamp(exerciseId: string): boolean {
+    return !!this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp?.length;
+  }
+
+  // Retroactively (re)applies the exercise's warm-up ramp to one session
+  // exercise, replacing whatever warm-up sets it has now - for whenever
+  // the initial add-prompt was declined, or the ramp was only added to
+  // the exercise afterward. Scaled off this exercise's current working
+  // weight (its first working set if any, else the same history-based
+  // fallback a freshly added working set itself would use).
+  async addDefaultWarmupToSessionExercise(session: TrainingSession, sessionExercise: SessionExercise): Promise<void> {
+    const ramp = this.exercises.find((exercise) => exercise.id === sessionExercise.exerciseId)?.warmupRamp;
+    if (!ramp?.length) {
+      return;
+    }
+    const workingWeight =
+      sessionExercise.sets.find((set) => set.type === 'working')?.weight ?? this.defaultWeight(sessionExercise.exerciseId, 'working');
+    const weightUnit = this.settingsService.getSettings().weightUnit;
+    const warmupSets = this.buildWarmupSetsFromRamp(ramp, workingWeight, weightUnit);
+    sessionExercise.sets = [...warmupSets, ...sessionExercise.sets.filter((set) => set.type !== 'warmup')];
+    sessionExercise.showWarmupSets = true;
     await this.persist(session);
   }
 
