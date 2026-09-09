@@ -73,16 +73,6 @@ export interface Exercise {
   // cooldown reference picker instead.
   useAsCooldownExercise?: boolean;
   onlyAsCooldownExercise?: boolean;
-  // Explicit opt-out of the warm-up reference picker - three-way mutually
-  // exclusive with useAsWarmupExercise/onlyAsWarmupExercise above (checking
-  // any one of the three clears the other two). Currently has the same
-  // observable effect as leaving all three unset (excluded from the
-  // reference picker, still a normal trainable exercise) - it exists so an
-  // explicit "never" decision is distinguishable from "not decided yet".
-  neverAsWarmupExercise?: boolean;
-  // Same idea as neverAsWarmupExercise above, for the cooldown reference
-  // picker instead.
-  neverAsCooldownExercise?: boolean;
   // Manually entered 1RM override for Percentage-Based progression, used
   // instead of the auto-estimated oneRepMax above when useCustomOneRepMax
   // is on - see SessionsComponent.percentageSetWeight /
