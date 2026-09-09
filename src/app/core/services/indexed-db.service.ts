@@ -138,12 +138,7 @@ const DB_NAME = 'trainings-app-db';
 // onlyAsWarmupExercise/onlyAsCooldownExercise (see WARMUP_ONLY_EXERCISE_NAMES/
 // COOLDOWN_ONLY_EXERCISE_NAMES) - picked up by the self-healing backfill
 // above, and set directly in buildDefaultExercise for brand-new installs.
-// 61: flags every exercise still left at the default "undecided" warm-up/
-// cooldown-usage state (none of its own three checkboxes ever touched) as
-// neverAsWarmupExercise/neverAsCooldownExercise - requested by the user,
-// same self-healing backfill mechanism as 60 above, and set directly in
-// buildDefaultExercise for brand-new installs.
-const DB_VERSION = 61;
+const DB_VERSION = 60;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -690,12 +685,6 @@ function buildDefaultExercise(name: string): Exercise {
     muscleGroup: DEFAULT_EXERCISE_MUSCLE_GROUPS[name],
     onlyAsWarmupExercise: WARMUP_ONLY_EXERCISE_NAMES.includes(name) || undefined,
     onlyAsCooldownExercise: COOLDOWN_ONLY_EXERCISE_NAMES.includes(name) || undefined,
-    // Every other default exercise explicitly opts out of the warm-up/
-    // cooldown reference picker, rather than leaving it at the "undecided"
-    // unset state - same as the self-healing backfill applies to existing
-    // installs' rows still left undecided.
-    neverAsWarmupExercise: WARMUP_ONLY_EXERCISE_NAMES.includes(name) ? undefined : true,
-    neverAsCooldownExercise: COOLDOWN_ONLY_EXERCISE_NAMES.includes(name) ? undefined : true,
     ...(sourced
       ? {
           description: sourced.description,
@@ -878,26 +867,6 @@ export class IndexedDbService {
                 updated.useAsCooldownExercise === undefined
               ) {
                 updated = { ...updated, onlyAsCooldownExercise: true };
-              }
-              // Explicitly flags every exercise still left at the default
-              // "undecided" warm-up/cooldown-usage state (none of its own
-              // three checkboxes ever touched, including by the backfill
-              // just above) as "never" - formalizes that only the curated
-              // warm-up/cooldown exercises above double as a reference
-              // pick, everything else doesn't by default.
-              if (
-                updated.useAsWarmupExercise === undefined &&
-                updated.onlyAsWarmupExercise === undefined &&
-                updated.neverAsWarmupExercise === undefined
-              ) {
-                updated = { ...updated, neverAsWarmupExercise: true };
-              }
-              if (
-                updated.useAsCooldownExercise === undefined &&
-                updated.onlyAsCooldownExercise === undefined &&
-                updated.neverAsCooldownExercise === undefined
-              ) {
-                updated = { ...updated, neverAsCooldownExercise: true };
               }
               if (updated !== exercise) {
                 cursor.update(updated);
