@@ -111,7 +111,20 @@ const DB_NAME = 'trainings-app-db';
 // pattern, added in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
 // 55: adds the Texas Method default plan, same self-healing pattern, added
 // in this same edit as its DEFAULT_PLAN_BUILDERS entry above.
-const DB_VERSION = 55;
+// 56: adds 14 general warm-up/mobility exercises (Armkreisen, Rumpfrotationen,
+// Beinschwingen, World's Greatest Stretch, Bodyweight Squats, Ausfallschritte
+// mit Rotation, Hüftkreisen, Glute Bridges, Band Pull-Aparts, Scapula
+// Push-ups, Schulterkreisen, Wall Slides, Handgelenkskreisen,
+// Knöchelmobilisation), requested by the user - picked up by the existing
+// self-healing DEFAULT_EXERCISE_NAMES backfill above.
+// 57: 56 landed as several separate file edits (DB_VERSION bump,
+// DEFAULT_EXERCISE_NAMES, the three classification maps, descriptions),
+// each its own dev-server rebuild/live-reload - a real, already-open
+// browser tab sharing this dev server reloaded on an intermediate edit
+// (DB_VERSION already 56, the 14 names not yet added) and got stuck there
+// without ever adding them (same race as 32/33, 34/35, 44/45, 47/48 and
+// 49/50 above). Re-fires the backfill for anyone caught in that gap.
+const DB_VERSION = 57;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -178,7 +191,21 @@ const DEFAULT_EXERCISE_NAMES = [
   'Lunges',
   'Incline-Bench-Press',
   'Face-Pulls',
-  'Chest-Fly'
+  'Chest-Fly',
+  'Armkreisen',
+  'Rumpfrotationen',
+  'Beinschwingen',
+  "World's-Greatest-Stretch",
+  'Bodyweight-Squats',
+  'Ausfallschritte-mit-Rotation',
+  'Hüftkreisen',
+  'Glute-Bridges',
+  'Band-Pull-Aparts',
+  'Scapula-Push-ups',
+  'Schulterkreisen',
+  'Wall-Slides',
+  'Handgelenkskreisen',
+  'Knöchelmobilisation'
 ];
 
 // The TierLine Basis plan's T1/T2 lifts need a body region to pick the right
@@ -219,7 +246,21 @@ const DEFAULT_EXERCISE_WEIGHT_CATEGORIES: Partial<Record<string, ExerciseWeightC
   Lunges: 'LOWER_BODY',
   'Incline-Bench-Press': 'UPPER_BODY',
   'Face-Pulls': 'UPPER_BODY',
-  'Chest-Fly': 'UPPER_BODY'
+  'Chest-Fly': 'UPPER_BODY',
+  Armkreisen: 'UPPER_BODY',
+  Rumpfrotationen: 'UPPER_BODY',
+  Beinschwingen: 'LOWER_BODY',
+  "World's-Greatest-Stretch": 'LOWER_BODY',
+  'Bodyweight-Squats': 'LOWER_BODY',
+  'Ausfallschritte-mit-Rotation': 'LOWER_BODY',
+  Hüftkreisen: 'LOWER_BODY',
+  'Glute-Bridges': 'LOWER_BODY',
+  'Band-Pull-Aparts': 'UPPER_BODY',
+  'Scapula-Push-ups': 'UPPER_BODY',
+  Schulterkreisen: 'UPPER_BODY',
+  'Wall-Slides': 'UPPER_BODY',
+  Handgelenkskreisen: 'UPPER_BODY',
+  Knöchelmobilisation: 'LOWER_BODY'
 };
 
 // Best-effort equipment classification for the default exercises, based on
@@ -258,7 +299,22 @@ const DEFAULT_EXERCISE_EQUIPMENT_TYPES: Partial<Record<string, ExerciseEquipment
   Lunges: 'BODYWEIGHT',
   'Incline-Bench-Press': 'BARBELL',
   'Face-Pulls': 'MACHINE',
-  'Chest-Fly': 'DUMBBELL'
+  'Chest-Fly': 'DUMBBELL',
+  Armkreisen: 'BODYWEIGHT',
+  Rumpfrotationen: 'BODYWEIGHT',
+  Beinschwingen: 'BODYWEIGHT',
+  "World's-Greatest-Stretch": 'BODYWEIGHT',
+  'Bodyweight-Squats': 'BODYWEIGHT',
+  'Ausfallschritte-mit-Rotation': 'BODYWEIGHT',
+  Hüftkreisen: 'BODYWEIGHT',
+  'Glute-Bridges': 'BODYWEIGHT',
+  // Band-Pull-Aparts uses a resistance band - no matching equipment option,
+  // left unset like every other genuinely unclassifiable exercise here.
+  'Scapula-Push-ups': 'BODYWEIGHT',
+  Schulterkreisen: 'BODYWEIGHT',
+  'Wall-Slides': 'BODYWEIGHT',
+  Handgelenkskreisen: 'BODYWEIGHT',
+  Knöchelmobilisation: 'BODYWEIGHT'
 };
 
 // Primary-mover muscle group for each default exercise - a single best-fit
@@ -299,7 +355,21 @@ const DEFAULT_EXERCISE_MUSCLE_GROUPS: Partial<Record<string, MuscleGroup>> = {
   Lunges: 'QUADRICEPS',
   'Incline-Bench-Press': 'CHEST',
   'Face-Pulls': 'SHOULDERS',
-  'Chest-Fly': 'CHEST'
+  'Chest-Fly': 'CHEST',
+  Armkreisen: 'SHOULDERS',
+  Rumpfrotationen: 'ABS',
+  Beinschwingen: 'HAMSTRINGS',
+  "World's-Greatest-Stretch": 'GLUTES',
+  'Bodyweight-Squats': 'QUADRICEPS',
+  'Ausfallschritte-mit-Rotation': 'QUADRICEPS',
+  Hüftkreisen: 'GLUTES',
+  'Glute-Bridges': 'GLUTES',
+  'Band-Pull-Aparts': 'SHOULDERS',
+  'Scapula-Push-ups': 'BACK',
+  Schulterkreisen: 'SHOULDERS',
+  'Wall-Slides': 'SHOULDERS',
+  Handgelenkskreisen: 'FOREARMS',
+  Knöchelmobilisation: 'CALVES'
 };
 
 interface SourcedExerciseContent {
@@ -467,7 +537,21 @@ const DEFAULT_EXERCISE_DESCRIPTIONS: Partial<Record<string, string>> = {
   Lunges: `Stehe aufrecht, die Hände in die Hüften gestützt. Mache einen großen Schritt nach vorne und senke den Körper ab, bis beide Knie etwa einen rechten Winkel bilden, das hintere Knie knapp über dem Boden. Drücke dich über die vordere Ferse wieder zurück in die Ausgangsposition.`,
   'Incline-Bench-Press': `Lege dich auf eine Schrägbank mit etwa 30-45 Grad Neigung und greife die Langhantel etwas breiter als schulterbreit. Senke die Stange kontrolliert bis zum oberen Brustbereich ab. Drücke sie wieder nach oben, bis die Arme fast vollständig gestreckt sind.`,
   'Face-Pulls': `Stelle dich vor den Kabelzug mit einem Seilgriff auf Kopfhöhe eingehängt. Ziehe das Seil zum Gesicht, während du die Ellbogen hoch und nach außen führst und die Schulterblätter zusammenziehst. Führe das Seil kontrolliert wieder zurück in die Ausgangsposition.`,
-  'Chest-Fly': `Lege dich auf eine Flachbank, in jeder Hand eine Kurzhantel mit den Handflächen zueinander über der Brust. Senke die Arme mit leicht gebeugten Ellbogen seitlich ab, bis eine Dehnung in der Brust spürbar ist. Führe die Hanteln wieder in einer bogenförmigen Bewegung über der Brust zusammen.`
+  'Chest-Fly': `Lege dich auf eine Flachbank, in jeder Hand eine Kurzhantel mit den Handflächen zueinander über der Brust. Senke die Arme mit leicht gebeugten Ellbogen seitlich ab, bis eine Dehnung in der Brust spürbar ist. Führe die Hanteln wieder in einer bogenförmigen Bewegung über der Brust zusammen.`,
+  Armkreisen: `Stelle dich aufrecht hin und kreise beide Arme locker vorwärts, dann rückwärts. Beginne mit kleinen Kreisen und vergrößere sie langsam, um Schultern und Rotatorenmanschette zu mobilisieren.`,
+  Rumpfrotationen: `Stehe hüftbreit, die Arme vor der Brust verschränkt oder seitlich ausgestreckt, und drehe den Oberkörper locker abwechselnd nach links und rechts, um die Wirbelsäule zu mobilisieren.`,
+  Beinschwingen: `Halte dich an einer Wand oder einem festen Gegenstand fest und schwinge ein Bein locker nach vorne und hinten, danach seitlich, um Hüfte und Beinmuskulatur zu mobilisieren. Seite wechseln und wiederholen.`,
+  "World's-Greatest-Stretch": `Gehe aus dem Stand in einen tiefen Ausfallschritt. Führe das Knie des Schrittbeins nach außen, rotiere den Oberkörper zur Seite des vorderen Beins und strecke den Arm dieser Seite zur Decke. Kombiniert Mobilisation von Hüfte, Brustwirbelsäule und Schultern in einer Bewegung.`,
+  'Bodyweight-Squats': `Führe Kniebeugen ohne Zusatzgewicht in lockerem Tempo aus, die Füße etwa schulterbreit, um Hüfte, Knie und Knöchel vor dem eigentlichen Training zu aktivieren.`,
+  'Ausfallschritte-mit-Rotation': `Mache einen Ausfallschritt nach vorne und rotiere den Oberkörper zur Seite des vorderen Beins, um Hüfte und Brustwirbelsäule gleichzeitig zu mobilisieren. Zurück in den Stand und Seite wechseln.`,
+  Hüftkreisen: `Stelle die Hände in die Hüfte und kreise das Becken locker in beide Richtungen, um die Hüftgelenke zu mobilisieren.`,
+  'Glute-Bridges': `Lege dich auf den Rücken, die Knie angewinkelt und die Füße hüftbreit aufgestellt. Hebe das Becken durch Anspannen der Gesäßmuskulatur nach oben, bis Schultern, Hüfte und Knie eine gerade Linie bilden, und senke es wieder kontrolliert ab.`,
+  'Band-Pull-Aparts': `Halte ein Widerstandsband mit beiden Händen schulterbreit vor dem Körper und ziehe es auseinander, bis die Arme seitlich ausgestreckt sind, um die hintere Schulter und die obere Rückenmuskulatur zu aktivieren.`,
+  'Scapula-Push-ups': `Halte die Liegestützposition mit gestreckten Armen und bewege ausschließlich die Schulterblätter zueinander und wieder auseinander, um die Schulterstabilität zu aktivieren.`,
+  Schulterkreisen: `Kreise die Schultern locker nach vorne und danach nach hinten, um die Schultergelenke zu mobilisieren.`,
+  'Wall-Slides': `Stelle dich mit dem Rücken an eine Wand, die Arme im rechten Winkel angelegt, und schiebe die Arme kontrolliert an der Wand entlang nach oben und wieder herunter, ohne den Kontakt zur Wand zu verlieren.`,
+  Handgelenkskreisen: `Kreise beide Handgelenke locker in beide Richtungen, um sie vor Übungen mit Frontgriff oder hoher Belastung zu mobilisieren.`,
+  Knöchelmobilisation: `Kreise die Fußgelenke abwechselnd in beide Richtungen oder gehe kontrolliert in die Knie-zur-Wand-Position, um die Knöchelbeweglichkeit vor Kniebeugen zu verbessern.`
 };
 
 export type StoreName = (typeof STORES)[keyof typeof STORES];
