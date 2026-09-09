@@ -82,6 +82,7 @@ import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/bod
 import { calculateWarmupSets } from '../core/utils/warmup-ramp.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
+import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 
 function toDateTimeLocalValue(date: Date): string {
   const pad = (value: number) => value.toString().padStart(2, '0');
@@ -2450,6 +2451,30 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const existingByExerciseId = new Map(
       session.exercises.map((sessionExercise) => [sessionExercise.exerciseId, sessionExercise])
     );
+    // Deselecting an exercise that already has logged sets would silently
+    // throw those sets away - confirm first, and restore the exercise (with
+    // its sets untouched) into the selection if the user backs out.
+    const deselectedIdsWithSets = session.exercises
+      .filter((sessionExercise) => !exerciseIds.includes(sessionExercise.exerciseId) && sessionExercise.sets.length > 0)
+      .map((sessionExercise) => sessionExercise.exerciseId);
+    if (deselectedIdsWithSets.length > 0) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: { messageKey: 'sessions.confirmRemoveExerciseWithSetsQuestion' }
+      });
+      const confirmed = await firstValueFrom(dialogRef.afterClosed());
+      if (!confirmed) {
+        exerciseIds = [...exerciseIds, ...deselectedIdsWithSets];
+        // The restored id list can end up identical (by value) to what
+        // selectedExerciseIds last cached and handed to the mat-select's
+        // [ngModel] - which the user's own click already changed the
+        // select's internal selection away from. Without this, the
+        // unchanged-by-value cache hit means the same array reference goes
+        // back into the binding, Angular sees no change, and the checkbox
+        // stays visually unchecked even though the exercise was kept.
+        this.selectedExerciseIdsCache.delete(session.id);
+      }
+    }
+
     // Manually adding an exercise here has no plan config to fall back to
     // (see buildSessionFromPlan's own ramp handling for the generated-
     // session case) - this is the only other place a session exercise gets

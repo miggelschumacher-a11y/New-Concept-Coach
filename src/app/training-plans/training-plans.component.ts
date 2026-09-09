@@ -554,6 +554,26 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   async updateCustomSessionExercises(plan: TrainingPlan, sessionId: string, exerciseIds: string[]): Promise<void> {
     const session = (plan.customSessions ?? []).find((candidate) => candidate.id === sessionId);
     const existingByExerciseId = new Map((session?.exercises ?? []).map((exercise) => [exercise.exerciseId, exercise]));
+    // Deselecting an exercise that already has configured sets would
+    // silently discard them - confirm first, and restore the exercise (with
+    // its sets untouched) into the selection if the user backs out.
+    const deselectedIdsWithSets = (session?.exercises ?? [])
+      .filter(
+        (exercise) =>
+          !exerciseIds.includes(exercise.exerciseId) &&
+          (exercise.workingSetTargets.length > 0 || (exercise.warmupSetTargets?.length ?? 0) > 0 || (exercise.cooldownSetTargets?.length ?? 0) > 0)
+      )
+      .map((exercise) => exercise.exerciseId);
+    if (deselectedIdsWithSets.length > 0) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: { messageKey: 'sessions.confirmRemoveExerciseWithSetsQuestion' }
+      });
+      const confirmed = await firstValueFrom(dialogRef.afterClosed());
+      if (!confirmed) {
+        exerciseIds = [...exerciseIds, ...deselectedIdsWithSets];
+      }
+    }
+
     const newlyAddedIds = exerciseIds.filter((exerciseId) => !existingByExerciseId.has(exerciseId));
     const confirmedExerciseIds = await this.confirmDefaultWarmupForExercises(newlyAddedIds);
 

@@ -378,5 +378,7 @@ mat-card {
 }
 
 .add-default-warmup-button {
+  display: block;
+  width: fit-content;
   margin-bottom: 0.75rem;
 }
