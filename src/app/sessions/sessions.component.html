@@ -835,7 +835,7 @@
                             {{ 'sessions.addDefaultWarmupButton' | translate }}
                           </button>
                         }
-                        <mat-form-field appearance="outline" class="reference-exercises-field">
+                        <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
                           <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
                           <mat-select
                             [ngModel]="sessionExercise.warmupExerciseIds ?? []"
@@ -857,12 +857,12 @@
                           (click)="addSet(session, sessionExercise, 'warmup', singleSelectedWarmupReferenceId(sessionExercise))"
                         >
                           @if (singleSelectedWarmupReferenceId(sessionExercise); as refId) {
-                            {{ exerciseName(refId) }}
+                            "{{ exerciseName(refId) }}"
                           }
                           {{ 'sessions.addSet' | translate }}
                         </button>
                         <button mat-stroked-button type="button" class="add-set-for-exercise-button" (click)="addSet(session, sessionExercise, 'warmup')">
-                          {{ exerciseName(sessionExercise.exerciseId) }} {{ 'sessions.addSet' | translate }}
+                          "{{ exerciseName(sessionExercise.exerciseId) }}" {{ 'sessions.addSet' | translate }}
                         </button>
                       }
                       @if (setType.value === 'cooldown') {
@@ -878,7 +878,7 @@
                             {{ 'sessions.addDefaultCooldownButton' | translate }}
                           </button>
                         }
-                        <mat-form-field appearance="outline" class="reference-exercises-field">
+                        <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
                           <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
                           <mat-select
                             [ngModel]="sessionExercise.cooldownExerciseIds ?? []"
@@ -900,12 +900,12 @@
                           (click)="addSet(session, sessionExercise, 'cooldown', singleSelectedCooldownReferenceId(sessionExercise))"
                         >
                           @if (singleSelectedCooldownReferenceId(sessionExercise); as refId) {
-                            {{ exerciseName(refId) }}
+                            "{{ exerciseName(refId) }}"
                           }
                           {{ 'sessions.addSet' | translate }}
                         </button>
                         <button mat-stroked-button type="button" class="add-set-for-exercise-button" (click)="addSet(session, sessionExercise, 'cooldown')">
-                          {{ exerciseName(sessionExercise.exerciseId) }} {{ 'sessions.addSet' | translate }}
+                          "{{ exerciseName(sessionExercise.exerciseId) }}" {{ 'sessions.addSet' | translate }}
                         </button>
                       }
 
