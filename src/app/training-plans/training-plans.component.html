@@ -732,6 +732,9 @@
 
                             <ng-template #customSetTargetRows let-field="field" let-targets="targets">
                               @for (target of targets; track target.id; let targetIndex = $index) {
+                                @if (field === 'warmupSetTargets' || field === 'cooldownSetTargets') {
+                                  <div class="set-exercise-label">{{ exerciseName(sessionExercise.exerciseId) }}</div>
+                                }
                                 <div class="percentage-set-row">
                                   <button
                                     mat-icon-button
@@ -1130,6 +1133,9 @@
                        those are only ever rendered next to the working-set list. -->
                   <ng-template #setTargetRows let-field="field" let-targets="targets">
                     @for (target of targets; track target.id; let targetIndex = $index) {
+                      @if (field === 'warmupSetTargets' || field === 'cooldownSetTargets') {
+                        <div class="set-exercise-label">{{ exerciseName(exerciseId) }}</div>
+                      }
                       <div class="percentage-set-row">
                         @if (!plan.isDefault) {
                           <button

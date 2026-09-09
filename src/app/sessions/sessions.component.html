@@ -883,6 +883,9 @@
                         @if (doneAttemptFieldKey === set.id) {
                           <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                         }
+                        @if (setType.value === 'warmup' || setType.value === 'cooldown') {
+                          <div class="set-exercise-label">{{ exerciseName(sessionExercise.exerciseId) }}</div>
+                        }
                         <div class="set-row">
                           @if (pendingDeleteSetId === set.id) {
                             <div class="confirm-dialog">

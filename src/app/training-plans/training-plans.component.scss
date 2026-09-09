@@ -236,6 +236,12 @@ mat-card {
   gap: 0.25rem;
 }
 
+.set-exercise-label {
+  font-size: 0.75rem;
+  color: var(--app-muted-text);
+  margin: 0.4rem 0 0.1rem;
+}
+
 .percentage-set-row {
   display: flex;
   align-items: center;
