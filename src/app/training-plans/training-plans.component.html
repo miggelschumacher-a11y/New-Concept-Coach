@@ -731,21 +731,36 @@
                             </mat-accordion>
 
                             <ng-template #customSetTargetRows let-field="field" let-targets="targets">
-                              @for (target of targets; track target.id; let targetIndex = $index) {
-                                @if (field === 'warmupSetTargets' || field === 'cooldownSetTargets') {
-                                  <div class="set-exercise-label">{{ exerciseName(sessionExercise.exerciseId) }}</div>
-                                }
-                                <div class="percentage-set-row">
-                                  <button
-                                    mat-icon-button
-                                    color="warn"
-                                    (click)="removeCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field, targetIndex)"
-                                    [matTooltip]="'sessions.removeSet' | translate"
-                                    [attr.aria-label]="'sessions.removeSet' | translate"
-                                  >
-                                    <mat-icon>delete</mat-icon>
-                                  </button>
-                                  <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
+                              <div
+                                class="set-list"
+                                cdkDropList
+                                [cdkDropListData]="targets"
+                                (cdkDropListDropped)="dropCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field, $event)"
+                              >
+                                @for (target of targets; track target.id; let targetIndex = $index) {
+                                  <div class="set-target-item" cdkDrag>
+                                    @if (field === 'warmupSetTargets' || field === 'cooldownSetTargets') {
+                                      <div class="set-exercise-label">{{ exerciseName(target.referenceExerciseId ?? sessionExercise.exerciseId) }}</div>
+                                    }
+                                    <div class="percentage-set-row">
+                                      <div
+                                        class="set-drag-handle"
+                                        cdkDragHandle
+                                        [matTooltip]="'sessions.dragToReorder' | translate"
+                                        [attr.aria-label]="'sessions.dragToReorder' | translate"
+                                      >
+                                        <mat-icon>drag_indicator</mat-icon>
+                                      </div>
+                                      <button
+                                        mat-icon-button
+                                        color="warn"
+                                        (click)="removeCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field, targetIndex)"
+                                        [matTooltip]="'sessions.removeSet' | translate"
+                                        [attr.aria-label]="'sessions.removeSet' | translate"
+                                      >
+                                        <mat-icon>delete</mat-icon>
+                                      </button>
+                                      <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
 
                                   @if (session.exerciseType === 'TIME_BASED') {
                                     <mat-form-field appearance="outline" class="percentage-input-field">
@@ -819,13 +834,17 @@
                                       {{ 'trainingPlans.amrapLabel' | translate }}
                                     </mat-checkbox>
                                   }
-                                </div>
-                              }
+                                    </div>
+                                  </div>
+                                }
+                              </div>
 
-                              <button mat-stroked-button type="button" (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field)">
-                                <mat-icon>add</mat-icon>
-                                {{ 'sessions.addSet' | translate }}
-                              </button>
+                              @if (field === 'workingSetTargets') {
+                                <button mat-stroked-button type="button" (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field)">
+                                  <mat-icon>add</mat-icon>
+                                  {{ 'sessions.addSet' | translate }}
+                                </button>
+                              }
                             </ng-template>
 
                             <mat-accordion multi class="set-type-accordion">
@@ -847,11 +866,7 @@
                                       {{ 'sessions.addDefaultWarmupButton' | translate }}
                                     </button>
                                   }
-                                  <ng-container
-                                    [ngTemplateOutlet]="customSetTargetRows"
-                                    [ngTemplateOutletContext]="{ field: 'warmupSetTargets', targets: sessionExercise.warmupSetTargets ?? [] }"
-                                  ></ng-container>
-                                  <mat-form-field appearance="outline" class="reference-exercises-field">
+                                  <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
                                     <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
                                     <mat-select
                                       [ngModel]="sessionExercise.warmupExerciseId"
@@ -864,6 +879,30 @@
                                       }
                                     </mat-select>
                                   </mat-form-field>
+                                  <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="add-set-for-exercise-button"
+                                    [disabled]="!sessionExercise.warmupExerciseId"
+                                    (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'warmupSetTargets', sessionExercise.warmupExerciseId)"
+                                  >
+                                    @if (sessionExercise.warmupExerciseId; as refId) {
+                                      "{{ exerciseName(refId) }}"
+                                    }
+                                    {{ 'sessions.addSet' | translate }}
+                                  </button>
+                                  <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="add-set-for-exercise-button"
+                                    (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'warmupSetTargets')"
+                                  >
+                                    "{{ exerciseName(sessionExercise.exerciseId) }}" {{ 'sessions.addSet' | translate }}
+                                  </button>
+                                  <ng-container
+                                    [ngTemplateOutlet]="customSetTargetRows"
+                                    [ngTemplateOutletContext]="{ field: 'warmupSetTargets', targets: sessionExercise.warmupSetTargets ?? [] }"
+                                  ></ng-container>
                                 </mat-expansion-panel>
                               }
 
@@ -896,11 +935,7 @@
                                       {{ 'sessions.addDefaultCooldownButton' | translate }}
                                     </button>
                                   }
-                                  <ng-container
-                                    [ngTemplateOutlet]="customSetTargetRows"
-                                    [ngTemplateOutletContext]="{ field: 'cooldownSetTargets', targets: sessionExercise.cooldownSetTargets ?? [] }"
-                                  ></ng-container>
-                                  <mat-form-field appearance="outline" class="reference-exercises-field">
+                                  <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
                                     <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
                                     <mat-select
                                       [ngModel]="sessionExercise.cooldownExerciseId"
@@ -913,6 +948,30 @@
                                       }
                                     </mat-select>
                                   </mat-form-field>
+                                  <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="add-set-for-exercise-button"
+                                    [disabled]="!sessionExercise.cooldownExerciseId"
+                                    (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'cooldownSetTargets', sessionExercise.cooldownExerciseId)"
+                                  >
+                                    @if (sessionExercise.cooldownExerciseId; as refId) {
+                                      "{{ exerciseName(refId) }}"
+                                    }
+                                    {{ 'sessions.addSet' | translate }}
+                                  </button>
+                                  <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="add-set-for-exercise-button"
+                                    (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'cooldownSetTargets')"
+                                  >
+                                    "{{ exerciseName(sessionExercise.exerciseId) }}" {{ 'sessions.addSet' | translate }}
+                                  </button>
+                                  <ng-container
+                                    [ngTemplateOutlet]="customSetTargetRows"
+                                    [ngTemplateOutletContext]="{ field: 'cooldownSetTargets', targets: sessionExercise.cooldownSetTargets ?? [] }"
+                                  ></ng-container>
                                 </mat-expansion-panel>
                               }
                             </mat-accordion>
@@ -1130,23 +1189,39 @@
                        Warm-up/cooldown never get scheme-specific fields or deload -
                        those are only ever rendered next to the working-set list. -->
                   <ng-template #setTargetRows let-field="field" let-targets="targets">
-                    @for (target of targets; track target.id; let targetIndex = $index) {
-                      @if (field === 'warmupSetTargets' || field === 'cooldownSetTargets') {
-                        <div class="set-exercise-label">{{ exerciseName(exerciseId) }}</div>
-                      }
-                      <div class="percentage-set-row">
-                        @if (!plan.isDefault) {
-                          <button
-                            mat-icon-button
-                            color="warn"
-                            (click)="removeSetTarget(plan, exerciseId, field, targetIndex)"
-                            [matTooltip]="'sessions.removeSet' | translate"
-                            [attr.aria-label]="'sessions.removeSet' | translate"
-                          >
-                            <mat-icon>delete</mat-icon>
-                          </button>
-                        }
-                        <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
+                    <div
+                      class="set-list"
+                      cdkDropList
+                      [cdkDropListData]="targets"
+                      [cdkDropListDisabled]="!!plan.isDefault"
+                      (cdkDropListDropped)="dropSetTarget(plan, exerciseId, field, $event)"
+                    >
+                      @for (target of targets; track target.id; let targetIndex = $index) {
+                        <div class="set-target-item" cdkDrag [cdkDragDisabled]="!!plan.isDefault">
+                          @if (field === 'warmupSetTargets' || field === 'cooldownSetTargets') {
+                            <div class="set-exercise-label">{{ exerciseName(exerciseId) }}</div>
+                          }
+                          <div class="percentage-set-row">
+                            @if (!plan.isDefault) {
+                              <div
+                                class="set-drag-handle"
+                                cdkDragHandle
+                                [matTooltip]="'sessions.dragToReorder' | translate"
+                                [attr.aria-label]="'sessions.dragToReorder' | translate"
+                              >
+                                <mat-icon>drag_indicator</mat-icon>
+                              </div>
+                              <button
+                                mat-icon-button
+                                color="warn"
+                                (click)="removeSetTarget(plan, exerciseId, field, targetIndex)"
+                                [matTooltip]="'sessions.removeSet' | translate"
+                                [attr.aria-label]="'sessions.removeSet' | translate"
+                              >
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            }
+                            <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
 
                         <mat-form-field appearance="outline" class="percentage-input-field">
                           <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
@@ -1182,8 +1257,10 @@
                             (mouseleave)="onSetTargetFieldMouseLeave()"
                           />
                         </mat-form-field>
-                      </div>
-                    }
+                          </div>
+                        </div>
+                      }
+                    </div>
 
                     @if (!plan.isDefault) {
                       <button mat-stroked-button type="button" (click)="addSetTarget(plan, exerciseId, field)">

@@ -86,6 +86,12 @@ export interface WorkingSetTarget {
   // Only meaningful when the owning session/exercise is TIME_BASED - a
   // held/timed duration in seconds (0-99999) instead of reps/weight.
   seconds?: number;
+  // Set only for a warmup/cooldown target added via the reference-exercise
+  // "Add set" button, same idea as ExerciseSet.referenceExerciseId - the id
+  // of the OTHER exercise (from CustomSessionExercise.warmupExerciseId/
+  // cooldownExerciseId) this target is actually for. Unset means it
+  // belongs to the owning exercise itself.
+  referenceExerciseId?: string;
 }
 
 export interface PlanExerciseConfig {

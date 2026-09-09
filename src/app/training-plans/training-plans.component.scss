@@ -242,6 +242,40 @@ mat-card {
   margin: 0.4rem 0 0.1rem;
 }
 
+.add-set-for-exercise-button {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 0.75rem;
+  white-space: normal;
+  text-align: left;
+}
+
+.set-list .cdk-drag-preview {
+  box-shadow:
+    0 5px 5px -3px rgba(0, 0, 0, 0.4),
+    0 8px 10px 1px rgba(0, 0, 0, 0.28),
+    0 3px 14px 2px rgba(0, 0, 0, 0.24);
+}
+
+.set-list .cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.set-list .cdk-drag-animating {
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.set-drag-handle {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 0 0.25rem;
+  color: rgba(var(--app-fg-rgb), 0.5);
+  cursor: grab;
+  touch-action: none;
+}
+
 .percentage-set-row {
   display: flex;
   align-items: center;

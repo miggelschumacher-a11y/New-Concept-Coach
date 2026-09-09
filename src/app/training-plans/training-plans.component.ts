@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -109,6 +110,7 @@ type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTar
     MatRadioModule,
     MatDialogModule,
     NgTemplateOutlet,
+    DragDropModule,
     TranslatePipe,
     SelectOnFocusDirective
   ],
@@ -920,18 +922,57 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // Copies the previous set's own target/weight, same convenience as
   // addSetTarget for the old plan-level editor - only the very first set
   // falls back to a default prescription (10 reps, 0 weight).
-  async addCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string, field: SetTargetField): Promise<void> {
+  // referenceExerciseId adds a warmup/cooldown target for a DIFFERENT
+  // exercise than the one this list belongs to (see WorkingSetTarget.
+  // referenceExerciseId) - picked via the reference-exercise picker's own
+  // "Add set" button. Left unset, this is just a normal target for the
+  // owning exercise, exactly as before this parameter existed.
+  async addCustomSessionSet(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    field: SetTargetField,
+    referenceExerciseId?: string
+  ): Promise<void> {
     await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) => {
-      const previous = targets[targets.length - 1];
-      return [
-        ...targets,
-        { id: crypto.randomUUID(), targetReps: previous?.targetReps ?? '10', weight: previous?.weight ?? 0, seconds: previous?.seconds ?? 0 }
-      ];
+      const sameReference = targets.filter((target) => target.referenceExerciseId === referenceExerciseId);
+      const previous = sameReference[sameReference.length - 1];
+      const newTarget: WorkingSetTarget = {
+        id: crypto.randomUUID(),
+        targetReps: previous?.targetReps ?? '10',
+        weight: previous?.weight ?? 0,
+        seconds: previous?.seconds ?? 0
+      };
+      if (referenceExerciseId) {
+        newTarget.referenceExerciseId = referenceExerciseId;
+      }
+      return [...targets, newTarget];
     });
   }
 
   async removeCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string, field: SetTargetField, index: number): Promise<void> {
     await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) => targets.filter((_, i) => i !== index));
+  }
+
+  // Reorders one custom session exercise's own set-target list (warm-up,
+  // working, or cooldown are always separate arrays here, unlike a
+  // session's flat sets array) - so a plain moveItemInArray on the field's
+  // own targets is enough, no re-threading needed.
+  async dropCustomSessionSet(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    field: SetTargetField,
+    event: CdkDragDrop<WorkingSetTarget[]>
+  ): Promise<void> {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) => {
+      const reordered = [...targets];
+      moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+      return reordered;
+    });
   }
 
   // Same fill-if-empty behavior as updateSetTargetReps for the old plan-level
@@ -1325,6 +1366,19 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async removeSetTarget(plan: TrainingPlan, exerciseId: string, field: SetTargetField, index: number): Promise<void> {
     await this.updateSetTargets(plan, exerciseId, field, (targets) => targets.filter((_, i) => i !== index));
+  }
+
+  // Same idea as dropCustomSessionSet above, for the plan-level editor's
+  // own set-target list.
+  async dropSetTarget(plan: TrainingPlan, exerciseId: string, field: SetTargetField, event: CdkDragDrop<WorkingSetTarget[]>): Promise<void> {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    await this.updateSetTargets(plan, exerciseId, field, (targets) => {
+      const reordered = [...targets];
+      moveItemInArray(reordered, event.previousIndex, event.currentIndex);
+      return reordered;
+    });
   }
 
   // Leaving this field fills the same target into every other not-yet-
