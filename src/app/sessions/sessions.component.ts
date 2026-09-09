@@ -2642,6 +2642,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
+  // The reference picker's own "Add set" button only knows which exercise
+  // to add a set for when exactly one is picked - with 0 or 2+ selected,
+  // there's no single unambiguous exercise, so the button stays disabled.
+  singleSelectedWarmupReferenceId(sessionExercise: SessionExercise): string | undefined {
+    const ids = sessionExercise.warmupExerciseIds;
+    return ids?.length === 1 ? ids[0] : undefined;
+  }
+
+  // Same idea as singleSelectedWarmupReferenceId above, for the cooldown
+  // reference picker instead.
+  singleSelectedCooldownReferenceId(sessionExercise: SessionExercise): string | undefined {
+    const ids = sessionExercise.cooldownExerciseIds;
+    return ids?.length === 1 ? ids[0] : undefined;
+  }
+
   // Purely a reference list of other exercises to warm up/cool down with -
   // never generates sets, unlike the session's own top-level exercise
   // select. See SessionExercise.warmupExerciseIds/cooldownExerciseIds.
@@ -2952,11 +2967,25 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  async addSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {
-    // Prefers the exercise's own previous set of this type in this session -
-    // a much closer guess than defaultReps/defaultWeight's cross-session
-    // history lookup, which only kicks in for the very first set of a type.
-    const previousSet = [...sessionExercise.sets].reverse().find((candidate) => candidate.type === type);
+  // referenceExerciseId adds a warmup/cooldown set for a DIFFERENT exercise
+  // than the one sessionExercise itself tracks (see ExerciseSet.
+  // referenceExerciseId) - picked via the warmup/cooldown reference-exercise
+  // picker's own "Add set" button. Left unset, this is just a normal set for
+  // sessionExercise's own exercise, exactly as before this parameter existed.
+  async addSet(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    type: SetType,
+    referenceExerciseId?: string
+  ): Promise<void> {
+    const exerciseId = referenceExerciseId ?? sessionExercise.exerciseId;
+    // Prefers the exercise's own previous set of this type (and, for a
+    // reference set, the same referenced exercise) in this session - a much
+    // closer guess than defaultReps/defaultWeight's cross-session history
+    // lookup, which only kicks in for the very first set of a type.
+    const previousSet = [...sessionExercise.sets]
+      .reverse()
+      .find((candidate) => candidate.type === type && candidate.referenceExerciseId === referenceExerciseId);
     let reps: number;
     let weight: number;
     if (previousSet) {
@@ -2970,16 +2999,26 @@ export class SessionsComponent implements OnInit, OnDestroy {
       const bufferedWeight = parseFloat(buffer.weight.replace(',', '.'));
       reps = Number.isFinite(bufferedReps) ? bufferedReps : previousSet.reps;
       weight = Number.isFinite(bufferedWeight) ? bufferedWeight : previousSet.weight;
+    } else if (referenceExerciseId) {
+      // A referenced exercise isn't tracked by this SessionExercise, so its
+      // minReps/minWeight overrides and progression state don't apply -
+      // peekProgressionWeight would be a no-op here anyway, since this only
+      // ever runs for type 'warmup'/'cooldown'.
+      reps = this.defaultReps(exerciseId, type);
+      weight = this.defaultWeight(exerciseId, type);
     } else {
-      reps = this.defaultReps(sessionExercise.exerciseId, type, sessionExercise.minReps);
+      reps = this.defaultReps(exerciseId, type, sessionExercise.minReps);
       // The exercise's own tracked progression state (with its deload
       // applied on top) rather than the raw last-logged weight, so the very
       // first set of a type in this session already reflects a just-missed
       // target - same source buildManualReplenishment's own sets use.
-      const historyWeight = this.defaultWeight(sessionExercise.exerciseId, type, sessionExercise.minWeight);
+      const historyWeight = this.defaultWeight(exerciseId, type, sessionExercise.minWeight);
       weight = await this.peekProgressionWeight(sessionExercise, type, historyWeight);
     }
     const newSet: ExerciseSet = { id: crypto.randomUUID(), reps, weight, type };
+    if (referenceExerciseId) {
+      newSet.referenceExerciseId = referenceExerciseId;
+    }
     if (previousSet?.targetReps !== undefined) {
       newSet.targetReps = previousSet.targetReps;
       newSet.targetRepsMax = previousSet.targetRepsMax;
@@ -2998,7 +3037,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       newSet.doubleWeightCounting = previousSet.doubleWeightCounting;
       newSet.singleSidedLoading = previousSet.singleSidedLoading;
     } else {
-      const exercise = this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId);
+      const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
       newSet.doubleWeightCounting = exercise?.doubleWeightCounting;
     }
     sessionExercise.sets = [...sessionExercise.sets, newSet];

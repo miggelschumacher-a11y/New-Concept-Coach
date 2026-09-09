@@ -52,6 +52,14 @@ export interface ExerciseSet {
   // see calculatePlateLoading's singleSided parameter. Inherited the same
   // way as equipmentId/doubleWeightCounting above.
   singleSidedLoading?: boolean;
+  // Set only for a warmup/cooldown set added via the reference-exercise
+  // "Add set" button (see SessionsComponent.addSet's referenceExerciseId
+  // parameter) - the id of the OTHER exercise (from warmupExerciseIds/
+  // cooldownExerciseIds) this set is actually for, distinct from the
+  // exercise that owns this SessionExercise. Unset means this set belongs
+  // to the owning SessionExercise itself, as every set did before this
+  // field existed.
+  referenceExerciseId?: string;
 }
 
 export interface SessionExercise {

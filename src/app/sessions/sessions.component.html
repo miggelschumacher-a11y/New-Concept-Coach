@@ -849,6 +849,21 @@
                             }
                           </mat-select>
                         </mat-form-field>
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          class="add-set-for-exercise-button"
+                          [disabled]="!singleSelectedWarmupReferenceId(sessionExercise)"
+                          (click)="addSet(session, sessionExercise, 'warmup', singleSelectedWarmupReferenceId(sessionExercise))"
+                        >
+                          @if (singleSelectedWarmupReferenceId(sessionExercise); as refId) {
+                            {{ exerciseName(refId) }}
+                          }
+                          {{ 'sessions.addSet' | translate }}
+                        </button>
+                        <button mat-stroked-button type="button" class="add-set-for-exercise-button" (click)="addSet(session, sessionExercise, 'warmup')">
+                          {{ exerciseName(sessionExercise.exerciseId) }} {{ 'sessions.addSet' | translate }}
+                        </button>
                       }
                       @if (setType.value === 'cooldown') {
                         @if (hasCooldownRamp(sessionExercise.exerciseId)) {
@@ -877,6 +892,21 @@
                             }
                           </mat-select>
                         </mat-form-field>
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          class="add-set-for-exercise-button"
+                          [disabled]="!singleSelectedCooldownReferenceId(sessionExercise)"
+                          (click)="addSet(session, sessionExercise, 'cooldown', singleSelectedCooldownReferenceId(sessionExercise))"
+                        >
+                          @if (singleSelectedCooldownReferenceId(sessionExercise); as refId) {
+                            {{ exerciseName(refId) }}
+                          }
+                          {{ 'sessions.addSet' | translate }}
+                        </button>
+                        <button mat-stroked-button type="button" class="add-set-for-exercise-button" (click)="addSet(session, sessionExercise, 'cooldown')">
+                          {{ exerciseName(sessionExercise.exerciseId) }} {{ 'sessions.addSet' | translate }}
+                        </button>
                       }
 
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
@@ -884,7 +914,7 @@
                           <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                         }
                         @if (setType.value === 'warmup' || setType.value === 'cooldown') {
-                          <div class="set-exercise-label">{{ exerciseName(sessionExercise.exerciseId) }}</div>
+                          <div class="set-exercise-label">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</div>
                         }
                         <div class="set-row">
                           @if (pendingDeleteSetId === set.id) {
@@ -1076,15 +1106,17 @@
                         </div>
                       }
 
-                      <button
-                        mat-stroked-button
-                        type="button"
-                        (click)="addSet(session, sessionExercise, setType.value)"
-                        [matTooltip]="'sessions.addSet' | translate"
-                        [attr.aria-label]="'sessions.addSet' | translate"
-                      >
-                        <mat-icon>add</mat-icon>
-                      </button>
+                      @if (setType.value === 'working') {
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          (click)="addSet(session, sessionExercise, setType.value)"
+                          [matTooltip]="'sessions.addSet' | translate"
+                          [attr.aria-label]="'sessions.addSet' | translate"
+                        >
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      }
                     </mat-expansion-panel>
                     }
                   }
