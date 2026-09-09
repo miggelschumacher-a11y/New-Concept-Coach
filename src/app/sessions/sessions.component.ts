@@ -74,6 +74,7 @@ import { computeNextLinearProgressionState } from '../core/utils/linear-progress
 import { estimateOneRepMax, effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked, liftedWeight } from '../core/utils/one-rep-max.util';
 import { parseRepsRange } from '../core/utils/reps-range.util';
 import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/body-weight-lookup.util';
+import { calculateWarmupSets } from '../core/utils/warmup-ramp.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 
@@ -1975,9 +1976,27 @@ export class SessionsComponent implements OnInit, OnDestroy {
             // list's weight is used exactly as configured.
             const warmupSetTargets = hasIncrementScheme ? config.warmupSetTargets : undefined;
             const cooldownSetTargets = hasIncrementScheme ? config.cooldownSetTargets : undefined;
-            const warmupSets = warmupSetTargets
+            // Exercise-level default (Stammdaten) - only kicks in when the
+            // plan hasn't configured any warm-up of its own (no target list,
+            // plain count still at its untouched 0 default), scaled off
+            // this session's actual first working-set weight, same
+            // "explicit plan config wins over the exercise's own default"
+            // precedence as doubleWeightCounting elsewhere. Checked against
+            // an empty target list the same as an absent one - the plan
+            // editor silently persists warmupSetTargets: [] the moment any
+            // other field on this config is first edited (see
+            // TrainingPlansComponent.planExerciseConfig's self-heal), so an
+            // absent-vs-empty distinction here would make this fallback
+            // vanish the instant the plan author touches anything else.
+            const warmupRamp = hasIncrementScheme ? this.exercises.find((candidate) => candidate.id === exerciseId)?.warmupRamp : undefined;
+            const warmupSets = warmupSetTargets?.length
               ? buildTargetSets(warmupSetTargets, 'warmup')
-              : buildSets(config.warmupSets, 'warmup');
+              : warmupRamp?.length && config.warmupSets === 0
+                ? buildTargetSets(
+                    calculateWarmupSets(workingSets[0]?.weight ?? 0, warmupRamp, this.settingsService.getSettings().weightUnit),
+                    'warmup'
+                  )
+                : buildSets(config.warmupSets, 'warmup');
             const cooldownSets = cooldownSetTargets
               ? buildTargetSets(cooldownSetTargets, 'cooldown')
               : buildSets(config.cooldownSets, 'cooldown');

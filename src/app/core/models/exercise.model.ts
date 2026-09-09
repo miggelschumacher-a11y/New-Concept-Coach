@@ -22,6 +22,18 @@ export type MuscleGroup =
   | 'CALVES'
   | 'NECK';
 
+// One rung of an exercise's warm-up ramp - "reps at percentage% of the
+// working weight". A plan-generated session with no warm-up sets/targets of
+// its own falls back to this to auto-derive literal warm-up set targets
+// from whatever weight it worked out for the exercise's first working set -
+// see calculateWarmupSets (core/utils/warmup-ramp.util) and its call site in
+// SessionsComponent.buildSessionFromPlan.
+export interface WarmupRampStep {
+  id: string;
+  percentage: number;
+  reps: number;
+}
+
 export interface Exercise {
   id: string;
   name: string;
@@ -39,6 +51,10 @@ export interface Exercise {
   // DUMBBELL/MACHINE. Optional/falsy for every other exercise, same
   // convention as the other classification fields being unset by default.
   doubleWeightCounting?: boolean;
+  // Optional percentage-of-working-weight warm-up ramp - see
+  // WarmupRampStep above. Unset/empty for every exercise by default, same
+  // convention as every other optional classification field here.
+  warmupRamp?: WarmupRampStep[];
   // Manually entered 1RM override for Percentage-Based progression, used
   // instead of the auto-estimated oneRepMax above when useCustomOneRepMax
   // is on - see SessionsComponent.percentageSetWeight /

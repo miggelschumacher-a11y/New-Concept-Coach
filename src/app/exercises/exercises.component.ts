@@ -11,7 +11,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
-import { Exercise, ExerciseEquipmentType, MuscleGroup } from '../core/models/exercise.model';
+import { Exercise, ExerciseEquipmentType, MuscleGroup, WarmupRampStep } from '../core/models/exercise.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 import { oneRepMaxOverrideChecked, oneRepMaxOverrideDisabled } from '../core/utils/one-rep-max.util';
@@ -109,6 +109,61 @@ export class ExercisesComponent implements OnInit {
 
   async updateDoubleWeightCounting(exercise: Exercise, checked: boolean): Promise<void> {
     exercise.doubleWeightCounting = checked;
+    await this.exercisesService.update(exercise);
+  }
+
+  // Copies the previous step's own percentage/reps, same convenience as
+  // adding a set target row in the plan editor - only the very first step
+  // falls back to a plain default.
+  async addWarmupRampStep(exercise: Exercise): Promise<void> {
+    const ramp = exercise.warmupRamp ?? [];
+    const previous = ramp[ramp.length - 1];
+    exercise.warmupRamp = [...ramp, { id: crypto.randomUUID(), percentage: previous?.percentage ?? 50, reps: previous?.reps ?? 5 }];
+    await this.exercisesService.update(exercise);
+  }
+
+  async removeWarmupRampStep(exercise: Exercise, index: number): Promise<void> {
+    exercise.warmupRamp = (exercise.warmupRamp ?? []).filter((_, i) => i !== index);
+    await this.exercisesService.update(exercise);
+  }
+
+  warmupRampPercentageDisplay(step: WarmupRampStep): string {
+    return step.percentage.toString();
+  }
+
+  // Up to 3 integer digits (bounded to 100 on change) and up to 2 decimals
+  // while typing, same shape as the custom-1RM field's own input mask.
+  onWarmupRampPercentageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateWarmupRampPercentage(exercise: Exercise, index: number, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const percentage = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
+    exercise.warmupRamp = (exercise.warmupRamp ?? []).map((step, i) => (i === index ? { ...step, percentage } : step));
+    await this.exercisesService.update(exercise);
+  }
+
+  warmupRampRepsDisplay(step: WarmupRampStep): string {
+    return step.reps.toString();
+  }
+
+  onWarmupRampRepsInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateWarmupRampReps(exercise: Exercise, index: number, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const reps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 999) : 0;
+    exercise.warmupRamp = (exercise.warmupRamp ?? []).map((step, i) => (i === index ? { ...step, reps } : step));
     await this.exercisesService.update(exercise);
   }
 
