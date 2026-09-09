@@ -161,6 +161,13 @@ mat-card {
   margin: 0.5rem 0;
 }
 
+.reference-usage-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
 .ramp-row {
   display: flex;
   align-items: center;

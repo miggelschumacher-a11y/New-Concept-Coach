@@ -2582,6 +2582,30 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return !!this.exercises.find((exercise) => exercise.id === exerciseId)?.cooldownRamp?.length;
   }
 
+  // Exercises eligible for "add this exercise to the session" pickers -
+  // excludes anything marked as existing only to be picked as a warm-up/
+  // cooldown reference elsewhere (still selectable there, just not here).
+  selectableExercises(): Exercise[] {
+    return this.exercises.filter((exercise) => !exercise.onlyAsWarmupExercise && !exercise.onlyAsCooldownExercise);
+  }
+
+  // Exercises offered in a session exercise's own warm-up reference picker -
+  // only ones explicitly marked usable there, and never the exercise
+  // itself (it can't warm up with itself).
+  warmupReferenceExerciseOptions(currentExerciseId: string): Exercise[] {
+    return this.exercises.filter(
+      (exercise) => exercise.id !== currentExerciseId && (exercise.useAsWarmupExercise || exercise.onlyAsWarmupExercise)
+    );
+  }
+
+  // Same idea as warmupReferenceExerciseOptions above, for the cooldown
+  // reference picker instead.
+  cooldownReferenceExerciseOptions(currentExerciseId: string): Exercise[] {
+    return this.exercises.filter(
+      (exercise) => exercise.id !== currentExerciseId && (exercise.useAsCooldownExercise || exercise.onlyAsCooldownExercise)
+    );
+  }
+
   // Retroactively (re)applies the exercise's warm-up ramp to one session
   // exercise, replacing whatever warm-up sets it has now - for whenever
   // the initial add-prompt was declined, or the ramp was only added to

@@ -405,7 +405,7 @@
                   }
                 }
               </mat-select-trigger>
-              @for (exercise of exercises; track exercise.id) {
+              @for (exercise of selectableExercises(); track exercise.id) {
                 <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
               }
             </mat-select>
@@ -844,7 +844,7 @@
                             panelClass="exercise-select-panel"
                             (selectionChange)="updateWarmupReferenceExercises(session, sessionExercise, $event.value)"
                           >
-                            @for (exercise of exercises; track exercise.id) {
+                            @for (exercise of warmupReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
                               <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
                             }
                           </mat-select>
@@ -872,7 +872,7 @@
                             panelClass="exercise-select-panel"
                             (selectionChange)="updateCooldownReferenceExercises(session, sessionExercise, $event.value)"
                           >
-                            @for (exercise of exercises; track exercise.id) {
+                            @for (exercise of cooldownReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
                               <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
                             }
                           </mat-select>

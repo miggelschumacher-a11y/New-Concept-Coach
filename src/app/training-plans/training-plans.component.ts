@@ -1441,6 +1441,74 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return this.exercises.find((exercise) => exercise.id === exerciseId)?.cooldownRamp;
   }
 
+  // Exercises eligible for "add this exercise to the plan/session" pickers -
+  // excludes anything marked as existing only to be picked as a warm-up/
+  // cooldown reference elsewhere (still selectable there, just not here).
+  // Same filter as SessionsComponent's own selectableExercises.
+  selectableExercises(): Exercise[] {
+    return this.exercises.filter((exercise) => !exercise.onlyAsWarmupExercise && !exercise.onlyAsCooldownExercise);
+  }
+
+  // Exercises offered in a custom-session exercise's own warm-up reference
+  // picker - only ones explicitly marked usable there, and never the
+  // exercise itself (it can't warm up with itself).
+  warmupReferenceExerciseOptions(currentExerciseId: string): Exercise[] {
+    return this.exercises.filter(
+      (exercise) => exercise.id !== currentExerciseId && (exercise.useAsWarmupExercise || exercise.onlyAsWarmupExercise)
+    );
+  }
+
+  // Same idea as warmupReferenceExerciseOptions above, for the cooldown
+  // reference picker instead.
+  cooldownReferenceExerciseOptions(currentExerciseId: string): Exercise[] {
+    return this.exercises.filter(
+      (exercise) => exercise.id !== currentExerciseId && (exercise.useAsCooldownExercise || exercise.onlyAsCooldownExercise)
+    );
+  }
+
+  // Purely a reference list of other exercises to warm up/cool down with -
+  // never generates sets, unlike updateCustomSessionExercises above. See
+  // CustomSessionExercise.warmupExerciseIds/cooldownExerciseIds.
+  async updateCustomSessionExerciseWarmupReferences(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    warmupExerciseIds: string[]
+  ): Promise<void> {
+    plan.customSessions = (plan.customSessions ?? []).map((session) => {
+      if (session.id !== sessionId) {
+        return session;
+      }
+      return {
+        ...session,
+        exercises: (session.exercises ?? []).map((exercise) =>
+          exercise.exerciseId === exerciseId ? { ...exercise, warmupExerciseIds } : exercise
+        )
+      };
+    });
+    await this.trainingPlansService.update(plan);
+  }
+
+  async updateCustomSessionExerciseCooldownReferences(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    cooldownExerciseIds: string[]
+  ): Promise<void> {
+    plan.customSessions = (plan.customSessions ?? []).map((session) => {
+      if (session.id !== sessionId) {
+        return session;
+      }
+      return {
+        ...session,
+        exercises: (session.exercises ?? []).map((exercise) =>
+          exercise.exerciseId === exerciseId ? { ...exercise, cooldownExerciseIds } : exercise
+        )
+      };
+    });
+    await this.trainingPlansService.update(plan);
+  }
+
   async updateCooldownRampDisabled(plan: TrainingPlan, exerciseId: string, disabled: boolean): Promise<void> {
     await this.updateConfig(plan, exerciseId, { cooldownRampDisabled: disabled });
   }

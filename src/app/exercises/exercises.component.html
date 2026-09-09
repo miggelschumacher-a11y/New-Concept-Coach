@@ -200,6 +200,20 @@
               </mat-panel-title>
               <mat-panel-description>{{ (exercise.warmupRamp ?? []).length }}</mat-panel-description>
             </mat-expansion-panel-header>
+            <div class="reference-usage-row">
+              <mat-checkbox
+                [checked]="exercise.useAsWarmupExercise ?? false"
+                (change)="updateUseAsWarmupExercise(exercise, $event.checked)"
+              >
+                {{ 'exercises.useAsWarmupExercise' | translate }}
+              </mat-checkbox>
+              <mat-checkbox
+                [checked]="exercise.onlyAsWarmupExercise ?? false"
+                (change)="updateOnlyAsWarmupExercise(exercise, $event.checked)"
+              >
+                {{ 'exercises.onlyAsWarmupExercise' | translate }}
+              </mat-checkbox>
+            </div>
             @for (step of exercise.warmupRamp ?? []; track step.id; let stepIndex = $index) {
               <div class="ramp-row">
                 <button
@@ -255,6 +269,20 @@
               </mat-panel-title>
               <mat-panel-description>{{ (exercise.cooldownRamp ?? []).length }}</mat-panel-description>
             </mat-expansion-panel-header>
+            <div class="reference-usage-row">
+              <mat-checkbox
+                [checked]="exercise.useAsCooldownExercise ?? false"
+                (change)="updateUseAsCooldownExercise(exercise, $event.checked)"
+              >
+                {{ 'exercises.useAsCooldownExercise' | translate }}
+              </mat-checkbox>
+              <mat-checkbox
+                [checked]="exercise.onlyAsCooldownExercise ?? false"
+                (change)="updateOnlyAsCooldownExercise(exercise, $event.checked)"
+              >
+                {{ 'exercises.onlyAsCooldownExercise' | translate }}
+              </mat-checkbox>
+            </div>
             @for (step of exercise.cooldownRamp ?? []; track step.id; let stepIndex = $index) {
               <div class="ramp-row">
                 <button

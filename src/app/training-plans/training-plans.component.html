@@ -514,7 +514,7 @@
                             }
                           }
                         </mat-select-trigger>
-                        @for (exercise of exercises; track exercise.id) {
+                        @for (exercise of selectableExercises(); track exercise.id) {
                           <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
                         }
                       </mat-select>
@@ -848,6 +848,20 @@
                                     [ngTemplateOutlet]="customSetTargetRows"
                                     [ngTemplateOutletContext]="{ field: 'warmupSetTargets', targets: sessionExercise.warmupSetTargets ?? [] }"
                                   ></ng-container>
+                                  <mat-form-field appearance="outline" class="reference-exercises-field">
+                                    <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
+                                    <mat-select
+                                      [ngModel]="sessionExercise.warmupExerciseIds ?? []"
+                                      multiple
+                                      name="warmupReferenceExercises-{{ session.id }}-{{ sessionExercise.exerciseId }}"
+                                      panelClass="exercise-select-panel"
+                                      (selectionChange)="updateCustomSessionExerciseWarmupReferences(plan, session.id, sessionExercise.exerciseId, $event.value)"
+                                    >
+                                      @for (exercise of warmupReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
+                                        <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+                                      }
+                                    </mat-select>
+                                  </mat-form-field>
                                 </mat-expansion-panel>
                               }
 
@@ -884,6 +898,20 @@
                                     [ngTemplateOutlet]="customSetTargetRows"
                                     [ngTemplateOutletContext]="{ field: 'cooldownSetTargets', targets: sessionExercise.cooldownSetTargets ?? [] }"
                                   ></ng-container>
+                                  <mat-form-field appearance="outline" class="reference-exercises-field">
+                                    <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
+                                    <mat-select
+                                      [ngModel]="sessionExercise.cooldownExerciseIds ?? []"
+                                      multiple
+                                      name="cooldownReferenceExercises-{{ session.id }}-{{ sessionExercise.exerciseId }}"
+                                      panelClass="exercise-select-panel"
+                                      (selectionChange)="updateCustomSessionExerciseCooldownReferences(plan, session.id, sessionExercise.exerciseId, $event.value)"
+                                    >
+                                      @for (exercise of cooldownReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
+                                        <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
+                                      }
+                                    </mat-select>
+                                  </mat-form-field>
                                 </mat-expansion-panel>
                               }
                             </mat-accordion>

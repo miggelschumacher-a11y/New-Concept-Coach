@@ -112,6 +112,47 @@ export class ExercisesComponent implements OnInit {
     await this.exercisesService.update(exercise);
   }
 
+  // Mutually exclusive with onlyAsWarmupExercise - checking this one clears
+  // that one. Gates whether this exercise is offered in a session/plan
+  // exercise's warm-up reference picker.
+  async updateUseAsWarmupExercise(exercise: Exercise, checked: boolean): Promise<void> {
+    exercise.useAsWarmupExercise = checked;
+    if (checked) {
+      exercise.onlyAsWarmupExercise = false;
+    }
+    await this.exercisesService.update(exercise);
+  }
+
+  // Mutually exclusive with useAsWarmupExercise above - checking this one
+  // clears that one. Also excludes this exercise from every "add this
+  // exercise to a session/plan" picker (see SessionsComponent/
+  // TrainingPlansComponent's own selectableExercises).
+  async updateOnlyAsWarmupExercise(exercise: Exercise, checked: boolean): Promise<void> {
+    exercise.onlyAsWarmupExercise = checked;
+    if (checked) {
+      exercise.useAsWarmupExercise = false;
+    }
+    await this.exercisesService.update(exercise);
+  }
+
+  // Same idea as updateUseAsWarmupExercise/updateOnlyAsWarmupExercise
+  // above, for the cooldown reference picker instead.
+  async updateUseAsCooldownExercise(exercise: Exercise, checked: boolean): Promise<void> {
+    exercise.useAsCooldownExercise = checked;
+    if (checked) {
+      exercise.onlyAsCooldownExercise = false;
+    }
+    await this.exercisesService.update(exercise);
+  }
+
+  async updateOnlyAsCooldownExercise(exercise: Exercise, checked: boolean): Promise<void> {
+    exercise.onlyAsCooldownExercise = checked;
+    if (checked) {
+      exercise.useAsCooldownExercise = false;
+    }
+    await this.exercisesService.update(exercise);
+  }
+
   // Copies the previous step's own percentage/reps, same convenience as
   // adding a set target row in the plan editor - only the very first step
   // falls back to a plain default.

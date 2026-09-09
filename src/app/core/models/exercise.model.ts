@@ -59,6 +59,20 @@ export interface Exercise {
   // WarmupRampStep shape and calculateWarmupSets calculation, just applied
   // to the cooldown sets instead.
   cooldownRamp?: WarmupRampStep[];
+  // Whether this exercise should also be offered in a session/plan
+  // exercise's warm-up reference picker (SessionExercise.warmupExerciseIds/
+  // CustomSessionExercise.warmupExerciseIds) - in addition to remaining
+  // selectable as a normal trainable exercise. Mutually exclusive with
+  // onlyAsWarmupExercise below - checking one clears the other.
+  useAsWarmupExercise?: boolean;
+  // Whether this exercise exists ONLY to be picked as a warm-up reference -
+  // excluded from every "add this exercise to a session/plan" picker
+  // (it can still be picked in the warm-up reference picker itself).
+  onlyAsWarmupExercise?: boolean;
+  // Same idea as useAsWarmupExercise/onlyAsWarmupExercise above, for the
+  // cooldown reference picker instead.
+  useAsCooldownExercise?: boolean;
+  onlyAsCooldownExercise?: boolean;
   // Manually entered 1RM override for Percentage-Based progression, used
   // instead of the auto-estimated oneRepMax above when useCustomOneRepMax
   // is on - see SessionsComponent.percentageSetWeight /
