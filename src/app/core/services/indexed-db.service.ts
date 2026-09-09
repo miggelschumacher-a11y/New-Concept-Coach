@@ -138,7 +138,19 @@ const DB_NAME = 'trainings-app-db';
 // onlyAsWarmupExercise/onlyAsCooldownExercise (see WARMUP_ONLY_EXERCISE_NAMES/
 // COOLDOWN_ONLY_EXERCISE_NAMES) - picked up by the self-healing backfill
 // above, and set directly in buildDefaultExercise for brand-new installs.
-const DB_VERSION = 60;
+// 61 (reused, see 62 below): briefly added neverAsWarmupExercise/
+// neverAsCooldownExercise and their own self-healing backfill, then that
+// whole feature was reverted at the user's request before ever reaching
+// this codebase's own committed DB_VERSION=61 - reverting it dropped
+// DB_VERSION back down to 60 here.
+// 62: a real, already-open browser tab sharing this dev server could have
+// live-reloaded during that feature's brief life and advanced its stored
+// database to version 61 before the revert (same race as 32/33, 34/35,
+// 44/45, 47/48, 49/50, 56/57 and 58/59 above) - dropping DB_VERSION back to
+// 60 left that browser permanently unable to reopen its own database
+// (IndexedDB refuses to open at a version lower than what's already
+// stored). Bumps past that stray 61 so it can open again.
+const DB_VERSION = 62;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
