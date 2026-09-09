@@ -54,8 +54,8 @@ export interface ExerciseSet {
   singleSidedLoading?: boolean;
   // Set only for a warmup/cooldown set added via the reference-exercise
   // "Add set" button (see SessionsComponent.addSet's referenceExerciseId
-  // parameter) - the id of the OTHER exercise (from warmupExerciseIds/
-  // cooldownExerciseIds) this set is actually for, distinct from the
+  // parameter) - the id of the OTHER exercise (from warmupExerciseId/
+  // cooldownExerciseId) this set is actually for, distinct from the
   // exercise that owns this SessionExercise. Unset means this set belongs
   // to the owning SessionExercise itself, as every set did before this
   // field existed.
@@ -99,14 +99,14 @@ export interface SessionExercise {
   // percentage - unset is treated as 'WEIGHT' (the default), same
   // dual-purpose convention as this exercise's own deloadType.
   incrementType?: 'WEIGHT' | 'PERCENT';
-  // Other exercises picked purely as a reminder of what to warm up/cool
-  // down with before/after this one - e.g. a couple of general mobility
-  // drills before a main lift. Selecting an exercise here never creates
-  // any sets for it (unlike the session's own exercise-select at the top,
-  // which does) - these ids are only ever displayed back in this same
-  // dropdown, nothing else reads them.
-  warmupExerciseIds?: string[];
-  cooldownExerciseIds?: string[];
+  // The other exercise (if any) currently picked as a reminder of what to
+  // warm up/cool down with before/after this one - e.g. a general mobility
+  // drill before a main lift. Single-select on purpose: the "Add set"
+  // button next to this dropdown (see SessionsComponent.addSet's
+  // referenceExerciseId parameter) needs exactly one unambiguous exercise
+  // to add a set for.
+  warmupExerciseId?: string;
+  cooldownExerciseId?: string;
 }
 
 export interface TrainingSession {

@@ -194,11 +194,11 @@ export interface CustomSessionExercise {
   // Optional and treated as true when absent, same as PlanExerciseConfig.
   showWarmupSets?: boolean;
   showCooldownSets?: boolean;
-  // Same reference-only picker as SessionExercise's own fields of the same
-  // name - other exercises to warm up/cool down with before/after this
-  // one, never generating any sets.
-  warmupExerciseIds?: string[];
-  cooldownExerciseIds?: string[];
+  // Same reference-only picker as SessionExercise's own field of the same
+  // name - the other exercise (if any) to warm up/cool down with
+  // before/after this one. Single-select, same reasoning as there.
+  warmupExerciseId?: string;
+  cooldownExerciseId?: string;
 }
 
 // One training unit within a self-created plan's "Neue Trainingseinheit"

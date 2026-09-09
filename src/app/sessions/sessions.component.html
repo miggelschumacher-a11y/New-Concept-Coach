@@ -838,11 +838,10 @@
                         <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
                           <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
                           <mat-select
-                            [ngModel]="sessionExercise.warmupExerciseIds ?? []"
-                            multiple
-                            name="warmupReferenceExercises-{{ sessionExercise.exerciseId }}"
+                            [ngModel]="sessionExercise.warmupExerciseId"
+                            name="warmupReferenceExercise-{{ sessionExercise.exerciseId }}"
                             panelClass="exercise-select-panel"
-                            (selectionChange)="updateWarmupReferenceExercises(session, sessionExercise, $event.value)"
+                            (selectionChange)="updateWarmupReferenceExercise(session, sessionExercise, $event.value)"
                           >
                             @for (exercise of warmupReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
                               <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
@@ -853,10 +852,10 @@
                           mat-stroked-button
                           type="button"
                           class="add-set-for-exercise-button"
-                          [disabled]="!singleSelectedWarmupReferenceId(sessionExercise)"
-                          (click)="addSet(session, sessionExercise, 'warmup', singleSelectedWarmupReferenceId(sessionExercise))"
+                          [disabled]="!sessionExercise.warmupExerciseId"
+                          (click)="addSet(session, sessionExercise, 'warmup', sessionExercise.warmupExerciseId)"
                         >
-                          @if (singleSelectedWarmupReferenceId(sessionExercise); as refId) {
+                          @if (sessionExercise.warmupExerciseId; as refId) {
                             "{{ exerciseName(refId) }}"
                           }
                           {{ 'sessions.addSet' | translate }}
@@ -881,11 +880,10 @@
                         <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
                           <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
                           <mat-select
-                            [ngModel]="sessionExercise.cooldownExerciseIds ?? []"
-                            multiple
-                            name="cooldownReferenceExercises-{{ sessionExercise.exerciseId }}"
+                            [ngModel]="sessionExercise.cooldownExerciseId"
+                            name="cooldownReferenceExercise-{{ sessionExercise.exerciseId }}"
                             panelClass="exercise-select-panel"
-                            (selectionChange)="updateCooldownReferenceExercises(session, sessionExercise, $event.value)"
+                            (selectionChange)="updateCooldownReferenceExercise(session, sessionExercise, $event.value)"
                           >
                             @for (exercise of cooldownReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
                               <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
@@ -896,10 +894,10 @@
                           mat-stroked-button
                           type="button"
                           class="add-set-for-exercise-button"
-                          [disabled]="!singleSelectedCooldownReferenceId(sessionExercise)"
-                          (click)="addSet(session, sessionExercise, 'cooldown', singleSelectedCooldownReferenceId(sessionExercise))"
+                          [disabled]="!sessionExercise.cooldownExerciseId"
+                          (click)="addSet(session, sessionExercise, 'cooldown', sessionExercise.cooldownExerciseId)"
                         >
-                          @if (singleSelectedCooldownReferenceId(sessionExercise); as refId) {
+                          @if (sessionExercise.cooldownExerciseId; as refId) {
                             "{{ exerciseName(refId) }}"
                           }
                           {{ 'sessions.addSet' | translate }}
@@ -909,15 +907,31 @@
                         </button>
                       }
 
-                      @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
-                        @if (doneAttemptFieldKey === set.id) {
-                          <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
-                        }
-                        @if (setType.value === 'warmup' || setType.value === 'cooldown') {
-                          <div class="set-exercise-label">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</div>
-                        }
-                        <div class="set-row">
-                          @if (pendingDeleteSetId === set.id) {
+                      <div
+                        class="set-list"
+                        cdkDropList
+                        [cdkDropListData]="setsByType(sessionExercise, setType.value)"
+                        [cdkDropListDisabled]="!canEditExerciseTypeInSession(session)"
+                        (cdkDropListDropped)="dropSet(session, sessionExercise, setType.value, $event)"
+                      >
+                        @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
+                          <div class="set-item" cdkDrag [cdkDragDisabled]="!canEditExerciseTypeInSession(session)">
+                            @if (doneAttemptFieldKey === set.id) {
+                              <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
+                            }
+                            @if (setType.value === 'warmup' || setType.value === 'cooldown') {
+                              <div class="set-exercise-label">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</div>
+                            }
+                            <div class="set-row">
+                              <div
+                                class="set-drag-handle"
+                                cdkDragHandle
+                                [matTooltip]="'sessions.dragToReorder' | translate"
+                                [attr.aria-label]="'sessions.dragToReorder' | translate"
+                              >
+                                <mat-icon>drag_indicator</mat-icon>
+                              </div>
+                              @if (pendingDeleteSetId === set.id) {
                             <div class="confirm-dialog">
                               <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
                               <div class="confirm-dialog-actions">
@@ -1103,8 +1117,10 @@
                               </button>
                             }
                           </div>
-                        </div>
-                      }
+                            </div>
+                          </div>
+                        }
+                      </div>
 
                       @if (setType.value === 'working') {
                         <button

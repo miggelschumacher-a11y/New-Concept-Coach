@@ -60,8 +60,8 @@ export interface Exercise {
   // to the cooldown sets instead.
   cooldownRamp?: WarmupRampStep[];
   // Whether this exercise should also be offered in a session/plan
-  // exercise's warm-up reference picker (SessionExercise.warmupExerciseIds/
-  // CustomSessionExercise.warmupExerciseIds) - in addition to remaining
+  // exercise's warm-up reference picker (SessionExercise.warmupExerciseId/
+  // CustomSessionExercise.warmupExerciseId) - in addition to remaining
   // selectable as a normal trainable exercise. Mutually exclusive with
   // onlyAsWarmupExercise below - checking one clears the other.
   useAsWarmupExercise?: boolean;

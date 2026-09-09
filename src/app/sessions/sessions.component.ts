@@ -2642,31 +2642,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  // The reference picker's own "Add set" button only knows which exercise
-  // to add a set for when exactly one is picked - with 0 or 2+ selected,
-  // there's no single unambiguous exercise, so the button stays disabled.
-  singleSelectedWarmupReferenceId(sessionExercise: SessionExercise): string | undefined {
-    const ids = sessionExercise.warmupExerciseIds;
-    return ids?.length === 1 ? ids[0] : undefined;
-  }
-
-  // Same idea as singleSelectedWarmupReferenceId above, for the cooldown
-  // reference picker instead.
-  singleSelectedCooldownReferenceId(sessionExercise: SessionExercise): string | undefined {
-    const ids = sessionExercise.cooldownExerciseIds;
-    return ids?.length === 1 ? ids[0] : undefined;
-  }
-
-  // Purely a reference list of other exercises to warm up/cool down with -
-  // never generates sets, unlike the session's own top-level exercise
-  // select. See SessionExercise.warmupExerciseIds/cooldownExerciseIds.
-  async updateWarmupReferenceExercises(session: TrainingSession, sessionExercise: SessionExercise, exerciseIds: string[]): Promise<void> {
-    sessionExercise.warmupExerciseIds = exerciseIds;
+  // The reference picker itself never generates sets - only its "Add set"
+  // button does. See SessionExercise.warmupExerciseId/cooldownExerciseId.
+  async updateWarmupReferenceExercise(session: TrainingSession, sessionExercise: SessionExercise, exerciseId: string): Promise<void> {
+    sessionExercise.warmupExerciseId = exerciseId;
     await this.persist(session);
   }
 
-  async updateCooldownReferenceExercises(session: TrainingSession, sessionExercise: SessionExercise, exerciseIds: string[]): Promise<void> {
-    sessionExercise.cooldownExerciseIds = exerciseIds;
+  async updateCooldownReferenceExercise(session: TrainingSession, sessionExercise: SessionExercise, exerciseId: string): Promise<void> {
+    sessionExercise.cooldownExerciseId = exerciseId;
     await this.persist(session);
   }
 
@@ -2697,6 +2681,27 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     moveItemInArray(session.exercises, event.previousIndex, event.currentIndex);
+    await this.persist(session);
+  }
+
+  // Reorders sets within one type's own section (warm-up/working/cooldown)
+  // - sessionExercise.sets is a single flat array holding every type mixed
+  // together, so previousIndex/currentIndex (positions within just this
+  // type's own filtered list) can't be applied to it directly. Instead,
+  // reorders a filtered copy of this type's sets and re-threads the result
+  // back through the flat array's own type-T slots, in order - this leaves
+  // every other type's sets exactly where they were, and reassigns
+  // sessionExercise.sets to a new array so the set-index field ("#{{ i + 1
+  // }}") - bound to $index in the same @for that iterates this filtered
+  // list - recomputes against the new order on the next change detection.
+  async dropSet(session: TrainingSession, sessionExercise: SessionExercise, type: SetType, event: CdkDragDrop<ExerciseSet[]>): Promise<void> {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    const setsOfType = this.setsByType(sessionExercise, type);
+    moveItemInArray(setsOfType, event.previousIndex, event.currentIndex);
+    let cursor = 0;
+    sessionExercise.sets = sessionExercise.sets.map((set) => (set.type === type ? setsOfType[cursor++] : set));
     await this.persist(session);
   }
 

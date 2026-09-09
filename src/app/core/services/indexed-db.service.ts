@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Exercise, ExerciseEquipmentType, MuscleGroup } from '../models/exercise.model';
 import { ExerciseWeightCategory } from '../models/tier-line-progression.model';
+import { TrainingSession, SessionExercise } from '../models/session.model';
+import { TrainingPlan, CustomSessionExercise } from '../models/training-plan.model';
 import { buildDefault531Plan } from '../data/default-531-plan';
 import { buildDefault5x5Plan } from '../data/default-5x5-plan';
 import { buildDefaultGzclpPlan } from '../data/default-gzclp-plan';
@@ -150,7 +152,12 @@ const DB_NAME = 'trainings-app-db';
 // 60 left that browser permanently unable to reopen its own database
 // (IndexedDB refuses to open at a version lower than what's already
 // stored). Bumps past that stray 61 so it can open again.
-const DB_VERSION = 62;
+// 63: the warm-up/cooldown reference-exercise picker became single-select -
+// SessionExercise/CustomSessionExercise's warmupExerciseIds/
+// cooldownExerciseIds (string arrays) became warmupExerciseId/
+// cooldownExerciseId (single ids). Converts any existing selection down to
+// its first entry on every stored session and training plan.
+const DB_VERSION = 63;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -916,6 +923,84 @@ export class IndexedDbService {
                   trainingPlansStore.put(defaultPlan);
                 }
               }
+            };
+          }
+
+          if (event.oldVersion < DB_VERSION && db.objectStoreNames.contains(STORES.sessions)) {
+            // 63 above: collapses a session exercise's old warmupExerciseIds/
+            // cooldownExerciseIds arrays down to their first entry, onto the
+            // new singular fields - the old field names are simply never
+            // read again after this.
+            const sessionsStore = request.transaction!.objectStore(STORES.sessions);
+            sessionsStore.openCursor().onsuccess = (cursorEvent) => {
+              const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
+              if (!cursor) {
+                return;
+              }
+              const session = cursor.value as TrainingSession;
+              let changed = false;
+              const exercises = session.exercises.map((exercise) => {
+                const legacy = exercise as SessionExercise & {
+                  warmupExerciseIds?: string[];
+                  cooldownExerciseIds?: string[];
+                };
+                if (!legacy.warmupExerciseIds && !legacy.cooldownExerciseIds) {
+                  return exercise;
+                }
+                changed = true;
+                const { warmupExerciseIds, cooldownExerciseIds, ...rest } = legacy;
+                return {
+                  ...rest,
+                  warmupExerciseId: rest.warmupExerciseId ?? warmupExerciseIds?.[0],
+                  cooldownExerciseId: rest.cooldownExerciseId ?? cooldownExerciseIds?.[0]
+                };
+              });
+              if (changed) {
+                cursor.update({ ...session, exercises });
+              }
+              cursor.continue();
+            };
+          }
+
+          if (event.oldVersion < DB_VERSION && db.objectStoreNames.contains(STORES.trainingPlans)) {
+            // Same conversion as the sessions store above, for a custom
+            // plan's own CustomSessionExercise.warmupExerciseIds/
+            // cooldownExerciseIds.
+            const trainingPlansStore = request.transaction!.objectStore(STORES.trainingPlans);
+            trainingPlansStore.openCursor().onsuccess = (cursorEvent) => {
+              const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
+              if (!cursor) {
+                return;
+              }
+              const plan = cursor.value as TrainingPlan;
+              if (!plan.customSessions?.length) {
+                cursor.continue();
+                return;
+              }
+              let changed = false;
+              const customSessions = plan.customSessions.map((planSession) => ({
+                ...planSession,
+                exercises: planSession.exercises.map((exercise) => {
+                  const legacy = exercise as CustomSessionExercise & {
+                    warmupExerciseIds?: string[];
+                    cooldownExerciseIds?: string[];
+                  };
+                  if (!legacy.warmupExerciseIds && !legacy.cooldownExerciseIds) {
+                    return exercise;
+                  }
+                  changed = true;
+                  const { warmupExerciseIds, cooldownExerciseIds, ...rest } = legacy;
+                  return {
+                    ...rest,
+                    warmupExerciseId: rest.warmupExerciseId ?? warmupExerciseIds?.[0],
+                    cooldownExerciseId: rest.cooldownExerciseId ?? cooldownExerciseIds?.[0]
+                  };
+                })
+              }));
+              if (changed) {
+                cursor.update({ ...plan, customSessions });
+              }
+              cursor.continue();
             };
           }
         }

@@ -1466,14 +1466,14 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Purely a reference list of other exercises to warm up/cool down with -
+  // Purely a reference list of another exercise to warm up/cool down with -
   // never generates sets, unlike updateCustomSessionExercises above. See
-  // CustomSessionExercise.warmupExerciseIds/cooldownExerciseIds.
-  async updateCustomSessionExerciseWarmupReferences(
+  // CustomSessionExercise.warmupExerciseId/cooldownExerciseId.
+  async updateCustomSessionExerciseWarmupReference(
     plan: TrainingPlan,
     sessionId: string,
     exerciseId: string,
-    warmupExerciseIds: string[]
+    warmupExerciseId: string
   ): Promise<void> {
     plan.customSessions = (plan.customSessions ?? []).map((session) => {
       if (session.id !== sessionId) {
@@ -1482,18 +1482,18 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       return {
         ...session,
         exercises: (session.exercises ?? []).map((exercise) =>
-          exercise.exerciseId === exerciseId ? { ...exercise, warmupExerciseIds } : exercise
+          exercise.exerciseId === exerciseId ? { ...exercise, warmupExerciseId } : exercise
         )
       };
     });
     await this.trainingPlansService.update(plan);
   }
 
-  async updateCustomSessionExerciseCooldownReferences(
+  async updateCustomSessionExerciseCooldownReference(
     plan: TrainingPlan,
     sessionId: string,
     exerciseId: string,
-    cooldownExerciseIds: string[]
+    cooldownExerciseId: string
   ): Promise<void> {
     plan.customSessions = (plan.customSessions ?? []).map((session) => {
       if (session.id !== sessionId) {
@@ -1502,7 +1502,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       return {
         ...session,
         exercises: (session.exercises ?? []).map((exercise) =>
-          exercise.exerciseId === exerciseId ? { ...exercise, cooldownExerciseIds } : exercise
+          exercise.exerciseId === exerciseId ? { ...exercise, cooldownExerciseId } : exercise
         )
       };
     });
