@@ -1,9 +1,9 @@
-<h2 mat-dialog-title>{{ 'sessions.addDefaultWarmupTitle' | translate }}</h2>
+<h2 mat-dialog-title>{{ 'sessions.addDefaultRampTitle' | translate }}</h2>
 <div mat-dialog-content>
-  <p class="add-default-warmup-intro">{{ 'sessions.addDefaultWarmupIntro' | translate }}</p>
-  @for (row of data.rows; track row.exerciseId) {
-    <mat-checkbox [(ngModel)]="row.selected" name="addDefaultWarmup-{{ row.exerciseId }}">
-      {{ row.exerciseName }}
+  <p class="add-default-warmup-intro">{{ 'sessions.addDefaultRampIntro' | translate }}</p>
+  @for (row of data.rows; track row.exerciseId + row.kind) {
+    <mat-checkbox [(ngModel)]="row.selected" name="addDefaultWarmup-{{ row.exerciseId }}-{{ row.kind }}">
+      <mat-icon class="label-icon">{{ row.kind === 'warmup' ? 'whatshot' : 'ac_unit' }}</mat-icon>{{ row.exerciseName }}
     </mat-checkbox>
   }
 </div>

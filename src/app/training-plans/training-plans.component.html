@@ -868,6 +868,18 @@
                                     <mat-panel-title>{{ 'sessions.cooldownSets' | translate }}</mat-panel-title>
                                     <mat-panel-description>{{ sessionExercise.cooldownSetTargets?.length ?? 0 }}</mat-panel-description>
                                   </mat-expansion-panel-header>
+                                  @if (exerciseCooldownRamp(sessionExercise.exerciseId)) {
+                                    <button
+                                      mat-stroked-button
+                                      type="button"
+                                      class="add-default-warmup-button"
+                                      (click)="addDefaultCooldownToCustomSessionExercise(plan, session.id, sessionExercise.exerciseId)"
+                                      [matTooltip]="'sessions.addDefaultCooldownButtonTooltip' | translate"
+                                    >
+                                      <mat-icon>ac_unit</mat-icon>
+                                      {{ 'sessions.addDefaultCooldownButton' | translate }}
+                                    </button>
+                                  }
                                   <ng-container
                                     [ngTemplateOutlet]="customSetTargetRows"
                                     [ngTemplateOutletContext]="{ field: 'cooldownSetTargets', targets: sessionExercise.cooldownSetTargets ?? [] }"
@@ -1553,6 +1565,42 @@
                             (change)="updatePlanExerciseCooldownSets(plan, exerciseId, $any($event.target).value)"
                           />
                         </mat-form-field>
+                      }
+
+                      <!-- Same idea as the warm-up ramp hint above, for the exercise's
+                           own cooldown ramp instead. -->
+                      @if (
+                        !plan.isDefault &&
+                        planExerciseConfig(plan, exerciseId).exerciseType === 'WEIGHT_BASED' &&
+                        !planExerciseConfig(plan, exerciseId).cooldownSetTargets?.length &&
+                        exerciseCooldownRamp(exerciseId); as ramp
+                      ) {
+                        <div class="warmup-ramp-hint-row">
+                          @if (!planExerciseConfig(plan, exerciseId).cooldownRampDisabled) {
+                            <p class="warmup-ramp-hint">
+                              {{ 'trainingPlans.cooldownRampHintPrefix' | translate }}
+                              @for (step of ramp; track step.id; let last = $last) {
+                                {{ step.percentage }}%×{{ step.reps }}{{ last ? '' : ', ' }}
+                              }
+                            </p>
+                          }
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            class="add-default-warmup-button"
+                            (click)="addDefaultCooldownToPlanExercise(plan, exerciseId)"
+                            [matTooltip]="'sessions.addDefaultCooldownButtonTooltip' | translate"
+                          >
+                            <mat-icon>ac_unit</mat-icon>
+                            {{ 'sessions.addDefaultCooldownButton' | translate }}
+                          </button>
+                          <mat-checkbox
+                            [checked]="planExerciseConfig(plan, exerciseId).cooldownRampDisabled ?? false"
+                            (change)="updateCooldownRampDisabled(plan, exerciseId, $event.checked)"
+                          >
+                            {{ 'trainingPlans.disableCooldownRamp' | translate }}
+                          </mat-checkbox>
+                        </div>
                       }
                     </mat-expansion-panel>
                   }

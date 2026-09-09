@@ -167,6 +167,58 @@ export class ExercisesComponent implements OnInit {
     await this.exercisesService.update(exercise);
   }
 
+  // Same idea as the warm-up ramp methods above, for the exercise's own
+  // cooldown ramp instead.
+  async addCooldownRampStep(exercise: Exercise): Promise<void> {
+    const ramp = exercise.cooldownRamp ?? [];
+    const previous = ramp[ramp.length - 1];
+    exercise.cooldownRamp = [...ramp, { id: crypto.randomUUID(), percentage: previous?.percentage ?? 50, reps: previous?.reps ?? 5 }];
+    await this.exercisesService.update(exercise);
+  }
+
+  async removeCooldownRampStep(exercise: Exercise, index: number): Promise<void> {
+    exercise.cooldownRamp = (exercise.cooldownRamp ?? []).filter((_, i) => i !== index);
+    await this.exercisesService.update(exercise);
+  }
+
+  cooldownRampPercentageDisplay(step: WarmupRampStep): string {
+    return step.percentage.toString();
+  }
+
+  onCooldownRampPercentageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateCooldownRampPercentage(exercise: Exercise, index: number, value: string): Promise<void> {
+    const parsed = parseFloat(value.replace(',', '.'));
+    const percentage = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 100) : 0;
+    exercise.cooldownRamp = (exercise.cooldownRamp ?? []).map((step, i) => (i === index ? { ...step, percentage } : step));
+    await this.exercisesService.update(exercise);
+  }
+
+  cooldownRampRepsDisplay(step: WarmupRampStep): string {
+    return step.reps.toString();
+  }
+
+  onCooldownRampRepsInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,3}/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateCooldownRampReps(exercise: Exercise, index: number, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const reps = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 999) : 0;
+    exercise.cooldownRamp = (exercise.cooldownRamp ?? []).map((step, i) => (i === index ? { ...step, reps } : step));
+    await this.exercisesService.update(exercise);
+  }
+
   async updateDescription(exercise: Exercise, value: string): Promise<void> {
     exercise.description = value.trim() || undefined;
     await this.exercisesService.update(exercise);

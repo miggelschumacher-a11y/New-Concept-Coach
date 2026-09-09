@@ -55,6 +55,10 @@ export interface Exercise {
   // WarmupRampStep above. Unset/empty for every exercise by default, same
   // convention as every other optional classification field here.
   warmupRamp?: WarmupRampStep[];
+  // Same idea as warmupRamp above, but for a cooldown - same
+  // WarmupRampStep shape and calculateWarmupSets calculation, just applied
+  // to the cooldown sets instead.
+  cooldownRamp?: WarmupRampStep[];
   // Manually entered 1RM override for Percentage-Based progression, used
   // instead of the auto-estimated oneRepMax above when useCustomOneRepMax
   // is on - see SessionsComponent.percentageSetWeight /

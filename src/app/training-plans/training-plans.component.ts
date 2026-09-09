@@ -37,7 +37,8 @@ import { calculateWarmupSets } from '../core/utils/warmup-ramp.util';
 import {
   AddDefaultWarmupDialogComponent,
   AddDefaultWarmupDialogData,
-  AddDefaultWarmupRow
+  AddDefaultWarmupRow,
+  AddDefaultWarmupSelection
 } from '../sessions/add-default-warmup-dialog/add-default-warmup-dialog.component';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
@@ -575,7 +576,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     }
 
     const newlyAddedIds = exerciseIds.filter((exerciseId) => !existingByExerciseId.has(exerciseId));
-    const confirmedExerciseIds = await this.confirmDefaultWarmupForExercises(newlyAddedIds);
+    const confirmedRampKeys = await this.confirmDefaultRampsForExercises(newlyAddedIds);
 
     plan.customSessions = (plan.customSessions ?? []).map((candidate) => {
       if (candidate.id !== sessionId) {
@@ -586,12 +587,17 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
         if (existing) {
           return existing;
         }
-        const ramp = confirmedExerciseIds.has(exerciseId) ? this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp : undefined;
+        const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
+        const warmupRamp = confirmedRampKeys.has(`${exerciseId}:warmup`) ? exercise?.warmupRamp : undefined;
+        const cooldownRamp = confirmedRampKeys.has(`${exerciseId}:cooldown`) ? exercise?.cooldownRamp : undefined;
+        const weightUnit = this.settingsService.getSettings().weightUnit;
         return {
           exerciseId,
           workingSetTargets: [],
-          warmupSetTargets: ramp?.length ? calculateWarmupSets(0, ramp, this.settingsService.getSettings().weightUnit) : undefined,
-          showWarmupSets: ramp?.length ? true : undefined,
+          warmupSetTargets: warmupRamp?.length ? calculateWarmupSets(0, warmupRamp, weightUnit) : undefined,
+          showWarmupSets: warmupRamp?.length ? true : undefined,
+          cooldownSetTargets: cooldownRamp?.length ? calculateWarmupSets(0, cooldownRamp, weightUnit) : undefined,
+          showCooldownSets: cooldownRamp?.length ? true : undefined,
           incrementScheme: DEFAULT_INCREMENT_SCHEME,
           weightIncrement: DEFAULT_WEIGHT_INCREMENT
         };
@@ -619,27 +625,33 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   // Shared by every "add exercise(s) to a plan" entry point that should
-  // offer the exercise's own warm-up ramp - filters candidateIds down to
-  // the ones that actually have a ramp, skips the dialog entirely when
-  // there's nothing to ask about, and returns the ids the user opted
-  // into (same dialog SessionsComponent.updateSessionExercises uses).
-  private async confirmDefaultWarmupForExercises(candidateIds: string[]): Promise<Set<string>> {
-    const rows: AddDefaultWarmupRow[] = candidateIds
-      .map((exerciseId) => ({
-        exerciseId,
-        exerciseName: this.exerciseName(exerciseId),
-        ramp: this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp
-      }))
-      .filter((candidate): candidate is { exerciseId: string; exerciseName: string; ramp: WarmupRampStep[] } => !!candidate.ramp?.length)
-      .map(({ exerciseId, exerciseName }) => ({ exerciseId, exerciseName, selected: true }));
+  // offer the exercise's own warm-up/cooldown ramps - builds one row per
+  // ramp an exercise actually has (an exercise with both kinds gets two
+  // rows), skips the dialog entirely when there's nothing to ask about,
+  // and returns the `${exerciseId}:${kind}` keys the user opted into
+  // (same dialog SessionsComponent.updateSessionExercises uses).
+  private async confirmDefaultRampsForExercises(candidateIds: string[]): Promise<Set<string>> {
+    const rows: AddDefaultWarmupRow[] = candidateIds.flatMap((exerciseId) => {
+      const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
+      const exerciseRows: AddDefaultWarmupRow[] = [];
+      if (exercise?.warmupRamp?.length) {
+        exerciseRows.push({ exerciseId, exerciseName: this.exerciseName(exerciseId), kind: 'warmup', selected: true });
+      }
+      if (exercise?.cooldownRamp?.length) {
+        exerciseRows.push({ exerciseId, exerciseName: this.exerciseName(exerciseId), kind: 'cooldown', selected: true });
+      }
+      return exerciseRows;
+    });
     if (rows.length === 0) {
       return new Set();
     }
     const data: AddDefaultWarmupDialogData = { rows };
     const result = await firstValueFrom(
-      this.dialog.open<AddDefaultWarmupDialogComponent, AddDefaultWarmupDialogData, string[]>(AddDefaultWarmupDialogComponent, { data }).afterClosed()
+      this.dialog
+        .open<AddDefaultWarmupDialogComponent, AddDefaultWarmupDialogData, AddDefaultWarmupSelection[]>(AddDefaultWarmupDialogComponent, { data })
+        .afterClosed()
     );
-    return new Set(result ?? []);
+    return new Set((result ?? []).map((selection) => `${selection.exerciseId}:${selection.kind}`));
   }
 
   // Retroactively (re)applies the exercise's warm-up ramp to one custom-
@@ -675,6 +687,35 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.trainingPlansService.update(plan);
   }
 
+  // Same idea as addDefaultWarmupToCustomSessionExercise above, for the
+  // cooldown ramp instead.
+  async addDefaultCooldownToCustomSessionExercise(plan: TrainingPlan, sessionId: string, exerciseId: string): Promise<void> {
+    const ramp = this.exercises.find((exercise) => exercise.id === exerciseId)?.cooldownRamp;
+    if (!ramp?.length) {
+      return;
+    }
+    plan.customSessions = (plan.customSessions ?? []).map((session) => {
+      if (session.id !== sessionId) {
+        return session;
+      }
+      return {
+        ...session,
+        exercises: (session.exercises ?? []).map((exercise) => {
+          if (exercise.exerciseId !== exerciseId) {
+            return exercise;
+          }
+          const baseWeight = exercise.workingSetTargets?.[0]?.weight ?? 0;
+          return {
+            ...exercise,
+            cooldownSetTargets: calculateWarmupSets(baseWeight, ramp, this.settingsService.getSettings().weightUnit),
+            showCooldownSets: true
+          };
+        })
+      };
+    });
+    await this.trainingPlansService.update(plan);
+  }
+
   // Same idea as addDefaultWarmupToCustomSessionExercise, for a flat
   // plan's own exerciseConfigs entry - also clears a prior opt-out, since
   // clicking this button is an explicit request to use the ramp now.
@@ -689,6 +730,22 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       warmupSetTargets: calculateWarmupSets(baseWeight, ramp, this.settingsService.getSettings().weightUnit),
       showWarmupSets: true,
       warmupRampDisabled: false
+    });
+  }
+
+  // Same idea as addDefaultWarmupToPlanExercise above, for the cooldown
+  // ramp instead.
+  async addDefaultCooldownToPlanExercise(plan: TrainingPlan, exerciseId: string): Promise<void> {
+    const ramp = this.exercises.find((exercise) => exercise.id === exerciseId)?.cooldownRamp;
+    if (!ramp?.length) {
+      return;
+    }
+    const config = this.planExerciseConfig(plan, exerciseId);
+    const baseWeight = config.workingSetTargets?.[0]?.weight ?? 0;
+    await this.updateConfig(plan, exerciseId, {
+      cooldownSetTargets: calculateWarmupSets(baseWeight, ramp, this.settingsService.getSettings().weightUnit),
+      showCooldownSets: true,
+      cooldownRampDisabled: false
     });
   }
 
@@ -1377,6 +1434,15 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async updateWarmupRampDisabled(plan: TrainingPlan, exerciseId: string, disabled: boolean): Promise<void> {
     await this.updateConfig(plan, exerciseId, { warmupRampDisabled: disabled });
+  }
+
+  // Same idea as exerciseWarmupRamp above, for the cooldown ramp instead.
+  exerciseCooldownRamp(exerciseId: string): WarmupRampStep[] | undefined {
+    return this.exercises.find((exercise) => exercise.id === exerciseId)?.cooldownRamp;
+  }
+
+  async updateCooldownRampDisabled(plan: TrainingPlan, exerciseId: string, disabled: boolean): Promise<void> {
+    await this.updateConfig(plan, exerciseId, { cooldownRampDisabled: disabled });
   }
 
   private async updatePercentageSet(

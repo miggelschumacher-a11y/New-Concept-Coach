@@ -32,7 +32,9 @@ import {
 import {
   AddDefaultWarmupDialogComponent,
   AddDefaultWarmupDialogData,
-  AddDefaultWarmupRow
+  AddDefaultWarmupRow,
+  AddDefaultWarmupSelection,
+  RampKind
 } from './add-default-warmup-dialog/add-default-warmup-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
@@ -2006,9 +2008,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
                     'warmup'
                   )
                 : buildSets(config.warmupSets, 'warmup');
-            const cooldownSets = cooldownSetTargets
+            // Same exercise-level default/precedence as warmupRamp above,
+            // applied to the cooldown instead.
+            const cooldownRamp =
+              hasIncrementScheme && !config.cooldownRampDisabled
+                ? this.exercises.find((candidate) => candidate.id === exerciseId)?.cooldownRamp
+                : undefined;
+            const cooldownSets = cooldownSetTargets?.length
               ? buildTargetSets(cooldownSetTargets, 'cooldown')
-              : buildSets(config.cooldownSets, 'cooldown');
+              : cooldownRamp?.length && config.cooldownSets === 0
+                ? buildTargetSets(
+                    calculateWarmupSets(workingSets[0]?.weight ?? 0, cooldownRamp, this.settingsService.getSettings().weightUnit),
+                    'cooldown'
+                  )
+                : buildSets(config.cooldownSets, 'cooldown');
 
             // Freshly generated sets have no "previous set" to inherit
             // equipmentId/doubleWeightCounting from (see addSet's own
@@ -2478,30 +2491,33 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // Manually adding an exercise here has no plan config to fall back to
     // (see buildSessionFromPlan's own ramp handling for the generated-
     // session case) - this is the only other place a session exercise gets
-    // created, so it gets its own prompt instead: offer the ramp for every
-    // newly added exercise that has one, once, rather than silently using
-    // or silently ignoring it.
+    // created, so it gets its own prompt instead: offer the ramp(s) for
+    // every newly added exercise that has one, once, rather than silently
+    // using or silently ignoring it. An exercise with both a warm-up and a
+    // cooldown ramp gets one row per kind, so either can be accepted
+    // independently.
     const newlyAddedIds = exerciseIds.filter((exerciseId) => !existingByExerciseId.has(exerciseId));
-    const newlyAddedWithRamp = newlyAddedIds
-      .map((exerciseId) => ({
-        exerciseId,
-        exerciseName: this.exerciseName(exerciseId),
-        ramp: this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp
-      }))
-      .filter((candidate): candidate is { exerciseId: string; exerciseName: string; ramp: WarmupRampStep[] } => !!candidate.ramp?.length);
-    const warmupRows: AddDefaultWarmupRow[] = newlyAddedWithRamp.map((candidate) => ({
-      exerciseId: candidate.exerciseId,
-      exerciseName: candidate.exerciseName,
-      selected: true
-    }));
+    const warmupRows: AddDefaultWarmupRow[] = newlyAddedIds.flatMap((exerciseId) => {
+      const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
+      const rows: AddDefaultWarmupRow[] = [];
+      if (exercise?.warmupRamp?.length) {
+        rows.push({ exerciseId, exerciseName: this.exerciseName(exerciseId), kind: 'warmup', selected: true });
+      }
+      if (exercise?.cooldownRamp?.length) {
+        rows.push({ exerciseId, exerciseName: this.exerciseName(exerciseId), kind: 'cooldown', selected: true });
+      }
+      return rows;
+    });
 
-    let confirmedExerciseIds = new Set<string>();
+    let confirmedRampKeys = new Set<string>();
     if (warmupRows.length > 0) {
       const data: AddDefaultWarmupDialogData = { rows: warmupRows };
       const result = await firstValueFrom(
-        this.dialog.open<AddDefaultWarmupDialogComponent, AddDefaultWarmupDialogData, string[]>(AddDefaultWarmupDialogComponent, { data }).afterClosed()
+        this.dialog
+          .open<AddDefaultWarmupDialogComponent, AddDefaultWarmupDialogData, AddDefaultWarmupSelection[]>(AddDefaultWarmupDialogComponent, { data })
+          .afterClosed()
       );
-      confirmedExerciseIds = new Set(result ?? []);
+      confirmedRampKeys = new Set((result ?? []).map((selection) => `${selection.exerciseId}:${selection.kind}`));
     }
 
     // A freshly added exercise starts with whatever the session's own
@@ -2515,19 +2531,23 @@ export class SessionsComponent implements OnInit, OnDestroy {
       if (existing) {
         return existing;
       }
-      const ramp = confirmedExerciseIds.has(exerciseId) ? this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp : undefined;
-      const sets = ramp?.length ? this.buildWarmupSetsFromRamp(ramp, this.defaultWeight(exerciseId, 'working'), weightUnit) : [];
+      const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
+      const warmupRamp = confirmedRampKeys.has(`${exerciseId}:warmup`) ? exercise?.warmupRamp : undefined;
+      const cooldownRamp = confirmedRampKeys.has(`${exerciseId}:cooldown`) ? exercise?.cooldownRamp : undefined;
+      const baseWeight = this.defaultWeight(exerciseId, 'working');
+      const warmupSets = warmupRamp?.length ? this.buildSetsFromRamp(warmupRamp, baseWeight, weightUnit, 'warmup') : [];
+      const cooldownSets = cooldownRamp?.length ? this.buildSetsFromRamp(cooldownRamp, baseWeight, weightUnit, 'cooldown') : [];
       return {
         exerciseId,
-        sets,
+        sets: [...warmupSets, ...cooldownSets],
         countWarmupSets: sessionSettings.countWarmupSets,
         countCooldownSets: sessionSettings.countCooldownSets,
-        // Forced visible whenever the ramp actually added sets, regardless
-        // of the session's own current default - otherwise confirming the
-        // add-default-warmup prompt could silently produce sets the user
-        // can't even see.
-        showWarmupSets: sets.length > 0 ? true : sessionSettings.showWarmupSets,
-        showCooldownSets: sessionSettings.showCooldownSets,
+        // Forced visible whenever the corresponding ramp actually added
+        // sets, regardless of the session's own current default -
+        // otherwise confirming the add-default prompt could silently
+        // produce sets the user can't even see.
+        showWarmupSets: warmupSets.length > 0 ? true : sessionSettings.showWarmupSets,
+        showCooldownSets: cooldownSets.length > 0 ? true : sessionSettings.showCooldownSets,
         // Matches Training Plans' own default for a freshly added exercise.
         exerciseType: 'WEIGHT_BASED' as const,
         incrementScheme: 'LINEAR_PROGRESSION' as const,
@@ -2538,15 +2558,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   // Shared by updateSessionExercises (initial add-prompt) and
-  // addDefaultWarmupToSessionExercise (retroactive button) - turns an
-  // exercise's percentage ramp into literal warm-up ExerciseSets.
-  private buildWarmupSetsFromRamp(ramp: WarmupRampStep[], baseWeight: number, weightUnit: WeightUnit): ExerciseSet[] {
+  // addDefaultWarmupToSessionExercise/addDefaultCooldownToSessionExercise
+  // (retroactive buttons) - turns an exercise's percentage ramp into
+  // literal ExerciseSets of the given type.
+  private buildSetsFromRamp(ramp: WarmupRampStep[], baseWeight: number, weightUnit: WeightUnit, type: SetType): ExerciseSet[] {
     return calculateWarmupSets(baseWeight, ramp, weightUnit).map((target) => ({
       id: crypto.randomUUID(),
       reps: parseInt(target.targetReps, 10) || 0,
       targetReps: parseInt(target.targetReps, 10) || 0,
       weight: target.weight,
-      type: 'warmup' as SetType
+      type
     }));
   }
 
@@ -2554,6 +2575,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // "add default warm-up" button in the template.
   hasWarmupRamp(exerciseId: string): boolean {
     return !!this.exercises.find((exercise) => exercise.id === exerciseId)?.warmupRamp?.length;
+  }
+
+  // Same idea as hasWarmupRamp above, for the cooldown ramp instead.
+  hasCooldownRamp(exerciseId: string): boolean {
+    return !!this.exercises.find((exercise) => exercise.id === exerciseId)?.cooldownRamp?.length;
   }
 
   // Retroactively (re)applies the exercise's warm-up ramp to one session
@@ -2570,9 +2596,25 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const workingWeight =
       sessionExercise.sets.find((set) => set.type === 'working')?.weight ?? this.defaultWeight(sessionExercise.exerciseId, 'working');
     const weightUnit = this.settingsService.getSettings().weightUnit;
-    const warmupSets = this.buildWarmupSetsFromRamp(ramp, workingWeight, weightUnit);
+    const warmupSets = this.buildSetsFromRamp(ramp, workingWeight, weightUnit, 'warmup');
     sessionExercise.sets = [...warmupSets, ...sessionExercise.sets.filter((set) => set.type !== 'warmup')];
     sessionExercise.showWarmupSets = true;
+    await this.persist(session);
+  }
+
+  // Same idea as addDefaultWarmupToSessionExercise above, for the
+  // cooldown ramp instead.
+  async addDefaultCooldownToSessionExercise(session: TrainingSession, sessionExercise: SessionExercise): Promise<void> {
+    const ramp = this.exercises.find((exercise) => exercise.id === sessionExercise.exerciseId)?.cooldownRamp;
+    if (!ramp?.length) {
+      return;
+    }
+    const workingWeight =
+      sessionExercise.sets.find((set) => set.type === 'working')?.weight ?? this.defaultWeight(sessionExercise.exerciseId, 'working');
+    const weightUnit = this.settingsService.getSettings().weightUnit;
+    const cooldownSets = this.buildSetsFromRamp(ramp, workingWeight, weightUnit, 'cooldown');
+    sessionExercise.sets = [...sessionExercise.sets.filter((set) => set.type !== 'cooldown'), ...cooldownSets];
+    sessionExercise.showCooldownSets = true;
     await this.persist(session);
   }
 

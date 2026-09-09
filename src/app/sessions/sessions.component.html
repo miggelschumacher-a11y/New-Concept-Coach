@@ -834,6 +834,18 @@
                           {{ 'sessions.addDefaultWarmupButton' | translate }}
                         </button>
                       }
+                      @if (setType.value === 'cooldown' && hasCooldownRamp(sessionExercise.exerciseId)) {
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          class="add-default-warmup-button"
+                          (click)="addDefaultCooldownToSessionExercise(session, sessionExercise)"
+                          [matTooltip]="'sessions.addDefaultCooldownButtonTooltip' | translate"
+                        >
+                          <mat-icon>ac_unit</mat-icon>
+                          {{ 'sessions.addDefaultCooldownButton' | translate }}
+                        </button>
+                      }
 
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
                         @if (doneAttemptFieldKey === set.id) {
