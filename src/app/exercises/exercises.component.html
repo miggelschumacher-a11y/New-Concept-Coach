@@ -213,6 +213,12 @@
               >
                 {{ 'exercises.onlyAsWarmupExercise' | translate }}
               </mat-checkbox>
+              <mat-checkbox
+                [checked]="exercise.neverAsWarmupExercise ?? false"
+                (change)="updateNeverAsWarmupExercise(exercise, $event.checked)"
+              >
+                {{ 'exercises.neverAsWarmupExercise' | translate }}
+              </mat-checkbox>
             </div>
             @for (step of exercise.warmupRamp ?? []; track step.id; let stepIndex = $index) {
               <div class="ramp-row">
@@ -281,6 +287,12 @@
                 (change)="updateOnlyAsCooldownExercise(exercise, $event.checked)"
               >
                 {{ 'exercises.onlyAsCooldownExercise' | translate }}
+              </mat-checkbox>
+              <mat-checkbox
+                [checked]="exercise.neverAsCooldownExercise ?? false"
+                (change)="updateNeverAsCooldownExercise(exercise, $event.checked)"
+              >
+                {{ 'exercises.neverAsCooldownExercise' | translate }}
               </mat-checkbox>
             </div>
             @for (step of exercise.cooldownRamp ?? []; track step.id; let stepIndex = $index) {
