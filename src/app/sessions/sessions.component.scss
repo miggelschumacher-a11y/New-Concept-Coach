@@ -53,6 +53,32 @@ mat-expansion-panel-header .mat-content {
   flex: 0 0 auto;
 }
 
+// Below this width, title/description/tune-icon splitting a single row
+// each get squeezed to almost nothing - most visibly the session name,
+// which was ellipsizing after only a few characters. Moving the
+// description (date/weight) onto its own second line leaves the name
+// sharing the first line with just the small tune icon, so it actually
+// gets to show most of its text.
+@media (max-width: 480px) {
+  // .mat-content is rendered inside mat-expansion-panel-header's own
+  // internal template, not this component's - an unscoped selector here
+  // never matches (view encapsulation stamps only this component's own
+  // template elements), so it needs ::ng-deep to actually take effect.
+  ::ng-deep mat-expansion-panel-header .mat-content {
+    flex-wrap: wrap;
+  }
+
+  .session-settings-info-trigger {
+    order: 1;
+  }
+
+  .session-card mat-panel-description {
+    order: 2;
+    flex: 1 1 100%;
+    white-space: normal;
+  }
+}
+
 .exercise-drag-handle {
   display: flex;
   align-items: center;
