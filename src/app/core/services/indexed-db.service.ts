@@ -134,7 +134,11 @@ const DB_NAME = 'trainings-app-db';
 // browser tab sharing this dev server reloaded on an intermediate edit
 // (DB_VERSION already 58, the 12 names not yet added) and got stuck there.
 // Re-fires the backfill for anyone caught in that gap.
-const DB_VERSION = 59;
+// 60: flags the 14 warm-up and 12 cooldown exercises from 56/58 as
+// onlyAsWarmupExercise/onlyAsCooldownExercise (see WARMUP_ONLY_EXERCISE_NAMES/
+// COOLDOWN_ONLY_EXERCISE_NAMES) - picked up by the self-healing backfill
+// above, and set directly in buildDefaultExercise for brand-new installs.
+const DB_VERSION = 60;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -216,6 +220,46 @@ const DEFAULT_EXERCISE_NAMES = [
   'Wall-Slides',
   'Handgelenkskreisen',
   'Knöchelmobilisation',
+  'Quadrizeps-Dehnung',
+  'Hamstring-Dehnung',
+  'Waden-Dehnung',
+  'Taubenhaltung',
+  'Schmetterlingsdehnung',
+  'Brustdehnung',
+  'Trizeps-Dehnung',
+  'Latissimus-Dehnung',
+  'Nackendehnung',
+  'Kindhaltung',
+  'Katze-Kuh',
+  'Liegende-Rumpfdrehung'
+];
+
+// The general warm-up/mobility exercises above exist purely to be picked in
+// a session/plan exercise's warm-up reference picker - never as a trainable
+// exercise in its own right, so their onlyAsWarmupExercise flag is set by
+// default (both here for brand-new installs and in the self-healing
+// backfill below for existing ones). Checking "Also usable" instead is
+// still available to any of them individually.
+const WARMUP_ONLY_EXERCISE_NAMES = [
+  'Armkreisen',
+  'Rumpfrotationen',
+  'Beinschwingen',
+  "World's-Greatest-Stretch",
+  'Bodyweight-Squats',
+  'Ausfallschritte-mit-Rotation',
+  'Hüftkreisen',
+  'Glute-Bridges',
+  'Band-Pull-Aparts',
+  'Scapula-Push-ups',
+  'Schulterkreisen',
+  'Wall-Slides',
+  'Handgelenkskreisen',
+  'Knöchelmobilisation'
+];
+
+// Same idea as WARMUP_ONLY_EXERCISE_NAMES above, for the general cooldown/
+// stretching exercises instead.
+const COOLDOWN_ONLY_EXERCISE_NAMES = [
   'Quadrizeps-Dehnung',
   'Hamstring-Dehnung',
   'Waden-Dehnung',
@@ -639,6 +683,8 @@ function buildDefaultExercise(name: string): Exercise {
     weightCategory: DEFAULT_EXERCISE_WEIGHT_CATEGORIES[name],
     equipmentType: DEFAULT_EXERCISE_EQUIPMENT_TYPES[name],
     muscleGroup: DEFAULT_EXERCISE_MUSCLE_GROUPS[name],
+    onlyAsWarmupExercise: WARMUP_ONLY_EXERCISE_NAMES.includes(name) || undefined,
+    onlyAsCooldownExercise: COOLDOWN_ONLY_EXERCISE_NAMES.includes(name) || undefined,
     ...(sourced
       ? {
           description: sourced.description,
@@ -803,6 +849,24 @@ export class IndexedDbService {
               const defaultMuscleGroup = DEFAULT_EXERCISE_MUSCLE_GROUPS[exercise.name];
               if (defaultMuscleGroup && !updated.muscleGroup) {
                 updated = { ...updated, muscleGroup: defaultMuscleGroup };
+              }
+              // Only sets the flag when neither of an exercise's own
+              // warm-up/cooldown-usage checkboxes has ever been touched -
+              // checking "Also usable" leaves the "only" flag explicitly
+              // false, which must never get silently flipped back to true.
+              if (
+                WARMUP_ONLY_EXERCISE_NAMES.includes(exercise.name) &&
+                updated.onlyAsWarmupExercise === undefined &&
+                updated.useAsWarmupExercise === undefined
+              ) {
+                updated = { ...updated, onlyAsWarmupExercise: true };
+              }
+              if (
+                COOLDOWN_ONLY_EXERCISE_NAMES.includes(exercise.name) &&
+                updated.onlyAsCooldownExercise === undefined &&
+                updated.useAsCooldownExercise === undefined
+              ) {
+                updated = { ...updated, onlyAsCooldownExercise: true };
               }
               if (updated !== exercise) {
                 cursor.update(updated);
