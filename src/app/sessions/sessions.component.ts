@@ -3441,8 +3441,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   // The set-completion toast's weight figure, with its %1RM appended the
-  // same way the working-set weight field's own label already shows it (see
-  // workingSetOneRepMaxPercentage) - omitted when there's no 1RM recorded to
+  // same way a set's own weight field label already shows it (see
+  // setOneRepMaxPercentage) - omitted when there's no 1RM recorded to
   // compare against.
   private weightWithOneRepMaxPercentText(exerciseId: string, weight: number): string {
     const weightText = `${weight.toFixed(2)} ${this.weightUnitLabel}`;
@@ -3520,13 +3520,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return exercise && oneRepMaxOverrideChecked(exercise) ? 'exercises.oneRepMaxCustom' : 'exercises.oneRepMaxEstimated';
   }
 
-  // Shown in the working-set weight field's own label - how much of the
-  // exercise's current 1RM (custom override respected, same as what
-  // Percentage-Based generation itself uses) this set's weight is. Reads the
-  // live field buffer (like setVolume) rather than set.weight, so it updates
-  // as the weight is typed instead of only after the set is marked done.
-  // Null hides it: no weight yet, or no 1RM to compare against.
-  workingSetOneRepMaxPercentage(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): number | null {
+  // Shown in a set's own weight field label - how much of the exercise's
+  // current 1RM (custom override respected, same as what Percentage-Based
+  // generation itself uses) this set's weight is. Reads the live field
+  // buffer (like setVolume) rather than set.weight, so it updates as the
+  // weight is typed instead of only after the set is marked done. Null hides
+  // it: no weight yet, or no 1RM to compare against. Shown for warm-up and
+  // cooldown sets too, not just working sets - the exercise's 1RM is the
+  // same reference point regardless of which section a set belongs to.
+  setOneRepMaxPercentage(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): number | null {
     const weight = parseFloat(this.fieldBuffer(set, session, sessionExercise).weight.replace(',', '.'));
     if (!Number.isFinite(weight) || weight <= 0) {
       return null;

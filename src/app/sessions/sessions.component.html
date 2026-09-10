@@ -1017,7 +1017,7 @@
                               <mat-form-field appearance="outline" class="set-field set-field-weight">
                                 <mat-label>
                                   {{ weightUnitLabel }}
-                                  @if (setType.value === 'working' && workingSetOneRepMaxPercentage(session, sessionExercise, set); as oneRepMaxPercentage) {
+                                  @if (setOneRepMaxPercentage(session, sessionExercise, set); as oneRepMaxPercentage) {
                                     &nbsp;({{ oneRepMaxPercentage }}%)
                                   }
                                   @if (set.done) {
