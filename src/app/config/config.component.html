@@ -402,7 +402,7 @@
         </mat-expansion-panel-header>
 
         <div class="settings-form">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="auto-advance-field">
             <mat-label>{{ 'config.warmupSetsAutoAdvanceLabel' | translate }}</mat-label>
             <mat-select [(ngModel)]="warmupSetsAutoAdvance" (selectionChange)="onWarmupSetsAutoAdvanceChange()">
               <mat-option value="immediate">{{ 'config.autoAdvanceImmediateOption' | translate }}</mat-option>
@@ -411,7 +411,7 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="auto-advance-field">
             <mat-label>{{ 'config.workingSetsAutoAdvanceLabel' | translate }}</mat-label>
             <mat-select [(ngModel)]="workingSetsAutoAdvance" (selectionChange)="onWorkingSetsAutoAdvanceChange()">
               <mat-option value="immediate">{{ 'config.autoAdvanceImmediateOption' | translate }}</mat-option>

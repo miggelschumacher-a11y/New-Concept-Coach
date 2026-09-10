@@ -839,7 +839,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Zusätzliche Wartezeit zwischen den Sätzen bis zur zweiten Erinnerung',
     'config.restBetweenExercisesLabel': 'Pause zwischen den Übungen',
     'config.autoTrainingSessionTitle': 'Automatisierte Trainingseinheit',
-    'config.warmupSetsAutoAdvanceLabel': 'Aufwärmen-Sätze',
+    'config.warmupSetsAutoAdvanceLabel': 'Aufwärm-Sätze',
     'config.workingSetsAutoAdvanceLabel': 'Arbeits-Sätze',
     'config.autoAdvanceImmediateOption': 'Nach dem letzten Satz sofort weiter',
     'config.autoAdvanceConfirmOption': 'Vorher fragen',
