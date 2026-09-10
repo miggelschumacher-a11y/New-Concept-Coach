@@ -953,6 +953,11 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async removeCustomSessionSet(plan: TrainingPlan, sessionId: string, exerciseId: string, field: SetTargetField, index: number): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, { data: { messageKey: 'sessions.confirmRemoveSetQuestion' } });
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) {
+      return;
+    }
     await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) => targets.filter((_, i) => i !== index));
   }
 
@@ -1383,6 +1388,11 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async removeSetTarget(plan: TrainingPlan, exerciseId: string, field: SetTargetField, index: number): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, { data: { messageKey: 'sessions.confirmRemoveSetQuestion' } });
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) {
+      return;
+    }
     await this.updateSetTargets(plan, exerciseId, field, (targets) => targets.filter((_, i) => i !== index));
   }
 
@@ -1658,6 +1668,11 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async removePercentageSet(plan: TrainingPlan, exerciseId: string, weekIndex: number, setIndex: number): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, { data: { messageKey: 'sessions.confirmRemoveSetQuestion' } });
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) {
+      return;
+    }
     const config = this.planExerciseConfig(plan, exerciseId);
     const weeks = (config.percentageWeeks ?? []).map((week, wi) =>
       wi === weekIndex ? { sets: week.sets.filter((_, si) => si !== setIndex) } : week
