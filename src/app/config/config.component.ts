@@ -88,7 +88,7 @@ export class ConfigComponent implements OnInit {
   waveProgressionRepsDecrement: number;
   firstRestAfterSet: number;
   secondRestAfterSet: number;
-  restBetweenSets: number;
+  restBetweenExercises: number;
   statusMessageKey: string | null = null;
   pendingDriveBackupJson: string | null = null;
   driveFileName = '';
@@ -135,7 +135,7 @@ export class ConfigComponent implements OnInit {
     this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
     this.firstRestAfterSet = settings.firstRestAfterSet;
     this.secondRestAfterSet = settings.secondRestAfterSet;
-    this.restBetweenSets = settings.restBetweenSets;
+    this.restBetweenExercises = settings.restBetweenExercises;
   }
 
   async ngOnInit(): Promise<void> {
@@ -156,7 +156,7 @@ export class ConfigComponent implements OnInit {
     this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
     this.firstRestAfterSet = settings.firstRestAfterSet;
     this.secondRestAfterSet = settings.secondRestAfterSet;
-    this.restBetweenSets = settings.restBetweenSets;
+    this.restBetweenExercises = settings.restBetweenExercises;
     this.bodyWeightEntries = await this.bodyWeightService.getAll();
     this.dumbbellEntries = await this.dumbbellsService.getAll();
     this.plateEntries = await this.platesService.getAll();
@@ -346,9 +346,9 @@ export class ConfigComponent implements OnInit {
     await this.settingsService.updateSettings({ secondRestAfterSet: this.secondRestAfterSet });
   }
 
-  async onRestBetweenSetsChange(value: string): Promise<void> {
-    this.restBetweenSets = this.clampRestValue(value);
-    await this.settingsService.updateSettings({ restBetweenSets: this.restBetweenSets });
+  async onRestBetweenExercisesChange(value: string): Promise<void> {
+    this.restBetweenExercises = this.clampRestValue(value);
+    await this.settingsService.updateSettings({ restBetweenExercises: this.restBetweenExercises });
   }
 
   async startDriveBackup(): Promise<void> {

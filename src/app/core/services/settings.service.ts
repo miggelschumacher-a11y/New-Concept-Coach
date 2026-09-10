@@ -35,7 +35,7 @@ export interface AppSettings {
   // informational settings for now, not yet read anywhere else.
   firstRestAfterSet: number;
   secondRestAfterSet: number;
-  restBetweenSets: number;
+  restBetweenExercises: number;
 }
 
 export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
@@ -68,7 +68,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   waveProgressionRepsDecrement: 1,
   firstRestAfterSet: 60,
   secondRestAfterSet: 60,
-  restBetweenSets: 180
+  restBetweenExercises: 180
 };
 
 type SettingsRecord = AppSettings & { id: string };
