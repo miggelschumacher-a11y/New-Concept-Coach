@@ -429,6 +429,21 @@ mat-expansion-panel mat-checkbox {
   color: var(--app-muted-text);
 }
 
+.set-delete-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 0.1rem;
+}
+
+.set-type-icon {
+  font-size: 1rem;
+  height: 1rem;
+  width: 1rem;
+  color: var(--app-muted-text);
+}
+
 .set-fields {
   display: flex;
   align-items: center;
@@ -450,7 +465,9 @@ mat-expansion-panel mat-checkbox {
 }
 
 .set-fields .set-field-weight {
-  width: 7.75rem;
+  // Wide enough for the label's longest form - unit + %1RM + done-volume
+  // shown together (e.g. "KG (76%) (162.50)").
+  width: 11rem;
 }
 
 .set-field input {
