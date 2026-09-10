@@ -3332,21 +3332,30 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // the last working set, not after each one along the way.
     const workingSets = sessionExercise.sets.filter((s) => s.type === 'working');
     if (set.type === 'working') {
-      if (workingSets.every((s) => s.done)) {
-        this.showSetFeedback(session, sessionExercise, set, workingSets);
-      }
-      this.maybeShowRestPrompt(session, sessionExercise, workingSets);
+      this.maybeShowRestPrompt(session, sessionExercise, set, workingSets);
     }
   }
 
   // Decides which of the three rest-related popups (if any) follows a
-  // just-completed working set: another one of this same exercise still
-  // pending -> the two-stage between-sets rest timer; this exercise's own
+  // just-completed working set, and where the progression/reduction toast
+  // (see buildSetFeedbackMessage) fits alongside it: another set of this
+  // same exercise still pending -> just the two-stage between-sets rest
+  // timer (the toast never applies here, same as before - it's judged
+  // across the whole exercise, not one set alone); this exercise's own
   // working sets are all done but another exercise in the session still has
-  // some left -> the single-threshold between-exercises timer (skipped
-  // entirely when that setting is 0); nothing left anywhere -> the
-  // finish-session prompt.
-  private maybeShowRestPrompt(session: TrainingSession, sessionExercise: SessionExercise, workingSets: ExerciseSet[]): void {
+  // some left -> the single-threshold between-exercises timer, with the
+  // toast's own message folded into that popup instead of shown separately
+  // (per the user's explicit request: don't show both at once); if that
+  // timer is skipped (the rest-between-exercises setting is 0), the toast
+  // shows on its own instead; nothing left anywhere -> the toast shows on
+  // its own (the finish-session prompt has no timer to fold it into),
+  // followed by that prompt.
+  private maybeShowRestPrompt(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    set: ExerciseSet,
+    workingSets: ExerciseSet[]
+  ): void {
     if (workingSets.some((s) => !s.done)) {
       this.openBetweenSetsRestTimer();
       return;
@@ -3357,10 +3366,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (anotherExercisePending) {
       const restBetweenExercises = this.settingsService.getSettings().restBetweenExercises;
       if (restBetweenExercises > 0) {
-        this.openBetweenExercisesRestTimer(restBetweenExercises);
+        const feedbackMessage = this.buildSetFeedbackMessage(session, sessionExercise, workingSets).message;
+        this.openBetweenExercisesRestTimer(restBetweenExercises, feedbackMessage);
+      } else {
+        this.showSetFeedback(session, sessionExercise, workingSets);
       }
       return;
     }
+    this.showSetFeedback(session, sessionExercise, workingSets);
     void this.promptFinishAllDone(session);
   }
 
@@ -3374,9 +3387,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private openBetweenExercisesRestTimer(thresholdSeconds: number): void {
+  private openBetweenExercisesRestTimer(thresholdSeconds: number, feedbackMessage: string): void {
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
-      data: { firstThresholdSeconds: thresholdSeconds },
+      data: { firstThresholdSeconds: thresholdSeconds, feedbackMessage },
       disableClose: true
     });
   }
@@ -3423,13 +3436,22 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // set hit its target, and previews the weight this exercise will carry
   // into its next occurrence so a deload triggered by this session is
   // visible immediately, rather than only once the session is finished and
-  // replenished.
-  private showSetFeedback(
+  // replenished. The message itself lives in buildSetFeedbackMessage since
+  // maybeShowRestPrompt also needs it standalone, to fold into the
+  // between-exercises rest timer popup instead of showing this toast.
+  private showSetFeedback(session: TrainingSession, sessionExercise: SessionExercise, workingSets: ExerciseSet[]): void {
+    const { message, succeeded } = this.buildSetFeedbackMessage(session, sessionExercise, workingSets);
+    this.snackBar.open(message, undefined, {
+      duration: 3000,
+      panelClass: succeeded ? 'set-feedback-success' : 'set-feedback-fail'
+    });
+  }
+
+  private buildSetFeedbackMessage(
     session: TrainingSession,
     sessionExercise: SessionExercise,
-    set: ExerciseSet,
     workingSets: ExerciseSet[]
-  ): void {
+  ): { message: string; succeeded: boolean } {
     // Time-Based has no weight/1RM scheme to preview a next-session weight
     // from - previews the prescribed duration instead, judged against
     // targetSeconds (see setMetTarget) rather than the targetReps check
@@ -3444,10 +3466,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const message = this.translationService
       .translate(succeeded ? 'sessions.setFeedbackSuccess' : 'sessions.setFeedbackFail')
       .replace('{weight}', previewText);
-    this.snackBar.open(message, undefined, {
-      duration: 3000,
-      panelClass: succeeded ? 'set-feedback-success' : 'set-feedback-fail'
-    });
+    return { message, succeeded };
   }
 
   // Time-Based counterpart to nextWeightsSummaryText - the prescribed

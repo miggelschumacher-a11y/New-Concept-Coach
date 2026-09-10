@@ -11,6 +11,11 @@ export interface RestTimerDialogData {
   // it entirely (used for the single-threshold rest-between-exercises timer,
   // and whenever the second rest setting is 0).
   secondThresholdSeconds?: number;
+  // The just-finished exercise's own progression/reduction toast message
+  // (see SessionsComponent.buildSetFeedbackMessage), folded into this popup
+  // instead of shown as a separate snackbar when both would otherwise
+  // appear together - only ever set on the between-exercises timer.
+  feedbackMessage?: string;
 }
 
 // A tap-to-dismiss popup showing a live count-up of the rest just taken,
