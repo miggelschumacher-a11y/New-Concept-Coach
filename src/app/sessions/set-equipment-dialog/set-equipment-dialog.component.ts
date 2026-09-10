@@ -184,7 +184,7 @@ export class SetEquipmentDialogComponent {
       .sort((a, b) => a.weight - b.weight)
       .map((item) => {
         const perPlateThickness =
-          this.minPlateThickness + (this.maxPlateThickness - this.minPlateThickness) * (item.weight / maxWeight);
+          this.minPlateThickness + (this.maxPlateThickness - this.minPlateThickness) * Math.sqrt(item.weight / maxWeight);
         return { weight: item.weight, count: item.count, perPlateThickness };
       });
 
@@ -199,13 +199,19 @@ export class SetEquipmentDialogComponent {
     const labels: BarbellPlateLabel[] = [];
     for (const group of groups) {
       const width = group.perPlateThickness * scale;
-      // True proportional sizing (height scales linearly with weight, no
-      // min/max blending) so a 10 KG plate actually draws twice as tall as
-      // a 5 KG one - a floor keeps very light plates from disappearing
-      // entirely. Weight (not the configured diameter) drives this so the
-      // visual size always tracks what the plate actually is, even when
-      // several plates share the same diameter.
-      const height = Math.max(this.minPlateHeight, (group.weight / maxWeight) * this.maxPlateHeight);
+      // Square-root (not linear) scaling: a purely linear scale maps most
+      // of a breakdown's real weight spread into a sliver just above
+      // minPlateHeight whenever one plate (here, the heaviest one actually
+      // drawn) is far heavier than the rest - e.g. 0.5/1.25/5/20 KG all but
+      // the 20 would round-trip to the exact same floored height. Square
+      // root spreads the lighter end out instead, roughly tracking how a
+      // real plate's size grows with its weight (radius/thickness both
+      // increase together, so size grows slower than weight) - never
+      // actually reaches 0, so no artificial floor is needed either. Weight
+      // (not the configured diameter) drives this so the visual size always
+      // tracks what the plate actually is, even when several plates share
+      // the same diameter.
+      const height = this.minPlateHeight + (this.maxPlateHeight - this.minPlateHeight) * Math.sqrt(group.weight / maxWeight);
       for (let i = 0; i < group.count; i++) {
         const x = offset;
         plates.push({ x, y: this.diagramCenterY - height / 2, width, height, weight: group.weight });
