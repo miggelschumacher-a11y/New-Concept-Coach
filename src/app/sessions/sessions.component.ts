@@ -2811,6 +2811,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return allMet ? 'success' : 'fail';
   }
 
+  // Same idea as exerciseCompletionStatus above, scoped to just one
+  // section's own sets (warm-up, working, or cooldown) - shown in that
+  // section's own accordion header instead of the exercise's.
+  sectionCompletionStatus(sessionExercise: SessionExercise, type: SetType): 'success' | 'fail' | null {
+    const sets = this.setsByType(sessionExercise, type);
+    if (sets.length === 0 || !sets.every((set) => set.done)) {
+      return null;
+    }
+    const allMet = sets.every((set) => this.setMetTarget(set));
+    return allMet ? 'success' : 'fail';
+  }
+
   private exerciseWeightLifted(sessionExercise: SessionExercise): number {
     const exercise = this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId);
     return this.countedSets(sessionExercise)

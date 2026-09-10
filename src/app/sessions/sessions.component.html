@@ -874,6 +874,13 @@
                           <span class="set-count">
                             ({{ setsByType(sessionExercise, setType.value).length }})
                           </span>
+                          @if (sectionCompletionStatus(sessionExercise, setType.value); as status) {
+                            @if (status === 'success') {
+                              <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">thumb_up</mat-icon>
+                            } @else {
+                              <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
+                            }
+                          }
                         </mat-panel-title>
                       </mat-expansion-panel-header>
 
