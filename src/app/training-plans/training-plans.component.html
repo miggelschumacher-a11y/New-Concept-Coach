@@ -1330,7 +1330,11 @@
                               <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
                             }
 
-                        <mat-form-field appearance="outline" class="percentage-input-field" [matTooltip]="'sessions.targetRepsTooltip' | translate">
+                        <mat-form-field
+                          appearance="outline"
+                          class="percentage-input-field"
+                          [matTooltip]="('sessions.targetRepsTooltip' | translate) + ' ' + ('sessions.longPressCopyHint' | translate)"
+                        >
                           <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
                           <input
                             matInput
@@ -1347,7 +1351,7 @@
                           />
                         </mat-form-field>
 
-                        <mat-form-field appearance="outline" class="percentage-input-field">
+                        <mat-form-field appearance="outline" class="percentage-input-field" [matTooltip]="'sessions.longPressCopyHint' | translate">
                           <mat-label>{{ weightUnitLabel }}</mat-label>
                           <input
                             matInput
