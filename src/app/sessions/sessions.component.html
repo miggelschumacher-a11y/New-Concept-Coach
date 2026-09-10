@@ -930,6 +930,7 @@
                                 [attr.aria-label]="'sessions.dragToReorder' | translate"
                               >
                                 <mat-icon>drag_indicator</mat-icon>
+                                <span class="set-index">#{{ i + 1 }}</span>
                               </div>
                               @if (pendingDeleteSetId === set.id) {
                             <div class="confirm-dialog">
@@ -965,7 +966,6 @@
                               <mat-icon>delete</mat-icon>
                             </button>
                           }
-                          <span class="set-index">#{{ i + 1 }}</span>
                           <div class="set-fields">
                             @if (sessionExerciseTypeDisplay(sessionExercise) !== 'TIME_BASED') {
                               @if (canEditExerciseTypeInSession(session)) {

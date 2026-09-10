@@ -407,6 +407,7 @@ mat-expansion-panel mat-checkbox {
 
 .set-drag-handle {
   display: flex;
+  flex-direction: column;
   align-items: center;
   flex: 0 0 auto;
   padding: 0 0.25rem;
@@ -422,8 +423,9 @@ mat-expansion-panel mat-checkbox {
   margin: 0.25rem 0;
 }
 
-.set-row .set-index {
-  min-width: 2rem;
+.set-drag-handle .set-index {
+  font-size: 0.75rem;
+  line-height: 1;
   color: var(--app-muted-text);
 }
 
