@@ -31,6 +31,11 @@ export interface AppSettings {
   waveProgressionInitialReps: number;
   waveProgressionFinalReps: number;
   waveProgressionRepsDecrement: number;
+  // Default rest durations in seconds (Config page > "Pausen") - purely
+  // informational settings for now, not yet read anywhere else.
+  firstRestAfterSet: number;
+  secondRestAfterSet: number;
+  restBetweenSets: number;
 }
 
 export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
@@ -60,7 +65,10 @@ const DEFAULT_SETTINGS: AppSettings = {
   repGoalTotalRepGoal: 25,
   waveProgressionInitialReps: 8,
   waveProgressionFinalReps: 6,
-  waveProgressionRepsDecrement: 1
+  waveProgressionRepsDecrement: 1,
+  firstRestAfterSet: 60,
+  secondRestAfterSet: 60,
+  restBetweenSets: 180
 };
 
 type SettingsRecord = AppSettings & { id: string };

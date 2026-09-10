@@ -86,6 +86,9 @@ export class ConfigComponent implements OnInit {
   waveProgressionInitialReps: number;
   waveProgressionFinalReps: number;
   waveProgressionRepsDecrement: number;
+  firstRestAfterSet: number;
+  secondRestAfterSet: number;
+  restBetweenSets: number;
   statusMessageKey: string | null = null;
   pendingDriveBackupJson: string | null = null;
   driveFileName = '';
@@ -130,6 +133,9 @@ export class ConfigComponent implements OnInit {
     this.waveProgressionInitialReps = settings.waveProgressionInitialReps;
     this.waveProgressionFinalReps = settings.waveProgressionFinalReps;
     this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
+    this.firstRestAfterSet = settings.firstRestAfterSet;
+    this.secondRestAfterSet = settings.secondRestAfterSet;
+    this.restBetweenSets = settings.restBetweenSets;
   }
 
   async ngOnInit(): Promise<void> {
@@ -148,6 +154,9 @@ export class ConfigComponent implements OnInit {
     this.waveProgressionInitialReps = settings.waveProgressionInitialReps;
     this.waveProgressionFinalReps = settings.waveProgressionFinalReps;
     this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
+    this.firstRestAfterSet = settings.firstRestAfterSet;
+    this.secondRestAfterSet = settings.secondRestAfterSet;
+    this.restBetweenSets = settings.restBetweenSets;
     this.bodyWeightEntries = await this.bodyWeightService.getAll();
     this.dumbbellEntries = await this.dumbbellsService.getAll();
     this.plateEntries = await this.platesService.getAll();
@@ -309,6 +318,37 @@ export class ConfigComponent implements OnInit {
   async onWaveProgressionRepsDecrementChange(value: string): Promise<void> {
     this.waveProgressionRepsDecrement = this.clampReps(value);
     await this.settingsService.updateSettings({ waveProgressionRepsDecrement: this.waveProgressionRepsDecrement });
+  }
+
+  // Integer-Feld convention for the "Pausen" accordion: digits only, up to
+  // 5 of them (0-99999) - unlike clampReps above, an invalid/empty value
+  // falls back to 0 rather than 1, per this field's own spec.
+  onRestFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.replace(/\D/g, '').slice(0, 5);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  private clampRestValue(value: string): number {
+    const parsed = parseInt(value, 10);
+    return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : 0;
+  }
+
+  async onFirstRestAfterSetChange(value: string): Promise<void> {
+    this.firstRestAfterSet = this.clampRestValue(value);
+    await this.settingsService.updateSettings({ firstRestAfterSet: this.firstRestAfterSet });
+  }
+
+  async onSecondRestAfterSetChange(value: string): Promise<void> {
+    this.secondRestAfterSet = this.clampRestValue(value);
+    await this.settingsService.updateSettings({ secondRestAfterSet: this.secondRestAfterSet });
+  }
+
+  async onRestBetweenSetsChange(value: string): Promise<void> {
+    this.restBetweenSets = this.clampRestValue(value);
+    await this.settingsService.updateSettings({ restBetweenSets: this.restBetweenSets });
   }
 
   async startDriveBackup(): Promise<void> {
