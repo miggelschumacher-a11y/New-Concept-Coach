@@ -636,6 +636,61 @@
                           </button>
                         </div>
                       </fieldset>
+
+                      <div class="exercise-settings-info-row">
+                        <mat-form-field
+                          appearance="outline"
+                          class="exercise-settings-info-field"
+                          [matTooltip]="'config.firstRestAfterSetTooltip' | translate"
+                        >
+                          <mat-label>{{ 'config.firstRestAfterSetLabel' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="numeric"
+                            [placeholder]="defaultFirstRestAfterSet.toString()"
+                            [value]="sessionFirstRestAfterSetDisplay(sessionExercise)"
+                            name="sessionFirstRestAfterSet-{{ sessionExercise.exerciseId }}"
+                            selectOnFocus
+                            (input)="onSecondsFieldInput($event)"
+                            (change)="updateSessionFirstRestAfterSet(session, sessionExercise, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+
+                        <mat-form-field
+                          appearance="outline"
+                          class="exercise-settings-info-field"
+                          [matTooltip]="'config.secondRestAfterSetTooltip' | translate"
+                        >
+                          <mat-label>{{ 'config.secondRestAfterSetLabel' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="numeric"
+                            [placeholder]="defaultSecondRestAfterSet.toString()"
+                            [value]="sessionSecondRestAfterSetDisplay(sessionExercise)"
+                            name="sessionSecondRestAfterSet-{{ sessionExercise.exerciseId }}"
+                            selectOnFocus
+                            (input)="onSecondsFieldInput($event)"
+                            (change)="updateSessionSecondRestAfterSet(session, sessionExercise, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="exercise-settings-info-field">
+                          <mat-label>{{ 'config.restBetweenExercisesLabel' | translate }}</mat-label>
+                          <input
+                            matInput
+                            type="text"
+                            inputmode="numeric"
+                            [placeholder]="defaultRestBetweenExercises.toString()"
+                            [value]="sessionRestBetweenExercisesDisplay(sessionExercise)"
+                            name="sessionRestBetweenExercises-{{ sessionExercise.exerciseId }}"
+                            selectOnFocus
+                            (input)="onSecondsFieldInput($event)"
+                            (change)="updateSessionRestBetweenExercises(session, sessionExercise, $any($event.target).value)"
+                          />
+                        </mat-form-field>
+                      </div>
                     </ng-template>
 
                     @if (canEditExerciseTypeInSession(session)) {

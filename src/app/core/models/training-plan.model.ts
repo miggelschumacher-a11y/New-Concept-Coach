@@ -169,6 +169,13 @@ export interface PlanExerciseConfig {
   // as true when absent.
   showWarmupSets?: boolean;
   showCooldownSets?: boolean;
+  // Per-exercise overrides of the Config page's global "Pausen" rest-timer
+  // defaults (SettingsService.firstRestAfterSet/secondRestAfterSet/
+  // restBetweenExercises) - unset means "use the app-wide default", same
+  // fallback convention as weightIncrement above.
+  firstRestAfterSet?: number;
+  secondRestAfterSet?: number;
+  restBetweenExercises?: number;
 }
 
 // One exercise within a CustomPlanSession, with its own working-set list -
@@ -205,6 +212,11 @@ export interface CustomSessionExercise {
   // before/after this one. Single-select, same reasoning as there.
   warmupExerciseId?: string;
   cooldownExerciseId?: string;
+  // Same per-exercise rest-timer overrides as PlanExerciseConfig's own
+  // fields of the same name.
+  firstRestAfterSet?: number;
+  secondRestAfterSet?: number;
+  restBetweenExercises?: number;
 }
 
 // One training unit within a self-created plan's "Neue Trainingseinheit"

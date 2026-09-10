@@ -143,6 +143,21 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return this.settingsService.getSettings().weightUnit.toUpperCase();
   }
 
+  // Shown as the 3 rest-timer override fields' own placeholders - the
+  // app-wide default each falls back to when left blank (see
+  // SessionsComponent.maybeShowRestPrompt's `??` reads).
+  get defaultFirstRestAfterSet(): number {
+    return this.settingsService.getSettings().firstRestAfterSet;
+  }
+
+  get defaultSecondRestAfterSet(): number {
+    return this.settingsService.getSettings().secondRestAfterSet;
+  }
+
+  get defaultRestBetweenExercises(): number {
+    return this.settingsService.getSettings().restBetweenExercises;
+  }
+
   async ngOnInit(): Promise<void> {
     await this.load();
     document.addEventListener('click', this.handleDocumentClick, true);
@@ -804,6 +819,53 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const parsed = parseFloat(value.replace(',', '.'));
     const weightIncrement = Number.isFinite(parsed) ? Math.round(Math.min(Math.max(parsed, 0), 9999) * 100) / 100 : undefined;
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { weightIncrement });
+  }
+
+  // Same per-exercise rest-timer overrides as the plan-level fields of the
+  // same name (firstRestAfterSetDisplay etc. above).
+  customSessionFirstRestAfterSetDisplay(exercise: CustomSessionExercise): string {
+    return exercise.firstRestAfterSet?.toString() ?? '';
+  }
+
+  async updateCustomSessionExerciseFirstRestAfterSet(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    value: string
+  ): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { firstRestAfterSet });
+  }
+
+  customSessionSecondRestAfterSetDisplay(exercise: CustomSessionExercise): string {
+    return exercise.secondRestAfterSet?.toString() ?? '';
+  }
+
+  async updateCustomSessionExerciseSecondRestAfterSet(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    value: string
+  ): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { secondRestAfterSet });
+  }
+
+  customSessionRestBetweenExercisesDisplay(exercise: CustomSessionExercise): string {
+    return exercise.restBetweenExercises?.toString() ?? '';
+  }
+
+  async updateCustomSessionExerciseRestBetweenExercises(
+    plan: TrainingPlan,
+    sessionId: string,
+    exerciseId: string,
+    value: string
+  ): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { restBetweenExercises });
   }
 
   async updateCustomSessionExerciseIncrementType(
@@ -1490,6 +1552,39 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
   async updatePlanExerciseIncrementType(plan: TrainingPlan, exerciseId: string, incrementType: 'WEIGHT' | 'PERCENT'): Promise<void> {
     await this.updateConfig(plan, exerciseId, { incrementType });
+  }
+
+  // Per-exercise overrides of the Config page's global "Pausen" rest-timer
+  // defaults - blank/invalid clears the override (back to "use the app-wide
+  // default").
+  firstRestAfterSetDisplay(plan: TrainingPlan, exerciseId: string): string {
+    return this.planExerciseConfig(plan, exerciseId).firstRestAfterSet?.toString() ?? '';
+  }
+
+  async updatePlanExerciseFirstRestAfterSet(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.updateConfig(plan, exerciseId, { firstRestAfterSet });
+  }
+
+  secondRestAfterSetDisplay(plan: TrainingPlan, exerciseId: string): string {
+    return this.planExerciseConfig(plan, exerciseId).secondRestAfterSet?.toString() ?? '';
+  }
+
+  async updatePlanExerciseSecondRestAfterSet(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.updateConfig(plan, exerciseId, { secondRestAfterSet });
+  }
+
+  restBetweenExercisesDisplay(plan: TrainingPlan, exerciseId: string): string {
+    return this.planExerciseConfig(plan, exerciseId).restBetweenExercises?.toString() ?? '';
+  }
+
+  async updatePlanExerciseRestBetweenExercises(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    const restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.updateConfig(plan, exerciseId, { restBetweenExercises });
   }
 
   // Shown as the weight-increment field's own placeholder - the fallback

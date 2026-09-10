@@ -725,6 +725,61 @@
                                     >
                                       <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
                                     </mat-checkbox>
+
+                                    <div class="exercise-settings-row">
+                                      <mat-form-field
+                                        appearance="outline"
+                                        class="exercise-settings-field"
+                                        [matTooltip]="'config.firstRestAfterSetTooltip' | translate"
+                                      >
+                                        <mat-label>{{ 'config.firstRestAfterSetLabel' | translate }}</mat-label>
+                                        <input
+                                          matInput
+                                          type="text"
+                                          inputmode="numeric"
+                                          [placeholder]="defaultFirstRestAfterSet.toString()"
+                                          [value]="customSessionFirstRestAfterSetDisplay(sessionExercise)"
+                                          name="customSessionFirstRestAfterSet-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
+                                          selectOnFocus
+                                          (input)="onSecondsFieldInput($event)"
+                                          (change)="updateCustomSessionExerciseFirstRestAfterSet(plan, session.id, sessionExercise.exerciseId, $any($event.target).value)"
+                                        />
+                                      </mat-form-field>
+
+                                      <mat-form-field
+                                        appearance="outline"
+                                        class="exercise-settings-field"
+                                        [matTooltip]="'config.secondRestAfterSetTooltip' | translate"
+                                      >
+                                        <mat-label>{{ 'config.secondRestAfterSetLabel' | translate }}</mat-label>
+                                        <input
+                                          matInput
+                                          type="text"
+                                          inputmode="numeric"
+                                          [placeholder]="defaultSecondRestAfterSet.toString()"
+                                          [value]="customSessionSecondRestAfterSetDisplay(sessionExercise)"
+                                          name="customSessionSecondRestAfterSet-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
+                                          selectOnFocus
+                                          (input)="onSecondsFieldInput($event)"
+                                          (change)="updateCustomSessionExerciseSecondRestAfterSet(plan, session.id, sessionExercise.exerciseId, $any($event.target).value)"
+                                        />
+                                      </mat-form-field>
+
+                                      <mat-form-field appearance="outline" class="exercise-settings-field">
+                                        <mat-label>{{ 'config.restBetweenExercisesLabel' | translate }}</mat-label>
+                                        <input
+                                          matInput
+                                          type="text"
+                                          inputmode="numeric"
+                                          [placeholder]="defaultRestBetweenExercises.toString()"
+                                          [value]="customSessionRestBetweenExercisesDisplay(sessionExercise)"
+                                          name="customSessionRestBetweenExercises-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
+                                          selectOnFocus
+                                          (input)="onSecondsFieldInput($event)"
+                                          (change)="updateCustomSessionExerciseRestBetweenExercises(plan, session.id, sessionExercise.exerciseId, $any($event.target).value)"
+                                        />
+                                      </mat-form-field>
+                                    </div>
                                   </mat-tab>
                                 </mat-tab-group>
                               </mat-expansion-panel>
@@ -1172,6 +1227,61 @@
                           >
                             <mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.showCooldownSets' | translate }}
                           </mat-checkbox>
+
+                          <div class="exercise-settings-row">
+                            <mat-form-field
+                              appearance="outline"
+                              class="exercise-settings-field"
+                              [matTooltip]="'config.firstRestAfterSetTooltip' | translate"
+                            >
+                              <mat-label>{{ 'config.firstRestAfterSetLabel' | translate }}</mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="numeric"
+                                [placeholder]="defaultFirstRestAfterSet.toString()"
+                                [value]="firstRestAfterSetDisplay(plan, exerciseId)"
+                                name="firstRestAfterSet-{{ plan.id }}-{{ exerciseId }}"
+                                selectOnFocus
+                                (input)="onSecondsFieldInput($event)"
+                                (change)="updatePlanExerciseFirstRestAfterSet(plan, exerciseId, $any($event.target).value)"
+                              />
+                            </mat-form-field>
+
+                            <mat-form-field
+                              appearance="outline"
+                              class="exercise-settings-field"
+                              [matTooltip]="'config.secondRestAfterSetTooltip' | translate"
+                            >
+                              <mat-label>{{ 'config.secondRestAfterSetLabel' | translate }}</mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="numeric"
+                                [placeholder]="defaultSecondRestAfterSet.toString()"
+                                [value]="secondRestAfterSetDisplay(plan, exerciseId)"
+                                name="secondRestAfterSet-{{ plan.id }}-{{ exerciseId }}"
+                                selectOnFocus
+                                (input)="onSecondsFieldInput($event)"
+                                (change)="updatePlanExerciseSecondRestAfterSet(plan, exerciseId, $any($event.target).value)"
+                              />
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" class="exercise-settings-field">
+                              <mat-label>{{ 'config.restBetweenExercisesLabel' | translate }}</mat-label>
+                              <input
+                                matInput
+                                type="text"
+                                inputmode="numeric"
+                                [placeholder]="defaultRestBetweenExercises.toString()"
+                                [value]="restBetweenExercisesDisplay(plan, exerciseId)"
+                                name="restBetweenExercises-{{ plan.id }}-{{ exerciseId }}"
+                                selectOnFocus
+                                (input)="onSecondsFieldInput($event)"
+                                (change)="updatePlanExerciseRestBetweenExercises(plan, exerciseId, $any($event.target).value)"
+                              />
+                            </mat-form-field>
+                          </div>
                         </mat-tab>
                       </mat-tab-group>
                     </mat-expansion-panel>

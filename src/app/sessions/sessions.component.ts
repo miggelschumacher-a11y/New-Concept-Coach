@@ -204,6 +204,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.settingsService.getSettings().weightUnit.toUpperCase();
   }
 
+  // Shown as the 3 rest-timer override fields' own placeholders - the
+  // app-wide default each one falls back to when this exercise leaves it
+  // blank (see maybeShowRestPrompt's `??` reads).
+  get defaultFirstRestAfterSet(): number {
+    return this.settingsService.getSettings().firstRestAfterSet;
+  }
+
+  get defaultSecondRestAfterSet(): number {
+    return this.settingsService.getSettings().secondRestAfterSet;
+  }
+
+  get defaultRestBetweenExercises(): number {
+    return this.settingsService.getSettings().restBetweenExercises;
+  }
+
   get pendingSessions(): TrainingSession[] {
     return this.sessions.filter((session) => !session.finished).sort((a, b) => this.sortKey(a) - this.sortKey(b));
   }
@@ -1540,7 +1555,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
         deloadType: sessionExercise.deloadType,
         deloadPercent: sessionExercise.deloadPercent,
         weightIncrement: sessionExercise.weightIncrement,
-        incrementType: sessionExercise.incrementType
+        incrementType: sessionExercise.incrementType,
+        firstRestAfterSet: sessionExercise.firstRestAfterSet,
+        secondRestAfterSet: sessionExercise.secondRestAfterSet,
+        restBetweenExercises: sessionExercise.restBetweenExercises
       }))
     );
     return {
@@ -2051,7 +2069,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
               deloadAfterFailures: config.deloadAfterFailures,
               deloadPercent: config.deloadPercent,
               weightIncrement: config.weightIncrement,
-              incrementType: config.incrementType
+              incrementType: config.incrementType,
+              firstRestAfterSet: config.firstRestAfterSet,
+              secondRestAfterSet: config.secondRestAfterSet,
+              restBetweenExercises: config.restBetweenExercises
             };
           })
         );
@@ -2975,6 +2996,40 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
+  // Per-exercise overrides of the Config page's global "Pausen" rest-timer
+  // defaults - blank/invalid clears the override (back to "use the app-wide
+  // default"), same convention as the plan-level fields of the same name
+  // (see maybeShowRestPrompt for where the `??` fallback is actually read).
+  sessionFirstRestAfterSetDisplay(sessionExercise: SessionExercise): string {
+    return sessionExercise.firstRestAfterSet?.toString() ?? '';
+  }
+
+  async updateSessionFirstRestAfterSet(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    sessionExercise.firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.persist(session);
+  }
+
+  sessionSecondRestAfterSetDisplay(sessionExercise: SessionExercise): string {
+    return sessionExercise.secondRestAfterSet?.toString() ?? '';
+  }
+
+  async updateSessionSecondRestAfterSet(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    sessionExercise.secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.persist(session);
+  }
+
+  sessionRestBetweenExercisesDisplay(sessionExercise: SessionExercise): string {
+    return sessionExercise.restBetweenExercises?.toString() ?? '';
+  }
+
+  async updateSessionRestBetweenExercises(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+    const parsed = parseInt(value, 10);
+    sessionExercise.restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    await this.persist(session);
+  }
+
   // referenceExerciseId adds a warmup/cooldown set for a DIFFERENT exercise
   // than the one sessionExercise itself tracks (see ExerciseSet.
   // referenceExerciseId) - picked via the warmup/cooldown reference-exercise
@@ -3350,7 +3405,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // shows on its own instead; nothing left anywhere -> the toast's message
   // is folded into the finish-session prompt itself instead of shown
   // separately, same "one popup, not two" rule as the between-exercises
-  // timer above.
+  // timer above. Every threshold read here falls back to the Config page's
+  // global "Pausen" defaults only when this exercise has no override of its
+  // own (see SessionExercise.firstRestAfterSet/secondRestAfterSet/
+  // restBetweenExercises).
   private maybeShowRestPrompt(
     session: TrainingSession,
     sessionExercise: SessionExercise,
@@ -3358,14 +3416,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     workingSets: ExerciseSet[]
   ): void {
     if (workingSets.some((s) => !s.done)) {
-      this.openBetweenSetsRestTimer();
+      this.openBetweenSetsRestTimer(sessionExercise);
       return;
     }
     const anotherExercisePending = session.exercises.some(
       (candidate) => candidate !== sessionExercise && candidate.sets.some((s) => s.type === 'working' && !s.done)
     );
     if (anotherExercisePending) {
-      const restBetweenExercises = this.settingsService.getSettings().restBetweenExercises;
+      const restBetweenExercises = sessionExercise.restBetweenExercises ?? this.settingsService.getSettings().restBetweenExercises;
       if (restBetweenExercises > 0) {
         const feedbackMessage = this.buildSetFeedbackMessage(session, sessionExercise, workingSets).message;
         this.openBetweenExercisesRestTimer(restBetweenExercises, feedbackMessage);
@@ -3378,12 +3436,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     void this.promptFinishAllDone(session, feedbackMessage);
   }
 
-  private openBetweenSetsRestTimer(): void {
+  private openBetweenSetsRestTimer(sessionExercise: SessionExercise): void {
     const settings = this.settingsService.getSettings();
-    const secondThresholdSeconds =
-      settings.secondRestAfterSet > 0 ? settings.firstRestAfterSet + settings.secondRestAfterSet : undefined;
+    const firstRestAfterSet = sessionExercise.firstRestAfterSet ?? settings.firstRestAfterSet;
+    const secondRestAfterSet = sessionExercise.secondRestAfterSet ?? settings.secondRestAfterSet;
+    const secondThresholdSeconds = secondRestAfterSet > 0 ? firstRestAfterSet + secondRestAfterSet : undefined;
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
-      data: { firstThresholdSeconds: settings.firstRestAfterSet, secondThresholdSeconds },
+      data: { firstThresholdSeconds: firstRestAfterSet, secondThresholdSeconds },
       disableClose: true
     });
   }

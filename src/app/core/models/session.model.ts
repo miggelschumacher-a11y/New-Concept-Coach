@@ -107,6 +107,14 @@ export interface SessionExercise {
   // to add a set for.
   warmupExerciseId?: string;
   cooldownExerciseId?: string;
+  // Per-exercise overrides of the Config page's global "Pausen" rest-timer
+  // defaults (SettingsService.firstRestAfterSet/secondRestAfterSet/
+  // restBetweenExercises) - unset means "use the app-wide default", read
+  // with a `??` fallback wherever SessionsComponent opens a rest timer for
+  // this exercise, same convention as weightIncrement above.
+  firstRestAfterSet?: number;
+  secondRestAfterSet?: number;
+  restBetweenExercises?: number;
 }
 
 export interface TrainingSession {
