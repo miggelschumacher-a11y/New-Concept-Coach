@@ -2,7 +2,45 @@
 
 @include mat.core();
 
-$trainings-app-primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+// The app's brand color (the logo's orange text, #e63312), expanded into a
+// full Material tonal palette (mcg.mbitson.com-style: mix with white/black
+// by the standard M2 percentages) so every shade Material's components
+// reference - not just the base 500 - resolves to something on-brand
+// instead of falling back to an unrelated default.
+$trainings-app-orange-palette: (
+  50: #fce7e3,
+  100: #f8c2b8,
+  200: #f29988,
+  300: #ee7059,
+  400: #ea5236,
+  500: #e63312,
+  600: #d83011,
+  700: #ca2d10,
+  800: #bd2a0f,
+  900: #af270e,
+  A100: #f29988,
+  A200: #eb5c41,
+  A400: #c42b0f,
+  A700: #ac260e,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+);
+
+$trainings-app-primary: mat.m2-define-palette($trainings-app-orange-palette);
 $trainings-app-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
 $trainings-app-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
@@ -34,7 +72,7 @@ html.light-theme {
 }
 
 // The selected option in a mat-select dropdown otherwise renders in the
-// theme's primary indigo (#3f51b5), which reads as too dark/muddy against
+// theme's primary color (#e63312), which reads as too dark/muddy against
 // this app's dark background - lighten it to match the other (white) options.
 // Light mode doesn't have that problem (the page behind is already light),
 // so it just falls back to Material's own default there.
@@ -64,6 +102,16 @@ html.light-theme {
   --app-popup-gradient-end: #e4e6f0;
   --app-confirm-gradient-start: #ffffff;
   --app-confirm-gradient-end: #e0e0e0;
+}
+
+// The app's brand accent - matches the primary palette's base 500 above.
+// Bare <a> links don't pick up Material's palette on their own (that only
+// themes Material components), and a more specific selector elsewhere
+// (e.g. mat-toolbar a, styled white for contrast on the toolbar) still
+// wins over this by specificity, so this only affects plain, unstyled
+// links such as the Config page's Google Play link.
+a, a:visited {
+  color: #e63312;
 }
 
 html, body { height: 100%; }

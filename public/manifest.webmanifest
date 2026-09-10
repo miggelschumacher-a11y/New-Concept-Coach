@@ -1,7 +1,7 @@
 {
   "name": "Concept Coach",
   "short_name": "CoCo",
-  "theme_color": "#3f51b5",
+  "theme_color": "#e63312",
   "background_color": "#121212",
   "display": "standalone",
   "scope": "./",
