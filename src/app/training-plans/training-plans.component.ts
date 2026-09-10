@@ -987,6 +987,9 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     value: string
   ): Promise<void> {
     const targetReps = value.trim();
+    if (!this.isValidTargetRepsText(targetReps)) {
+      return;
+    }
     await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
       targets.map((target, i) => {
         if (i === index) {
@@ -995,6 +998,15 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
         return targetReps !== '' && target.targetReps === '' ? { ...target, targetReps } : target;
       })
     );
+  }
+
+  // A committed target-reps value must be either empty (not yet prescribed)
+  // or fully match the same "<lower>-<upper>+" grammar the input sanitizer
+  // only prevents typing INVALID characters for, not incomplete ones - e.g.
+  // clearing the field down to just "+" or "-" still passes the sanitizer
+  // but must not be stored as-is.
+  private isValidTargetRepsText(value: string): boolean {
+    return value === '' || /^\d{1,4}(-\d{1,4})?\+?$/.test(value);
   }
 
   // Same fill-if-empty behavior as updateSetTargetWeight above, for weight.
@@ -1366,6 +1378,9 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     value: string
   ): Promise<void> {
     const targetReps = value.trim();
+    if (!this.isValidTargetRepsText(targetReps)) {
+      return;
+    }
     await this.updateSetTargets(plan, exerciseId, field, (targets) =>
       targets.map((target, i) => {
         if (i === index) {
