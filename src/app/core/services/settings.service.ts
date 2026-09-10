@@ -7,6 +7,7 @@ export type DateFormat = 'dd.MM.yyyy' | 'MM/dd/yyyy';
 export type Language = 'de' | 'en' | 'es' | 'pt' | 'it' | 'nl' | 'pl' | 'ru' | 'hu';
 export type FinishedSessionReplenishMode = 'always' | 'never' | 'ask';
 export type Theme = 'dark' | 'light';
+export type AutoAdvanceMode = 'immediate' | 'confirm' | 'off';
 
 export interface AppSettings {
   weightUnit: WeightUnit;
@@ -36,6 +37,13 @@ export interface AppSettings {
   firstRestAfterSet: number;
   secondRestAfterSet: number;
   restBetweenExercises: number;
+  // Whether finishing every set in a section (warm-up/working) should
+  // automatically collapse that section and open the next one for the same
+  // exercise, when that next section still has sets left to do (Config page
+  // > "Automatisierte Trainingseinheit"). Nothing follows cooldown, so it
+  // has no setting of its own.
+  warmupSetsAutoAdvance: AutoAdvanceMode;
+  workingSetsAutoAdvance: AutoAdvanceMode;
 }
 
 export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
@@ -68,7 +76,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   waveProgressionRepsDecrement: 1,
   firstRestAfterSet: 60,
   secondRestAfterSet: 60,
-  restBetweenExercises: 180
+  restBetweenExercises: 180,
+  warmupSetsAutoAdvance: 'off',
+  workingSetsAutoAdvance: 'off'
 };
 
 type SettingsRecord = AppSettings & { id: string };

@@ -19,7 +19,8 @@ import {
   Language,
   LANGUAGE_DATE_FORMATS,
   FinishedSessionReplenishMode,
-  Theme
+  Theme,
+  AutoAdvanceMode
 } from '../core/services/settings.service';
 import { ThemeService } from '../core/services/theme.service';
 import { DoubleProgressionMode } from '../core/models/training-plan.model';
@@ -89,6 +90,8 @@ export class ConfigComponent implements OnInit {
   firstRestAfterSet: number;
   secondRestAfterSet: number;
   restBetweenExercises: number;
+  warmupSetsAutoAdvance: AutoAdvanceMode;
+  workingSetsAutoAdvance: AutoAdvanceMode;
   statusMessageKey: string | null = null;
   pendingDriveBackupJson: string | null = null;
   driveFileName = '';
@@ -136,6 +139,8 @@ export class ConfigComponent implements OnInit {
     this.firstRestAfterSet = settings.firstRestAfterSet;
     this.secondRestAfterSet = settings.secondRestAfterSet;
     this.restBetweenExercises = settings.restBetweenExercises;
+    this.warmupSetsAutoAdvance = settings.warmupSetsAutoAdvance;
+    this.workingSetsAutoAdvance = settings.workingSetsAutoAdvance;
   }
 
   async ngOnInit(): Promise<void> {
@@ -157,6 +162,8 @@ export class ConfigComponent implements OnInit {
     this.firstRestAfterSet = settings.firstRestAfterSet;
     this.secondRestAfterSet = settings.secondRestAfterSet;
     this.restBetweenExercises = settings.restBetweenExercises;
+    this.warmupSetsAutoAdvance = settings.warmupSetsAutoAdvance;
+    this.workingSetsAutoAdvance = settings.workingSetsAutoAdvance;
     this.bodyWeightEntries = await this.bodyWeightService.getAll();
     this.dumbbellEntries = await this.dumbbellsService.getAll();
     this.plateEntries = await this.platesService.getAll();
@@ -246,6 +253,14 @@ export class ConfigComponent implements OnInit {
 
   async onFinishedSessionReplenishModeChange(): Promise<void> {
     await this.settingsService.updateSettings({ finishedSessionReplenishMode: this.finishedSessionReplenishMode });
+  }
+
+  async onWarmupSetsAutoAdvanceChange(): Promise<void> {
+    await this.settingsService.updateSettings({ warmupSetsAutoAdvance: this.warmupSetsAutoAdvance });
+  }
+
+  async onWorkingSetsAutoAdvanceChange(): Promise<void> {
+    await this.settingsService.updateSettings({ workingSetsAutoAdvance: this.workingSetsAutoAdvance });
   }
 
   get isDarkTheme(): boolean {

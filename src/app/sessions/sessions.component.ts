@@ -39,7 +39,7 @@ import {
 import { RestTimerDialogComponent, RestTimerDialogData } from './rest-timer-dialog/rest-timer-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
-import { SettingsService, WeightUnit } from '../core/services/settings.service';
+import { SettingsService, WeightUnit, AutoAdvanceMode } from '../core/services/settings.service';
 import { SoundService } from '../core/services/sound.service';
 import { TranslationService } from '../core/services/translation.service';
 import { TrainingPlansService } from '../core/services/training-plans.service';
@@ -151,6 +151,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private readonly selectedExerciseIdsCache = new Map<string, string[]>();
   private readonly unsavedSessionIds = new Set<string>();
   private readonly autoExpandedSessionIds = new Set<string>();
+  // Which (sessionExercise, set-type) accordions are open - keyed the same
+  // way as autoExpandedSessionIds above. Lets maybeAutoAdvanceSection close
+  // one section and open the next programmatically (Config page >
+  // "Automatisierte Trainingseinheit"), same controlled-panel pattern as
+  // isExpanded/onExpandedChange.
+  private readonly expandedSetTypeSectionKeys = new Set<string>();
   private timerTickerId?: ReturnType<typeof setInterval>;
   pendingFinishSessionId: string | null = null;
   pendingDeleteSetId: string | null = null;
@@ -1322,6 +1328,23 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.autoExpandedSessionIds.delete(session.id);
     if (session.timerRunning) {
       void this.toggleTimer(session);
+    }
+  }
+
+  private setTypeSectionKey(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): string {
+    return `${session.id}:${sessionExercise.exerciseId}:${type}`;
+  }
+
+  setTypeSectionExpanded(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): boolean {
+    return this.expandedSetTypeSectionKeys.has(this.setTypeSectionKey(session, sessionExercise, type));
+  }
+
+  onSetTypeSectionExpandedChange(session: TrainingSession, sessionExercise: SessionExercise, type: SetType, expanded: boolean): void {
+    const key = this.setTypeSectionKey(session, sessionExercise, type);
+    if (expanded) {
+      this.expandedSetTypeSectionKeys.add(key);
+    } else {
+      this.expandedSetTypeSectionKeys.delete(key);
     }
   }
 
@@ -3410,6 +3433,58 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (set.type === 'working') {
       this.maybeShowRestPrompt(session, sessionExercise, set, workingSets);
     }
+    void this.maybeAutoAdvanceSection(session, sessionExercise, set.type);
+  }
+
+  private nextSetType(type: SetType): SetType | null {
+    if (type === 'warmup') {
+      return 'working';
+    }
+    if (type === 'working') {
+      return 'cooldown';
+    }
+    return null;
+  }
+
+  // Config page > "Automatisierte Trainingseinheit": once every set in a
+  // section (warm-up/working) is done, optionally collapses that section
+  // and opens the next one for the same exercise - but only when the next
+  // section actually has sets left to do, otherwise there's nothing to jump
+  // to. 'confirm' asks first (waiting out any other popup, e.g. the rest
+  // timer just opened above, so they don't stack); 'immediate' just does
+  // it; 'off' leaves the accordions exactly as the user left them. Cooldown
+  // has no next section, so nextSetType returning null is also how it's
+  // excluded here.
+  private async maybeAutoAdvanceSection(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {
+    const nextType = this.nextSetType(type);
+    if (!nextType) {
+      return;
+    }
+    const sectionSets = this.setsByType(sessionExercise, type);
+    if (sectionSets.length === 0 || !sectionSets.every((s) => s.done)) {
+      return;
+    }
+    if (!this.setsByType(sessionExercise, nextType).some((s) => !s.done)) {
+      return;
+    }
+    const settings = this.settingsService.getSettings();
+    const mode: AutoAdvanceMode = type === 'warmup' ? settings.warmupSetsAutoAdvance : settings.workingSetsAutoAdvance;
+    if (mode === 'off') {
+      return;
+    }
+    if (mode === 'confirm') {
+      await this.waitForNoPendingPopup();
+      const messageKey = nextType === 'working' ? 'sessions.autoAdvanceToWorkingQuestion' : 'sessions.autoAdvanceToCooldownQuestion';
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: { messageKey, confirmLabelKey: 'common.yes', cancelLabelKey: 'common.no', confirmColor: 'primary' }
+      });
+      const confirmed = await firstValueFrom(dialogRef.afterClosed());
+      if (!confirmed) {
+        return;
+      }
+    }
+    this.onSetTypeSectionExpandedChange(session, sessionExercise, type, false);
+    this.onSetTypeSectionExpandedChange(session, sessionExercise, nextType, true);
   }
 
   // Decides which of the three rest-related popups (if any) follows a

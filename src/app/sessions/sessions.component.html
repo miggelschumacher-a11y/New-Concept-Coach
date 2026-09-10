@@ -867,7 +867,10 @@
                 <mat-accordion multi class="set-type-accordion">
                   @for (setType of setTypes; track setType.value) {
                     @if (showSetType(sessionExercise, setType.value)) {
-                    <mat-expansion-panel>
+                    <mat-expansion-panel
+                      [expanded]="setTypeSectionExpanded(session, sessionExercise, setType.value)"
+                      (expandedChange)="onSetTypeSectionExpandedChange(session, sessionExercise, setType.value, $event)"
+                    >
                       <mat-expansion-panel-header>
                         <mat-panel-title>
                           <mat-icon class="label-icon">{{ setType.icon }}</mat-icon>{{ setType.labelKey | translate }}

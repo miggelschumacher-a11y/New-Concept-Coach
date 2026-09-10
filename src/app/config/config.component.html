@@ -395,6 +395,38 @@
 
 <mat-card>
   <mat-card-content>
+    <mat-accordion class="auto-training-session-accordion">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title><mat-icon class="label-icon">auto_mode</mat-icon>{{ 'config.autoTrainingSessionTitle' | translate }}</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="settings-form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'config.warmupSetsAutoAdvanceLabel' | translate }}</mat-label>
+            <mat-select [(ngModel)]="warmupSetsAutoAdvance" (selectionChange)="onWarmupSetsAutoAdvanceChange()">
+              <mat-option value="immediate">{{ 'config.autoAdvanceImmediateOption' | translate }}</mat-option>
+              <mat-option value="confirm">{{ 'config.autoAdvanceConfirmOption' | translate }}</mat-option>
+              <mat-option value="off">{{ 'config.autoAdvanceOffOption' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'config.workingSetsAutoAdvanceLabel' | translate }}</mat-label>
+            <mat-select [(ngModel)]="workingSetsAutoAdvance" (selectionChange)="onWorkingSetsAutoAdvanceChange()">
+              <mat-option value="immediate">{{ 'config.autoAdvanceImmediateOption' | translate }}</mat-option>
+              <mat-option value="confirm">{{ 'config.autoAdvanceConfirmOption' | translate }}</mat-option>
+              <mat-option value="off">{{ 'config.autoAdvanceOffOption' | translate }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </mat-card-content>
+</mat-card>
+
+<mat-card>
+  <mat-card-content>
     <mat-accordion class="equipment-accordion">
       <mat-expansion-panel>
         <mat-expansion-panel-header>
