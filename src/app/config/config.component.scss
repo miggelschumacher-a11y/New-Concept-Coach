@@ -196,6 +196,19 @@ mat-card {
   color: rgba(var(--app-fg-rgb), 0.95);
 }
 
+.google-play-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: rgba(var(--app-fg-rgb), 0.95);
+  font-weight: 500;
+}
+
+.google-play-link:hover {
+  text-decoration: underline;
+}
+
 .drive-restore-file-list {
   display: flex;
   flex-direction: column;
