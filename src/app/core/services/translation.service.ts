@@ -32,6 +32,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Exercises',
     'exercises.category': 'Category',
     'sessions.targetRepsField': 'Target Reps',
+    'sessions.targetRepsTooltip':
+      'A range is allowed (e.g. 8-12). A trailing "+" means AMRAP - as many reps as possible (e.g. 8+ or 8-12+). Allowed: 0-9999.',
     'sessions.targetSecondsField': 'Target Seconds',
     'sessions.achievedSecondsTooltip': 'Held duration (target in parentheses)',
     'sessions.secondsField': 'Sec.',
@@ -435,6 +437,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Übungen',
     'exercises.category': 'Kategorie',
     'sessions.targetRepsField': 'Ziel-Wdh.',
+    'sessions.targetRepsTooltip':
+      'Ein Bereich ist möglich (z. B. 8-12). Ein „+“ am Ende bedeutet AMRAP - so viele Wiederholungen wie möglich (z. B. 8+ oder 8-12+). Zulässig: 0-9999.',
     'sessions.targetSecondsField': 'Ziel-Sek.',
     'sessions.achievedSecondsTooltip': 'Gehaltene Dauer (Ziel in Klammern)',
     'sessions.secondsField': 'Sek.',
@@ -840,6 +844,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Ejercicios',
     'exercises.category': 'Categoría',
     'sessions.targetRepsField': 'Objetivo reps',
+    'sessions.targetRepsTooltip':
+      'Se permite un rango (p. ej. 8-12). Un "+" al final significa AMRAP - tantas repeticiones como sea posible (p. ej. 8+ u 8-12+). Permitido: 0-9999.',
     'sessions.targetSecondsField': 'Objetivo seg.',
     'sessions.achievedSecondsTooltip': 'Duración mantenida (objetivo entre paréntesis)',
     'sessions.secondsField': 'Seg.',
@@ -1245,6 +1251,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Exercícios',
     'exercises.category': 'Categoria',
     'sessions.targetRepsField': 'Alvo reps',
+    'sessions.targetRepsTooltip':
+      'É permitido um intervalo (ex.: 8-12). Um "+" no final significa AMRAP - o máximo de repetições possível (ex.: 8+ ou 8-12+). Permitido: 0-9999.',
     'sessions.targetSecondsField': 'Alvo seg.',
     'sessions.achievedSecondsTooltip': 'Duração mantida (alvo entre parênteses)',
     'sessions.secondsField': 'Seg.',
@@ -1650,6 +1658,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Esercizi',
     'exercises.category': 'Categoria',
     'sessions.targetRepsField': 'Rip. previste',
+    'sessions.targetRepsTooltip':
+      'È possibile un intervallo (es. 8-12). Un "+" alla fine indica AMRAP - il maggior numero di ripetizioni possibile (es. 8+ o 8-12+). Consentito: 0-9999.',
     'sessions.targetSecondsField': 'Sec. previsti',
     'sessions.achievedSecondsTooltip': 'Durata mantenuta (obiettivo tra parentesi)',
     'sessions.secondsField': 'Sec.',
@@ -2055,6 +2065,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Oefeningen',
     'exercises.category': 'Categorie',
     'sessions.targetRepsField': 'Doel herh.',
+    'sessions.targetRepsTooltip':
+      'Een bereik is mogelijk (bijv. 8-12). Een "+" aan het einde betekent AMRAP - zoveel mogelijk herhalingen (bijv. 8+ of 8-12+). Toegestaan: 0-9999.',
     'sessions.targetSecondsField': 'Doel sec.',
     'sessions.achievedSecondsTooltip': 'Volgehouden duur (doel tussen haakjes)',
     'sessions.secondsField': 'Sec.',
@@ -2460,6 +2472,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Ćwiczenia',
     'exercises.category': 'Kategoria',
     'sessions.targetRepsField': 'Cel powt.',
+    'sessions.targetRepsTooltip':
+      'Możliwy jest zakres (np. 8-12). Znak "+" na końcu oznacza AMRAP - jak najwięcej powtórzeń (np. 8+ lub 8-12+). Dozwolone: 0-9999.',
     'sessions.targetSecondsField': 'Cel sek.',
     'sessions.achievedSecondsTooltip': 'Utrzymany czas (cel w nawiasie)',
     'sessions.secondsField': 'Sek.',
@@ -2865,6 +2879,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Упражнения',
     'exercises.category': 'Категория',
     'sessions.targetRepsField': 'Цель повт.',
+    'sessions.targetRepsTooltip':
+      'Допустим диапазон (например, 8-12). Знак "+" в конце означает AMRAP - максимум возможных повторений (например, 8+ или 8-12+). Допустимо: 0-9999.',
     'sessions.targetSecondsField': 'Цель сек.',
     'sessions.achievedSecondsTooltip': 'Удержанная длительность (цель в скобках)',
     'sessions.secondsField': 'Сек.',
@@ -3270,6 +3286,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.title': 'Gyakorlatok',
     'exercises.category': 'Kategória',
     'sessions.targetRepsField': 'Cél ism.',
+    'sessions.targetRepsTooltip':
+      'Tartomány is megadható (pl. 8-12). A végén lévő "+" AMRAP-ot jelent - a lehető legtöbb ismétlést (pl. 8+ vagy 8-12+). Megengedett: 0-9999.',
     'sessions.targetSecondsField': 'Cél mp.',
     'sessions.achievedSecondsTooltip': 'Tartott időtartam (cél zárójelben)',
     'sessions.secondsField': 'Mp.',

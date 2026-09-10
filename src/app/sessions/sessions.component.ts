@@ -3649,7 +3649,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   onTargetRepsFieldInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d{0,3}(-\d{0,3})?\+?/)?.[0] ?? '';
+    const sanitized = input.value.match(/^\d{0,4}(-\d{0,4})?\+?/)?.[0] ?? '';
     if (sanitized !== input.value) {
       input.value = sanitized;
     }
@@ -3664,12 +3664,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (trimmed === '') {
       return {};
     }
-    const match = trimmed.match(/^(\d{1,3})(?:-(\d{1,3}))?(\+)?$/);
+    const match = trimmed.match(/^(\d{1,4})(?:-(\d{1,4}))?(\+)?$/);
     if (!match) {
       return {};
     }
-    const lower = Math.min(Math.max(parseInt(match[1], 10), 1), 999);
-    const upper = match[2] !== undefined ? Math.min(Math.max(parseInt(match[2], 10), 1), 999) : undefined;
+    const lower = Math.min(Math.max(parseInt(match[1], 10), 0), 9999);
+    const upper = match[2] !== undefined ? Math.min(Math.max(parseInt(match[2], 10), 0), 9999) : undefined;
     const targetReps = upper !== undefined ? Math.min(lower, upper) : lower;
     const targetRepsMax = upper !== undefined && upper !== lower ? Math.max(lower, upper) : undefined;
     return { targetReps, targetRepsMax, isAmrap: !!match[3] };

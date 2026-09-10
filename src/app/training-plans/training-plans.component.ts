@@ -1058,33 +1058,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     );
   }
 
-  // AMRAP has no dedicated field on WorkingSetTarget - it's the same trailing
-  // "+" convention targetReps already documents (e.g. "10+"), parsed by
-  // SessionsComponent.parseTargetRepsText when a session is generated. The
-  // checkbox just toggles that suffix instead of asking the user to type it.
-  customSessionSetAmrap(target: WorkingSetTarget): boolean {
-    return target.targetReps.trim().endsWith('+');
-  }
-
-  async updateCustomSessionSetAmrap(
-    plan: TrainingPlan,
-    sessionId: string,
-    exerciseId: string,
-    field: SetTargetField,
-    index: number,
-    checked: boolean
-  ): Promise<void> {
-    await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
-      targets.map((target, i) => {
-        if (i !== index) {
-          return target;
-        }
-        const base = target.targetReps.trim().replace(/\+$/, '');
-        return { ...target, targetReps: checked ? `${base}+` : base };
-      })
-    );
-  }
-
   // Live preview only, never stored - same %1RM-to-weight rounding
   // convention as SessionsComponent.percentageSetWeight (nearest plate
   // increment), so what's previewed here matches what a generated session
@@ -1317,7 +1290,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // optional dash range, then an optional trailing '+' for AMRAP.
   onWorkingSetTargetRepsInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d{0,3}(-\d{0,3})?\+?/)?.[0] ?? '';
+    const sanitized = input.value.match(/^\d{0,4}(-\d{0,4})?\+?/)?.[0] ?? '';
     if (sanitized !== input.value) {
       input.value = sanitized;
     }

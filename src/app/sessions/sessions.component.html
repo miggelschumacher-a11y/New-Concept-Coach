@@ -969,7 +969,11 @@
                           <div class="set-fields">
                             @if (sessionExerciseTypeDisplay(sessionExercise) !== 'TIME_BASED') {
                               @if (canEditExerciseTypeInSession(session)) {
-                                <mat-form-field appearance="outline" class="set-field set-field-target-reps-input">
+                                <mat-form-field
+                                  appearance="outline"
+                                  class="set-field set-field-target-reps-input"
+                                  [matTooltip]="'sessions.targetRepsTooltip' | translate"
+                                >
                                   <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
                                   <input
                                     matInput
