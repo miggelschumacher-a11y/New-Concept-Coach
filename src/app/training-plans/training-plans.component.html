@@ -851,18 +851,17 @@
                                     <mat-panel-title>{{ 'sessions.warmupSets' | translate }}</mat-panel-title>
                                     <mat-panel-description>{{ sessionExercise.warmupSetTargets?.length ?? 0 }}</mat-panel-description>
                                   </mat-expansion-panel-header>
-                                  @if (exerciseWarmupRamp(sessionExercise.exerciseId)) {
-                                    <button
-                                      mat-stroked-button
-                                      type="button"
-                                      class="add-default-warmup-button"
-                                      (click)="addDefaultWarmupToCustomSessionExercise(plan, session.id, sessionExercise.exerciseId)"
-                                      [matTooltip]="'sessions.addDefaultWarmupButtonTooltip' | translate"
-                                    >
-                                      <mat-icon>whatshot</mat-icon>
-                                      {{ 'sessions.addDefaultWarmupButton' | translate }}
-                                    </button>
-                                  }
+                                  <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="add-default-warmup-button"
+                                    [disabled]="!exerciseWarmupRamp(sessionExercise.exerciseId)?.length"
+                                    (click)="addDefaultWarmupToCustomSessionExercise(plan, session.id, sessionExercise.exerciseId)"
+                                    [matTooltip]="'sessions.addDefaultWarmupButtonTooltip' | translate"
+                                  >
+                                    <mat-icon>whatshot</mat-icon>
+                                    {{ 'sessions.addDefaultWarmupButton' | translate }}
+                                  </button>
                                   <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
                                     <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
                                     <mat-select
@@ -920,18 +919,17 @@
                                     <mat-panel-title>{{ 'sessions.cooldownSets' | translate }}</mat-panel-title>
                                     <mat-panel-description>{{ sessionExercise.cooldownSetTargets?.length ?? 0 }}</mat-panel-description>
                                   </mat-expansion-panel-header>
-                                  @if (exerciseCooldownRamp(sessionExercise.exerciseId)) {
-                                    <button
-                                      mat-stroked-button
-                                      type="button"
-                                      class="add-default-warmup-button"
-                                      (click)="addDefaultCooldownToCustomSessionExercise(plan, session.id, sessionExercise.exerciseId)"
-                                      [matTooltip]="'sessions.addDefaultCooldownButtonTooltip' | translate"
-                                    >
-                                      <mat-icon>ac_unit</mat-icon>
-                                      {{ 'sessions.addDefaultCooldownButton' | translate }}
-                                    </button>
-                                  }
+                                  <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="add-default-warmup-button"
+                                    [disabled]="!exerciseCooldownRamp(sessionExercise.exerciseId)?.length"
+                                    (click)="addDefaultCooldownToCustomSessionExercise(plan, session.id, sessionExercise.exerciseId)"
+                                    [matTooltip]="'sessions.addDefaultCooldownButtonTooltip' | translate"
+                                  >
+                                    <mat-icon>ac_unit</mat-icon>
+                                    {{ 'sessions.addDefaultCooldownButton' | translate }}
+                                  </button>
                                   <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
                                     <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
                                     <mat-select
