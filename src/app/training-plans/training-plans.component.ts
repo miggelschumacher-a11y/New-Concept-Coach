@@ -1302,10 +1302,14 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // optional dash range, then an optional trailing '+' for AMRAP.
   onWorkingSetTargetRepsInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    // The leading digit group is mandatory (not \d{0,4}) so "-" or "+"
-    // can never be the first character typed - a range's dash still allows
-    // zero digits after it (an in-progress "8-") while it's being typed.
-    const sanitized = input.value.match(/^\d{1,4}(-\d{0,4})?\+?/)?.[0] ?? '';
+    // The leading digit group is mandatory so "-" or "+" can never be the
+    // first character typed. After the dash, the three alternatives are:
+    // a full upper bound with its own optional AMRAP "+" ("-12", "-12+"),
+    // just the bare dash on its own as an in-progress "8-" while its upper
+    // bound is still being typed, or no dash at all with a bare "+" - never
+    // a dash immediately followed by "+" ("8-+"), which would claim a
+    // range with no upper bound.
+    const sanitized = input.value.match(/^\d{1,4}(?:-\d{1,4}\+?|-|\+)?/)?.[0] ?? '';
     if (sanitized !== input.value) {
       input.value = sanitized;
     }
