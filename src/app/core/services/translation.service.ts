@@ -409,6 +409,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Additional wait time between sets, until the second reminder',
     'config.restBetweenExercisesLabel': 'Rest between exercises',
     'config.autoTrainingSessionTitle': 'Automated Training Session',
+    'config.autoTrainingSessionHint':
+      'Controls what happens once every set in a section is done: whether it automatically switches to the next section that still has open sets - if needed, even the next exercise.',
     'config.warmupSetsAutoAdvanceLabel': 'Warm-up Sets',
     'config.workingSetsAutoAdvanceLabel': 'Working Sets',
     'config.autoAdvanceImmediateOption': 'Move on right after the last set',
@@ -839,6 +841,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Zusätzliche Wartezeit zwischen den Sätzen bis zur zweiten Erinnerung',
     'config.restBetweenExercisesLabel': 'Pause zwischen den Übungen',
     'config.autoTrainingSessionTitle': 'Automatisierte Trainingseinheit',
+    'config.autoTrainingSessionHint':
+      'Legt fest, was passiert, sobald alle Sätze einer Sektion abgeschlossen sind: ob automatisch zur nächsten Sektion mit offenen Sätzen gewechselt wird - notfalls auch zur nächsten Übung.',
     'config.warmupSetsAutoAdvanceLabel': 'Aufwärm-Sätze',
     'config.workingSetsAutoAdvanceLabel': 'Arbeits-Sätze',
     'config.autoAdvanceImmediateOption': 'Nach dem letzten Satz sofort weiter',
@@ -1269,6 +1273,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Tiempo de espera adicional entre series hasta el segundo aviso',
     'config.restBetweenExercisesLabel': 'Descanso entre ejercicios',
     'config.autoTrainingSessionTitle': 'Sesión de entrenamiento automatizada',
+    'config.autoTrainingSessionHint':
+      'Define qué ocurre cuando todas las series de una sección están hechas: si se cambia automáticamente a la siguiente sección con series pendientes, incluso al siguiente ejercicio si hace falta.',
     'config.warmupSetsAutoAdvanceLabel': 'Series de calentamiento',
     'config.workingSetsAutoAdvanceLabel': 'Series de trabajo',
     'config.autoAdvanceImmediateOption': 'Continuar automáticamente tras la última serie',
@@ -1699,6 +1705,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Tempo de espera adicional entre séries até o segundo aviso',
     'config.restBetweenExercisesLabel': 'Pausa entre exercícios',
     'config.autoTrainingSessionTitle': 'Sessão de treino automatizada',
+    'config.autoTrainingSessionHint':
+      'Define o que acontece quando todas as séries de uma seção estão concluídas: se muda automaticamente para a próxima seção com séries pendentes - se necessário, até para o próximo exercício.',
     'config.warmupSetsAutoAdvanceLabel': 'Séries de aquecimento',
     'config.workingSetsAutoAdvanceLabel': 'Séries de trabalho',
     'config.autoAdvanceImmediateOption': 'Avançar automaticamente após a última série',
@@ -2129,6 +2137,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Tempo di attesa aggiuntivo tra le serie fino al secondo avviso',
     'config.restBetweenExercisesLabel': 'Pausa tra gli esercizi',
     'config.autoTrainingSessionTitle': 'Sessione di allenamento automatizzata',
+    'config.autoTrainingSessionHint':
+      "Stabilisce cosa succede quando tutte le serie di una sezione sono completate: se si passa automaticamente alla sezione successiva con serie ancora da fare - se necessario, anche all'esercizio successivo.",
     'config.warmupSetsAutoAdvanceLabel': 'Serie di riscaldamento',
     'config.workingSetsAutoAdvanceLabel': 'Serie di lavoro',
     'config.autoAdvanceImmediateOption': "Prosegui automaticamente dopo l'ultima serie",
@@ -2559,6 +2569,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Extra wachttijd tussen sets tot de tweede melding',
     'config.restBetweenExercisesLabel': 'Pauze tussen oefeningen',
     'config.autoTrainingSessionTitle': 'Geautomatiseerde trainingssessie',
+    'config.autoTrainingSessionHint':
+      'Bepaalt wat er gebeurt zodra alle sets van een sectie voltooid zijn: of automatisch wordt overgeschakeld naar de volgende sectie met openstaande sets - indien nodig zelfs naar de volgende oefening.',
     'config.warmupSetsAutoAdvanceLabel': 'Warming-up sets',
     'config.workingSetsAutoAdvanceLabel': 'Werksets',
     'config.autoAdvanceImmediateOption': 'Direct doorgaan na de laatste set',
@@ -2989,6 +3001,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Dodatkowy czas oczekiwania między seriami do drugiego przypomnienia',
     'config.restBetweenExercisesLabel': 'Przerwa między ćwiczeniami',
     'config.autoTrainingSessionTitle': 'Zautomatyzowana jednostka treningowa',
+    'config.autoTrainingSessionHint':
+      'Określa, co się dzieje, gdy wszystkie serie w sekcji są zakończone: czy nastąpi automatyczne przejście do następnej sekcji z niedokończonymi seriami - w razie potrzeby nawet do następnego ćwiczenia.',
     'config.warmupSetsAutoAdvanceLabel': 'Serie rozgrzewkowe',
     'config.workingSetsAutoAdvanceLabel': 'Serie robocze',
     'config.autoAdvanceImmediateOption': 'Przejdź dalej zaraz po ostatniej serii',
@@ -3419,6 +3433,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'Дополнительное время ожидания между подходами до второго напоминания',
     'config.restBetweenExercisesLabel': 'Пауза между упражнениями',
     'config.autoTrainingSessionTitle': 'Автоматизированная тренировка',
+    'config.autoTrainingSessionHint':
+      'Определяет, что происходит, когда все подходы в разделе выполнены: произойдёт ли автоматический переход к следующему разделу с невыполненными подходами - при необходимости даже к следующему упражнению.',
     'config.warmupSetsAutoAdvanceLabel': 'Разминочные подходы',
     'config.workingSetsAutoAdvanceLabel': 'Рабочие подходы',
     'config.autoAdvanceImmediateOption': 'Сразу продолжить после последнего подхода',
@@ -3849,6 +3865,8 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.secondRestAfterSetTooltip': 'További várakozási idő a sorozatok között a második emlékeztetőig',
     'config.restBetweenExercisesLabel': 'Szünet a gyakorlatok között',
     'config.autoTrainingSessionTitle': 'Automatizált edzés',
+    'config.autoTrainingSessionHint':
+      'Meghatározza, mi történik, ha egy szakasz összes sorozata elkészült: automatikusan átvált-e a következő, még nyitott sorozatokat tartalmazó szakaszra - szükség esetén akár a következő gyakorlatra is.',
     'config.warmupSetsAutoAdvanceLabel': 'Bemelegítő sorozatok',
     'config.workingSetsAutoAdvanceLabel': 'Munkasorozatok',
     'config.autoAdvanceImmediateOption': 'Az utolsó sorozat után azonnal tovább',
