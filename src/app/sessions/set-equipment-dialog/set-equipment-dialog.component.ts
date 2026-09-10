@@ -170,12 +170,15 @@ export class SetEquipmentDialogComponent {
       return null;
     }
     const sleeveLength = this.diagramWidth - this.startMargin - this.endMargin;
-    // Scaled against every plate weight in the equipment master data (Config
-    // > Ausrüstung > Scheiben), not just the ones this particular breakdown
-    // happens to use - otherwise the heaviest plate actually loaded would
-    // always draw at max height, even if the user owns much heavier plates
-    // that just weren't needed for this target weight.
-    const maxWeight = Math.max(1, ...this.data.plates.map((plate) => plate.weight));
+    // Scaled against only the plates actually drawn here, not every plate
+    // weight in the equipment master data (Config > Ausrüstung > Scheiben) -
+    // scaling against the full inventory made every plate in a lighter
+    // breakdown collapse to the same minPlateHeight floor whenever the user
+    // owned even one much heavier plate elsewhere that this breakdown didn't
+    // need, defeating the whole point of a proportional drawing. Comparing
+    // sizes across two different popups is far less useful than each one
+    // correctly showing its own plates' relative sizes.
+    const maxWeight = Math.max(1, ...result.perSide.map((item) => item.weight));
 
     const groups = [...result.perSide]
       .sort((a, b) => a.weight - b.weight)
