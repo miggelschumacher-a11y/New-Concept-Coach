@@ -609,7 +609,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
         const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
         const warmupRamp = confirmedRampKeys.has(`${exerciseId}:warmup`) ? exercise?.warmupRamp : undefined;
         const cooldownRamp = confirmedRampKeys.has(`${exerciseId}:cooldown`) ? exercise?.cooldownRamp : undefined;
-        const weightUnit = this.settingsService.getSettings().weightUnit;
+        const settings = this.settingsService.getSettings();
+        const weightUnit = settings.weightUnit;
         return {
           exerciseId,
           workingSetTargets: [],
@@ -618,7 +619,13 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
           cooldownSetTargets: cooldownRamp?.length ? calculateWarmupSets(0, cooldownRamp, weightUnit) : undefined,
           showCooldownSets: cooldownRamp?.length ? true : undefined,
           incrementScheme: DEFAULT_INCREMENT_SCHEME,
-          weightIncrement: DEFAULT_WEIGHT_INCREMENT
+          weightIncrement: DEFAULT_WEIGHT_INCREMENT,
+          // A freshly added exercise starts with its own copy of the Config
+          // page's current "Pausen" defaults - same "snapshot at creation
+          // time" convention as incrementScheme/weightIncrement above.
+          firstRestAfterSet: settings.firstRestAfterSet,
+          secondRestAfterSet: settings.secondRestAfterSet,
+          restBetweenExercises: settings.restBetweenExercises
         };
       });
       return { ...candidate, exerciseIds, exercises: sessionExercises };

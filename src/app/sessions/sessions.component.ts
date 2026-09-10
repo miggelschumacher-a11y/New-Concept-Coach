@@ -2549,7 +2549,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // has touched the session-options popup, its actual values afterward),
     // rather than always hardcoding true regardless of that setting.
     const sessionSettings = this.sessionSettingsBuffer(session);
-    const weightUnit = this.settingsService.getSettings().weightUnit;
+    const restSettings = this.settingsService.getSettings();
+    const weightUnit = restSettings.weightUnit;
     session.exercises = exerciseIds.map((exerciseId) => {
       const existing = existingByExerciseId.get(exerciseId);
       if (existing) {
@@ -2575,7 +2576,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
         // Matches Training Plans' own default for a freshly added exercise.
         exerciseType: 'WEIGHT_BASED' as const,
         incrementScheme: 'LINEAR_PROGRESSION' as const,
-        weightIncrement: DEFAULT_WEIGHT_INCREMENT
+        weightIncrement: DEFAULT_WEIGHT_INCREMENT,
+        // A freshly added exercise starts with its own copy of the Config
+        // page's current "Pausen" defaults (rather than leaving them unset
+        // to inherit whatever that default happens to be later) - same
+        // "snapshot the setting at creation time" convention as the rest of
+        // this object literal.
+        firstRestAfterSet: restSettings.firstRestAfterSet,
+        secondRestAfterSet: restSettings.secondRestAfterSet,
+        restBetweenExercises: restSettings.restBetweenExercises
       };
     });
     await this.persist(session);
