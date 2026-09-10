@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
@@ -134,7 +135,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     private readonly exercisesService: ExercisesService,
     private readonly settingsService: SettingsService,
     private readonly translationService: TranslationService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   get weightUnitLabel(): string {
@@ -987,6 +989,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     value: string
   ): Promise<void> {
     const targetReps = value.trim();
+    if (this.isBackwardsTargetRepsRange(targetReps)) {
+      this.showTargetRepsRangeError();
+      return;
+    }
     if (!this.isValidTargetRepsText(targetReps)) {
       return;
     }
@@ -1007,6 +1013,24 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   // but must not be stored as-is.
   private isValidTargetRepsText(value: string): boolean {
     return value === '' || /^\d{1,4}(-\d{1,4})?\+?$/.test(value);
+  }
+
+  // A well-formed range (e.g. "12-8") passes isValidTargetRepsText's grammar
+  // check but the upper bound is smaller than the lower bound - distinct from
+  // a malformed value, so it gets its own check and its own error message.
+  private isBackwardsTargetRepsRange(value: string): boolean {
+    const match = value.trim().match(/^(\d{1,4})-(\d{1,4})\+?$/);
+    if (!match) {
+      return false;
+    }
+    return parseInt(match[2], 10) < parseInt(match[1], 10);
+  }
+
+  private showTargetRepsRangeError(): void {
+    this.snackBar.open(this.translationService.translate('sessions.targetRepsRangeError'), undefined, {
+      duration: 3000,
+      panelClass: 'set-feedback-fail',
+    });
   }
 
   // Same fill-if-empty behavior as updateSetTargetWeight above, for weight.
@@ -1385,6 +1409,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     value: string
   ): Promise<void> {
     const targetReps = value.trim();
+    if (this.isBackwardsTargetRepsRange(targetReps)) {
+      this.showTargetRepsRangeError();
+      return;
+    }
     if (!this.isValidTargetRepsText(targetReps)) {
       return;
     }

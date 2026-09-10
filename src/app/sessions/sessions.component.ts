@@ -3677,9 +3677,24 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     const lower = Math.min(Math.max(parseInt(match[1], 10), 0), 9999);
     const upper = match[2] !== undefined ? Math.min(Math.max(parseInt(match[2], 10), 0), 9999) : undefined;
-    const targetReps = upper !== undefined ? Math.min(lower, upper) : lower;
-    const targetRepsMax = upper !== undefined && upper !== lower ? Math.max(lower, upper) : undefined;
+    if (upper !== undefined && upper < lower) {
+      return {};
+    }
+    const targetReps = lower;
+    const targetRepsMax = upper !== undefined && upper !== lower ? upper : undefined;
     return { targetReps, targetRepsMax, isAmrap: !!match[3] };
+  }
+
+  // A well-formed range (e.g. "12-8") is grammatically valid but the upper
+  // bound is smaller than the lower bound - distinct from a malformed value,
+  // so it gets its own check and its own error message rather than silently
+  // failing the generic parseTargetRepsText() validity check.
+  private isBackwardsTargetRepsRange(text: string): boolean {
+    const match = text.trim().match(/^(\d{1,4})-(\d{1,4})\+?$/);
+    if (!match) {
+      return false;
+    }
+    return parseInt(match[2], 10) < parseInt(match[1], 10);
   }
 
   // Only updates the one set the field belongs to - propagating to the
@@ -3688,6 +3703,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // something every edit here should do automatically.
   async updateTargetReps(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, value: string): Promise<void> {
     const trimmed = value.trim();
+    if (this.isBackwardsTargetRepsRange(trimmed)) {
+      this.snackBar.open(this.translationService.translate('sessions.targetRepsRangeError'), undefined, {
+        duration: 3000,
+        panelClass: 'set-feedback-fail',
+      });
+      return;
+    }
     if (trimmed !== '' && this.parseTargetRepsText(trimmed).targetReps === undefined) {
       return;
     }
