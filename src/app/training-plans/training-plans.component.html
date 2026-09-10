@@ -879,7 +879,6 @@
                                     mat-stroked-button
                                     type="button"
                                     class="add-set-for-exercise-button"
-                                    [disabled]="!sessionExercise.warmupExerciseId"
                                     (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'warmupSetTargets', sessionExercise.warmupExerciseId)"
                                   >
                                     @if (sessionExercise.warmupExerciseId; as refId) {
@@ -947,7 +946,6 @@
                                     mat-stroked-button
                                     type="button"
                                     class="add-set-for-exercise-button"
-                                    [disabled]="!sessionExercise.cooldownExerciseId"
                                     (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'cooldownSetTargets', sessionExercise.cooldownExerciseId)"
                                   >
                                     @if (sessionExercise.cooldownExerciseId; as refId) {
