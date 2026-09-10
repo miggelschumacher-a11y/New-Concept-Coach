@@ -3165,22 +3165,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // A short beep via the Web Audio API - no audio asset needed. Silently
+  // Plays the app's expired-timer sound (public/sounds/Gong.mp3). Silently
   // does nothing if audio playback isn't available (e.g. no user gesture
   // yet in some browsers).
   private playCountdownSound(): void {
     try {
-      const AudioContextCtor = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const context = new AudioContextCtor();
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.frequency.value = 880;
-      gain.gain.setValueAtTime(0.2, context.currentTime);
-      oscillator.start();
-      oscillator.stop(context.currentTime + 0.3);
-      oscillator.onended = () => void context.close();
+      void new Audio('/sounds/Gong.mp3').play().catch(() => {
+        // Audio playback isn't available - fail silently rather than block the countdown.
+      });
     } catch {
       // Audio playback isn't available - fail silently rather than block the countdown.
     }
