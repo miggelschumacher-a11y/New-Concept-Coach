@@ -3384,13 +3384,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // Asks whether to finish the session now that every working set across
   // every exercise is done - reuses confirmFinishSession itself so the same
   // name-required guard and replenish flow apply as the ordinary "stop"
-  // button. If some other dialog is already open (e.g. one triggered by
-  // whatever this last set's own persist/1RM-update side effects surfaced),
-  // let it resolve first rather than stacking this one on top of it.
+  // button. Waits out any other popup already pending first (see
+  // waitForNoPendingPopup) rather than stacking this one on top of it.
   private async promptFinishAllDone(session: TrainingSession): Promise<void> {
-    if (this.dialog.openDialogs.length > 0) {
-      await firstValueFrom(this.dialog.afterAllClosed);
-    }
+    await this.waitForNoPendingPopup();
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         messageKey: 'sessions.allWorkingSetsDoneQuestion',
@@ -3401,6 +3398,23 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const confirmed = await firstValueFrom(dialogRef.afterClosed());
     if (confirmed) {
       await this.confirmFinishSession(session);
+    }
+  }
+
+  // Blocks until no other popup is left showing - both this component's own
+  // MatDialogs (equipment, notes, another confirm, ...) and its many inline
+  // "really do this?" prompts, which all share the .confirm-dialog class
+  // (delete session/set/exercise, finish session, replenish, body-weight
+  // fallback, ...) rather than a single enumerable list of pending-flag
+  // fields. MatDialogs resolve this instantly via afterAllClosed; an inline
+  // prompt has no such event to await, so it's polled instead.
+  private async waitForNoPendingPopup(): Promise<void> {
+    while (this.dialog.openDialogs.length > 0 || document.querySelector('.confirm-dialog')) {
+      if (this.dialog.openDialogs.length > 0) {
+        await firstValueFrom(this.dialog.afterAllClosed);
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
     }
   }
 
