@@ -3347,9 +3347,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // toast's own message folded into that popup instead of shown separately
   // (per the user's explicit request: don't show both at once); if that
   // timer is skipped (the rest-between-exercises setting is 0), the toast
-  // shows on its own instead; nothing left anywhere -> the toast shows on
-  // its own (the finish-session prompt has no timer to fold it into),
-  // followed by that prompt.
+  // shows on its own instead; nothing left anywhere -> the toast's message
+  // is folded into the finish-session prompt itself instead of shown
+  // separately, same "one popup, not two" rule as the between-exercises
+  // timer above.
   private maybeShowRestPrompt(
     session: TrainingSession,
     sessionExercise: SessionExercise,
@@ -3373,8 +3374,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       }
       return;
     }
-    this.showSetFeedback(session, sessionExercise, workingSets);
-    void this.promptFinishAllDone(session);
+    const feedbackMessage = this.buildSetFeedbackMessage(session, sessionExercise, workingSets).message;
+    void this.promptFinishAllDone(session, feedbackMessage);
   }
 
   private openBetweenSetsRestTimer(): void {
@@ -3399,11 +3400,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // name-required guard and replenish flow apply as the ordinary "stop"
   // button. Waits out any other popup already pending first (see
   // waitForNoPendingPopup) rather than stacking this one on top of it.
-  private async promptFinishAllDone(session: TrainingSession): Promise<void> {
+  // feedbackMessage, when given, is the last set's own progression/
+  // reduction toast message, folded in here instead of shown separately.
+  private async promptFinishAllDone(session: TrainingSession, feedbackMessage?: string): Promise<void> {
     await this.waitForNoPendingPopup();
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         messageKey: 'sessions.allWorkingSetsDoneQuestion',
+        extraMessage: feedbackMessage,
         confirmLabelKey: 'sessions.confirmYes',
         confirmColor: 'primary'
       }

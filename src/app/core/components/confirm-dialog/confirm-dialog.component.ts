@@ -11,6 +11,10 @@ export interface ConfirmDialogData {
   confirmLabelKey?: string;
   cancelLabelKey?: string;
   confirmColor?: 'warn' | 'primary';
+  // An already-resolved (not a translation key) line shown below the main
+  // question - e.g. the session's last set's own progression/reduction
+  // toast message, folded in here instead of shown as a separate popup.
+  extraMessage?: string;
 }
 
 @Component({
