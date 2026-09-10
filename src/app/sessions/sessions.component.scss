@@ -434,7 +434,24 @@ mat-expansion-panel mat-checkbox {
   flex-direction: column;
   align-items: center;
   flex: 0 0 auto;
-  gap: 0.1rem;
+  gap: 0;
+}
+
+// mat-icon-button's own touch-target box is much taller than the visible
+// icon inside it, which otherwise pushes .set-type-icon below it far lower
+// than the drag-handle icon beside it - shrink the button itself and pull
+// it up to match, then pull the type icon in right underneath it.
+.set-delete-button {
+  --mdc-icon-button-state-layer-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin-top: -0.3rem;
+
+  .mat-mdc-button-touch-target {
+    width: 2rem;
+    height: 2rem;
+  }
 }
 
 .set-type-icon {
@@ -442,6 +459,7 @@ mat-expansion-panel mat-checkbox {
   height: 1rem;
   width: 1rem;
   color: var(--app-muted-text);
+  margin-top: -0.2rem;
 }
 
 .set-fields {
