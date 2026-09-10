@@ -424,7 +424,12 @@
             (cdkDropListDropped)="dropExercise(session, $event)"
           >
             @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
-              <mat-expansion-panel cdkDrag [cdkDragDisabled]="!canEditExerciseTypeInSession(session)">
+              <mat-expansion-panel
+                cdkDrag
+                [cdkDragDisabled]="!canEditExerciseTypeInSession(session)"
+                [expanded]="exercisePanelExpanded(session, sessionExercise)"
+                (expandedChange)="onExercisePanelExpandedChange(session, sessionExercise, $event)"
+              >
                 <mat-expansion-panel-header>
                   <div class="header-delete-action">
                     @if (isPendingDeleteExercise(session, sessionExercise.exerciseId)) {

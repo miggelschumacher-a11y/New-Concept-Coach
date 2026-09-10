@@ -157,6 +157,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // "Automatisierte Trainingseinheit"), same controlled-panel pattern as
   // isExpanded/onExpandedChange.
   private readonly expandedSetTypeSectionKeys = new Set<string>();
+  // Which per-exercise accordions are open - same idea as
+  // expandedSetTypeSectionKeys, needed because maybeAutoAdvanceSection can
+  // move on to the next exercise entirely once this one has nothing left
+  // pending, not just the next section within the same exercise.
+  private readonly expandedExerciseKeys = new Set<string>();
   private timerTickerId?: ReturnType<typeof setInterval>;
   pendingFinishSessionId: string | null = null;
   pendingDeleteSetId: string | null = null;
@@ -1345,6 +1350,23 @@ export class SessionsComponent implements OnInit, OnDestroy {
       this.expandedSetTypeSectionKeys.add(key);
     } else {
       this.expandedSetTypeSectionKeys.delete(key);
+    }
+  }
+
+  private exercisePanelKey(session: TrainingSession, sessionExercise: SessionExercise): string {
+    return `${session.id}:${sessionExercise.exerciseId}`;
+  }
+
+  exercisePanelExpanded(session: TrainingSession, sessionExercise: SessionExercise): boolean {
+    return this.expandedExerciseKeys.has(this.exercisePanelKey(session, sessionExercise));
+  }
+
+  onExercisePanelExpandedChange(session: TrainingSession, sessionExercise: SessionExercise, expanded: boolean): void {
+    const key = this.exercisePanelKey(session, sessionExercise);
+    if (expanded) {
+      this.expandedExerciseKeys.add(key);
+    } else {
+      this.expandedExerciseKeys.delete(key);
     }
   }
 
@@ -3436,45 +3458,85 @@ export class SessionsComponent implements OnInit, OnDestroy {
     void this.maybeAutoAdvanceSection(session, sessionExercise, set.type);
   }
 
-  private nextSetType(type: SetType): SetType | null {
+  // No setting exists for cooldown (nothing was ever asked to follow it),
+  // so it's excluded here by returning null - maybeAutoAdvanceSection treats
+  // that exactly like an 'off' mode.
+  private autoAdvanceModeFor(type: SetType): AutoAdvanceMode | null {
+    const settings = this.settingsService.getSettings();
     if (type === 'warmup') {
-      return 'working';
+      return settings.warmupSetsAutoAdvance;
     }
     if (type === 'working') {
-      return 'cooldown';
+      return settings.workingSetsAutoAdvance;
+    }
+    return null;
+  }
+
+  // Searches forward from (fromExercise, fromType) for the next section that
+  // still has an undone set - first the later sections of this same
+  // exercise (in setTypes order), then every section of each subsequent
+  // exercise in the session. This is what lets finishing an exercise's last
+  // section (e.g. no cooldown sets at all) fall through to the next
+  // exercise entirely, rather than only ever considering the very next
+  // section type of the same exercise.
+  private findNextPendingSection(
+    session: TrainingSession,
+    fromExercise: SessionExercise,
+    fromType: SetType
+  ): { sessionExercise: SessionExercise; type: SetType } | null {
+    const types = this.setTypes.map((setType) => setType.value);
+    const fromTypeIndex = types.indexOf(fromType);
+    for (let i = fromTypeIndex + 1; i < types.length; i++) {
+      const type = types[i];
+      if (this.showSetType(fromExercise, type) && this.setsByType(fromExercise, type).some((s) => !s.done)) {
+        return { sessionExercise: fromExercise, type };
+      }
+    }
+    const exerciseIndex = session.exercises.indexOf(fromExercise);
+    for (let i = exerciseIndex + 1; i < session.exercises.length; i++) {
+      const exercise = session.exercises[i];
+      for (const type of types) {
+        if (this.showSetType(exercise, type) && this.setsByType(exercise, type).some((s) => !s.done)) {
+          return { sessionExercise: exercise, type };
+        }
+      }
     }
     return null;
   }
 
   // Config page > "Automatisierte Trainingseinheit": once every set in a
   // section (warm-up/working) is done, optionally collapses that section
-  // and opens the next one for the same exercise - but only when the next
-  // section actually has sets left to do, otherwise there's nothing to jump
-  // to. 'confirm' asks first (waiting out any other popup, e.g. the rest
-  // timer just opened above, so they don't stack); 'immediate' just does
-  // it; 'off' leaves the accordions exactly as the user left them. Cooldown
-  // has no next section, so nextSetType returning null is also how it's
-  // excluded here.
+  // and opens the next pending one (see findNextPendingSection above) - the
+  // next section of the same exercise if it has sets left, otherwise the
+  // first pending section of the next exercise that has any. Nothing
+  // pending anywhere forward means there's nothing to jump to. 'confirm'
+  // asks first (waiting out any other popup, e.g. the rest timer just
+  // opened above, so they don't stack); 'immediate' just does it; 'off'
+  // leaves the accordions exactly as the user left them.
   private async maybeAutoAdvanceSection(session: TrainingSession, sessionExercise: SessionExercise, type: SetType): Promise<void> {
-    const nextType = this.nextSetType(type);
-    if (!nextType) {
+    const mode = this.autoAdvanceModeFor(type);
+    if (!mode) {
       return;
     }
     const sectionSets = this.setsByType(sessionExercise, type);
     if (sectionSets.length === 0 || !sectionSets.every((s) => s.done)) {
       return;
     }
-    if (!this.setsByType(sessionExercise, nextType).some((s) => !s.done)) {
+    const target = this.findNextPendingSection(session, sessionExercise, type);
+    if (!target) {
       return;
     }
-    const settings = this.settingsService.getSettings();
-    const mode: AutoAdvanceMode = type === 'warmup' ? settings.warmupSetsAutoAdvance : settings.workingSetsAutoAdvance;
     if (mode === 'off') {
       return;
     }
+    const movingToNextExercise = target.sessionExercise !== sessionExercise;
     if (mode === 'confirm') {
       await this.waitForNoPendingPopup();
-      const messageKey = nextType === 'working' ? 'sessions.autoAdvanceToWorkingQuestion' : 'sessions.autoAdvanceToCooldownQuestion';
+      const messageKey = movingToNextExercise
+        ? 'sessions.autoAdvanceToNextExerciseQuestion'
+        : target.type === 'working'
+          ? 'sessions.autoAdvanceToWorkingQuestion'
+          : 'sessions.autoAdvanceToCooldownQuestion';
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         data: { messageKey, confirmLabelKey: 'common.yes', cancelLabelKey: 'common.no', confirmColor: 'primary' }
       });
@@ -3484,7 +3546,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
       }
     }
     this.onSetTypeSectionExpandedChange(session, sessionExercise, type, false);
-    this.onSetTypeSectionExpandedChange(session, sessionExercise, nextType, true);
+    if (movingToNextExercise) {
+      this.onExercisePanelExpandedChange(session, sessionExercise, false);
+      this.onExercisePanelExpandedChange(session, target.sessionExercise, true);
+    }
+    this.onSetTypeSectionExpandedChange(session, target.sessionExercise, target.type, true);
   }
 
   // Decides which of the three rest-related popups (if any) follows a
