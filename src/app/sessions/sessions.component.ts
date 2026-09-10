@@ -3384,8 +3384,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // Asks whether to finish the session now that every working set across
   // every exercise is done - reuses confirmFinishSession itself so the same
   // name-required guard and replenish flow apply as the ordinary "stop"
-  // button.
+  // button. If some other dialog is already open (e.g. one triggered by
+  // whatever this last set's own persist/1RM-update side effects surfaced),
+  // let it resolve first rather than stacking this one on top of it.
   private async promptFinishAllDone(session: TrainingSession): Promise<void> {
+    if (this.dialog.openDialogs.length > 0) {
+      await firstValueFrom(this.dialog.afterAllClosed);
+    }
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         messageKey: 'sessions.allWorkingSetsDoneQuestion',
