@@ -36,9 +36,11 @@ import {
   AddDefaultWarmupSelection,
   RampKind
 } from './add-default-warmup-dialog/add-default-warmup-dialog.component';
+import { RestTimerDialogComponent, RestTimerDialogData } from './rest-timer-dialog/rest-timer-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService, WeightUnit } from '../core/services/settings.service';
+import { SoundService } from '../core/services/sound.service';
 import { TranslationService } from '../core/services/translation.service';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { TierLineProgressionService } from '../core/services/tier-line-progression.service';
@@ -186,7 +188,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly platesService: PlatesService,
     private readonly datePipe: DatePipe,
     private readonly snackBar: MatSnackBar,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly soundService: SoundService
   ) {}
 
   get dateFormat(): string {
@@ -3157,24 +3160,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
       const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
       if (!state.beeped && elapsed >= state.targetSeconds) {
         state.beeped = true;
-        this.playCountdownSound();
+        this.soundService.playGong();
       }
       if (elapsed >= MAX_COUNTDOWN_SECONDS) {
         this.stopCountdown(set);
       }
-    }
-  }
-
-  // Plays the app's expired-timer sound (public/sounds/Gong.mp3). Silently
-  // does nothing if audio playback isn't available (e.g. no user gesture
-  // yet in some browsers).
-  private playCountdownSound(): void {
-    try {
-      void new Audio('/sounds/Gong.mp3').play().catch(() => {
-        // Audio playback isn't available - fail silently rather than block the countdown.
-      });
-    } catch {
-      // Audio playback isn't available - fail silently rather than block the countdown.
     }
   }
 
@@ -3341,8 +3331,71 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // consecutiveExerciseFailures - so the toast only appears once, after
     // the last working set, not after each one along the way.
     const workingSets = sessionExercise.sets.filter((s) => s.type === 'working');
-    if (set.type === 'working' && workingSets.every((s) => s.done)) {
-      this.showSetFeedback(session, sessionExercise, set, workingSets);
+    if (set.type === 'working') {
+      if (workingSets.every((s) => s.done)) {
+        this.showSetFeedback(session, sessionExercise, set, workingSets);
+      }
+      this.maybeShowRestPrompt(session, sessionExercise, workingSets);
+    }
+  }
+
+  // Decides which of the three rest-related popups (if any) follows a
+  // just-completed working set: another one of this same exercise still
+  // pending -> the two-stage between-sets rest timer; this exercise's own
+  // working sets are all done but another exercise in the session still has
+  // some left -> the single-threshold between-exercises timer (skipped
+  // entirely when that setting is 0); nothing left anywhere -> the
+  // finish-session prompt.
+  private maybeShowRestPrompt(session: TrainingSession, sessionExercise: SessionExercise, workingSets: ExerciseSet[]): void {
+    if (workingSets.some((s) => !s.done)) {
+      this.openBetweenSetsRestTimer();
+      return;
+    }
+    const anotherExercisePending = session.exercises.some(
+      (candidate) => candidate !== sessionExercise && candidate.sets.some((s) => s.type === 'working' && !s.done)
+    );
+    if (anotherExercisePending) {
+      const restBetweenExercises = this.settingsService.getSettings().restBetweenExercises;
+      if (restBetweenExercises > 0) {
+        this.openBetweenExercisesRestTimer(restBetweenExercises);
+      }
+      return;
+    }
+    void this.promptFinishAllDone(session);
+  }
+
+  private openBetweenSetsRestTimer(): void {
+    const settings = this.settingsService.getSettings();
+    const secondThresholdSeconds =
+      settings.secondRestAfterSet > 0 ? settings.firstRestAfterSet + settings.secondRestAfterSet : undefined;
+    this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
+      data: { firstThresholdSeconds: settings.firstRestAfterSet, secondThresholdSeconds },
+      disableClose: true
+    });
+  }
+
+  private openBetweenExercisesRestTimer(thresholdSeconds: number): void {
+    this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
+      data: { firstThresholdSeconds: thresholdSeconds },
+      disableClose: true
+    });
+  }
+
+  // Asks whether to finish the session now that every working set across
+  // every exercise is done - reuses confirmFinishSession itself so the same
+  // name-required guard and replenish flow apply as the ordinary "stop"
+  // button.
+  private async promptFinishAllDone(session: TrainingSession): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        messageKey: 'sessions.allWorkingSetsDoneQuestion',
+        confirmLabelKey: 'sessions.confirmYes',
+        confirmColor: 'primary'
+      }
+    });
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (confirmed) {
+      await this.confirmFinishSession(session);
     }
   }
 

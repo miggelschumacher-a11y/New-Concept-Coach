@@ -344,7 +344,7 @@
         </mat-expansion-panel-header>
 
         <div class="increment-scheme-form">
-          <mat-form-field appearance="outline" class="rest-field">
+          <mat-form-field appearance="outline" class="rest-field" [matTooltip]="'config.firstRestAfterSetTooltip' | translate">
             <mat-label>{{ 'config.firstRestAfterSetLabel' | translate }}</mat-label>
             <input
               matInput
@@ -358,7 +358,7 @@
             />
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="rest-field">
+          <mat-form-field appearance="outline" class="rest-field" [matTooltip]="'config.secondRestAfterSetTooltip' | translate">
             <mat-label>{{ 'config.secondRestAfterSetLabel' | translate }}</mat-label>
             <input
               matInput

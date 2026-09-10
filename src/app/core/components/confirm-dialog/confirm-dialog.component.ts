@@ -5,6 +5,12 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 
 export interface ConfirmDialogData {
   messageKey: string;
+  // Every existing call site is a destructive delete-style confirmation, so
+  // these default to that wording/color in the template - override them for
+  // a non-destructive question (e.g. "finish the session?").
+  confirmLabelKey?: string;
+  cancelLabelKey?: string;
+  confirmColor?: 'warn' | 'primary';
 }
 
 @Component({
