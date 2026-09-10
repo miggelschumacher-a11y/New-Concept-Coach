@@ -750,6 +750,7 @@
                                         [attr.aria-label]="'sessions.dragToReorder' | translate"
                                       >
                                         <mat-icon>drag_indicator</mat-icon>
+                                        <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
                                       </div>
                                       <button
                                         mat-icon-button
@@ -760,7 +761,6 @@
                                       >
                                         <mat-icon>delete</mat-icon>
                                       </button>
-                                      <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
 
                                   @if (session.exerciseType === 'TIME_BASED') {
                                     <mat-form-field appearance="outline" class="percentage-input-field">
@@ -1207,6 +1207,7 @@
                                 [attr.aria-label]="'sessions.dragToReorder' | translate"
                               >
                                 <mat-icon>drag_indicator</mat-icon>
+                                <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
                               </div>
                               <button
                                 mat-icon-button
@@ -1217,8 +1218,9 @@
                               >
                                 <mat-icon>delete</mat-icon>
                               </button>
+                            } @else {
+                              <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
                             }
-                            <span class="percentage-set-index">#{{ targetIndex + 1 }}</span>
 
                         <mat-form-field appearance="outline" class="percentage-input-field" [matTooltip]="'sessions.targetRepsTooltip' | translate">
                           <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
