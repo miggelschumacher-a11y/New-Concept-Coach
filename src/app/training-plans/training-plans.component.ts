@@ -986,11 +986,12 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     exerciseId: string,
     field: SetTargetField,
     index: number,
-    value: string
+    value: string,
+    inputElement?: HTMLInputElement
   ): Promise<void> {
     const targetReps = value.trim();
     if (this.isBackwardsTargetRepsRange(targetReps)) {
-      this.showTargetRepsRangeError();
+      this.showTargetRepsRangeError(inputElement);
       return;
     }
     if (!this.isValidTargetRepsText(targetReps)) {
@@ -1026,11 +1027,12 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return parseInt(match[2], 10) < parseInt(match[1], 10);
   }
 
-  private showTargetRepsRangeError(): void {
+  private showTargetRepsRangeError(inputElement?: HTMLInputElement): void {
     this.snackBar.open(this.translationService.translate('sessions.targetRepsRangeError'), undefined, {
       duration: 3000,
       panelClass: 'set-feedback-fail',
     });
+    inputElement?.focus();
   }
 
   // Same fill-if-empty behavior as updateSetTargetWeight above, for weight.
@@ -1406,11 +1408,12 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     exerciseId: string,
     field: SetTargetField,
     index: number,
-    value: string
+    value: string,
+    inputElement?: HTMLInputElement
   ): Promise<void> {
     const targetReps = value.trim();
     if (this.isBackwardsTargetRepsRange(targetReps)) {
-      this.showTargetRepsRangeError();
+      this.showTargetRepsRangeError(inputElement);
       return;
     }
     if (!this.isValidTargetRepsText(targetReps)) {

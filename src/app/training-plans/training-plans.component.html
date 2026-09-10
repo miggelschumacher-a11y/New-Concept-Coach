@@ -790,7 +790,7 @@
                                         [value]="target.targetReps"
                                         selectOnFocus
                                         (input)="onWorkingSetTargetRepsInput($event)"
-                                        (change)="updateCustomSessionSetReps(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $any($event.target).value)"
+                                        (change)="updateCustomSessionSetReps(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $any($event.target).value, $any($event.target))"
                                       />
                                     </mat-form-field>
 
@@ -1230,7 +1230,7 @@
                             [disabled]="!!plan.isDefault"
                             selectOnFocus
                             (input)="onWorkingSetTargetRepsInput($event)"
-                            (change)="updateSetTargetReps(plan, exerciseId, field, targetIndex, $any($event.target).value)"
+                            (change)="updateSetTargetReps(plan, exerciseId, field, targetIndex, $any($event.target).value, $any($event.target))"
                             (mousedown)="onSetTargetFieldMouseDown($event, plan, exerciseId, field, targetIndex, 'targetReps')"
                             (mouseup)="onSetTargetFieldMouseUp()"
                             (mouseleave)="onSetTargetFieldMouseLeave()"

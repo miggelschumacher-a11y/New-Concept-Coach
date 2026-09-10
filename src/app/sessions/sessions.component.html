@@ -984,7 +984,7 @@
                                     [disabled]="isPaused(session)"
                                     selectOnFocus
                                     (input)="onTargetRepsFieldInput($event)"
-                                    (change)="updateTargetReps(session, sessionExercise, set, $any($event.target).value)"
+                                    (change)="updateTargetReps(session, sessionExercise, set, $any($event.target).value, $any($event.target))"
                                     (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
                                     (mouseup)="onSetFieldMouseUp()"
                                     (mouseleave)="onSetFieldMouseLeave()"

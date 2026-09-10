@@ -3701,13 +3701,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // exercise's other sets is the long-press copy popup's job now (see
   // onSetFieldMouseDown/applySetFieldCopy's 'targetReps' branch), not
   // something every edit here should do automatically.
-  async updateTargetReps(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, value: string): Promise<void> {
+  async updateTargetReps(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    set: ExerciseSet,
+    value: string,
+    inputElement?: HTMLInputElement
+  ): Promise<void> {
     const trimmed = value.trim();
     if (this.isBackwardsTargetRepsRange(trimmed)) {
       this.snackBar.open(this.translationService.translate('sessions.targetRepsRangeError'), undefined, {
         duration: 3000,
         panelClass: 'set-feedback-fail',
       });
+      inputElement?.focus();
       return;
     }
     if (trimmed !== '' && this.parseTargetRepsText(trimmed).targetReps === undefined) {
