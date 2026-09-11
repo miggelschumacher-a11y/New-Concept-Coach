@@ -1331,6 +1331,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     this.autoExpandedSessionIds.delete(session.id);
+    if (this.sessionSettingsInfoOpenKey === session.id) {
+      this.closeSessionSettingsInfo();
+    }
     if (session.timerRunning) {
       void this.toggleTimer(session);
     }

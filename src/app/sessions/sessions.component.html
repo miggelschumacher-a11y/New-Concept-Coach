@@ -198,6 +198,7 @@
               {{ 'sessions.weightLifted' | translate }}: {{ sessionWeightLifted(session) }} {{ weightUnitLabel }}
             }
           </mat-panel-description>
+          @if (isExpanded(session)) {
           <div class="session-settings-info-trigger">
             <button
               mat-icon-button
@@ -256,6 +257,7 @@
               </div>
             }
           </div>
+          }
         </mat-expansion-panel-header>
 
         <div class="name-row">
