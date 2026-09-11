@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from './core/pipes/translate.pipe';
 import { ThemeService } from './core/services/theme.service';
+import { PurchasesService } from './core/services/purchases.service';
 
 @Component({
   selector: 'app-root',
@@ -26,9 +27,13 @@ import { ThemeService } from './core/services/theme.service';
 export class AppComponent implements OnInit {
   title = 'Concept Coach';
 
-  constructor(private readonly themeService: ThemeService) {}
+  constructor(
+    private readonly themeService: ThemeService,
+    private readonly purchasesService: PurchasesService
+  ) {}
 
   async ngOnInit(): Promise<void> {
     await this.themeService.applyPersistedTheme();
+    await this.purchasesService.initialize();
   }
 }

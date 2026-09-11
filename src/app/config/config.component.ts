@@ -37,6 +37,7 @@ import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
+import { PurchasesService } from '../core/services/purchases.service';
 
 const BODY_WEIGHT_MAX = 300;
 
@@ -93,6 +94,8 @@ export class ConfigComponent implements OnInit {
   warmupSetsAutoAdvance: AutoAdvanceMode;
   workingSetsAutoAdvance: AutoAdvanceMode;
   isPro: boolean;
+  proPackagePriceString: string | null = null;
+  proActionInProgress = false;
   statusMessageKey: string | null = null;
   pendingDriveBackupJson: string | null = null;
   driveFileName = '';
@@ -121,7 +124,8 @@ export class ConfigComponent implements OnInit {
     private readonly googleDriveService: GoogleDriveService,
     private readonly bodyWeightService: BodyWeightService,
     private readonly dumbbellsService: DumbbellsService,
-    private readonly platesService: PlatesService
+    private readonly platesService: PlatesService,
+    private readonly purchasesService: PurchasesService
   ) {
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
@@ -170,6 +174,46 @@ export class ConfigComponent implements OnInit {
     this.bodyWeightEntries = await this.bodyWeightService.getAll();
     this.dumbbellEntries = await this.dumbbellsService.getAll();
     this.plateEntries = await this.platesService.getAll();
+    if (this.purchasesAvailable) {
+      const proPackage = await this.purchasesService.getProPackage();
+      this.proPackagePriceString = proPackage?.product.priceString ?? null;
+    }
+  }
+
+  // False in the browser and before the RevenueCat API keys are filled in
+  // (see PurchasesService.isAvailable) - Config shows the manual "Pro
+  // Version" checkbox in that case instead of the buy/restore buttons.
+  get purchasesAvailable(): boolean {
+    return this.purchasesService.isAvailable;
+  }
+
+  async purchasePro(): Promise<void> {
+    this.proActionInProgress = true;
+    this.statusMessageKey = null;
+    try {
+      await this.purchasesService.purchasePro();
+      this.isPro = this.settingsService.getSettings().isPro;
+    } catch (error) {
+      if (!(error as { userCancelled?: boolean } | undefined)?.userCancelled) {
+        this.statusMessageKey = 'config.purchaseError';
+      }
+    } finally {
+      this.proActionInProgress = false;
+    }
+  }
+
+  async restorePurchases(): Promise<void> {
+    this.proActionInProgress = true;
+    this.statusMessageKey = null;
+    try {
+      await this.purchasesService.restorePurchases();
+      this.isPro = this.settingsService.getSettings().isPro;
+      this.statusMessageKey = this.isPro ? 'config.restoreSuccess' : 'config.restoreNoPurchases';
+    } catch {
+      this.statusMessageKey = 'config.restoreError';
+    } finally {
+      this.proActionInProgress = false;
+    }
   }
 
   private currentLocalDateTime(): string {

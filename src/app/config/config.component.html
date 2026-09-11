@@ -53,9 +53,24 @@
 
     <div class="settings-form-break"></div>
 
-    <mat-checkbox [(ngModel)]="isPro" (ngModelChange)="onIsProChange()" [matTooltip]="'config.proSectionHint' | translate">
-      {{ 'config.proSectionLabel' | translate }}
-    </mat-checkbox>
+    @if (purchasesAvailable) {
+      <div class="pro-purchase-row">
+        @if (isPro) {
+          <span class="pro-active-label"><mat-icon class="label-icon">verified</mat-icon>{{ 'config.proActiveLabel' | translate }}</span>
+        } @else {
+          <button mat-stroked-button type="button" [disabled]="proActionInProgress" (click)="purchasePro()">
+            {{ 'config.buyProLabel' | translate }}{{ proPackagePriceString ? ' (' + proPackagePriceString + ')' : '' }}
+          </button>
+        }
+        <button mat-stroked-button type="button" [disabled]="proActionInProgress" (click)="restorePurchases()">
+          {{ 'config.restorePurchasesLabel' | translate }}
+        </button>
+      </div>
+    } @else {
+      <mat-checkbox [(ngModel)]="isPro" (ngModelChange)="onIsProChange()" [matTooltip]="'config.proSectionHint' | translate">
+        {{ 'config.proSectionLabel' | translate }}
+      </mat-checkbox>
+    }
   </mat-card-content>
 </mat-card>
 
