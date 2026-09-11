@@ -3560,11 +3560,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const movingToNextExercise = target.sessionExercise !== sessionExercise;
     if (mode === 'confirm') {
       await this.waitForNoPendingPopup();
+      // Which "[[section]] sets are done" phrasing to use has to follow the
+      // section that actually just finished (type, the completed set's own
+      // type) - not just the destination (target.type) - since an exercise
+      // with no working sets at all lets warm-up fall straight through to
+      // cooldown, and target.type alone can't tell that apart from the
+      // ordinary working-to-cooldown case.
       const messageKey = movingToNextExercise
         ? 'sessions.autoAdvanceToNextExerciseQuestion'
         : target.type === 'working'
           ? 'sessions.autoAdvanceToWorkingQuestion'
-          : 'sessions.autoAdvanceToCooldownQuestion';
+          : type === 'warmup'
+            ? 'sessions.autoAdvanceWarmupToCooldownQuestion'
+            : 'sessions.autoAdvanceToCooldownQuestion';
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         data: { messageKey, confirmLabelKey: 'common.yes', cancelLabelKey: 'common.no', confirmColor: 'primary' }
       });

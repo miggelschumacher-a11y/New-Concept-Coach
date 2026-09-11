@@ -437,6 +437,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'No automation',
     'sessions.autoAdvanceToWorkingQuestion': 'All warm-up sets are done. Switch to the working sets?',
     'sessions.autoAdvanceToCooldownQuestion': 'All working sets are done. Switch to the cooldown?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'All warm-up sets are done. Switch to the cooldown?',
     'sessions.autoAdvanceToNextExerciseQuestion': 'All sets here are done. Switch to the next exercise?',
     'config.linearProgressionTitle': 'Linear Progression',
     'config.linearProgressionDescription':
@@ -888,6 +889,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'Keine Automatik',
     'sessions.autoAdvanceToWorkingQuestion': 'Alle Aufwärmsätze sind erledigt. Zu den Arbeitssätzen wechseln?',
     'sessions.autoAdvanceToCooldownQuestion': 'Alle Arbeitssätze sind erledigt. Zum Cool-Down wechseln?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'Alle Aufwärmsätze sind erledigt. Zum Cool-Down wechseln?',
     'sessions.autoAdvanceToNextExerciseQuestion': 'Alle Sätze hier sind erledigt. Zur nächsten Übung wechseln?',
     'config.linearProgressionTitle': 'Lineare Progression',
     'config.linearProgressionDescription':
@@ -1339,6 +1341,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'Sin automatización',
     'sessions.autoAdvanceToWorkingQuestion': 'Todas las series de calentamiento están hechas. ¿Cambiar a las series de trabajo?',
     'sessions.autoAdvanceToCooldownQuestion': 'Todas las series de trabajo están hechas. ¿Cambiar al enfriamiento?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'Todas las series de calentamiento están hechas. ¿Cambiar al enfriamiento?',
     'sessions.autoAdvanceToNextExerciseQuestion': 'Todas las series aquí están hechas. ¿Cambiar al siguiente ejercicio?',
     'config.linearProgressionTitle': 'Progresión lineal',
     'config.linearProgressionDescription':
@@ -1790,6 +1793,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'Sem automação',
     'sessions.autoAdvanceToWorkingQuestion': 'Todas as séries de aquecimento foram concluídas. Mudar para as séries de trabalho?',
     'sessions.autoAdvanceToCooldownQuestion': 'Todas as séries de trabalho foram concluídas. Mudar para o desaquecimento?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'Todas as séries de aquecimento foram concluídas. Mudar para o desaquecimento?',
     'sessions.autoAdvanceToNextExerciseQuestion': 'Todas as séries aqui foram concluídas. Mudar para o próximo exercício?',
     'config.linearProgressionTitle': 'Progressão linear',
     'config.linearProgressionDescription':
@@ -2241,6 +2245,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'Nessuna automazione',
     'sessions.autoAdvanceToWorkingQuestion': 'Tutte le serie di riscaldamento sono completate. Passare alle serie di lavoro?',
     'sessions.autoAdvanceToCooldownQuestion': 'Tutte le serie di lavoro sono completate. Passare al defaticamento?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'Tutte le serie di riscaldamento sono completate. Passare al defaticamento?',
     'sessions.autoAdvanceToNextExerciseQuestion': "Tutte le serie qui sono completate. Passare all'esercizio successivo?",
     'config.linearProgressionTitle': 'Progressione lineare',
     'config.linearProgressionDescription':
@@ -2692,6 +2697,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'Geen automatisering',
     'sessions.autoAdvanceToWorkingQuestion': 'Alle warming-up sets zijn voltooid. Overschakelen naar de werksets?',
     'sessions.autoAdvanceToCooldownQuestion': 'Alle werksets zijn voltooid. Overschakelen naar de cooling-down?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'Alle warming-up sets zijn voltooid. Overschakelen naar de cooling-down?',
     'sessions.autoAdvanceToNextExerciseQuestion': 'Alle sets hier zijn voltooid. Overschakelen naar de volgende oefening?',
     'config.linearProgressionTitle': 'Lineaire progressie',
     'config.linearProgressionDescription':
@@ -3143,6 +3149,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'Brak automatyzacji',
     'sessions.autoAdvanceToWorkingQuestion': 'Wszystkie serie rozgrzewkowe są zakończone. Przejść do serii roboczych?',
     'sessions.autoAdvanceToCooldownQuestion': 'Wszystkie serie robocze są zakończone. Przejść do serii wyciszających?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'Wszystkie serie rozgrzewkowe są zakończone. Przejść do serii wyciszających?',
     'sessions.autoAdvanceToNextExerciseQuestion': 'Wszystkie serie tutaj są zakończone. Przejść do następnego ćwiczenia?',
     'config.linearProgressionTitle': 'Progresja liniowa',
     'config.linearProgressionDescription':
@@ -3594,6 +3601,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'Без автоматизации',
     'sessions.autoAdvanceToWorkingQuestion': 'Все разминочные подходы выполнены. Перейти к рабочим подходам?',
     'sessions.autoAdvanceToCooldownQuestion': 'Все рабочие подходы выполнены. Перейти к заминочным подходам?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'Все разминочные подходы выполнены. Перейти к заминочным подходам?',
     'sessions.autoAdvanceToNextExerciseQuestion': 'Все подходы здесь выполнены. Перейти к следующему упражнению?',
     'config.linearProgressionTitle': 'Линейная прогрессия',
     'config.linearProgressionDescription':
@@ -4045,6 +4053,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.autoAdvanceOffOption': 'Nincs automatizálás',
     'sessions.autoAdvanceToWorkingQuestion': 'Minden bemelegítő sorozat kész. Váltás a munkasorozatokra?',
     'sessions.autoAdvanceToCooldownQuestion': 'Minden munkasorozat kész. Váltás a levezető sorozatokra?',
+    'sessions.autoAdvanceWarmupToCooldownQuestion': 'Minden bemelegítő sorozat kész. Váltás a levezető sorozatokra?',
     'sessions.autoAdvanceToNextExerciseQuestion': 'Minden sorozat itt kész. Váltás a következő gyakorlatra?',
     'config.linearProgressionTitle': 'Lineáris progresszió',
     'config.linearProgressionDescription':
