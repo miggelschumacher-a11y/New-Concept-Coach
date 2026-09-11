@@ -48,7 +48,16 @@
             class="barbell-bar"
           />
           @for (plate of diagram.plates; track $index) {
-            <rect [attr.x]="plate.x" [attr.y]="plate.y" [attr.width]="plate.width" [attr.height]="plate.height" rx="1.5" class="barbell-plate">
+            <rect
+              [attr.x]="plate.x"
+              [attr.y]="plate.y"
+              [attr.width]="plate.width"
+              [attr.height]="plate.height"
+              rx="1.5"
+              class="barbell-plate"
+              [style.fill]="plate.fill"
+              [style.stroke]="plate.stroke"
+            >
               <title>{{ plate.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}</title>
             </rect>
           }
@@ -58,6 +67,7 @@
               [attr.y]="label.y"
               [attr.transform]="'rotate(-90 ' + label.x + ' ' + label.y + ')'"
               class="barbell-plate-label"
+              [style.fill]="label.fill"
             >
               {{ label.text }}
             </text>
@@ -69,9 +79,15 @@
       } @else {
         <ul class="set-equipment-plate-list">
           @for (item of plateLoadingResult.perSide; track item.weight) {
-            <li>{{ item.count }} × {{ item.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}</li>
+            <li>
+              <span class="set-equipment-plate-swatch" [style.background]="plateColorMap.get(item.weight)?.fill"></span>
+              {{ item.count }} × {{ item.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}
+            </li>
           }
         </ul>
+        @if (plateSummaryLine; as summary) {
+          <p class="set-equipment-plate-summary">{{ summary }}</p>
+        }
       }
       @if (plateLoadingResult.remainingPerSide > 0) {
         <p class="set-equipment-plate-remainder">

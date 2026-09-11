@@ -48,16 +48,14 @@
 }
 
 .barbell-plate {
-  fill: #5c6bc0;
-  stroke: #303f9f;
+  // fill/stroke are set per-plate ([style.fill]/[style.stroke]) from the
+  // weight-based color map - see SetEquipmentDialogComponent.plateColorMap.
   stroke-width: 1;
 }
 
 .barbell-plate-label {
-  // Sits on top of the plate's own fill (not the dialog background), so it
-  // needs a fixed light color rather than the theme-dependent muted-text
-  // token - white reads reliably on the plate's indigo in both themes.
-  fill: #fff;
+  // fill is set per-label ([style.fill]) to contrast with that plate's own
+  // color - see BarbellPlateLabel.fill.
   font-size: 7px;
   text-anchor: middle;
   dominant-baseline: middle;
@@ -65,7 +63,34 @@
 
 .set-equipment-plate-list {
   margin: 0.35rem 0 0;
-  padding-left: 1.25rem;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.set-equipment-plate-list li {
+  display: flex;
+  align-items: center;
+}
+
+.set-equipment-plate-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+  margin-right: 0.4rem;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  flex: none;
+}
+
+.set-equipment-plate-summary {
+  margin: 0.5rem 0 0;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(var(--app-fg-rgb), 0.12);
+  color: rgba(var(--app-fg-rgb), 0.95);
+  font-variant-numeric: tabular-nums;
 }
 
 .set-equipment-plate-empty {

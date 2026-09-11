@@ -47,6 +47,8 @@ export interface BarbellPlateRect {
   width: number;
   height: number;
   weight: number;
+  fill: string;
+  stroke: string;
 }
 
 // One label per physical plate, centered on that plate's own rect.
@@ -54,6 +56,14 @@ export interface BarbellPlateLabel {
   x: number;
   y: number;
   text: string;
+  // Contrasts with the plate's own fill (see PlateColor.isLight) - a plain
+  // white label is unreadable on a light plate like the 5 KG white disk.
+  fill: string;
+}
+
+export interface PlateColor {
+  fill: string;
+  isLight: boolean;
 }
 
 export interface BarbellDiagram {
@@ -87,6 +97,38 @@ export interface BarbellDiagram {
   styleUrl: './set-equipment-dialog.component.scss'
 })
 export class SetEquipmentDialogComponent {
+  // Real-world IPF/IWF plate color convention (KG values) - a custom
+  // inventory entry whose weight doesn't match one of these exactly falls
+  // back to FALLBACK_PLATE_COLORS instead, so it still gets a distinct
+  // color rather than none at all.
+  private static readonly STANDARD_PLATE_COLORS: ReadonlyArray<{ weight: number; color: string }> = [
+    { weight: 25, color: '#d32f2f' },
+    { weight: 20, color: '#1e88e5' },
+    { weight: 15, color: '#fbc02d' },
+    { weight: 10, color: '#43a047' },
+    { weight: 5, color: '#f5f5f5' },
+    { weight: 2.5, color: '#212121' },
+    { weight: 1.25, color: '#b0bec5' }
+  ];
+
+  // Cycled heaviest-first for any plate weight that isn't one of the
+  // standard sizes above.
+  private static readonly FALLBACK_PLATE_COLORS: ReadonlyArray<string> = [
+    '#5c6bc0',
+    '#8e24aa',
+    '#fb8c00',
+    '#00897b',
+    '#6d4c41',
+    '#c0ca33'
+  ];
+
+  private static isLightColor(hex: string): boolean {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6;
+  }
+
   weightText: string;
   // null (not undefined) so it binds cleanly to a mat-option's [value]=null
   // "none selected" row.
@@ -157,6 +199,38 @@ export class SetEquipmentDialogComponent {
     return calculatePlateLoading(target, equipment.weight, this.data.plates, this.singleSidedLoading);
   }
 
+  // One color per distinct plate weight, shared between the SVG diagram and
+  // the text list below it so the same weight always reads as the same
+  // color in both places (see STANDARD_PLATE_COLORS/FALLBACK_PLATE_COLORS).
+  get plateColorMap(): Map<number, PlateColor> {
+    const map = new Map<number, PlateColor>();
+    const weights = [...new Set(this.plateLoadingResult.perSide.map((item) => item.weight))].sort((a, b) => b - a);
+    let fallbackIndex = 0;
+    for (const weight of weights) {
+      const standard = SetEquipmentDialogComponent.STANDARD_PLATE_COLORS.find((entry) => Math.abs(entry.weight - weight) < 0.01);
+      const fill = standard?.color ?? SetEquipmentDialogComponent.FALLBACK_PLATE_COLORS[fallbackIndex++ % SetEquipmentDialogComponent.FALLBACK_PLATE_COLORS.length];
+      map.set(weight, { fill, isLight: SetEquipmentDialogComponent.isLightColor(fill) });
+    }
+    return map;
+  }
+
+  // Sanity-check line beneath the breakdown - equipment weight plus what's
+  // actually loaded (not the raw target), so it stays honest about what
+  // this really adds up to whenever a remainder is shown above.
+  get plateSummaryLine(): string | null {
+    const equipment = this.selectedEquipment;
+    const result = this.plateLoadingResult;
+    if (!equipment || result.perSide.length === 0) {
+      return null;
+    }
+    const unit = this.data.weightUnitLabel;
+    const perSideTotal = result.perSide.reduce((sum, item) => sum + item.weight * item.count, 0);
+    const sides = this.singleSidedLoading ? 1 : 2;
+    const total = equipment.weight + perSideTotal * sides;
+    const platesPart = sides === 2 ? `2 × ${perSideTotal.toFixed(2)} ${unit}` : `${perSideTotal.toFixed(2)} ${unit}`;
+    return `${equipment.name} (${equipment.weight.toFixed(2)} ${unit}) + ${platesPart} = ${total.toFixed(2)} ${unit}`;
+  }
+
   // Renders plateLoadingResult as an actual loaded barbell rather than just
   // a text list - null when there's nothing to draw (no equipment picked
   // or no plates needed), same guard the text breakdown itself uses. Only
@@ -179,13 +253,15 @@ export class SetEquipmentDialogComponent {
     // sizes across two different popups is far less useful than each one
     // correctly showing its own plates' relative sizes.
     const maxWeight = Math.max(1, ...result.perSide.map((item) => item.weight));
+    const colorMap = this.plateColorMap;
+    const fallbackColor: PlateColor = { fill: SetEquipmentDialogComponent.FALLBACK_PLATE_COLORS[0], isLight: false };
 
     const groups = [...result.perSide]
       .sort((a, b) => a.weight - b.weight)
       .map((item) => {
         const perPlateThickness =
           this.minPlateThickness + (this.maxPlateThickness - this.minPlateThickness) * Math.sqrt(item.weight / maxWeight);
-        return { weight: item.weight, count: item.count, perPlateThickness };
+        return { weight: item.weight, count: item.count, perPlateThickness, color: colorMap.get(item.weight) ?? fallbackColor };
       });
 
     // Shrinks every plate proportionally if the sleeve is too short to fit
@@ -212,10 +288,12 @@ export class SetEquipmentDialogComponent {
       // tracks what the plate actually is, even when several plates share
       // the same diameter.
       const height = this.minPlateHeight + (this.maxPlateHeight - this.minPlateHeight) * Math.sqrt(group.weight / maxWeight);
+      const stroke = group.color.isLight ? '#616161' : 'rgba(0, 0, 0, 0.35)';
+      const labelFill = group.color.isLight ? '#212121' : '#ffffff';
       for (let i = 0; i < group.count; i++) {
         const x = offset;
-        plates.push({ x, y: this.diagramCenterY - height / 2, width, height, weight: group.weight });
-        labels.push({ x: x + width / 2, y: this.diagramCenterY, text: group.weight.toFixed(2) });
+        plates.push({ x, y: this.diagramCenterY - height / 2, width, height, weight: group.weight, fill: group.color.fill, stroke });
+        labels.push({ x: x + width / 2, y: this.diagramCenterY, text: group.weight.toFixed(2), fill: labelFill });
         offset += width;
       }
     }
