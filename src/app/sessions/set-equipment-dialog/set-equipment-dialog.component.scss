@@ -53,6 +53,12 @@
   stroke-width: 1;
 }
 
+.barbell-plate-sheen {
+  // Purely decorative overlay (see the #plate-sheen gradient) - must not
+  // steal the hover that shows the base plate rect's own <title> tooltip.
+  pointer-events: none;
+}
+
 .barbell-plate-label {
   // fill is set per-label ([style.fill]) to contrast with that plate's own
   // color - see BarbellPlateLabel.fill.

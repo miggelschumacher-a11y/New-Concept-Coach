@@ -156,6 +156,9 @@ export class SetEquipmentDialogComponent {
   private readonly maxPlateHeight = 70;
   private readonly minPlateThickness = 10;
   private readonly maxPlateThickness = 22;
+  // Visible gap between adjacent physical plates, same idea as the real
+  // disks not sitting flush against each other on the bar.
+  private readonly plateGap = 2;
 
   constructor(
     public readonly dialogRef: MatDialogRef<SetEquipmentDialogComponent, SetEquipmentDialogResult | undefined>,
@@ -265,12 +268,16 @@ export class SetEquipmentDialogComponent {
       });
 
     // Shrinks every plate proportionally if the sleeve is too short to fit
-    // them at their natural thickness, rather than letting them overflow
-    // past the end of the bar.
+    // them (plus the gaps between them) at their natural thickness, rather
+    // than letting them overflow past the end of the bar.
+    const totalCount = groups.reduce((sum, group) => sum + group.count, 0);
+    const totalGapSpace = totalCount > 1 ? (totalCount - 1) * this.plateGap : 0;
+    const availableForPlates = Math.max(0, sleeveLength - totalGapSpace);
     const totalThickness = groups.reduce((sum, group) => sum + group.perPlateThickness * group.count, 0);
-    const scale = totalThickness > sleeveLength ? sleeveLength / totalThickness : 1;
+    const scale = totalThickness > availableForPlates ? availableForPlates / totalThickness : 1;
 
     let offset = this.startMargin;
+    let plateIndex = 0;
     const plates: BarbellPlateRect[] = [];
     const labels: BarbellPlateLabel[] = [];
     for (const group of groups) {
@@ -291,10 +298,14 @@ export class SetEquipmentDialogComponent {
       const stroke = group.color.isLight ? '#616161' : 'rgba(0, 0, 0, 0.35)';
       const labelFill = group.color.isLight ? '#212121' : '#ffffff';
       for (let i = 0; i < group.count; i++) {
+        if (plateIndex > 0) {
+          offset += this.plateGap;
+        }
         const x = offset;
         plates.push({ x, y: this.diagramCenterY - height / 2, width, height, weight: group.weight, fill: group.color.fill, stroke });
         labels.push({ x: x + width / 2, y: this.diagramCenterY, text: group.weight.toFixed(2), fill: labelFill });
         offset += width;
+        plateIndex++;
       }
     }
 

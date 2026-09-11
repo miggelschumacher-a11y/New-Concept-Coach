@@ -39,6 +39,21 @@
           [attr.viewBox]="'0 0 ' + diagram.width + ' ' + diagram.height"
           preserveAspectRatio="xMidYMid meet"
         >
+          <defs>
+            <!-- Shared cylindrical "sheen" overlaid on every plate regardless
+                 of its own color - objectBoundingBox (the default) scales
+                 this to each rect's own width, so one definition works for
+                 every plate's thickness. Darker at both edges and a light
+                 streak just past the left edge mimics a rounded disk seen
+                 edge-on, giving the flat fill color a 3D look. -->
+            <linearGradient id="plate-sheen" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#000000" stop-opacity="0.4" />
+              <stop offset="14%" stop-color="#ffffff" stop-opacity="0.45" />
+              <stop offset="32%" stop-color="#ffffff" stop-opacity="0" />
+              <stop offset="68%" stop-color="#000000" stop-opacity="0" />
+              <stop offset="100%" stop-color="#000000" stop-opacity="0.5" />
+            </linearGradient>
+          </defs>
           <rect
             [attr.x]="diagram.barX1"
             [attr.y]="diagram.barY"
@@ -60,6 +75,15 @@
             >
               <title>{{ plate.weight | number: '1.2-2' }} {{ data.weightUnitLabel }}</title>
             </rect>
+            <rect
+              [attr.x]="plate.x"
+              [attr.y]="plate.y"
+              [attr.width]="plate.width"
+              [attr.height]="plate.height"
+              rx="1.5"
+              class="barbell-plate-sheen"
+              fill="url(#plate-sheen)"
+            />
           }
           @for (label of diagram.labels; track $index) {
             <text
