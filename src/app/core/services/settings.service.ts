@@ -77,8 +77,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   firstRestAfterSet: 60,
   secondRestAfterSet: 60,
   restBetweenExercises: 180,
-  warmupSetsAutoAdvance: 'off',
-  workingSetsAutoAdvance: 'off'
+  warmupSetsAutoAdvance: 'confirm',
+  workingSetsAutoAdvance: 'confirm'
 };
 
 type SettingsRecord = AppSettings & { id: string };

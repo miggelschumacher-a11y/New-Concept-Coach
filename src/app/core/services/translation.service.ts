@@ -842,7 +842,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.restBetweenExercisesLabel': 'Pause zwischen den Übungen',
     'config.autoTrainingSessionTitle': 'Automatisierte Trainingseinheit',
     'config.autoTrainingSessionHint':
-      'Legt fest, was passiert, sobald alle Sätze einer Sektion abgeschlossen sind: ob automatisch zur nächsten Sektion mit offenen Sätzen gewechselt wird - notfalls auch zur nächsten Übung.',
+      'Legt fest, was passiert, sobald alle Sätze einer Sektion abgeschlossen sind: ob automatisch zur nächsten Sektion mit offenen Sätzen gewechselt wird - gegebenenfalls auch zur nächsten Übung.',
     'config.warmupSetsAutoAdvanceLabel': 'Aufwärm-Sätze',
     'config.workingSetsAutoAdvanceLabel': 'Arbeits-Sätze',
     'config.autoAdvanceImmediateOption': 'Nach dem letzten Satz sofort weiter',
