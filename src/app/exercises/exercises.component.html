@@ -205,6 +205,7 @@
                 [checked]="exercise.useAsWarmupExercise ?? false"
                 (change)="updateUseAsWarmupExercise(exercise, $event.checked)"
                 [matTooltip]="'exercises.useAsWarmupExerciseTooltip' | translate"
+                matTooltipPosition="above"
               >
                 {{ 'exercises.useAsWarmupExercise' | translate }}
               </mat-checkbox>
@@ -212,6 +213,7 @@
                 [checked]="exercise.onlyAsWarmupExercise ?? false"
                 (change)="updateOnlyAsWarmupExercise(exercise, $event.checked)"
                 [matTooltip]="'exercises.onlyAsWarmupExerciseTooltip' | translate"
+                matTooltipPosition="above"
               >
                 {{ 'exercises.onlyAsWarmupExercise' | translate }}
               </mat-checkbox>
@@ -276,6 +278,7 @@
                 [checked]="exercise.useAsCooldownExercise ?? false"
                 (change)="updateUseAsCooldownExercise(exercise, $event.checked)"
                 [matTooltip]="'exercises.useAsCooldownExerciseTooltip' | translate"
+                matTooltipPosition="above"
               >
                 {{ 'exercises.useAsCooldownExercise' | translate }}
               </mat-checkbox>
@@ -283,6 +286,7 @@
                 [checked]="exercise.onlyAsCooldownExercise ?? false"
                 (change)="updateOnlyAsCooldownExercise(exercise, $event.checked)"
                 [matTooltip]="'exercises.onlyAsCooldownExerciseTooltip' | translate"
+                matTooltipPosition="above"
               >
                 {{ 'exercises.onlyAsCooldownExercise' | translate }}
               </mat-checkbox>
