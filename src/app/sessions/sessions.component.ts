@@ -3176,7 +3176,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
       newSet.targetReps = previousSet.targetReps;
       newSet.targetRepsMax = previousSet.targetRepsMax;
       newSet.isAmrap = previousSet.isAmrap;
-    } else {
+    } else if (!(type === 'working' && sessionExercise.incrementScheme === 'REP_GOAL')) {
+      // Rep Goal System working sets are logged freely with no per-set
+      // target (see buildSessionFromPlan) - falling back to the generic
+      // default here would give an added set a target it can "fail",
+      // breaking sectionCompletionStatus/setMetTarget's total-reps-based
+      // success check for this scheme.
       newSet.targetReps = DEFAULT_TARGET_REPS;
     }
     newSet.seconds = previousSet?.seconds ?? 0;
