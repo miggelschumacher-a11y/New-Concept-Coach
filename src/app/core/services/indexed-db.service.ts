@@ -157,7 +157,15 @@ const DB_NAME = 'trainings-app-db';
 // cooldownExerciseIds (string arrays) became warmupExerciseId/
 // cooldownExerciseId (single ids). Converts any existing selection down to
 // its first entry on every stored session and training plan.
-const DB_VERSION = 63;
+// 64: fixes a bug where SessionsComponent.addSet gave a Rep Goal System
+// working set a default targetReps of 10 whenever it had no previous set to
+// copy a target from, even though those sets are meant to be logged freely
+// with no per-set target (only the total reps across all sets counts
+// against the exercise's Rep Goal). That stray target then made a
+// short-but-still-goal-clearing set read as "failed" in the UI. Strips
+// targetReps/targetRepsMax/isAmrap from every working set of a Rep Goal
+// System exercise on every stored session.
+const DB_VERSION = 64;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,
@@ -954,6 +962,42 @@ export class IndexedDbService {
                   warmupExerciseId: rest.warmupExerciseId ?? warmupExerciseIds?.[0],
                   cooldownExerciseId: rest.cooldownExerciseId ?? cooldownExerciseIds?.[0]
                 };
+              });
+              if (changed) {
+                cursor.update({ ...session, exercises });
+              }
+              cursor.continue();
+            };
+          }
+
+          if (event.oldVersion < DB_VERSION && db.objectStoreNames.contains(STORES.sessions)) {
+            // 64 above: a Rep Goal System working set is meant to carry no
+            // per-set target at all (see SessionsComponent.buildSessionFromPlan),
+            // but a fixed addSet bug could have stamped one with the generic
+            // default targetReps of 10. Strips that stray target (and its
+            // targetRepsMax/isAmrap siblings) from every working set of every
+            // Rep Goal System exercise already stored.
+            const repGoalSessionsStore = request.transaction!.objectStore(STORES.sessions);
+            repGoalSessionsStore.openCursor().onsuccess = (cursorEvent) => {
+              const cursor = (cursorEvent.target as IDBRequest<IDBCursorWithValue>).result;
+              if (!cursor) {
+                return;
+              }
+              const session = cursor.value as TrainingSession;
+              let changed = false;
+              const exercises = session.exercises.map((exercise) => {
+                if (exercise.incrementScheme !== 'REP_GOAL') {
+                  return exercise;
+                }
+                const sets = exercise.sets.map((set) => {
+                  if (set.type !== 'working' || set.targetReps === undefined) {
+                    return set;
+                  }
+                  changed = true;
+                  const { targetReps, targetRepsMax, isAmrap, ...rest } = set;
+                  return rest;
+                });
+                return { ...exercise, sets };
               });
               if (changed) {
                 cursor.update({ ...session, exercises });
