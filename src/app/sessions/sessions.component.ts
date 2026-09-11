@@ -221,6 +221,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // own proOnlyIncrementSchemes.
   private readonly proOnlyIncrementSchemes: ReadonlySet<IncrementScheme> = new Set(['DOUBLE_PROGRESSION', 'REP_GOAL', 'WAVE_PROGRESSION']);
 
+  // Schemes whose working-set target is entirely derived from tracked
+  // progression state/config rather than a flat number (see
+  // buildSessionFromPlan's per-scheme branches) - a working set added via
+  // addSet with no previous set to copy a real target from has no
+  // trustworthy value to fall back to, so it's left without one rather than
+  // stamped with the generic DEFAULT_TARGET_REPS, which would either read as
+  // a fabricated constraint (Rep Goal System, whose sets carry no per-set
+  // target at all by design) or misreport the exercise's real prescription.
+  private readonly noDefaultTargetRepsSchemes: ReadonlySet<IncrementScheme> = new Set([
+    'REP_GOAL',
+    'DOUBLE_PROGRESSION',
+    'WAVE_PROGRESSION',
+    'LINEAR_PROGRESSION'
+  ]);
+
   get isPro(): boolean {
     return this.settingsService.getSettings().isPro;
   }
@@ -3176,12 +3191,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
       newSet.targetReps = previousSet.targetReps;
       newSet.targetRepsMax = previousSet.targetRepsMax;
       newSet.isAmrap = previousSet.isAmrap;
-    } else if (!(type === 'working' && sessionExercise.incrementScheme === 'REP_GOAL')) {
-      // Rep Goal System working sets are logged freely with no per-set
-      // target (see buildSessionFromPlan) - falling back to the generic
-      // default here would give an added set a target it can "fail",
-      // breaking sectionCompletionStatus/setMetTarget's total-reps-based
-      // success check for this scheme.
+    } else if (
+      !(
+        type === 'working' &&
+        sessionExercise.incrementScheme !== undefined &&
+        this.noDefaultTargetRepsSchemes.has(sessionExercise.incrementScheme)
+      )
+    ) {
       newSet.targetReps = DEFAULT_TARGET_REPS;
     }
     newSet.seconds = previousSet?.seconds ?? 0;
