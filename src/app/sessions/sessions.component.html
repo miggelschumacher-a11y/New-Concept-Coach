@@ -989,9 +989,7 @@
                             @if (doneAttemptFieldKey === set.id) {
                               <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                             }
-                            @if (setType.value === 'warmup' || setType.value === 'cooldown') {
-                              <div class="set-exercise-label">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</div>
-                            }
+                            <div class="set-exercise-label">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</div>
                             <div class="set-row">
                               <div
                                 class="set-drag-handle"
@@ -1046,6 +1044,7 @@
                                 <mat-form-field
                                   appearance="outline"
                                   class="set-field set-field-target-reps-input"
+                                  subscriptSizing="dynamic"
                                   [matTooltip]="('sessions.targetRepsTooltip' | translate) + ' ' + ('sessions.longPressCopyHint' | translate)"
                                 >
                                   <mat-label>{{ 'sessions.targetRepsField' | translate }}</mat-label>
@@ -1069,6 +1068,7 @@
                                 appearance="outline"
                                 class="set-field"
                                 [class.set-field-reps-target]="targetRepsHint(set)"
+                                subscriptSizing="dynamic"
                                 [matTooltip]="'sessions.longPressCopyHint' | translate"
                               >
                                 <mat-label>
@@ -1096,6 +1096,7 @@
                               <mat-form-field
                                 appearance="outline"
                                 class="set-field set-field-weight"
+                                subscriptSizing="dynamic"
                                 [matTooltip]="'sessions.weightFieldTooltip' | translate"
                               >
                                 <mat-label>

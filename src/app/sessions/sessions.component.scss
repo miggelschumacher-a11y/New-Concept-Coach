@@ -471,6 +471,17 @@ mat-expansion-panel mat-checkbox {
 
 .set-fields .set-field {
   width: 3.5rem;
+  font-size: 0.85rem;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    height: 2.25rem;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 2.25rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
+  }
 }
 
 .set-fields .set-field.set-field-reps-target {
