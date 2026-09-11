@@ -1102,6 +1102,7 @@
                               <mat-form-field
                                 appearance="outline"
                                 class="set-field set-field-weight"
+                                [class.set-field-weight-wide]="set.done && setOneRepMaxPercentage(session, sessionExercise, set)"
                                 subscriptSizing="dynamic"
                                 [matTooltip]="'sessions.weightFieldTooltip' | translate"
                               >
