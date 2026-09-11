@@ -494,9 +494,12 @@ mat-expansion-panel mat-checkbox {
 }
 
 .set-fields .set-field-weight {
-  // Wide enough for the label's longest form - unit + %1RM + done-volume
-  // shown together (e.g. "KG (76%) (162.50)").
-  width: 11rem;
+  // Just wide enough for the label's longest form - unit + %1RM + done-volume
+  // shown together, "LBS  (100%)  (9999.99)" at 104px once floated. The
+  // outline's notch around a floated label is label + 9px wide and capped at
+  // the field width - 24px, so the field needs label + 33px (137px) - which
+  // also covers the widest input ("9999.99", 49px + 32px padding).
+  width: 8.75rem;
 }
 
 .set-field input {

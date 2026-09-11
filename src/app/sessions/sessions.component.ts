@@ -3455,7 +3455,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  completeSet(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
+  async completeSet(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): Promise<void> {
     if (this.isPaused(session)) {
       return;
     }
@@ -3470,7 +3470,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     set.done = true;
     this.fieldBuffers.delete(set.id);
     void this.persist(session);
-    void this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
+    await this.updateEstimatedOneRepMax(sessionExercise.exerciseId, set);
+    // Asked before the rest timer/auto-advance/finish prompts below, so it's
+    // never stacked with them and any next-weight preview they show already
+    // reflects the updated 1RM.
+    await this.maybePromptOneRepMaxUpdate(sessionExercise.exerciseId, set);
     // Judged across the whole exercise, not this one set alone - same
     // "did every working set hit its target" convention as
     // consecutiveExerciseFailures - so the toast only appears once, after
@@ -4084,6 +4088,47 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     exercise.oneRepMax = oneRepMax;
+    await this.exercisesService.update(exercise);
+  }
+
+  // A set lifted above the exercise's current effective 1RM - in practice
+  // only ever a custom 1RM, since updateEstimatedOneRepMax above has just
+  // raised the estimated one to at least this set's own estimate - offers to
+  // raise the custom 1RM to this set's estimate, so Percentage-Based sets and
+  // the %1RM labels follow what was actually lifted.
+  private async maybePromptOneRepMaxUpdate(exerciseId: string, set: ExerciseSet): Promise<void> {
+    const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
+    if (!exercise) {
+      return;
+    }
+    const oneRepMax = this.effectiveOneRepMax(exerciseId);
+    const lifted = liftedWeight(exercise, set.weight, set.doubleWeightCounting);
+    // Capped at the custom 1RM field's own input limit.
+    const newOneRepMax = Math.min(estimateOneRepMax(lifted, set.reps), 9999.99);
+    if (!oneRepMax || lifted <= oneRepMax || newOneRepMax <= oneRepMax) {
+      return;
+    }
+    await this.waitForNoPendingPopup();
+    const extraMessage = this.translationService
+      .translate('sessions.oneRepMaxExceededMessage')
+      .replace('{lifted}', lifted.toFixed(2))
+      .replace('{oneRepMax}', oneRepMax.toFixed(2))
+      .replace('{newOneRepMax}', newOneRepMax.toFixed(2))
+      .replace(/\{unit\}/g, this.weightUnitLabel);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        messageKey: 'sessions.oneRepMaxUpdateQuestion',
+        extraMessage,
+        confirmLabelKey: 'common.yes',
+        cancelLabelKey: 'common.no',
+        confirmColor: 'primary'
+      }
+    });
+    if (!(await firstValueFrom(dialogRef.afterClosed()))) {
+      return;
+    }
+    exercise.customOneRepMax = newOneRepMax;
+    exercise.useCustomOneRepMax = true;
     await this.exercisesService.update(exercise);
   }
 
