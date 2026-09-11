@@ -50,6 +50,12 @@
         {{ 'config.lightTheme' | translate }}
       </mat-checkbox>
     </div>
+
+    <div class="settings-form-break"></div>
+
+    <mat-checkbox [(ngModel)]="isPro" (ngModelChange)="onIsProChange()" [matTooltip]="'config.proSectionHint' | translate">
+      {{ 'config.proSectionLabel' | translate }}
+    </mat-checkbox>
   </mat-card-content>
 </mat-card>
 
@@ -778,12 +784,12 @@
           </div>
         </div>
       } @else {
-        <div class="data-action-group">
+        <div class="data-action-group" [matTooltip]="isPro ? '' : ('common.proRequired' | translate)">
           <button
             mat-stroked-button
             type="button"
+            [disabled]="!isPro"
             (click)="startDriveBackup()"
-            [matTooltip]="'config.driveBackupLabel' | translate"
             [attr.aria-label]="'config.driveBackupLabel' | translate"
           >
             <mat-icon>file_upload</mat-icon>
@@ -819,12 +825,12 @@
           </div>
         </div>
       } @else {
-        <div class="data-action-group">
+        <div class="data-action-group" [matTooltip]="isPro ? '' : ('common.proRequired' | translate)">
           <button
             mat-stroked-button
             type="button"
+            [disabled]="!isPro"
             (click)="startDriveRestore()"
-            [matTooltip]="'config.driveRestoreLabel' | translate"
             [attr.aria-label]="'config.driveRestoreLabel' | translate"
           >
             <mat-icon>file_download</mat-icon>

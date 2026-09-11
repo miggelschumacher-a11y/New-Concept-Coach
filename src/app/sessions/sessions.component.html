@@ -718,9 +718,15 @@
                                   (selectionChange)="updateSessionIncrementScheme(session, sessionExercise, $event.value)"
                                 >
                                   <mat-option value="NONE">None</mat-option>
-                                  <mat-option value="DOUBLE_PROGRESSION">Double Progression</mat-option>
-                                  <mat-option value="REP_GOAL">Rep Goal System</mat-option>
-                                  <mat-option value="WAVE_PROGRESSION">Wave Progression</mat-option>
+                                  <mat-option value="DOUBLE_PROGRESSION" [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
+                                    >Double Progression{{ isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
+                                  >
+                                  <mat-option value="REP_GOAL" [disabled]="isIncrementSchemeLocked('REP_GOAL')"
+                                    >Rep Goal System{{ isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : '' }}</mat-option
+                                  >
+                                  <mat-option value="WAVE_PROGRESSION" [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
+                                    >Wave Progression{{ isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
+                                  >
                                   <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
                                 </mat-select>
                               </mat-form-field>

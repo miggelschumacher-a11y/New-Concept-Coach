@@ -143,6 +143,24 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return this.settingsService.getSettings().weightUnit.toUpperCase();
   }
 
+  // Free-tier limits (see AppSettings.isPro) - own (non-default) plan count,
+  // and which increment schemes stay Pro-only. Linear Progression is exempt
+  // since it's already the app-wide default for newly added exercises.
+  private readonly ownPlanLimit = 2;
+  private readonly proOnlyIncrementSchemes: ReadonlySet<IncrementScheme> = new Set(['DOUBLE_PROGRESSION', 'REP_GOAL', 'WAVE_PROGRESSION']);
+
+  get isPro(): boolean {
+    return this.settingsService.getSettings().isPro;
+  }
+
+  get ownPlanLimitReached(): boolean {
+    return !this.isPro && this.plans.filter((plan) => !plan.isDefault).length >= this.ownPlanLimit;
+  }
+
+  isIncrementSchemeLocked(scheme: IncrementScheme): boolean {
+    return !this.isPro && this.proOnlyIncrementSchemes.has(scheme);
+  }
+
   // Shown as the 3 rest-timer override fields' own placeholders - the
   // app-wide default each falls back to when left blank (see
   // SessionsComponent.maybeShowRestPrompt's `??` reads).
@@ -438,7 +456,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async addPlan(): Promise<void> {
-    if (!this.name.trim()) {
+    if (!this.name.trim() || this.ownPlanLimitReached) {
       return;
     }
     await this.trainingPlansService.add({
@@ -490,6 +508,9 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async copyPlan(plan: TrainingPlan): Promise<void> {
+    if (this.ownPlanLimitReached) {
+      return;
+    }
     const { id: _id, isDefault: _isDefault, ...rest } = plan;
     await this.trainingPlansService.add({
       ...rest,
@@ -810,6 +831,9 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     exerciseId: string,
     incrementScheme: IncrementScheme
   ): Promise<void> {
+    if (this.isIncrementSchemeLocked(incrementScheme)) {
+      return;
+    }
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { incrementScheme });
   }
 
@@ -1297,6 +1321,9 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     exerciseId: string,
     incrementScheme: IncrementScheme
   ): Promise<void> {
+    if (this.isIncrementSchemeLocked(incrementScheme)) {
+      return;
+    }
     const config = this.planExerciseConfig(plan, exerciseId);
     const patch: Partial<PlanExerciseConfig> = { incrementScheme };
     // Global-with-override: the exercise's own rep range/mode starts as a copy

@@ -44,6 +44,13 @@ export interface AppSettings {
   // has no setting of its own.
   warmupSetsAutoAdvance: AutoAdvanceMode;
   workingSetsAutoAdvance: AutoAdvanceMode;
+  // Whether the paid tier is unlocked - gates the own-training-plan count,
+  // the three non-linear increment schemes, the plate calculator, and
+  // Google Drive backup/restore (see each feature's own isPro check). Set
+  // here directly for now via Config's own toggle; will be driven by the
+  // real purchase/restore result once the native Capacitor billing
+  // integration lands, at which point that toggle goes away.
+  isPro: boolean;
 }
 
 export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
@@ -78,7 +85,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   secondRestAfterSet: 60,
   restBetweenExercises: 180,
   warmupSetsAutoAdvance: 'confirm',
-  workingSetsAutoAdvance: 'confirm'
+  workingSetsAutoAdvance: 'confirm',
+  isPro: false
 };
 
 type SettingsRecord = AppSettings & { id: string };

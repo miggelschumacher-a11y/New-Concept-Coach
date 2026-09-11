@@ -92,6 +92,7 @@ export class ConfigComponent implements OnInit {
   restBetweenExercises: number;
   warmupSetsAutoAdvance: AutoAdvanceMode;
   workingSetsAutoAdvance: AutoAdvanceMode;
+  isPro: boolean;
   statusMessageKey: string | null = null;
   pendingDriveBackupJson: string | null = null;
   driveFileName = '';
@@ -141,6 +142,7 @@ export class ConfigComponent implements OnInit {
     this.restBetweenExercises = settings.restBetweenExercises;
     this.warmupSetsAutoAdvance = settings.warmupSetsAutoAdvance;
     this.workingSetsAutoAdvance = settings.workingSetsAutoAdvance;
+    this.isPro = settings.isPro;
   }
 
   async ngOnInit(): Promise<void> {
@@ -164,6 +166,7 @@ export class ConfigComponent implements OnInit {
     this.restBetweenExercises = settings.restBetweenExercises;
     this.warmupSetsAutoAdvance = settings.warmupSetsAutoAdvance;
     this.workingSetsAutoAdvance = settings.workingSetsAutoAdvance;
+    this.isPro = settings.isPro;
     this.bodyWeightEntries = await this.bodyWeightService.getAll();
     this.dumbbellEntries = await this.dumbbellsService.getAll();
     this.plateEntries = await this.platesService.getAll();
@@ -261,6 +264,12 @@ export class ConfigComponent implements OnInit {
 
   async onWorkingSetsAutoAdvanceChange(): Promise<void> {
     await this.settingsService.updateSettings({ workingSetsAutoAdvance: this.workingSetsAutoAdvance });
+  }
+
+  // Stand-in for the real purchase/restore result until the native
+  // Capacitor billing integration exists - see AppSettings.isPro.
+  async onIsProChange(): Promise<void> {
+    await this.settingsService.updateSettings({ isPro: this.isPro });
   }
 
   get isDarkTheme(): boolean {
@@ -367,6 +376,9 @@ export class ConfigComponent implements OnInit {
   }
 
   async startDriveBackup(): Promise<void> {
+    if (!this.isPro) {
+      return;
+    }
     const data = await this.indexedDbService.exportAll();
     this.driveFileName = `concept-coach-backup-${new Date().toISOString().slice(0, 10)}.json`;
     this.pendingDriveBackupJson = JSON.stringify(data, null, 2);
@@ -397,6 +409,9 @@ export class ConfigComponent implements OnInit {
   }
 
   async startDriveRestore(): Promise<void> {
+    if (!this.isPro) {
+      return;
+    }
     // Requested directly inside this click handler, still tied to the user
     // gesture, so the Google sign-in popup doesn't get blocked.
     this.statusMessageKey = 'config.driveConnecting';

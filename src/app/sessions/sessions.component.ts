@@ -215,6 +215,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.settingsService.getSettings().weightUnit.toUpperCase();
   }
 
+  // Free-tier gate (see AppSettings.isPro) - which increment schemes stay
+  // Pro-only. Linear Progression is exempt since it's already the app-wide
+  // default for newly added exercises. Same set as TrainingPlansComponent's
+  // own proOnlyIncrementSchemes.
+  private readonly proOnlyIncrementSchemes: ReadonlySet<IncrementScheme> = new Set(['DOUBLE_PROGRESSION', 'REP_GOAL', 'WAVE_PROGRESSION']);
+
+  get isPro(): boolean {
+    return this.settingsService.getSettings().isPro;
+  }
+
+  isIncrementSchemeLocked(scheme: IncrementScheme): boolean {
+    return !this.isPro && this.proOnlyIncrementSchemes.has(scheme);
+  }
+
   // Shown as the 3 rest-timer override fields' own placeholders - the
   // app-wide default each one falls back to when this exercise leaves it
   // blank (see maybeShowRestPrompt's `??` reads).
@@ -600,6 +614,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sessionExercise: SessionExercise,
     set: ExerciseSet
   ): Promise<void> {
+    if (!this.isPro) {
+      this.snackBar.open(this.translationService.translate('sessions.proRequiredForEquipmentDialog'), undefined, { duration: 3000 });
+      return;
+    }
     const exercise = this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId);
     const data: SetEquipmentDialogData = {
       weightText: this.fieldBuffer(set, session, sessionExercise).weight,
@@ -2976,6 +2994,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sessionExercise: SessionExercise,
     incrementScheme: IncrementScheme
   ): Promise<void> {
+    if (this.isIncrementSchemeLocked(incrementScheme)) {
+      return;
+    }
     sessionExercise.incrementScheme = incrementScheme;
     await this.persist(session);
   }
