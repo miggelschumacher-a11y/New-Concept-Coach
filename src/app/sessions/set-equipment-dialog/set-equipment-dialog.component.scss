@@ -77,11 +77,13 @@
   margin: 0.35rem 0 0;
   color: #ff8a80;
   font-size: 0.85rem;
-  // Some locales' translation embeds a literal \n at a specific character
-  // offset to force a deliberate line break there instead of leaving it to
-  // the browser's own (font/width-dependent) wrap point - pre-line renders
-  // that break while still wrapping the rest of the text normally.
-  white-space: pre-line;
+}
+
+// Keeps "(3.50 KG)" from being split across a line break wherever the
+// sentence in front of it happens to wrap, without needing a wider popup or
+// a forced break of its own.
+.set-equipment-plate-remainder-amount {
+  white-space: nowrap;
 }
 
 .set-equipment-actions {

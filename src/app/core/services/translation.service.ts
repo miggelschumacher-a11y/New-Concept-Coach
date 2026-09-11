@@ -725,7 +725,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.setEquipmentNone': 'Keine',
     'sessions.setEquipmentPlateBreakdownLabel': 'Scheiben pro Seite',
     'sessions.setEquipmentNoPlatesNeeded': 'Keine Scheiben nötig',
-    'sessions.setEquipmentPlateRemainderHint': 'Zielgewicht kann mit den vorhandenen Scheiben\nnicht exakt erreicht werden',
+    'sessions.setEquipmentPlateRemainderHint': 'Zielgewicht kann mit den vorhandenen Scheiben nicht exakt erreicht werden',
     'sessions.setEquipmentSave': 'Speichern',
     'sessions.setEquipmentSingleSided': 'Gewicht nur auf einer Seite',
     'sessions.setEquipmentSingleSidedTooltip':

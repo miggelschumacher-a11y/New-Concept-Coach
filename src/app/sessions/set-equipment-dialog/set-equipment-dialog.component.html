@@ -75,8 +75,10 @@
       }
       @if (plateLoadingResult.remainingPerSide > 0) {
         <p class="set-equipment-plate-remainder">
-          {{ 'sessions.setEquipmentPlateRemainderHint' | translate }}<br />
-          ({{ plateLoadingResult.remainingPerSide | number: '1.2-2' }} {{ data.weightUnitLabel }})
+          {{ 'sessions.setEquipmentPlateRemainderHint' | translate }}
+          <span class="set-equipment-plate-remainder-amount"
+            >({{ plateLoadingResult.remainingPerSide | number: '1.2-2' }} {{ data.weightUnitLabel }})</span
+          >
         </p>
       }
     </div>
