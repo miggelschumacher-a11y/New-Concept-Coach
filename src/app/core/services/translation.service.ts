@@ -87,9 +87,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Count Weight Double',
     'exercises.doubleWeightCountingTooltip': "Counts this exercise's lifted weight twice for 1RM estimation and progress charts, since the set weight is entered per side.",
     'exercises.warmupRampLabel': 'Warm-up',
-    'exercises.warmupRampTooltip': "Percentages of the working weight used to auto-generate this exercise's warm-up sets whenever a training plan doesn't configure its own.",
+    'exercises.warmupRampTooltip':
+      "Percentages of the working weight used to auto-generate this exercise's warm-up sets - in training sessions and plans alike, whenever one doesn't already have its own warm-up sets.",
     'exercises.cooldownRampLabel': 'Cooldown',
-    'exercises.cooldownRampTooltip': "Percentages of the working weight used to auto-generate this exercise's cooldown sets whenever a training plan doesn't configure its own.",
+    'exercises.cooldownRampTooltip':
+      "Percentages of the working weight used to auto-generate this exercise's cooldown sets - in training sessions and plans alike, whenever one doesn't already have its own cooldown sets.",
     'exercises.useAsWarmupExercise': 'Also usable as a warm-up exercise',
     'exercises.onlyAsWarmupExercise': 'Only usable as a warm-up exercise',
     'exercises.useAsCooldownExercise': 'Also usable as a cooldown exercise',
@@ -517,9 +519,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Gewicht doppelt zählen',
     'exercises.doubleWeightCountingTooltip': 'Zählt das gehobene Gewicht dieser Übung für die 1RM-Schätzung und den Fortschritts-Chart doppelt, da das Satzgewicht pro Seite eingegeben wird.',
     'exercises.warmupRampLabel': 'Aufwärmen',
-    'exercises.warmupRampTooltip': 'Prozentsätze vom Arbeitsgewicht, mit denen die Aufwärmsätze dieser Übung automatisch erzeugt werden, sofern ein Trainingsplan keine eigenen konfiguriert.',
+    'exercises.warmupRampTooltip':
+      'Prozentsätze vom Arbeitsgewicht, mit denen die Aufwärmsätze dieser Übung automatisch erzeugt werden - in Trainingseinheiten und Trainingsplänen, sofern dort noch keine eigenen Aufwärmsätze angelegt sind.',
     'exercises.cooldownRampLabel': 'Cooldown',
-    'exercises.cooldownRampTooltip': 'Prozentsätze vom Arbeitsgewicht, mit denen die Cooldown-Sätze dieser Übung automatisch erzeugt werden, sofern ein Trainingsplan keine eigenen konfiguriert.',
+    'exercises.cooldownRampTooltip':
+      'Prozentsätze vom Arbeitsgewicht, mit denen die Cooldown-Sätze dieser Übung automatisch erzeugt werden - in Trainingseinheiten und Trainingsplänen, sofern dort noch keine eigenen Cooldown-Sätze angelegt sind.',
     'exercises.useAsWarmupExercise': 'Auch als Aufwärmübung nehmen',
     'exercises.onlyAsWarmupExercise': 'Nur als Aufwärmübung nehmen',
     'exercises.useAsCooldownExercise': 'Auch als Cooldown-Übung nehmen',
@@ -949,9 +953,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Contar peso doble',
     'exercises.doubleWeightCountingTooltip': 'Cuenta el peso levantado de este ejercicio el doble para la estimación de 1RM y el gráfico de progreso, ya que el peso de la serie se introduce por lado.',
     'exercises.warmupRampLabel': 'Calentamiento',
-    'exercises.warmupRampTooltip': 'Porcentajes del peso de trabajo usados para generar automáticamente las series de calentamiento de este ejercicio cuando un plan de entrenamiento no configura las suyas propias.',
+    'exercises.warmupRampTooltip':
+      'Porcentajes del peso de trabajo usados para generar automáticamente las series de calentamiento de este ejercicio - tanto en sesiones de entrenamiento como en planes, siempre que aún no tengan sus propias series de calentamiento.',
     'exercises.cooldownRampLabel': 'Enfriamiento',
-    'exercises.cooldownRampTooltip': 'Porcentajes del peso de trabajo usados para generar automáticamente las series de enfriamiento de este ejercicio cuando un plan de entrenamiento no configura las suyas propias.',
+    'exercises.cooldownRampTooltip':
+      'Porcentajes del peso de trabajo usados para generar automáticamente las series de enfriamiento de este ejercicio - tanto en sesiones de entrenamiento como en planes, siempre que aún no tengan sus propias series de enfriamiento.',
     'exercises.useAsWarmupExercise': 'También utilizable como ejercicio de calentamiento',
     'exercises.onlyAsWarmupExercise': 'Solo utilizable como ejercicio de calentamiento',
     'exercises.useAsCooldownExercise': 'También utilizable como ejercicio de enfriamiento',
@@ -1381,9 +1387,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Contar peso em dobro',
     'exercises.doubleWeightCountingTooltip': 'Conta o peso levantado deste exercício em dobro para a estimativa de 1RM e o gráfico de progresso, já que o peso da série é inserido por lado.',
     'exercises.warmupRampLabel': 'Aquecimento',
-    'exercises.warmupRampTooltip': 'Percentagens do peso de trabalho usadas para gerar automaticamente as séries de aquecimento deste exercício sempre que um plano de treino não configura as suas próprias.',
+    'exercises.warmupRampTooltip':
+      'Percentagens do peso de trabalho usadas para gerar automaticamente as séries de aquecimento deste exercício - tanto em sessões de treino como em planos, sempre que ainda não tenham as suas próprias séries de aquecimento.',
     'exercises.cooldownRampLabel': 'Desaquecimento',
-    'exercises.cooldownRampTooltip': 'Percentagens do peso de trabalho usadas para gerar automaticamente as séries de desaquecimento deste exercício sempre que um plano de treino não configura as suas próprias.',
+    'exercises.cooldownRampTooltip':
+      'Percentagens do peso de trabalho usadas para gerar automaticamente as séries de desaquecimento deste exercício - tanto em sessões de treino como em planos, sempre que ainda não tenham as suas próprias séries de desaquecimento.',
     'exercises.useAsWarmupExercise': 'Também utilizável como exercício de aquecimento',
     'exercises.onlyAsWarmupExercise': 'Apenas utilizável como exercício de aquecimento',
     'exercises.useAsCooldownExercise': 'Também utilizável como exercício de desaquecimento',
@@ -1813,9 +1821,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Conta il peso doppio',
     'exercises.doubleWeightCountingTooltip': "Conta il peso sollevato di questo esercizio doppio per la stima dell'1RM e il grafico dei progressi, poiché il peso della serie viene inserito per lato.",
     'exercises.warmupRampLabel': 'Riscaldamento',
-    'exercises.warmupRampTooltip': 'Percentuali del peso di lavoro usate per generare automaticamente le serie di riscaldamento di questo esercizio quando un piano di allenamento non ne configura di proprie.',
+    'exercises.warmupRampTooltip':
+      'Percentuali del peso di lavoro usate per generare automaticamente le serie di riscaldamento di questo esercizio - sia nelle sessioni di allenamento che nei piani, quando non hanno ancora serie di riscaldamento proprie.',
     'exercises.cooldownRampLabel': 'Defaticamento',
-    'exercises.cooldownRampTooltip': 'Percentuali del peso di lavoro usate per generare automaticamente le serie di defaticamento di questo esercizio quando un piano di allenamento non ne configura di proprie.',
+    'exercises.cooldownRampTooltip':
+      'Percentuali del peso di lavoro usate per generare automaticamente le serie di defaticamento di questo esercizio - sia nelle sessioni di allenamento che nei piani, quando non hanno ancora serie di defaticamento proprie.',
     'exercises.useAsWarmupExercise': 'Utilizzabile anche come esercizio di riscaldamento',
     'exercises.onlyAsWarmupExercise': 'Utilizzabile solo come esercizio di riscaldamento',
     'exercises.useAsCooldownExercise': 'Utilizzabile anche come esercizio di defaticamento',
@@ -2245,9 +2255,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Gewicht dubbel tellen',
     'exercises.doubleWeightCountingTooltip': 'Telt het getilde gewicht van deze oefening dubbel voor de 1RM-schatting en de voortgangsgrafiek, omdat het gewicht per set per kant wordt ingevoerd.',
     'exercises.warmupRampLabel': 'Warming-up',
-    'exercises.warmupRampTooltip': 'Percentages van het werkgewicht waarmee de opwarmsets van deze oefening automatisch worden gegenereerd wanneer een trainingsschema geen eigen sets configureert.',
+    'exercises.warmupRampTooltip':
+      'Percentages van het werkgewicht waarmee de opwarmsets van deze oefening automatisch worden gegenereerd - zowel in trainingssessies als in schema\'s, zolang die nog geen eigen opwarmsets hebben.',
     'exercises.cooldownRampLabel': 'Cooling-down',
-    'exercises.cooldownRampTooltip': 'Percentages van het werkgewicht waarmee de cooling-downsets van deze oefening automatisch worden gegenereerd wanneer een trainingsschema geen eigen sets configureert.',
+    'exercises.cooldownRampTooltip':
+      'Percentages van het werkgewicht waarmee de cooling-downsets van deze oefening automatisch worden gegenereerd - zowel in trainingssessies als in schema\'s, zolang die nog geen eigen cooling-downsets hebben.',
     'exercises.useAsWarmupExercise': 'Ook bruikbaar als warming-up-oefening',
     'exercises.onlyAsWarmupExercise': 'Alleen bruikbaar als warming-up-oefening',
     'exercises.useAsCooldownExercise': 'Ook bruikbaar als cooling-down-oefening',
@@ -2677,9 +2689,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Licz ciężar podwójnie',
     'exercises.doubleWeightCountingTooltip': 'Liczy podniesiony ciężar tego ćwiczenia podwójnie na potrzeby szacowania 1RM i wykresu postępów, ponieważ ciężar serii podawany jest na jedną stronę.',
     'exercises.warmupRampLabel': 'Rozgrzewka',
-    'exercises.warmupRampTooltip': 'Procenty ciężaru roboczego używane do automatycznego generowania serii rozgrzewkowych tego ćwiczenia, gdy plan treningowy nie konfiguruje własnych.',
+    'exercises.warmupRampTooltip':
+      'Procenty ciężaru roboczego używane do automatycznego generowania serii rozgrzewkowych tego ćwiczenia - zarówno w jednostkach treningowych, jak i w planach, o ile nie mają jeszcze własnych serii rozgrzewkowych.',
     'exercises.cooldownRampLabel': 'Wyciszenie',
-    'exercises.cooldownRampTooltip': 'Procenty ciężaru roboczego używane do automatycznego generowania serii wyciszających tego ćwiczenia, gdy plan treningowy nie konfiguruje własnych.',
+    'exercises.cooldownRampTooltip':
+      'Procenty ciężaru roboczego używane do automatycznego generowania serii wyciszających tego ćwiczenia - zarówno w jednostkach treningowych, jak i w planach, o ile nie mają jeszcze własnych serii wyciszających.',
     'exercises.useAsWarmupExercise': 'Można też użyć jako ćwiczenie rozgrzewkowe',
     'exercises.onlyAsWarmupExercise': 'Można użyć tylko jako ćwiczenie rozgrzewkowe',
     'exercises.useAsCooldownExercise': 'Można też użyć jako ćwiczenie wyciszające',
@@ -3109,9 +3123,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Считать вес вдвойне',
     'exercises.doubleWeightCountingTooltip': 'Учитывает поднятый вес этого упражнения вдвое при оценке 1ПМ и на графике прогресса, так как вес подхода вводится на одну сторону.',
     'exercises.warmupRampLabel': 'Разминка',
-    'exercises.warmupRampTooltip': 'Проценты от рабочего веса, используемые для автоматической генерации разминочных подходов этого упражнения, если план тренировок не задаёт собственные.',
+    'exercises.warmupRampTooltip':
+      'Проценты от рабочего веса, используемые для автоматической генерации разминочных подходов этого упражнения - как в тренировках, так и в планах тренировок, если там ещё нет собственных разминочных подходов.',
     'exercises.cooldownRampLabel': 'Заминка',
-    'exercises.cooldownRampTooltip': 'Проценты от рабочего веса, используемые для автоматической генерации заминочных подходов этого упражнения, если план тренировок не задаёт собственные.',
+    'exercises.cooldownRampTooltip':
+      'Проценты от рабочего веса, используемые для автоматической генерации заминочных подходов этого упражнения - как в тренировках, так и в планах тренировок, если там ещё нет собственных заминочных подходов.',
     'exercises.useAsWarmupExercise': 'Также можно использовать как разминочное упражнение',
     'exercises.onlyAsWarmupExercise': 'Можно использовать только как разминочное упражнение',
     'exercises.useAsCooldownExercise': 'Также можно использовать как заминочное упражнение',
@@ -3541,9 +3557,11 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.doubleWeightCounting': 'Súly duplán számítása',
     'exercises.doubleWeightCountingTooltip': 'Duplán számítja el ennek a gyakorlatnak az emelt súlyát az 1RM becsléséhez és a fejlődési grafikonhoz, mivel a szett súlya csak az egyik oldalra van megadva.',
     'exercises.warmupRampLabel': 'Bemelegítés',
-    'exercises.warmupRampTooltip': 'A munkasúly százalékai, amelyekkel a gyakorlat bemelegítő szettjei automatikusan létrejönnek, ha az edzésterv nem állít be sajátokat.',
+    'exercises.warmupRampTooltip':
+      'A munkasúly százalékai, amelyekkel a gyakorlat bemelegítő szettjei automatikusan létrejönnek - edzéseknél és edzésterveknél egyaránt, amíg azoknak még nincs saját bemelegítő szettjük.',
     'exercises.cooldownRampLabel': 'Levezetés',
-    'exercises.cooldownRampTooltip': 'A munkasúly százalékai, amelyekkel a gyakorlat levezető szettjei automatikusan létrejönnek, ha az edzésterv nem állít be sajátokat.',
+    'exercises.cooldownRampTooltip':
+      'A munkasúly százalékai, amelyekkel a gyakorlat levezető szettjei automatikusan létrejönnek - edzéseknél és edzésterveknél egyaránt, amíg azoknak még nincs saját levezető szettjük.',
     'exercises.useAsWarmupExercise': 'Bemelegítő gyakorlatként is használható',
     'exercises.onlyAsWarmupExercise': 'Csak bemelegítő gyakorlatként használható',
     'exercises.useAsCooldownExercise': 'Levezető gyakorlatként is használható',
