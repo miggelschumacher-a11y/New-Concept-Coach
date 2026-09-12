@@ -427,7 +427,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1st rest',
     'config.firstRestAfterSetTooltip': 'Wait time between sets, until the first reminder',
     'config.secondRestAfterSetLabel': '2nd rest',
-    'config.secondRestAfterSetTooltip': 'Additional wait time between sets, until the second reminder',
+    'config.secondRestAfterSetTooltip': 'Wait time between sets, until the second reminder',
     'config.restBetweenExercisesLabel': 'Rest between exercises',
     'config.autoTrainingSessionTitle': 'Automated Training Session',
     'config.autoTrainingSessionHint':
@@ -881,7 +881,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1. Pause',
     'config.firstRestAfterSetTooltip': 'Wartezeit zwischen den Sätzen bis zur ersten Erinnerung',
     'config.secondRestAfterSetLabel': '2. Pause',
-    'config.secondRestAfterSetTooltip': 'Zusätzliche Wartezeit zwischen den Sätzen bis zur zweiten Erinnerung',
+    'config.secondRestAfterSetTooltip': 'Wartezeit zwischen den Sätzen bis zur zweiten Erinnerung',
     'config.restBetweenExercisesLabel': 'Pause zwischen den Übungen',
     'config.autoTrainingSessionTitle': 'Automatisierte Trainingseinheit',
     'config.autoTrainingSessionHint':
@@ -1335,7 +1335,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1.ª pausa',
     'config.firstRestAfterSetTooltip': 'Tiempo de espera entre series hasta el primer aviso',
     'config.secondRestAfterSetLabel': '2.ª pausa',
-    'config.secondRestAfterSetTooltip': 'Tiempo de espera adicional entre series hasta el segundo aviso',
+    'config.secondRestAfterSetTooltip': 'Tiempo de espera entre series hasta el segundo aviso',
     'config.restBetweenExercisesLabel': 'Descanso entre ejercicios',
     'config.autoTrainingSessionTitle': 'Sesión de entrenamiento automatizada',
     'config.autoTrainingSessionHint':
@@ -1789,7 +1789,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1.ª pausa',
     'config.firstRestAfterSetTooltip': 'Tempo de espera entre séries até o primeiro aviso',
     'config.secondRestAfterSetLabel': '2.ª pausa',
-    'config.secondRestAfterSetTooltip': 'Tempo de espera adicional entre séries até o segundo aviso',
+    'config.secondRestAfterSetTooltip': 'Tempo de espera entre séries até o segundo aviso',
     'config.restBetweenExercisesLabel': 'Pausa entre exercícios',
     'config.autoTrainingSessionTitle': 'Sessão de treino automatizada',
     'config.autoTrainingSessionHint':
@@ -2243,7 +2243,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1ª pausa',
     'config.firstRestAfterSetTooltip': 'Tempo di attesa tra le serie fino al primo avviso',
     'config.secondRestAfterSetLabel': '2ª pausa',
-    'config.secondRestAfterSetTooltip': 'Tempo di attesa aggiuntivo tra le serie fino al secondo avviso',
+    'config.secondRestAfterSetTooltip': 'Tempo di attesa tra le serie fino al secondo avviso',
     'config.restBetweenExercisesLabel': 'Pausa tra gli esercizi',
     'config.autoTrainingSessionTitle': 'Sessione di allenamento automatizzata',
     'config.autoTrainingSessionHint':
@@ -2697,7 +2697,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1e pauze',
     'config.firstRestAfterSetTooltip': 'Wachttijd tussen sets tot de eerste melding',
     'config.secondRestAfterSetLabel': '2e pauze',
-    'config.secondRestAfterSetTooltip': 'Extra wachttijd tussen sets tot de tweede melding',
+    'config.secondRestAfterSetTooltip': 'Wachttijd tussen sets tot de tweede melding',
     'config.restBetweenExercisesLabel': 'Pauze tussen oefeningen',
     'config.autoTrainingSessionTitle': 'Geautomatiseerde trainingssessie',
     'config.autoTrainingSessionHint':
@@ -3151,7 +3151,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1. przerwa',
     'config.firstRestAfterSetTooltip': 'Czas oczekiwania między seriami do pierwszego przypomnienia',
     'config.secondRestAfterSetLabel': '2. przerwa',
-    'config.secondRestAfterSetTooltip': 'Dodatkowy czas oczekiwania między seriami do drugiego przypomnienia',
+    'config.secondRestAfterSetTooltip': 'Czas oczekiwania między seriami do drugiego przypomnienia',
     'config.restBetweenExercisesLabel': 'Przerwa między ćwiczeniami',
     'config.autoTrainingSessionTitle': 'Zautomatyzowana jednostka treningowa',
     'config.autoTrainingSessionHint':
@@ -3605,7 +3605,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1-я пауза',
     'config.firstRestAfterSetTooltip': 'Время ожидания между подходами до первого напоминания',
     'config.secondRestAfterSetLabel': '2-я пауза',
-    'config.secondRestAfterSetTooltip': 'Дополнительное время ожидания между подходами до второго напоминания',
+    'config.secondRestAfterSetTooltip': 'Время ожидания между подходами до второго напоминания',
     'config.restBetweenExercisesLabel': 'Пауза между упражнениями',
     'config.autoTrainingSessionTitle': 'Автоматизированная тренировка',
     'config.autoTrainingSessionHint':
@@ -4059,7 +4059,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'config.firstRestAfterSetLabel': '1. szünet',
     'config.firstRestAfterSetTooltip': 'Várakozási idő a sorozatok között az első emlékeztetőig',
     'config.secondRestAfterSetLabel': '2. szünet',
-    'config.secondRestAfterSetTooltip': 'További várakozási idő a sorozatok között a második emlékeztetőig',
+    'config.secondRestAfterSetTooltip': 'Várakozási idő a sorozatok között a második emlékeztetőig',
     'config.restBetweenExercisesLabel': 'Szünet a gyakorlatok között',
     'config.autoTrainingSessionTitle': 'Automatizált edzés',
     'config.autoTrainingSessionHint':

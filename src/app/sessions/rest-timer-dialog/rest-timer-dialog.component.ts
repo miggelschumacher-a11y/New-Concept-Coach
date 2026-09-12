@@ -100,29 +100,35 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  // The ring fills from 0 to 1 across the current phase - 0..firstThreshold
-  // before the first gong, then firstThreshold..secondThreshold after it (if
-  // a second threshold is set at all). Once the current phase's target is
-  // reached the ring just stays full rather than resetting, since a
-  // single-threshold timer (the between-exercises case) never gets a second
-  // phase and there's nothing further to count down to once both gongs have
-  // played.
+  // The two thresholds are independent durations from the same start (see
+  // openBetweenSetsRestTimer) - either can be the smaller one - so the ring's
+  // phase boundaries are just those two values in ascending order, not
+  // assumed to already be first-then-second. The ring fills from 0 to 1
+  // across the current phase (the gap between whichever boundary was most
+  // recently passed and the next one still ahead), and stays full once
+  // elapsed has passed every boundary - a single-threshold timer (the
+  // between-exercises case) only ever has one boundary to reach.
   get ringDashOffset(): number {
-    const target = this.currentPhaseTarget();
-    const start = this.currentPhaseStart();
+    const boundaries = this.phaseBoundaries();
+    let start = boundaries[boundaries.length - 1];
+    let target = start;
+    for (let i = 0; i < boundaries.length - 1; i++) {
+      if (this.elapsedSeconds < boundaries[i + 1]) {
+        start = boundaries[i];
+        target = boundaries[i + 1];
+        break;
+      }
+    }
     const fraction = target > start ? Math.min(1, Math.max(0, (this.elapsedSeconds - start) / (target - start))) : 1;
     return this.ringCircumference * (1 - fraction);
   }
 
-  private currentPhaseStart(): number {
-    return this.isInSecondPhase() ? this.data.firstThresholdSeconds : 0;
-  }
-
-  private currentPhaseTarget(): number {
-    return this.isInSecondPhase() ? (this.data.secondThresholdSeconds as number) : this.data.firstThresholdSeconds;
-  }
-
-  private isInSecondPhase(): boolean {
-    return this.data.secondThresholdSeconds !== undefined && this.elapsedSeconds >= this.data.firstThresholdSeconds;
+  private phaseBoundaries(): number[] {
+    const thresholds = [this.data.firstThresholdSeconds];
+    if (this.data.secondThresholdSeconds !== undefined) {
+      thresholds.push(this.data.secondThresholdSeconds);
+    }
+    thresholds.sort((a, b) => a - b);
+    return [0, ...thresholds];
   }
 }
