@@ -640,13 +640,14 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
           cooldownSetTargets: cooldownRamp?.length ? calculateWarmupSets(0, cooldownRamp, weightUnit) : undefined,
           showCooldownSets: cooldownRamp?.length ? true : undefined,
           incrementScheme: DEFAULT_INCREMENT_SCHEME,
-          weightIncrement: DEFAULT_WEIGHT_INCREMENT,
-          // A freshly added exercise starts with its own copy of the Config
-          // page's current "Pausen" defaults - same "snapshot at creation
-          // time" convention as incrementScheme/weightIncrement above.
-          firstRestAfterSet: settings.firstRestAfterSet,
-          secondRestAfterSet: settings.secondRestAfterSet,
-          restBetweenExercises: settings.restBetweenExercises
+          weightIncrement: DEFAULT_WEIGHT_INCREMENT
+          // firstRestAfterSet/secondRestAfterSet/restBetweenExercises are
+          // left unset here - same "unset means use the app-wide default"
+          // contract as firstRestAfterSetDisplay/PlanExerciseConfig's own
+          // fields of the same name - so a later change to the Config
+          // page's "Pausen" defaults still applies to this exercise's rest
+          // prompts, instead of freezing it to whatever the setting was
+          // when the exercise was added.
         };
       });
       return { ...candidate, exerciseIds, exercises: sessionExercises };
