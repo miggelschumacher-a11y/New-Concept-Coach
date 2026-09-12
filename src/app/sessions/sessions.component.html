@@ -987,11 +987,11 @@
                         class="set-list"
                         cdkDropList
                         [cdkDropListData]="setsByType(sessionExercise, setType.value)"
-                        [cdkDropListDisabled]="!canEditExerciseTypeInSession(session)"
+                        [cdkDropListDisabled]="isPaused(session)"
                         (cdkDropListDropped)="dropSet(session, sessionExercise, setType.value, $event)"
                       >
                         @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
-                          <div class="set-item" cdkDrag [cdkDragDisabled]="!canEditExerciseTypeInSession(session)">
+                          <div class="set-item" cdkDrag [cdkDragDisabled]="isPaused(session)">
                             @if (doneAttemptFieldKey === set.id) {
                               <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                             }
