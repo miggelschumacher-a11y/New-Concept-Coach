@@ -413,25 +413,19 @@ mat-expansion-panel mat-checkbox {
   transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
 }
 
+// Back in .set-row (not the exercise-name row above) at its original full
+// size - shrinking it down to that row's small font broke dragging in
+// practice, so only the set number/delete/type-icon moved up there, not
+// this.
 .set-drag-handle {
   display: flex;
+  flex-direction: column;
   align-items: center;
   flex: 0 0 auto;
+  padding: 0 0.25rem;
   color: rgba(var(--app-fg-rgb), 0.5);
   cursor: grab;
   touch-action: none;
-  // Real (not negative-margin-canceled) padding, so the grabbable box
-  // doesn't visually overlap the next icon in the row and steal its pointer
-  // events - widens the actual grabbable area past the small visible glyph,
-  // since a drag gesture needs to land squarely on it to start, unlike a
-  // plain click/tap.
-  padding: 0.3rem;
-
-  mat-icon {
-    font-size: 0.9rem;
-    height: 0.9rem;
-    width: 0.9rem;
-  }
 }
 
 .set-row {
@@ -455,7 +449,7 @@ mat-expansion-panel mat-checkbox {
   padding: 0;
   // The button's own box sits a bit lower than the plain text/icons beside
   // it in this row even with align-items: center, so nudge it up to match.
-  margin-top: -0.15rem;
+  margin-top: -0.35rem;
 
   mat-icon {
     font-size: 0.9rem;

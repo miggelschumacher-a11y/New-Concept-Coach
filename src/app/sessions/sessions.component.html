@@ -996,14 +996,6 @@
                               <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                             }
                             <div class="set-exercise-label">
-                              <div
-                                class="set-drag-handle"
-                                cdkDragHandle
-                                [matTooltip]="'sessions.dragToReorder' | translate"
-                                [attr.aria-label]="'sessions.dragToReorder' | translate"
-                              >
-                                <mat-icon>drag_indicator</mat-icon>
-                              </div>
                               @if (pendingDeleteSetId === set.id) {
                               <div class="confirm-dialog">
                                 <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
@@ -1044,6 +1036,14 @@
                               <span class="set-exercise-name">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</span>
                             </div>
                             <div class="set-row">
+                              <div
+                                class="set-drag-handle"
+                                cdkDragHandle
+                                [matTooltip]="'sessions.dragToReorder' | translate"
+                                [attr.aria-label]="'sessions.dragToReorder' | translate"
+                              >
+                                <mat-icon>drag_indicator</mat-icon>
+                              </div>
                           <div class="set-fields">
                             @if (sessionExerciseTypeDisplay(sessionExercise) !== 'TIME_BASED') {
                               @if (canEditExerciseTypeInSession(session)) {
