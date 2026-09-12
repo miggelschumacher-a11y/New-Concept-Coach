@@ -1004,7 +1004,6 @@
                               >
                                 <mat-icon>drag_indicator</mat-icon>
                               </div>
-                              <span class="set-index">#{{ i + 1 }}</span>
                               @if (pendingDeleteSetId === set.id) {
                               <div class="confirm-dialog">
                                 <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
@@ -1040,6 +1039,7 @@
                                 <mat-icon>delete</mat-icon>
                               </button>
                             }
+                              <span class="set-index">#{{ i + 1 }}</span>
                               <mat-icon class="set-type-icon" [matTooltip]="setType.labelKey | translate">{{ setType.icon }}</mat-icon>
                               <span class="set-exercise-name">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</span>
                             </div>

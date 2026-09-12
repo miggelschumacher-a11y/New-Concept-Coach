@@ -420,6 +420,12 @@ mat-expansion-panel mat-checkbox {
   color: rgba(var(--app-fg-rgb), 0.5);
   cursor: grab;
   touch-action: none;
+  // Real (not negative-margin-canceled) padding, so the grabbable box
+  // doesn't visually overlap the next icon in the row and steal its pointer
+  // events - widens the actual grabbable area past the small visible glyph,
+  // since a drag gesture needs to land squarely on it to start, unlike a
+  // plain click/tap.
+  padding: 0.3rem;
 
   mat-icon {
     font-size: 0.9rem;
@@ -447,6 +453,9 @@ mat-expansion-panel mat-checkbox {
   width: 1.5rem;
   height: 1.5rem;
   padding: 0;
+  // The button's own box sits a bit lower than the plain text/icons beside
+  // it in this row even with align-items: center, so nudge it up to match.
+  margin-top: -0.15rem;
 
   mat-icon {
     font-size: 0.9rem;
