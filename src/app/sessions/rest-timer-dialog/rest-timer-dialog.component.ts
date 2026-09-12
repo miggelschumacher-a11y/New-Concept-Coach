@@ -2,6 +2,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { SoundService } from '../../core/services/sound.service';
+import { RestNotificationService } from '../../core/services/rest-notification.service';
 
 export interface RestTimerDialogData {
   // Elapsed seconds at which the first reminder gong plays.
@@ -18,12 +19,21 @@ export interface RestTimerDialogData {
 }
 
 // A tap-to-dismiss popup showing a live count-up of the rest just taken,
-// beeping (via the shared Gong sound) once at firstThresholdSeconds and
-// again at secondThresholdSeconds if given - see SessionsComponent's
-// maybeShowRestPrompt for when each of the two shapes (between sets, single
-// threshold between exercises) is opened. disableClose on the dialog.open()
-// call means only this component's own close() (the tap) dismisses it, not
-// Escape or a backdrop click.
+// beeping once at firstThresholdSeconds and again at secondThresholdSeconds
+// if given - see SessionsComponent's maybeShowRestPrompt for when each of
+// the two shapes (between sets, single threshold between exercises) is
+// opened. disableClose on the dialog.open() call means only this
+// component's own close() (the tap) dismisses it, not Escape or a backdrop
+// click.
+//
+// The actual gong comes from one of two mechanisms depending on the
+// platform (see RestNotificationService): on a native shell, a scheduled OS
+// notification, immune to the WebView's own JS timers getting throttled or
+// suspended once the screen dims/locks - the in-page tick() below still
+// drives the visible ring/elapsed count there, it just skips playing the
+// (redundant) in-page sound itself. In the browser, where no native
+// scheduler exists, tick() remains the only mechanism and plays the sound
+// directly, unchanged from before RestNotificationService existed.
 @Component({
   selector: 'app-rest-timer-dialog',
   standalone: true,
@@ -41,32 +51,48 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   private intervalId?: ReturnType<typeof setInterval>;
   private firstBeeped = false;
   private secondBeeped = false;
+  private scheduledNotificationIds: number[] = [];
 
   constructor(
     public readonly dialogRef: MatDialogRef<RestTimerDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public readonly data: RestTimerDialogData,
-    private readonly soundService: SoundService
+    private readonly soundService: SoundService,
+    private readonly restNotificationService: RestNotificationService
   ) {}
 
   ngOnInit(): void {
     this.intervalId = setInterval(() => this.tick(), 1000);
+    if (this.restNotificationService.isAvailable) {
+      const delays =
+        this.data.secondThresholdSeconds !== undefined
+          ? [this.data.firstThresholdSeconds, this.data.secondThresholdSeconds]
+          : [this.data.firstThresholdSeconds];
+      void this.restNotificationService.scheduleGongs(delays).then((ids) => {
+        this.scheduledNotificationIds = ids;
+      });
+    }
   }
 
   ngOnDestroy(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
+    void this.restNotificationService.cancel(this.scheduledNotificationIds);
   }
 
   private tick(): void {
     this.elapsedSeconds = Math.floor((Date.now() - this.startedAt) / 1000);
     if (!this.firstBeeped && this.elapsedSeconds >= this.data.firstThresholdSeconds) {
       this.firstBeeped = true;
-      this.soundService.playGong();
+      if (!this.restNotificationService.isAvailable) {
+        this.soundService.playGong();
+      }
     }
     if (!this.secondBeeped && this.data.secondThresholdSeconds !== undefined && this.elapsedSeconds >= this.data.secondThresholdSeconds) {
       this.secondBeeped = true;
-      this.soundService.playGong();
+      if (!this.restNotificationService.isAvailable) {
+        this.soundService.playGong();
+      }
     }
   }
 

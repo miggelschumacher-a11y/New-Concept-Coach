@@ -38,4 +38,10 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 13+ (API 33+) requires this to even be able to prompt the
+         user for notification permission - see RestNotificationService,
+         which schedules the rest-timer's gong as a local notification so it
+         still fires on time if the screen locks or the WebView's own JS
+         timers get throttled. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 </manifest>
