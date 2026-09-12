@@ -384,7 +384,15 @@ mat-expansion-panel mat-checkbox {
   margin: 0 0 0.35rem;
 }
 
+// Drag handle, set number, delete button and set-type icon all sit on this
+// same row now, to the left of the exercise name - sized to match its own
+// small font (see the drag-handle/index/delete-button/type-icon rules
+// below), rather than the full-size touch targets they used to have as
+// their own row inside .set-row.
 .set-exercise-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.75rem;
   color: var(--app-muted-text);
   margin: 0.4rem 0 0.1rem;
@@ -407,13 +415,17 @@ mat-expansion-panel mat-checkbox {
 
 .set-drag-handle {
   display: flex;
-  flex-direction: column;
   align-items: center;
   flex: 0 0 auto;
-  padding: 0 0.25rem;
   color: rgba(var(--app-fg-rgb), 0.5);
   cursor: grab;
   touch-action: none;
+
+  mat-icon {
+    font-size: 0.9rem;
+    height: 0.9rem;
+    width: 0.9rem;
+  }
 }
 
 .set-row {
@@ -423,43 +435,36 @@ mat-expansion-panel mat-checkbox {
   margin: 0.25rem 0;
 }
 
-.set-drag-handle .set-index {
+.set-index {
   font-size: 0.75rem;
   line-height: 1;
   color: var(--app-muted-text);
-}
-
-.set-delete-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   flex: 0 0 auto;
-  gap: 0;
 }
 
-// mat-icon-button's own touch-target box is much taller than the visible
-// icon inside it, which otherwise pushes .set-type-icon below it far lower
-// than the drag-handle icon beside it - shrink the button itself and pull
-// it up to match, then pull the type icon in right underneath it.
 .set-delete-button {
-  --mdc-icon-button-state-layer-size: 2rem;
-  width: 2rem;
-  height: 2rem;
+  --mdc-icon-button-state-layer-size: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
-  margin-top: -0.3rem;
+
+  mat-icon {
+    font-size: 0.9rem;
+    height: 0.9rem;
+    width: 0.9rem;
+  }
 
   .mat-mdc-button-touch-target {
-    width: 2rem;
-    height: 2rem;
+    width: 1.5rem;
+    height: 1.5rem;
   }
 }
 
 .set-type-icon {
-  font-size: 1rem;
-  height: 1rem;
-  width: 1rem;
+  font-size: 0.9rem;
+  height: 0.9rem;
+  width: 0.9rem;
   color: var(--app-muted-text);
-  margin-top: -0.2rem;
 }
 
 .set-fields {

@@ -995,8 +995,7 @@
                             @if (doneAttemptFieldKey === set.id) {
                               <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                             }
-                            <div class="set-exercise-label">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</div>
-                            <div class="set-row">
+                            <div class="set-exercise-label">
                               <div
                                 class="set-drag-handle"
                                 cdkDragHandle
@@ -1004,10 +1003,9 @@
                                 [attr.aria-label]="'sessions.dragToReorder' | translate"
                               >
                                 <mat-icon>drag_indicator</mat-icon>
-                                <span class="set-index">#{{ i + 1 }}</span>
                               </div>
-                              <div class="set-delete-column">
-                                @if (pendingDeleteSetId === set.id) {
+                              <span class="set-index">#{{ i + 1 }}</span>
+                              @if (pendingDeleteSetId === set.id) {
                               <div class="confirm-dialog">
                                 <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
                                 <div class="confirm-dialog-actions">
@@ -1042,8 +1040,10 @@
                                 <mat-icon>delete</mat-icon>
                               </button>
                             }
-                                <mat-icon class="set-type-icon" [matTooltip]="setType.labelKey | translate">{{ setType.icon }}</mat-icon>
-                              </div>
+                              <mat-icon class="set-type-icon" [matTooltip]="setType.labelKey | translate">{{ setType.icon }}</mat-icon>
+                              <span class="set-exercise-name">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</span>
+                            </div>
+                            <div class="set-row">
                           <div class="set-fields">
                             @if (sessionExerciseTypeDisplay(sessionExercise) !== 'TIME_BASED') {
                               @if (canEditExerciseTypeInSession(session)) {
