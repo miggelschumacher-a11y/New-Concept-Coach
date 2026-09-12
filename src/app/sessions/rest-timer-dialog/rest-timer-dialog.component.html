@@ -1,5 +1,15 @@
 <div class="rest-timer-content" (click)="close()">
-  <mat-icon class="rest-timer-icon">timer</mat-icon>
+  <svg class="rest-timer-ring" viewBox="0 0 64 64">
+    <circle class="rest-timer-ring-track" cx="32" cy="32" r="28" />
+    <circle
+      class="rest-timer-ring-progress"
+      cx="32"
+      cy="32"
+      r="28"
+      [style.stroke-dasharray]="ringCircumference"
+      [style.stroke-dashoffset]="ringDashOffset"
+    />
+  </svg>
   @if (data.feedbackMessage) {
     <p class="rest-timer-feedback">{{ data.feedbackMessage }}</p>
   }

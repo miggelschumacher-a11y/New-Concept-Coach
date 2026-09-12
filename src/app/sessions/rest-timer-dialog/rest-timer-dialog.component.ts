@@ -1,6 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { SoundService } from '../../core/services/sound.service';
 
@@ -28,12 +27,15 @@ export interface RestTimerDialogData {
 @Component({
   selector: 'app-rest-timer-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatIconModule, TranslatePipe],
+  imports: [MatDialogModule, TranslatePipe],
   templateUrl: './rest-timer-dialog.component.html',
   styleUrl: './rest-timer-dialog.component.scss'
 })
 export class RestTimerDialogComponent implements OnInit, OnDestroy {
   elapsedSeconds = 0;
+
+  // Matches the ring's r="28" in the template - circumference = 2*pi*r.
+  readonly ringCircumference = 2 * Math.PI * 28;
 
   private readonly startedAt = Date.now();
   private intervalId?: ReturnType<typeof setInterval>;
@@ -70,5 +72,31 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  // The ring fills from 0 to 1 across the current phase - 0..firstThreshold
+  // before the first gong, then firstThreshold..secondThreshold after it (if
+  // a second threshold is set at all). Once the current phase's target is
+  // reached the ring just stays full rather than resetting, since a
+  // single-threshold timer (the between-exercises case) never gets a second
+  // phase and there's nothing further to count down to once both gongs have
+  // played.
+  get ringDashOffset(): number {
+    const target = this.currentPhaseTarget();
+    const start = this.currentPhaseStart();
+    const fraction = target > start ? Math.min(1, Math.max(0, (this.elapsedSeconds - start) / (target - start))) : 1;
+    return this.ringCircumference * (1 - fraction);
+  }
+
+  private currentPhaseStart(): number {
+    return this.isInSecondPhase() ? this.data.firstThresholdSeconds : 0;
+  }
+
+  private currentPhaseTarget(): number {
+    return this.isInSecondPhase() ? (this.data.secondThresholdSeconds as number) : this.data.firstThresholdSeconds;
+  }
+
+  private isInSecondPhase(): boolean {
+    return this.data.secondThresholdSeconds !== undefined && this.elapsedSeconds >= this.data.firstThresholdSeconds;
   }
 }

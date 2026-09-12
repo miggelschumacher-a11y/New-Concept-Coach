@@ -8,11 +8,28 @@
   cursor: pointer;
 }
 
-.rest-timer-icon {
-  font-size: 2.5rem;
-  height: 2.5rem;
-  width: 2.5rem;
-  color: #90caf9;
+.rest-timer-ring {
+  width: 3.5rem;
+  height: 3.5rem;
+  // The progress circle is drawn starting at 3 o'clock by default - rotate
+  // the whole ring so it fills starting from the top, like a clock face.
+  transform: rotate(-90deg);
+}
+
+.rest-timer-ring-track {
+  fill: none;
+  stroke: rgba(144, 202, 249, 0.25);
+  stroke-width: 6;
+}
+
+.rest-timer-ring-progress {
+  fill: none;
+  stroke: #90caf9;
+  stroke-width: 6;
+  stroke-linecap: round;
+  // Ticks once per second (see RestTimerDialogComponent.tick) - this eases
+  // each jump into a smooth-looking sweep instead of a visible snap.
+  transition: stroke-dashoffset 1s linear;
 }
 
 .rest-timer-feedback {
