@@ -1067,6 +1067,10 @@
                                     (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
                                     (mouseup)="onSetFieldMouseUp()"
                                     (mouseleave)="onSetFieldMouseLeave()"
+                                    (touchstart)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
+                                    (touchend)="onSetFieldMouseUp()"
+                                    (touchcancel)="onSetFieldMouseLeave()"
+                                    (contextmenu)="$event.preventDefault()"
                                   />
                                 </mat-form-field>
                               }
@@ -1097,6 +1101,10 @@
                                   (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'reps')"
                                   (mouseup)="onSetFieldMouseUp()"
                                   (mouseleave)="onSetFieldMouseLeave()"
+                                  (touchstart)="onSetFieldMouseDown($event, session, sessionExercise, 'reps')"
+                                  (touchend)="onSetFieldMouseUp()"
+                                  (touchcancel)="onSetFieldMouseLeave()"
+                                  (contextmenu)="$event.preventDefault()"
                                 />
                               </mat-form-field>
                               <mat-form-field
@@ -1129,6 +1137,9 @@
                                   (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'weight', set)"
                                   (mouseup)="onSetFieldMouseUp()"
                                   (mouseleave)="onSetFieldMouseLeave()"
+                                  (touchstart)="onSetFieldMouseDown($event, session, sessionExercise, 'weight', set)"
+                                  (touchend)="onSetFieldMouseUp()"
+                                  (touchcancel)="onSetFieldMouseLeave()"
                                   (contextmenu)="onWeightFieldContextMenu($event, session, sessionExercise)"
                                 />
                               </mat-form-field>

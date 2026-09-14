@@ -559,6 +559,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // fires. Done sets are never touched by either button, matching how the
   // existing on-blur weight/target-reps propagation already protects them.
   private longPressTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  // Whether the press currently driving longPressTimeoutId started from a
+  // touch event rather than a real mouse click - set by onSetFieldMouseDown,
+  // read by onWeightFieldContextMenu. On Android/Chromium, a touch-and-hold
+  // on a text input fires its own native "contextmenu" event (the OS's
+  // built-in substitute for a right-click, normally used to offer text
+  // selection) at the same ~500ms threshold as our own long-press timer -
+  // without this flag, that native event would run onWeightFieldContextMenu
+  // and open the copy popup on top of (or instead of) the equipment dialog
+  // our own touch-driven timer is already opening.
+  private lastFieldPressWasTouch = false;
   private suppressNextDocumentClick = false;
   private setFieldCopyPopupKey: string | null = null;
   setFieldCopyPopupPosition: { top: number; left: number } | null = null;
@@ -584,13 +594,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
   } | null = null;
 
   onSetFieldMouseDown(
-    event: MouseEvent,
+    event: MouseEvent | TouchEvent,
     session: TrainingSession,
     sessionExercise: SessionExercise,
     kind: 'targetReps' | 'reps' | 'weight',
     set?: ExerciseSet
   ): void {
     this.clearLongPressTimer();
+    this.lastFieldPressWasTouch = event.type.startsWith('touch');
     const triggerEl = event.currentTarget as HTMLInputElement;
     this.longPressTimeoutId = setTimeout(() => {
       this.longPressTimeoutId = null;
@@ -608,9 +619,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   // Right-click on the weight field is how the copy-to-sets popup (see
   // openSetFieldCopyPopup) stays reachable now that the field's long-press
-  // opens the equipment/plate dialog instead.
+  // opens the equipment/plate dialog instead. Always prevent the browser's
+  // own context menu, but only actually open the copy popup for a genuine
+  // mouse right-click: on Android/Chromium, touch-and-hold on this same
+  // input also fires this event (its native substitute for a right-click),
+  // and in that case onSetFieldMouseDown's touch-driven timer is already
+  // opening the equipment dialog - opening the copy popup here too would
+  // stack a second, wrong popup on top of it.
   onWeightFieldContextMenu(event: MouseEvent, session: TrainingSession, sessionExercise: SessionExercise): void {
     event.preventDefault();
+    if (this.lastFieldPressWasTouch) {
+      return;
+    }
     this.clearLongPressTimer();
     const triggerEl = event.currentTarget as HTMLInputElement;
     this.openSetFieldCopyPopup(session, sessionExercise, 'weight', triggerEl);
