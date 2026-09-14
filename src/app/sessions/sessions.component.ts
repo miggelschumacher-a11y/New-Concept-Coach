@@ -3093,13 +3093,43 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
+  // Each scheme has its own idea of what a working set's fields mean
+  // (targetReps/targetRepsMax/isAmrap set vs. unset, what counts as
+  // "achieved") - switching scheme on an exercise that already has real
+  // progress would leave those fields holding values judged by rules they
+  // were never entered under, e.g. a logged "8" compared against a target
+  // that no longer means what it did. Only exercises still at their
+  // untouched defaults (see exerciseUntouched) skip the prompt and switch
+  // immediately, since there's nothing on them yet that could conflict.
   async updateSessionIncrementScheme(
     session: TrainingSession,
     sessionExercise: SessionExercise,
     incrementScheme: IncrementScheme
   ): Promise<void> {
-    if (this.isIncrementSchemeLocked(incrementScheme)) {
+    if (this.isIncrementSchemeLocked(incrementScheme) || incrementScheme === sessionExercise.incrementScheme) {
       return;
+    }
+    const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+    if (workingSets.length > 0 && !this.exerciseUntouched(sessionExercise, workingSets)) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          messageKey: 'sessions.confirmIncrementSchemeChangeQuestion',
+          confirmLabelKey: 'sessions.confirmYesReset',
+          confirmColor: 'warn'
+        }
+      });
+      const confirmed = await firstValueFrom(dialogRef.afterClosed());
+      if (!confirmed) {
+        return;
+      }
+      for (const set of workingSets) {
+        set.reps = 0;
+        set.done = false;
+        set.targetReps = undefined;
+        set.targetRepsMax = undefined;
+        set.isAmrap = undefined;
+        this.fieldBuffers.delete(set.id);
+      }
     }
     sessionExercise.incrementScheme = incrementScheme;
     await this.persist(session);

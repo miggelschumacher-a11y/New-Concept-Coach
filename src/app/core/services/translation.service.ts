@@ -317,6 +317,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Really finish?',
     'sessions.confirmYes': 'Yes, finish',
     'sessions.allWorkingSetsDoneQuestion': 'All working sets are done. Finish this session?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'This exercise already has logged sets. Changing the progression scheme will reset its working sets (reps and targets) so they match the new scheme - weights are kept. Continue?',
+    'sessions.confirmYesReset': 'Yes, reset',
     'sessions.oneRepMaxExceededMessage': 'Lifted: {lifted} {unit} - more than the 1RM ({oneRepMax} {unit}). This set suggests: 1RM ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': 'Update the 1RM accordingly?',
     'sessions.restTimerLabel': 'Rest',
@@ -770,6 +773,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Wirklich beenden?',
     'sessions.confirmYes': 'Ja, beenden',
     'sessions.allWorkingSetsDoneQuestion': 'Alle Arbeitssätze sind erledigt. Diese Session beenden?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'Diese Übung hat bereits geloggte Sätze. Beim Wechsel der Progressionsart werden ihre Arbeitssätze (Wiederholungen und Ziele) zurückgesetzt, damit sie zum neuen Schema passen – Gewichte bleiben erhalten. Fortfahren?',
+    'sessions.confirmYesReset': 'Ja, zurücksetzen',
     'sessions.oneRepMaxExceededMessage': 'Gehoben: {lifted} {unit} – mehr als 1RM ({oneRepMax} {unit}). Laut diesem Satz: 1RM ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': '1RM entsprechend anpassen?',
     'sessions.restTimerLabel': 'Pause',
@@ -1223,6 +1229,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': '¿Finalizar de verdad?',
     'sessions.confirmYes': 'Sí, finalizar',
     'sessions.allWorkingSetsDoneQuestion': 'Todas las series de trabajo están terminadas. ¿Finalizar esta sesión?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'Este ejercicio ya tiene series registradas. Cambiar el esquema de progresión reiniciará sus series de trabajo (repeticiones y objetivos) para que coincidan con el nuevo esquema; los pesos se conservan. ¿Continuar?',
+    'sessions.confirmYesReset': 'Sí, restablecer',
     'sessions.oneRepMaxExceededMessage': 'Levantado: {lifted} {unit} - más que el 1RM ({oneRepMax} {unit}). Según esta serie: 1RM ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': '¿Ajustar el 1RM en consecuencia?',
     'sessions.restTimerLabel': 'Descanso',
@@ -1676,6 +1685,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Finalizar mesmo?',
     'sessions.confirmYes': 'Sim, finalizar',
     'sessions.allWorkingSetsDoneQuestion': 'Todas as séries de trabalho estão concluídas. Finalizar esta sessão?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'Este exercício já tem séries registradas. Alterar o esquema de progressão vai reiniciar suas séries de trabalho (repetições e metas) para corresponder ao novo esquema - os pesos são mantidos. Continuar?',
+    'sessions.confirmYesReset': 'Sim, redefinir',
     'sessions.oneRepMaxExceededMessage': 'Levantado: {lifted} {unit} - mais que o 1RM ({oneRepMax} {unit}). Segundo esta série: 1RM ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': 'Ajustar o 1RM de acordo?',
     'sessions.restTimerLabel': 'Pausa',
@@ -2129,6 +2141,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Terminare davvero?',
     'sessions.confirmYes': 'Sì, termina',
     'sessions.allWorkingSetsDoneQuestion': 'Tutte le serie di lavoro sono completate. Terminare questa sessione?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'Questo esercizio ha già serie registrate. Cambiare lo schema di progressione reimposterà le sue serie di lavoro (ripetizioni e obiettivi) per adattarle al nuovo schema - i pesi vengono mantenuti. Continuare?',
+    'sessions.confirmYesReset': 'Sì, ripristina',
     'sessions.oneRepMaxExceededMessage': 'Sollevato: {lifted} {unit} - più del 1RM ({oneRepMax} {unit}). Secondo questa serie: 1RM ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': 'Aggiornare il 1RM di conseguenza?',
     'sessions.restTimerLabel': 'Pausa',
@@ -2582,6 +2597,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Echt beëindigen?',
     'sessions.confirmYes': 'Ja, beëindigen',
     'sessions.allWorkingSetsDoneQuestion': 'Alle working sets zijn voltooid. Deze sessie beëindigen?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'Deze oefening heeft al gelogde sets. Het wijzigen van het progressieschema zet de werksets (herhalingen en doelen) terug zodat ze bij het nieuwe schema passen - gewichten blijven behouden. Doorgaan?',
+    'sessions.confirmYesReset': 'Ja, resetten',
     'sessions.oneRepMaxExceededMessage': 'Getild: {lifted} {unit} - meer dan de 1RM ({oneRepMax} {unit}). Volgens deze set: 1RM ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': 'De 1RM hierop aanpassen?',
     'sessions.restTimerLabel': 'Pauze',
@@ -3035,6 +3053,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Na pewno zakończyć?',
     'sessions.confirmYes': 'Tak, zakończ',
     'sessions.allWorkingSetsDoneQuestion': 'Wszystkie serie robocze są ukończone. Zakończyć tę sesję?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'To ćwiczenie ma już zarejestrowane serie. Zmiana schematu progresji zresetuje jego serie robocze (powtórzenia i cele), aby pasowały do nowego schematu - ciężary zostaną zachowane. Kontynuować?',
+    'sessions.confirmYesReset': 'Tak, zresetuj',
     'sessions.oneRepMaxExceededMessage': 'Podniesiono: {lifted} {unit} - więcej niż 1RM ({oneRepMax} {unit}). Według tej serii: 1RM ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': 'Dostosować 1RM?',
     'sessions.restTimerLabel': 'Przerwa',
@@ -3488,6 +3509,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Действительно завершить?',
     'sessions.confirmYes': 'Да, завершить',
     'sessions.allWorkingSetsDoneQuestion': 'Все рабочие подходы выполнены. Завершить эту тренировку?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'В этом упражнении уже есть записанные подходы. Смена схемы прогрессии сбросит рабочие подходы (повторения и цели), чтобы они соответствовали новой схеме - вес сохранится. Продолжить?',
+    'sessions.confirmYesReset': 'Да, сбросить',
     'sessions.oneRepMaxExceededMessage': 'Поднято: {lifted} {unit} - больше 1ПМ ({oneRepMax} {unit}). По этому подходу: 1ПМ ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': 'Изменить 1ПМ соответственно?',
     'sessions.restTimerLabel': 'Пауза',
@@ -3941,6 +3965,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmFinishQuestion': 'Valóban befejezed?',
     'sessions.confirmYes': 'Igen, befejezés',
     'sessions.allWorkingSetsDoneQuestion': 'Minden munkasorozat kész. Befejezed ezt az edzést?',
+    'sessions.confirmIncrementSchemeChangeQuestion':
+      'Ehhez a gyakorlathoz már vannak rögzített szettek. A progressziós séma módosítása visszaállítja a munkaszetteket (ismétlések és célok), hogy megfeleljenek az új sémának - a súlyok megmaradnak. Folytatod?',
+    'sessions.confirmYesReset': 'Igen, visszaállítás',
     'sessions.oneRepMaxExceededMessage': 'Megemelt súly: {lifted} {unit} - több mint az 1RM ({oneRepMax} {unit}). E sorozat alapján: 1RM ≈ {newOneRepMax} {unit}.',
     'sessions.oneRepMaxUpdateQuestion': 'Módosítod ennek megfelelően az 1RM-et?',
     'sessions.restTimerLabel': 'Szünet',
