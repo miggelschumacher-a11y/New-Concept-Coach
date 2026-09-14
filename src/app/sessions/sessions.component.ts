@@ -916,13 +916,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
         continue;
       }
       const achievedReps = workingSets.map((set) => set.reps);
+      const targetReps = workingSets.map((set) => set.targetReps ?? 0);
       const lastSetWeight = workingSets[workingSets.length - 1].weight;
       const category =
         this.exercises.find((exercise) => exercise.id === sessionExercise.exerciseId)?.weightCategory ?? 'UPPER_BODY';
       const next = await this.doubleProgressionService.recordSessionResult(
         sessionExercise.exerciseId,
         config.doubleProgression,
-        { achievedReps, lastSetWeight },
+        { achievedReps, targetReps, lastSetWeight },
         category,
         config.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
         config.incrementType
@@ -1157,7 +1158,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
           mode: settings.doubleProgressionMode
         };
         const achievedReps = workingSets.map((set) => set.reps);
-        return computeNextDoubleProgressionState(state, config, { achievedReps, lastSetWeight }, category, incrementOverride, incrementType)
+        const targetReps = workingSets.map((set) => set.targetReps ?? 0);
+        return computeNextDoubleProgressionState(state, config, { achievedReps, targetReps, lastSetWeight }, category, incrementOverride, incrementType)
           .currentWeight;
       }
       case 'REP_GOAL': {
@@ -1248,10 +1250,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
             mode: settings.doubleProgressionMode
           };
           const achievedReps = workingSets.map((set) => set.reps);
+          const targetReps = workingSets.map((set) => set.targetReps ?? 0);
           const next = await this.doubleProgressionService.recordSessionResult(
             exerciseId,
             config,
-            { achievedReps, lastSetWeight },
+            { achievedReps, targetReps, lastSetWeight },
             category,
             sessionExercise.weightIncrement ?? DEFAULT_WEIGHT_INCREMENT,
             sessionExercise.incrementType
@@ -2406,14 +2409,42 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Whether `sessionExercise`'s working sets met its own scheme's success
+  // rule. Every scheme except Rep Goal carries a per-set targetReps that the
+  // generic comparison below can check directly. Rep Goal's sets have no
+  // per-set target at all (see noDefaultTargetRepsSchemes) - its target is
+  // the SUM of reps across every working set - so it needs its own rule
+  // instead of being silently treated as an automatic pass by the generic
+  // "targetReps === undefined" fallback.
+  private exerciseSucceeded(sessionExercise: SessionExercise, workingSets: ExerciseSet[], planId: string | undefined): boolean {
+    if (sessionExercise.incrementScheme === 'REP_GOAL') {
+      const plan = planId ? this.trainingPlans.find((p) => p.id === planId) : undefined;
+      const config = plan?.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
+      const totalRepGoal = config?.repGoal?.totalRepGoal ?? this.settingsService.getSettings().repGoalTotalRepGoal;
+      const totalReps = workingSets.reduce((sum, set) => sum + set.reps, 0);
+      return totalReps > totalRepGoal;
+    }
+    return workingSets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
+  }
+
+  // Whether `workingSets` were ever actually attempted, vs. still sitting at
+  // their generated/prefilled defaults. Most schemes prefill reps with the
+  // prescription and leave weight as the "was this touched" signal; Rep
+  // Goal prefills weight from the tracked state and leaves reps at 0 until
+  // the user logs them, so it needs the opposite check.
+  private exerciseUntouched(sessionExercise: SessionExercise, workingSets: ExerciseSet[]): boolean {
+    return sessionExercise.incrementScheme === 'REP_GOAL'
+      ? workingSets.every((set) => set.reps === 0)
+      : workingSets.every((set) => set.weight === 0);
+  }
+
   // Counts back through this plan's own finished sessions for exerciseId
   // (or, when planId is undefined, every manual session's, since those
   // aren't scoped to any plan), most recent first, stopping at the first
   // session that wasn't a clean failure (succeeded, or its working sets
-  // were never actually attempted - weight still at 0, same "untouched"
-  // signal used elsewhere in this file). Scoped to working sets only, since
-  // warmup/cooldown sets don't carry a pass/fail target relevant to a
-  // deload decision.
+  // were never actually attempted - see exerciseUntouched). Scoped to
+  // working sets only, since warmup/cooldown sets don't carry a pass/fail
+  // target relevant to a deload decision.
   private consecutiveExerciseFailures(planId: string | undefined, exerciseId: string): number {
     const finishedSessions = this.sessions
       .filter((session) => session.trainingPlanId === planId && session.finished)
@@ -2425,11 +2456,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
         continue;
       }
       const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
-      if (workingSets.length === 0 || workingSets.every((set) => set.weight === 0)) {
+      if (workingSets.length === 0 || this.exerciseUntouched(sessionExercise, workingSets)) {
         continue;
       }
-      const succeeded = workingSets.every((set) => set.targetReps === undefined || set.reps >= set.targetReps);
-      if (succeeded) {
+      if (this.exerciseSucceeded(sessionExercise, workingSets, planId)) {
         break;
       }
       count++;
@@ -2447,12 +2477,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // miss moves the count off the historical baseline; once every working set
   // is done and none missed, the exercise has genuinely succeeded and the
   // streak resets to 0, same as consecutiveExerciseFailures' own success case.
+  // Rep Goal has no per-set miss signal (its target is a sum across every
+  // set), so it can only be judged once every working set is done.
   private consecutiveExerciseFailuresPreview(session: TrainingSession, planId: string | undefined, exerciseId: string): number {
     const baseline = this.consecutiveExerciseFailures(planId, exerciseId);
     const sessionExercise = session.exercises.find((se) => se.exerciseId === exerciseId);
     const workingSets = sessionExercise?.sets.filter((set) => set.type === 'working') ?? [];
-    if (!workingSets.some((set) => set.done)) {
+    if (!sessionExercise || !workingSets.some((set) => set.done)) {
       return baseline;
+    }
+    if (sessionExercise.incrementScheme === 'REP_GOAL') {
+      if (!workingSets.every((set) => set.done)) {
+        return baseline;
+      }
+      return this.exerciseSucceeded(sessionExercise, workingSets, planId) ? 0 : baseline + 1;
     }
     if (workingSets.some((set) => set.done && set.targetReps !== undefined && set.reps < set.targetReps)) {
       return baseline + 1;

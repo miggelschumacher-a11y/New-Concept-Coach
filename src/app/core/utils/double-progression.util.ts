@@ -33,6 +33,17 @@ export function computePrescribedReps(
 
 export interface DoubleProgressionResult {
   achievedReps: number[];
+  // Each working set's OWN prescribed reps, in the same order as
+  // achievedReps (i.e. mapped from the same array of sets) - not
+  // recomputed from `config`/`state` here, because that recomputation
+  // assigns targets purely by array position. A set's real prescription
+  // was already decided (and stored on the set) when the session was
+  // generated; if sets get drag-reordered afterwards, deriving targets
+  // fresh by position again would pair the wrong target with the wrong
+  // set. Pairing achievedReps[i] with targetReps[i] from the same
+  // caller-side map keeps each set's own target attached to it
+  // regardless of reordering.
+  targetReps: number[];
   lastSetWeight: number;
 }
 
@@ -47,8 +58,7 @@ export function computeNextDoubleProgressionState(
   incrementType?: IncrementType
 ): DoubleProgressionState {
   const workingSets = result.achievedReps.length;
-  const prescribedReps = computePrescribedReps(config, state.repsAddedThisCycle, workingSets);
-  const success = result.achievedReps.every((reps, index) => reps >= prescribedReps[index]);
+  const success = result.achievedReps.every((reps, index) => reps >= result.targetReps[index]);
 
   if (!success) {
     // Repeat the same reps/weight next session rather than advancing - from

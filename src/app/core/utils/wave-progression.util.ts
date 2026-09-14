@@ -27,10 +27,13 @@ export function computeNextWaveProgressionState(
   const increment = incrementOverride ?? WEIGHT_INCREMENT_BY_EXERCISE_TYPE[exerciseCategory];
 
   if (state.currentReps > config.finalReps) {
-    // Still descending through this wave: weight climbs, reps step down.
+    // Still descending through this wave: weight climbs, reps step down -
+    // from the weight actually just lifted, not the state's own cached
+    // currentWeight, which can otherwise drift and go stale (same fix as
+    // every sibling scheme's success branch).
     return {
       ...state,
-      currentWeight: applyWeightIncrement(state.currentWeight, increment, incrementType),
+      currentWeight: applyWeightIncrement(result.lastSetWeight, increment, incrementType),
       currentReps: Math.max(state.currentReps - config.repsDecrement, config.finalReps),
       lastUpdated: new Date()
     };
