@@ -26,14 +26,17 @@ export interface RestTimerDialogData {
 // component's own close() (the tap) dismisses it, not Escape or a backdrop
 // click.
 //
-// The actual gong comes from one of two mechanisms depending on the
-// platform (see RestNotificationService): on a native shell, a scheduled OS
-// notification, immune to the WebView's own JS timers getting throttled or
-// suspended once the screen dims/locks - the in-page tick() below still
-// drives the visible ring/elapsed count there, it just skips playing the
-// (redundant) in-page sound itself. In the browser, where no native
-// scheduler exists, tick() remains the only mechanism and plays the sound
-// directly, unchanged from before RestNotificationService existed.
+// The actual gong comes from one of two mechanisms (see
+// RestNotificationService): on a native shell, a scheduled OS notification,
+// immune to the WebView's own JS timers getting throttled or suspended once
+// the screen dims/locks - the in-page tick() below still drives the visible
+// ring/elapsed count there, and only skips playing its own (redundant) sound
+// once scheduleGongs has actually confirmed the OS notification was
+// scheduled (see nativeGongConfirmed) - not merely that this is a native
+// shell, since permission can be denied or scheduling can otherwise fail
+// silently. In the browser, or whenever that confirmation never arrives,
+// tick() plays the sound itself, unchanged from before RestNotificationService
+// existed.
 @Component({
   selector: 'app-rest-timer-dialog',
   standalone: true,
@@ -52,6 +55,17 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   private firstBeeped = false;
   private secondBeeped = false;
   private scheduledNotificationIds: number[] = [];
+  // True only once scheduleGongs has actually resolved with scheduled ids -
+  // isAvailable alone just means "this is a native shell", not that the OS
+  // notification was actually scheduled (permission can be denied, or
+  // scheduling can otherwise silently fail with no ids and no thrown error).
+  // tick()'s in-page fallback keys off this instead of isAvailable so a
+  // silent native failure still gets a sound while the dialog itself is open
+  // and ticking (i.e. the WebView is foregrounded and its timers aren't
+  // being throttled anyway) - the one case the native path was meant to
+  // additionally cover, screen-off/backgrounded, is unaffected since this
+  // component isn't ticking then regardless.
+  private nativeGongConfirmed = false;
 
   constructor(
     public readonly dialogRef: MatDialogRef<RestTimerDialogComponent>,
@@ -69,6 +83,7 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
           : [this.data.firstThresholdSeconds];
       void this.restNotificationService.scheduleGongs(delays).then((ids) => {
         this.scheduledNotificationIds = ids;
+        this.nativeGongConfirmed = ids.length > 0;
       });
     }
   }
@@ -84,13 +99,13 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     this.elapsedSeconds = Math.floor((Date.now() - this.startedAt) / 1000);
     if (!this.firstBeeped && this.elapsedSeconds >= this.data.firstThresholdSeconds) {
       this.firstBeeped = true;
-      if (!this.restNotificationService.isAvailable) {
+      if (!this.nativeGongConfirmed) {
         this.soundService.playGong();
       }
     }
     if (!this.secondBeeped && this.data.secondThresholdSeconds !== undefined && this.elapsedSeconds >= this.data.secondThresholdSeconds) {
       this.secondBeeped = true;
-      if (!this.restNotificationService.isAvailable) {
+      if (!this.nativeGongConfirmed) {
         this.soundService.playGong();
       }
     }
