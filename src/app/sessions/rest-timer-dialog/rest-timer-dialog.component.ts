@@ -28,21 +28,25 @@ export interface RestTimerDialogData {
 //
 // The actual gong is always played by tick() below, from the same
 // requestAnimationFrame-independent Date.now() delta the visible ring uses -
-// this is the only mechanism precise while the dialog is open and visible,
-// since it re-derives elapsed time from wall-clock deltas every second
-// rather than trusting setInterval's own firing time. A parallel native OS
-// notification (see RestNotificationService) is also scheduled on a native
-// shell purely as a backgrounded/screen-off fallback, since the WebView's JS
-// timers can be throttled or suspended once the screen dims/locks - each one
-// is cancelled the instant tick() has already played its matching gong
-// locally (see cancelNativeGong), so a foregrounded session never risks a
-// second, native-alarm-scheduling-imprecision-delayed gong on top of the
-// precise local one. AlarmManager's inexact-alarm slack (used whenever the
-// exact-alarm permission isn't granted) is what would otherwise show up as
-// the gong firing 1-2s late - irrelevant once the dialog is foregrounded and
-// this cancels it, and the only case where the native path's own timing is
-// what the user actually experiences is exactly the case it exists for:
-// screen off, nothing to compare it against.
+// measured directly against this component's own startedAt, this fires
+// within milliseconds of its threshold, so it's the only mechanism trusted
+// while the dialog is open and visible. A parallel native OS notification
+// (see RestNotificationService) exists purely as a backgrounded/screen-off
+// fallback, since the WebView's JS timers can be throttled or suspended once
+// the screen dims/locks - but it's only ever scheduled once the page has
+// actually gone hidden (see handleVisibilityChange), for whichever
+// thresholds are still pending at that moment, and cancelled again the
+// instant the page comes back to the foreground. An earlier version
+// scheduled it unconditionally up front instead and relied on cancelNativeGong
+// to cancel each one the moment tick() beeped locally, trusting that to make
+// the two mechanisms harmless to run in parallel - but AlarmManager's own
+// "at" time is computed from a separate Date.now() reading, taken after
+// awaiting the plugin's permission/channel setup, and is therefore never
+// guaranteed to line up with this component's startedAt to the second, so a
+// native alarm scheduled that far in advance had no guarantee of firing
+// exactly in sync with (rather than a little before or after) the precise
+// local one it was racing. Only scheduling it once actually needed removes
+// that race entirely instead of trying to win it.
 @Component({
   selector: 'app-rest-timer-dialog',
   standalone: true,
@@ -60,12 +64,18 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   private intervalId?: ReturnType<typeof setInterval>;
   private firstBeeped = false;
   private secondBeeped = false;
-  // Index-aligned with the delays passed to scheduleGongs, i.e. with
-  // [firstThresholdSeconds, secondThresholdSeconds?] - so
-  // scheduledNotificationIds[0] is the first gong's native notification id,
-  // [1] the second's, letting tick() cancel each one individually the
-  // moment it has already played that gong locally.
-  private scheduledNotificationIds: number[] = [];
+  // Index-aligned with the two thresholds, i.e. [0] is the first gong's
+  // native notification id, [1] the second's (sparse - only set for
+  // whichever threshold(s) were still pending the last time the page went
+  // hidden; see scheduleNativeFallback/handleVisibilityChange).
+  private readonly scheduledNotificationIds: (number | undefined)[] = [];
+  private readonly handleVisibilityChange = (): void => {
+    if (document.hidden) {
+      this.scheduleNativeFallback();
+    } else {
+      this.cancelAllNativeGongs();
+    }
+  };
 
   constructor(
     public readonly dialogRef: MatDialogRef<RestTimerDialogComponent>,
@@ -77,13 +87,7 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.intervalId = setInterval(() => this.tick(), 1000);
     if (this.restNotificationService.isAvailable) {
-      const delays =
-        this.data.secondThresholdSeconds !== undefined
-          ? [this.data.firstThresholdSeconds, this.data.secondThresholdSeconds]
-          : [this.data.firstThresholdSeconds];
-      void this.restNotificationService.scheduleGongs(delays).then((ids) => {
-        this.scheduledNotificationIds = ids;
-      });
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
   }
 
@@ -91,7 +95,8 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
-    void this.restNotificationService.cancel(this.scheduledNotificationIds);
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    this.cancelAllNativeGongs();
   }
 
   private tick(): void {
@@ -108,14 +113,46 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Schedules the native fallback for whichever threshold(s) haven't beeped
+  // yet, with delays recomputed from right now rather than from
+  // firstThresholdSeconds/secondThresholdSeconds themselves - the page may
+  // have already been visible (and ticking locally) for a while before going
+  // hidden.
+  private scheduleNativeFallback(): void {
+    const remaining: { index: number; delaySeconds: number }[] = [];
+    if (!this.firstBeeped) {
+      remaining.push({ index: 0, delaySeconds: Math.max(1, this.data.firstThresholdSeconds - this.elapsedSeconds) });
+    }
+    if (!this.secondBeeped && this.data.secondThresholdSeconds !== undefined) {
+      remaining.push({ index: 1, delaySeconds: Math.max(1, this.data.secondThresholdSeconds - this.elapsedSeconds) });
+    }
+    if (remaining.length === 0) {
+      return;
+    }
+    void this.restNotificationService.scheduleGongs(remaining.map((r) => r.delaySeconds)).then((ids) => {
+      ids.forEach((id, i) => {
+        this.scheduledNotificationIds[remaining[i].index] = id;
+      });
+    });
+  }
+
   // Cancels one already-scheduled native notification the instant its
   // matching gong has been played locally (see the class comment) - a no-op
-  // if scheduleGongs hasn't resolved yet, never scheduled one for this index
-  // (unavailable/no permission), or it already fired/was already cancelled.
+  // if none was ever scheduled for this index (never went hidden, or was
+  // unavailable/no permission).
   private cancelNativeGong(index: number): void {
     const id = this.scheduledNotificationIds[index];
     if (id !== undefined) {
+      this.scheduledNotificationIds[index] = undefined;
       void this.restNotificationService.cancel([id]);
+    }
+  }
+
+  private cancelAllNativeGongs(): void {
+    const ids = this.scheduledNotificationIds.filter((id): id is number => id !== undefined);
+    this.scheduledNotificationIds.length = 0;
+    if (ids.length > 0) {
+      void this.restNotificationService.cancel(ids);
     }
   }
 
