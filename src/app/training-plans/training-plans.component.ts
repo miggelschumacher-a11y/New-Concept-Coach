@@ -84,6 +84,10 @@ const DEFAULT_EXERCISE_TYPE: PlanExerciseType = 'WEIGHT_BASED';
 const DEFAULT_INCREMENT_SCHEME: IncrementScheme = 'LINEAR_PROGRESSION';
 const DEFAULT_LINEAR_PROGRESSION_TARGET_REPS = '5';
 const DEFAULT_LINEAR_PROGRESSION_LOWER_BOUND_SUFFICIENT = false;
+// No Config-level default for this one either (that global setting was
+// removed - a plan exercise's own total is all there is now), so this seeds
+// the field directly, same as Linear Progression's own constant above.
+const DEFAULT_REP_GOAL_TOTAL_REP_GOAL = 25;
 // Flat fallback for weightIncrement when the field is left blank - no
 // longer the body-region-based WEIGHT_INCREMENT_BY_EXERCISE_TYPE default.
 const DEFAULT_WEIGHT_INCREMENT = 1;
@@ -1339,8 +1343,11 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
         mode: settings.doubleProgressionMode
       };
     }
+    // No Config-level default for this one either (removed - see
+    // DEFAULT_REP_GOAL_TOTAL_REP_GOAL), so it's seeded directly like Linear
+    // Progression below instead of copied from Settings.
     if (incrementScheme === 'REP_GOAL' && !config.repGoal) {
-      patch.repGoal = { totalRepGoal: this.settingsService.getSettings().repGoalTotalRepGoal };
+      patch.repGoal = { totalRepGoal: DEFAULT_REP_GOAL_TOTAL_REP_GOAL };
     }
     if (incrementScheme === 'WAVE_PROGRESSION' && !config.waveProgression) {
       const settings = this.settingsService.getSettings();

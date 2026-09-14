@@ -36,6 +36,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'A range is allowed (e.g. 8-12). A trailing "+" means AMRAP - as many reps as possible (e.g. 8+ or 8-12+). Allowed: 0-9999.',
     'sessions.targetRepsRangeError': 'The upper value cannot be smaller than the lower value.',
+    'sessions.repGoalTargetRepsRequiredError': 'Enter a target rep count greater than 0 for this Rep Goal set.',
     'sessions.longPressCopyHint': 'Press and hold to open a popup for copying this value to other sets.',
     'sessions.weightFieldTooltip':
       'Press and hold to open a popup for weight, equipment and plate breakdown. Right-click to open a popup for copying this value to other sets.',
@@ -490,6 +491,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'Ein Bereich ist möglich (z. B. 8-12). Ein „+“ am Ende bedeutet AMRAP - so viele Wiederholungen wie möglich (z. B. 8+ oder 8-12+). Zulässig: 0-9999.',
     'sessions.targetRepsRangeError': 'Der Bis-Wert darf nicht kleiner sein als der Von-Wert.',
+    'sessions.repGoalTargetRepsRequiredError': 'Trage für diesen Rep-Goal-Satz eine Ziel-Wiederholungszahl größer als 0 ein.',
     'sessions.longPressCopyHint': 'Längeres Drücken öffnet ein Popup, um diesen Wert auf andere Sätze zu kopieren.',
     'sessions.weightFieldTooltip':
       'Längeres Drücken öffnet ein Popup für Gewicht, Ausrüstung und Scheiben-Aufteilung. Rechtsklick öffnet ein Popup, um diesen Wert auf andere Sätze zu kopieren.',
@@ -946,6 +948,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'Se permite un rango (p. ej. 8-12). Un "+" al final significa AMRAP - tantas repeticiones como sea posible (p. ej. 8+ u 8-12+). Permitido: 0-9999.',
     'sessions.targetRepsRangeError': 'El valor superior no puede ser menor que el valor inferior.',
+    'sessions.repGoalTargetRepsRequiredError': 'Introduce un número de repeticiones objetivo mayor que 0 para esta serie de Rep Goal.',
     'sessions.longPressCopyHint': 'Mantén pulsado para abrir una ventana emergente que copia este valor a otras series.',
     'sessions.weightFieldTooltip':
       'Mantén pulsado para abrir una ventana emergente de peso, equipo y desglose de discos. Haz clic derecho para abrir una ventana emergente que copia este valor a otras series.',
@@ -1402,6 +1405,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'É permitido um intervalo (ex.: 8-12). Um "+" no final significa AMRAP - o máximo de repetições possível (ex.: 8+ ou 8-12+). Permitido: 0-9999.',
     'sessions.targetRepsRangeError': 'O valor superior não pode ser menor que o valor inferior.',
+    'sessions.repGoalTargetRepsRequiredError': 'Insira um número de repetições alvo maior que 0 para esta série de Rep Goal.',
     'sessions.longPressCopyHint': 'Pressione e segure para abrir um popup que copia este valor para outras séries.',
     'sessions.weightFieldTooltip':
       'Pressione e segure para abrir um popup de peso, equipamento e distribuição de anilhas. Clique com o botão direito para abrir um popup que copia este valor para outras séries.',
@@ -1858,6 +1862,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'È possibile un intervallo (es. 8-12). Un "+" alla fine indica AMRAP - il maggior numero di ripetizioni possibile (es. 8+ o 8-12+). Consentito: 0-9999.',
     'sessions.targetRepsRangeError': 'Il valore massimo non può essere inferiore al valore minimo.',
+    'sessions.repGoalTargetRepsRequiredError': 'Inserisci un numero di ripetizioni target maggiore di 0 per questa serie Rep Goal.',
     'sessions.longPressCopyHint': 'Tieni premuto per aprire un popup che copia questo valore su altre serie.',
     'sessions.weightFieldTooltip':
       'Tieni premuto per aprire un popup per peso, attrezzatura e ripartizione dei dischi. Fai clic con il tasto destro per aprire un popup che copia questo valore su altre serie.',
@@ -2314,6 +2319,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'Een bereik is mogelijk (bijv. 8-12). Een "+" aan het einde betekent AMRAP - zoveel mogelijk herhalingen (bijv. 8+ of 8-12+). Toegestaan: 0-9999.',
     'sessions.targetRepsRangeError': 'De bovenwaarde mag niet kleiner zijn dan de onderwaarde.',
+    'sessions.repGoalTargetRepsRequiredError': 'Voer voor deze Rep Goal-set een doelherhalingsaantal groter dan 0 in.',
     'sessions.longPressCopyHint': 'Lang indrukken opent een pop-up om deze waarde naar andere sets te kopiëren.',
     'sessions.weightFieldTooltip':
       'Lang indrukken opent een pop-up voor gewicht, uitrusting en schijfverdeling. Rechtsklikken opent een pop-up om deze waarde naar andere sets te kopiëren.',
@@ -2770,6 +2776,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'Możliwy jest zakres (np. 8-12). Znak "+" na końcu oznacza AMRAP - jak najwięcej powtórzeń (np. 8+ lub 8-12+). Dozwolone: 0-9999.',
     'sessions.targetRepsRangeError': 'Wartość górna nie może być mniejsza niż wartość dolna.',
+    'sessions.repGoalTargetRepsRequiredError': 'Wpisz dla tej serii Rep Goal docelową liczbę powtórzeń większą niż 0.',
     'sessions.longPressCopyHint': 'Przytrzymanie otwiera wyskakujące okno do skopiowania tej wartości do innych serii.',
     'sessions.weightFieldTooltip':
       'Przytrzymanie otwiera wyskakujące okno z ciężarem, sprzętem i rozkładem talerzy. Kliknięcie prawym przyciskiem otwiera wyskakujące okno do skopiowania tej wartości do innych serii.',
@@ -3226,6 +3233,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'Допустим диапазон (например, 8-12). Знак "+" в конце означает AMRAP - максимум возможных повторений (например, 8+ или 8-12+). Допустимо: 0-9999.',
     'sessions.targetRepsRangeError': 'Верхнее значение не может быть меньше нижнего.',
+    'sessions.repGoalTargetRepsRequiredError': 'Введите для этого подхода Rep Goal целевое число повторений больше 0.',
     'sessions.longPressCopyHint': 'Долгое нажатие открывает всплывающее окно для копирования этого значения в другие подходы.',
     'sessions.weightFieldTooltip':
       'Долгое нажатие открывает всплывающее окно с весом, оборудованием и раскладкой блинов. Щелчок правой кнопкой мыши открывает всплывающее окно для копирования этого значения в другие подходы.',
@@ -3682,6 +3690,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.targetRepsTooltip':
       'Tartomány is megadható (pl. 8-12). A végén lévő "+" AMRAP-ot jelent - a lehető legtöbb ismétlést (pl. 8+ vagy 8-12+). Megengedett: 0-9999.',
     'sessions.targetRepsRangeError': 'A felső érték nem lehet kisebb, mint az alsó érték.',
+    'sessions.repGoalTargetRepsRequiredError': 'Adj meg egy 0-nál nagyobb cél-ismétlésszámot ehhez a Rep Goal szetthez.',
     'sessions.longPressCopyHint': 'A hosszú megnyomás egy előugró ablakot nyit meg, amellyel ez az érték más szettekbe másolható.',
     'sessions.weightFieldTooltip':
       'A hosszú megnyomás egy előugró ablakot nyit meg a súlyhoz, a felszereléshez és a súlytárcsák elosztásához. A jobb kattintás egy előugró ablakot nyit meg, amellyel ez az érték más szettekbe másolható.',

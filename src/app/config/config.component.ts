@@ -87,7 +87,6 @@ export class ConfigComponent implements OnInit {
   // only the input is a single combined field.
   doubleProgressionRepRange: string;
   doubleProgressionMode: DoubleProgressionMode;
-  repGoalTotalRepGoal: number;
   waveProgressionInitialReps: number;
   waveProgressionFinalReps: number;
   waveProgressionRepsDecrement: number;
@@ -143,7 +142,6 @@ export class ConfigComponent implements OnInit {
       isAmrap: settings.doubleProgressionIsAmrap
     });
     this.doubleProgressionMode = settings.doubleProgressionMode;
-    this.repGoalTotalRepGoal = settings.repGoalTotalRepGoal;
     this.waveProgressionInitialReps = settings.waveProgressionInitialReps;
     this.waveProgressionFinalReps = settings.waveProgressionFinalReps;
     this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
@@ -170,7 +168,6 @@ export class ConfigComponent implements OnInit {
       isAmrap: settings.doubleProgressionIsAmrap
     });
     this.doubleProgressionMode = settings.doubleProgressionMode;
-    this.repGoalTotalRepGoal = settings.repGoalTotalRepGoal;
     this.waveProgressionInitialReps = settings.waveProgressionInitialReps;
     this.waveProgressionFinalReps = settings.waveProgressionFinalReps;
     this.waveProgressionRepsDecrement = settings.waveProgressionRepsDecrement;
@@ -396,11 +393,6 @@ export class ConfigComponent implements OnInit {
 
   async onDoubleProgressionModeChange(): Promise<void> {
     await this.settingsService.updateSettings({ doubleProgressionMode: this.doubleProgressionMode });
-  }
-
-  async onRepGoalTotalRepGoalChange(value: string): Promise<void> {
-    this.repGoalTotalRepGoal = this.clampReps(value);
-    await this.settingsService.updateSettings({ repGoalTotalRepGoal: this.repGoalTotalRepGoal });
   }
 
   async onWaveProgressionInitialRepsChange(value: string): Promise<void> {

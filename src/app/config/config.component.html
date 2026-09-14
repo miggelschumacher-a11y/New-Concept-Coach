@@ -265,21 +265,6 @@
         </mat-expansion-panel-header>
 
         <p class="increment-scheme-description">{{ 'config.repGoalDescription' | translate }}</p>
-
-        <div class="increment-scheme-form">
-          <mat-form-field appearance="outline" class="rep-range-field">
-            <mat-label>{{ 'config.repGoalTotalRepGoalLabel' | translate }}</mat-label>
-            <input
-              matInput
-              type="text"
-              inputmode="numeric"
-              [value]="repGoalTotalRepGoal"
-              selectOnFocus
-              (input)="onRepRangeInput($event)"
-              (change)="onRepGoalTotalRepGoalChange($any($event.target).value)"
-            />
-          </mat-form-field>
-        </div>
       </mat-expansion-panel>
 
       <mat-expansion-panel>

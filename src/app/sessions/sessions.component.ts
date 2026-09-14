@@ -226,9 +226,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // buildSessionFromPlan's per-scheme branches) - a working set added via
   // addSet with no previous set to copy a real target from has no
   // trustworthy value to fall back to, so it's left without one rather than
-  // stamped with the generic DEFAULT_TARGET_REPS, which would either read as
-  // a fabricated constraint (Rep Goal System, whose sets carry no per-set
-  // target at all by design) or misreport the exercise's real prescription.
+  // stamped with the generic DEFAULT_TARGET_REPS, which would misreport the
+  // exercise's real prescription. Rep Goal has no "real prescription" to
+  // fall back to either (unlike the other three, it's not derived from
+  // anything tracked) - its target is whatever the user themselves enters
+  // per set, required greater than 0 before that set can be completed (see
+  // completeSet), so it's just as wrong to stamp a fabricated default there.
   private readonly noDefaultTargetRepsSchemes: ReadonlySet<IncrementScheme> = new Set([
     'REP_GOAL',
     'DOUBLE_PROGRESSION',
@@ -1217,7 +1220,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
           currentWeight: lastSetWeight,
           lastUpdated: new Date()
         };
-        const config: RepGoalConfig = { totalRepGoal: settings.repGoalTotalRepGoal };
+        // No Settings-level default to fall back to any more - the goal is
+        // whatever the user entered as each working set's own target
+        // (required greater than 0 before a Rep Goal set can be completed,
+        // see completeSet), summed.
+        const config: RepGoalConfig = { totalRepGoal: workingSets.reduce((sum, set) => sum + (set.targetReps ?? 0), 0) };
         const totalReps = workingSets.reduce((sum, set) => sum + set.reps, 0);
         return computeNextRepGoalState(state, config, { totalReps, lastSetWeight }, category, incrementOverride, incrementType)
           .currentWeight;
@@ -1313,7 +1320,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
             continue;
           }
           await this.getOrInitRepGoalState(exerciseId, lastSetWeight);
-          const config: RepGoalConfig = { totalRepGoal: settings.repGoalTotalRepGoal };
+          // Same per-set-derived goal as previewTrackedSchemeValue above -
+          // there's no Settings-level default any more.
+          const config: RepGoalConfig = { totalRepGoal: workingSets.reduce((sum, set) => sum + (set.targetReps ?? 0), 0) };
           const totalReps = workingSets.reduce((sum, set) => sum + set.reps, 0);
           const next = await this.repGoalService.recordSessionResult(
             exerciseId,
@@ -2463,16 +2472,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   // Whether `sessionExercise`'s working sets met its own scheme's success
   // rule. Every scheme except Rep Goal carries a per-set targetReps that the
-  // generic comparison below can check directly. Rep Goal's sets have no
-  // per-set target at all (see noDefaultTargetRepsSchemes) - its target is
-  // the SUM of reps across every working set - so it needs its own rule
-  // instead of being silently treated as an automatic pass by the generic
-  // "targetReps === undefined" fallback.
+  // generic comparison below can check directly. Rep Goal compares the SUM
+  // of reps across every working set instead, against the SUM of those same
+  // sets' own targets for a manual session (no plan config to read a single
+  // total from - see recordManualProgressionProgress) - so it needs its own
+  // rule instead of being silently treated as an automatic pass by the
+  // generic "targetReps === undefined" fallback.
   private exerciseSucceeded(sessionExercise: SessionExercise, workingSets: ExerciseSet[], planId: string | undefined): boolean {
     if (sessionExercise.incrementScheme === 'REP_GOAL') {
       const plan = planId ? this.trainingPlans.find((p) => p.id === planId) : undefined;
       const config = plan?.exerciseConfigs?.find((c) => c.exerciseId === sessionExercise.exerciseId);
-      const totalRepGoal = config?.repGoal?.totalRepGoal ?? this.settingsService.getSettings().repGoalTotalRepGoal;
+      const totalRepGoal = config?.repGoal?.totalRepGoal ?? workingSets.reduce((sum, set) => sum + (set.targetReps ?? 0), 0);
       const totalReps = workingSets.reduce((sum, set) => sum + set.reps, 0);
       return totalReps > totalRepGoal;
     }
@@ -3597,6 +3607,24 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async completeSet(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): Promise<void> {
     if (this.isPaused(session)) {
+      return;
+    }
+    // Manual sessions have no plan config to read a Rep Goal exercise's total
+    // from any more (see exerciseSucceeded/recordManualProgressionProgress) -
+    // it's derived from the sum of each working set's own target instead, so
+    // every one of them needs a real value before it can count. Plan-generated
+    // sets are unaffected: they still get their total from the plan's own
+    // per-exercise "Wiederholungsziel" override, same as before.
+    if (
+      !session.trainingPlanId &&
+      set.type === 'working' &&
+      sessionExercise.incrementScheme === 'REP_GOAL' &&
+      (set.targetReps === undefined || set.targetReps <= 0)
+    ) {
+      this.snackBar.open(this.translationService.translate('sessions.repGoalTargetRepsRequiredError'), undefined, {
+        duration: 3000,
+        panelClass: 'set-feedback-fail'
+      });
       return;
     }
     if (this.isCountdownRunning(set)) {
