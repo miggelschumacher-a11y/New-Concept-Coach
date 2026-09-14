@@ -130,9 +130,21 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
       return;
     }
     void this.restNotificationService.scheduleGongs(remaining.map((r) => r.delaySeconds)).then((ids) => {
-      ids.forEach((id, i) => {
-        this.scheduledNotificationIds[remaining[i].index] = id;
-      });
+      if (document.hidden) {
+        ids.forEach((id, i) => {
+          this.scheduledNotificationIds[remaining[i].index] = id;
+        });
+      } else {
+        // The page already came back to the foreground while this was
+        // in flight (scheduleGongs awaits a permission check and a
+        // native bridge round-trip, both real async gaps) - storing
+        // these now would orphan them, since handleVisibilityChange's
+        // cancelAllNativeGongs already ran and won't run again until
+        // the page goes hidden a second time.
+        if (ids.length > 0) {
+          void this.restNotificationService.cancel(ids);
+        }
+      }
     });
   }
 
