@@ -26,17 +26,23 @@ export interface RestTimerDialogData {
 // component's own close() (the tap) dismisses it, not Escape or a backdrop
 // click.
 //
-// The actual gong comes from one of two mechanisms (see
-// RestNotificationService): on a native shell, a scheduled OS notification,
-// immune to the WebView's own JS timers getting throttled or suspended once
-// the screen dims/locks - the in-page tick() below still drives the visible
-// ring/elapsed count there, and only skips playing its own (redundant) sound
-// once scheduleGongs has actually confirmed the OS notification was
-// scheduled (see nativeGongConfirmed) - not merely that this is a native
-// shell, since permission can be denied or scheduling can otherwise fail
-// silently. In the browser, or whenever that confirmation never arrives,
-// tick() plays the sound itself, unchanged from before RestNotificationService
-// existed.
+// The actual gong is always played by tick() below, from the same
+// requestAnimationFrame-independent Date.now() delta the visible ring uses -
+// this is the only mechanism precise while the dialog is open and visible,
+// since it re-derives elapsed time from wall-clock deltas every second
+// rather than trusting setInterval's own firing time. A parallel native OS
+// notification (see RestNotificationService) is also scheduled on a native
+// shell purely as a backgrounded/screen-off fallback, since the WebView's JS
+// timers can be throttled or suspended once the screen dims/locks - each one
+// is cancelled the instant tick() has already played its matching gong
+// locally (see cancelNativeGong), so a foregrounded session never risks a
+// second, native-alarm-scheduling-imprecision-delayed gong on top of the
+// precise local one. AlarmManager's inexact-alarm slack (used whenever the
+// exact-alarm permission isn't granted) is what would otherwise show up as
+// the gong firing 1-2s late - irrelevant once the dialog is foregrounded and
+// this cancels it, and the only case where the native path's own timing is
+// what the user actually experiences is exactly the case it exists for:
+// screen off, nothing to compare it against.
 @Component({
   selector: 'app-rest-timer-dialog',
   standalone: true,
@@ -54,18 +60,12 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   private intervalId?: ReturnType<typeof setInterval>;
   private firstBeeped = false;
   private secondBeeped = false;
+  // Index-aligned with the delays passed to scheduleGongs, i.e. with
+  // [firstThresholdSeconds, secondThresholdSeconds?] - so
+  // scheduledNotificationIds[0] is the first gong's native notification id,
+  // [1] the second's, letting tick() cancel each one individually the
+  // moment it has already played that gong locally.
   private scheduledNotificationIds: number[] = [];
-  // True only once scheduleGongs has actually resolved with scheduled ids -
-  // isAvailable alone just means "this is a native shell", not that the OS
-  // notification was actually scheduled (permission can be denied, or
-  // scheduling can otherwise silently fail with no ids and no thrown error).
-  // tick()'s in-page fallback keys off this instead of isAvailable so a
-  // silent native failure still gets a sound while the dialog itself is open
-  // and ticking (i.e. the WebView is foregrounded and its timers aren't
-  // being throttled anyway) - the one case the native path was meant to
-  // additionally cover, screen-off/backgrounded, is unaffected since this
-  // component isn't ticking then regardless.
-  private nativeGongConfirmed = false;
 
   constructor(
     public readonly dialogRef: MatDialogRef<RestTimerDialogComponent>,
@@ -83,7 +83,6 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
           : [this.data.firstThresholdSeconds];
       void this.restNotificationService.scheduleGongs(delays).then((ids) => {
         this.scheduledNotificationIds = ids;
-        this.nativeGongConfirmed = ids.length > 0;
       });
     }
   }
@@ -99,15 +98,24 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     this.elapsedSeconds = Math.floor((Date.now() - this.startedAt) / 1000);
     if (!this.firstBeeped && this.elapsedSeconds >= this.data.firstThresholdSeconds) {
       this.firstBeeped = true;
-      if (!this.nativeGongConfirmed) {
-        this.soundService.playGong();
-      }
+      this.soundService.playGong();
+      this.cancelNativeGong(0);
     }
     if (!this.secondBeeped && this.data.secondThresholdSeconds !== undefined && this.elapsedSeconds >= this.data.secondThresholdSeconds) {
       this.secondBeeped = true;
-      if (!this.nativeGongConfirmed) {
-        this.soundService.playGong();
-      }
+      this.soundService.playGong();
+      this.cancelNativeGong(1);
+    }
+  }
+
+  // Cancels one already-scheduled native notification the instant its
+  // matching gong has been played locally (see the class comment) - a no-op
+  // if scheduleGongs hasn't resolved yet, never scheduled one for this index
+  // (unavailable/no permission), or it already fired/was already cancelled.
+  private cancelNativeGong(index: number): void {
+    const id = this.scheduledNotificationIds[index];
+    if (id !== undefined) {
+      void this.restNotificationService.cancel([id]);
     }
   }
 
@@ -123,12 +131,19 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   // recently passed and the next one still ahead), and stays full once
   // elapsed has passed every boundary - a single-threshold timer (the
   // between-exercises case) only ever has one boundary to reach.
+  //
+  // The <= below (not <) matters: elapsedSeconds reaching a boundary is
+  // exactly the instant tick() plays that gong, so the ring must still show
+  // that phase as full (fraction 1) at that same tick, moving on to the next
+  // phase only the tick after. With a plain <, elapsed===boundary already
+  // read as "past it", jumping straight to the next phase's fraction 0 and
+  // visibly resetting the ring one tick before its gong actually played.
   get ringDashOffset(): number {
     const boundaries = this.phaseBoundaries();
     let start = boundaries[boundaries.length - 1];
     let target = start;
     for (let i = 0; i < boundaries.length - 1; i++) {
-      if (this.elapsedSeconds < boundaries[i + 1]) {
+      if (this.elapsedSeconds <= boundaries[i + 1]) {
         start = boundaries[i];
         target = boundaries[i + 1];
         break;

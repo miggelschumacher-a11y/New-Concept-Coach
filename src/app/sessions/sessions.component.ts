@@ -3741,9 +3741,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const firstRestAfterSet = sessionExercise.firstRestAfterSet ?? settings.firstRestAfterSet;
     const secondRestAfterSet = sessionExercise.secondRestAfterSet ?? settings.secondRestAfterSet;
     // Each reminder is its own independent duration from the set's
-    // completion, not one added on top of the other - a "2nd rest" of 5s
-    // with a "1st rest" of 10s reminds again at 5s, not 15s.
-    const secondThresholdSeconds = secondRestAfterSet > 0 ? secondRestAfterSet : undefined;
+    // completion, not one added on top of the other - a "2nd rest" of 15s
+    // with a "1st rest" of 10s reminds again 5s after the first gong, not
+    // 15s after it. That only makes sense if the 2nd is strictly later than
+    // the 1st, so a 2nd that isn't (0 excepted, meaning "no 2nd reminder")
+    // is treated the same as 0 - this is the one place first/second actually
+    // come together regardless of which of the three override layers
+    // (per-session-exercise, per-plan-exercise, global Config default) each
+    // one came from, so it's the only place that needs to guard against an
+    // invalid combination rather than every place either one can be edited.
+    const secondThresholdSeconds = secondRestAfterSet > firstRestAfterSet ? secondRestAfterSet : undefined;
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
       data: { firstThresholdSeconds: firstRestAfterSet, secondThresholdSeconds },
       disableClose: true
