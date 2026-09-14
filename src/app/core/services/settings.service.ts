@@ -21,6 +21,9 @@ export interface AppSettings {
   // DOUBLE_PROGRESSION, then editable per exercise from there on.
   doubleProgressionLowerReps: number;
   doubleProgressionUpperReps: number;
+  // See DoubleProgressionConfig.isAmrap - same meaning, as the Config-page
+  // default.
+  doubleProgressionIsAmrap: boolean;
   doubleProgressionMode: DoubleProgressionMode;
   // Default Rep Goal System total (Config page). Copied into a plan
   // exercise's own config the first time it's switched to REP_GOAL, then
@@ -76,6 +79,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   doubleProgressionLowerReps: 8,
   doubleProgressionUpperReps: 10,
+  doubleProgressionIsAmrap: false,
   doubleProgressionMode: 'ADD_TO_ALL_SETS',
   repGoalTotalRepGoal: 25,
   waveProgressionInitialReps: 8,

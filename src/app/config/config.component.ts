@@ -24,6 +24,7 @@ import {
 } from '../core/services/settings.service';
 import { ThemeService } from '../core/services/theme.service';
 import { DoubleProgressionMode } from '../core/models/training-plan.model';
+import { formatRepRangeText, parseRepRangeText, sanitizeRepRangeInput } from '../core/utils/rep-range-text.util';
 import { IndexedDbService } from '../core/services/indexed-db.service';
 import { DriveBackupFile, GoogleDriveService } from '../core/services/google-drive.service';
 import { LANGUAGES } from '../core/services/translation.service';
@@ -81,8 +82,10 @@ export class ConfigComponent implements OnInit {
   dateOfBirth: string;
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
   theme: Theme;
-  doubleProgressionLowerReps: number;
-  doubleProgressionUpperReps: number;
+  // Formatted "4-8"/"6-10+" text - see rep-range-text.util.ts. The
+  // underlying settings are still two plain numbers plus an AMRAP flag;
+  // only the input is a single combined field.
+  doubleProgressionRepRange: string;
   doubleProgressionMode: DoubleProgressionMode;
   repGoalTotalRepGoal: number;
   waveProgressionInitialReps: number;
@@ -134,8 +137,11 @@ export class ConfigComponent implements OnInit {
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
     this.theme = settings.theme;
-    this.doubleProgressionLowerReps = settings.doubleProgressionLowerReps;
-    this.doubleProgressionUpperReps = settings.doubleProgressionUpperReps;
+    this.doubleProgressionRepRange = formatRepRangeText({
+      lowerReps: settings.doubleProgressionLowerReps,
+      upperReps: settings.doubleProgressionUpperReps,
+      isAmrap: settings.doubleProgressionIsAmrap
+    });
     this.doubleProgressionMode = settings.doubleProgressionMode;
     this.repGoalTotalRepGoal = settings.repGoalTotalRepGoal;
     this.waveProgressionInitialReps = settings.waveProgressionInitialReps;
@@ -158,8 +164,11 @@ export class ConfigComponent implements OnInit {
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
     this.theme = settings.theme;
-    this.doubleProgressionLowerReps = settings.doubleProgressionLowerReps;
-    this.doubleProgressionUpperReps = settings.doubleProgressionUpperReps;
+    this.doubleProgressionRepRange = formatRepRangeText({
+      lowerReps: settings.doubleProgressionLowerReps,
+      upperReps: settings.doubleProgressionUpperReps,
+      isAmrap: settings.doubleProgressionIsAmrap
+    });
     this.doubleProgressionMode = settings.doubleProgressionMode;
     this.repGoalTotalRepGoal = settings.repGoalTotalRepGoal;
     this.waveProgressionInitialReps = settings.waveProgressionInitialReps;
@@ -354,14 +363,35 @@ export class ConfigComponent implements OnInit {
     return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 100) : 1;
   }
 
-  async onDoubleProgressionLowerRepsChange(value: string): Promise<void> {
-    this.doubleProgressionLowerReps = this.clampReps(value);
-    await this.settingsService.updateSettings({ doubleProgressionLowerReps: this.doubleProgressionLowerReps });
+  // Sanitizes keystrokes for the combined "4-8"/"6-10+" rep-range field -
+  // unlike onRepRangeInput above (shared by the plain single-number reps
+  // fields), a bare "+" right after the first number isn't allowed here
+  // since a range is mandatory.
+  onDoubleProgressionRepRangeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = sanitizeRepRangeInput(input.value);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
   }
 
-  async onDoubleProgressionUpperRepsChange(value: string): Promise<void> {
-    this.doubleProgressionUpperReps = this.clampReps(value);
-    await this.settingsService.updateSettings({ doubleProgressionUpperReps: this.doubleProgressionUpperReps });
+  async onDoubleProgressionRepRangeChange(value: string, inputElement?: HTMLInputElement): Promise<void> {
+    const parsed = parseRepRangeText(value);
+    if (!parsed) {
+      // Malformed or backwards range - revert to the last valid value rather
+      // than silently guessing, same as this page's other numeric fields
+      // silently clamp instead of erroring.
+      if (inputElement) {
+        inputElement.value = this.doubleProgressionRepRange;
+      }
+      return;
+    }
+    this.doubleProgressionRepRange = formatRepRangeText(parsed);
+    await this.settingsService.updateSettings({
+      doubleProgressionLowerReps: parsed.lowerReps,
+      doubleProgressionUpperReps: parsed.upperReps,
+      doubleProgressionIsAmrap: parsed.isAmrap
+    });
   }
 
   async onDoubleProgressionModeChange(): Promise<void> {

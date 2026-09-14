@@ -1199,6 +1199,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         const config: DoubleProgressionConfig = {
           lowerReps: settings.doubleProgressionLowerReps,
           upperReps: settings.doubleProgressionUpperReps,
+          isAmrap: settings.doubleProgressionIsAmrap,
           mode: settings.doubleProgressionMode
         };
         const achievedReps = workingSets.map((set) => set.reps);
@@ -1291,6 +1292,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
           const config: DoubleProgressionConfig = {
             lowerReps: settings.doubleProgressionLowerReps,
             upperReps: settings.doubleProgressionUpperReps,
+            isAmrap: settings.doubleProgressionIsAmrap,
             mode: settings.doubleProgressionMode
           };
           const achievedReps = workingSets.map((set) => set.reps);
@@ -2066,10 +2068,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
               const state = await this.getOrInitDoubleProgressionState(exerciseId, seedWeight);
               const prescribedReps = computePrescribedReps(config.doubleProgression, state.repsAddedThisCycle, workingSetCount);
               const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
+              const { upperReps, isAmrap } = config.doubleProgression;
               workingSets = prescribedReps.map((reps) => ({
                 id: crypto.randomUUID(),
                 reps,
                 targetReps: reps,
+                // Only a set actually prescribed the top of the range is
+                // "hit at least this many" rather than "hit exactly this
+                // many to progress" - sets still ramping up mid-range keep a
+                // hard target.
+                isAmrap: isAmrap && reps === upperReps,
                 weight,
                 type: 'working' as SetType
               }));

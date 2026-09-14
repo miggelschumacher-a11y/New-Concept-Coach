@@ -45,6 +45,7 @@ import {
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
+import { formatRepRangeText, parseRepRangeText, sanitizeRepRangeInput } from '../core/utils/rep-range-text.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
@@ -1334,6 +1335,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       patch.doubleProgression = {
         lowerReps: settings.doubleProgressionLowerReps,
         upperReps: settings.doubleProgressionUpperReps,
+        isAmrap: settings.doubleProgressionIsAmrap,
         mode: settings.doubleProgressionMode
       };
     }
@@ -1825,7 +1827,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   private async updateDoubleProgression(
     plan: TrainingPlan,
     exerciseId: string,
-    patch: Partial<{ lowerReps: number; upperReps: number; mode: DoubleProgressionMode }>
+    patch: Partial<{ lowerReps: number; upperReps: number; isAmrap: boolean; mode: DoubleProgressionMode }>
   ): Promise<void> {
     const config = this.planExerciseConfig(plan, exerciseId);
     if (!config.doubleProgression) {
@@ -1834,12 +1836,37 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.updateConfig(plan, exerciseId, { doubleProgression: { ...config.doubleProgression, ...patch } });
   }
 
-  async updateDoubleProgressionLowerReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    await this.updateDoubleProgression(plan, exerciseId, { lowerReps: this.clampSets(value) });
+  doubleProgressionRepRangeDisplay(range: { lowerReps: number; upperReps: number; isAmrap?: boolean }): string {
+    return formatRepRangeText(range);
   }
 
-  async updateDoubleProgressionUpperReps(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    await this.updateDoubleProgression(plan, exerciseId, { upperReps: this.clampSets(value) });
+  // Sanitizes keystrokes for the combined "4-8"/"6-10+" rep-range field -
+  // see config.component.ts's onDoubleProgressionRepRangeInput, same
+  // reasoning (a bare "+" right after the first number isn't allowed, a
+  // range is mandatory).
+  onDoubleProgressionRepRangeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = sanitizeRepRangeInput(input.value);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  async updateDoubleProgressionRepRange(
+    plan: TrainingPlan,
+    exerciseId: string,
+    value: string,
+    currentRange: { lowerReps: number; upperReps: number; isAmrap?: boolean },
+    inputElement?: HTMLInputElement
+  ): Promise<void> {
+    const parsed = parseRepRangeText(value);
+    if (!parsed) {
+      if (inputElement) {
+        inputElement.value = formatRepRangeText(currentRange);
+      }
+      return;
+    }
+    await this.updateDoubleProgression(plan, exerciseId, parsed);
   }
 
   async updateDoubleProgressionMode(plan: TrainingPlan, exerciseId: string, mode: DoubleProgressionMode): Promise<void> {

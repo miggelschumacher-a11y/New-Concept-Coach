@@ -241,28 +241,14 @@
 
         <div class="increment-scheme-form">
           <mat-form-field appearance="outline" class="rep-range-field">
-            <mat-label>{{ 'config.incrementSchemeLowerReps' | translate }}</mat-label>
+            <mat-label>{{ 'config.incrementSchemeRepRange' | translate }}</mat-label>
             <input
               matInput
               type="text"
-              inputmode="numeric"
-              [value]="doubleProgressionLowerReps"
+              [value]="doubleProgressionRepRange"
               selectOnFocus
-              (input)="onRepRangeInput($event)"
-              (change)="onDoubleProgressionLowerRepsChange($any($event.target).value)"
-            />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="rep-range-field">
-            <mat-label>{{ 'config.incrementSchemeUpperReps' | translate }}</mat-label>
-            <input
-              matInput
-              type="text"
-              inputmode="numeric"
-              [value]="doubleProgressionUpperReps"
-              selectOnFocus
-              (input)="onRepRangeInput($event)"
-              (change)="onDoubleProgressionUpperRepsChange($any($event.target).value)"
+              (input)="onDoubleProgressionRepRangeInput($event)"
+              (change)="onDoubleProgressionRepRangeChange($any($event.target).value, $any($event.target))"
             />
           </mat-form-field>
 

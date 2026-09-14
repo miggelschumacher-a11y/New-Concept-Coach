@@ -34,6 +34,13 @@ export interface DoubleProgressionConfig {
   // set resets all sets back to lowerReps with an increased weight.
   lowerReps: number;
   upperReps: number;
+  // Marks the upper bound as an AMRAP target rather than a hard cap - purely
+  // a display flag (see buildSessionFromPlan's DOUBLE_PROGRESSION branch,
+  // which stamps it onto a generated set's own isAmrap once that set is
+  // prescribed exactly upperReps), same as the per-set target-reps field's
+  // own isAmrap. Success is already "achieved >= target" everywhere this is
+  // checked, so this doesn't change any pass/fail math.
+  isAmrap?: boolean;
   mode: DoubleProgressionMode;
 }
 

@@ -1629,32 +1629,16 @@
                       @if (planExerciseConfig(plan, exerciseId).incrementScheme === 'DOUBLE_PROGRESSION' && planExerciseConfig(plan, exerciseId).doubleProgression; as doubleProgression) {
                         <div class="double-progression-fields">
                           <mat-form-field appearance="outline" class="rep-range-field">
-                            <mat-label>{{ 'config.incrementSchemeLowerReps' | translate }}</mat-label>
+                            <mat-label>{{ 'config.incrementSchemeRepRange' | translate }}</mat-label>
                             <input
                               matInput
                               type="text"
-                              inputmode="numeric"
                               class="plan-sets-input"
-                              [value]="doubleProgression.lowerReps"
+                              [value]="doubleProgressionRepRangeDisplay(doubleProgression)"
                               [disabled]="!!plan.isDefault"
                               selectOnFocus
-                              (input)="onPlanExerciseSetsInput($event)"
-                              (change)="updateDoubleProgressionLowerReps(plan, exerciseId, $any($event.target).value)"
-                            />
-                          </mat-form-field>
-
-                          <mat-form-field appearance="outline" class="rep-range-field">
-                            <mat-label>{{ 'config.incrementSchemeUpperReps' | translate }}</mat-label>
-                            <input
-                              matInput
-                              type="text"
-                              inputmode="numeric"
-                              class="plan-sets-input"
-                              [value]="doubleProgression.upperReps"
-                              [disabled]="!!plan.isDefault"
-                              selectOnFocus
-                              (input)="onPlanExerciseSetsInput($event)"
-                              (change)="updateDoubleProgressionUpperReps(plan, exerciseId, $any($event.target).value)"
+                              (input)="onDoubleProgressionRepRangeInput($event)"
+                              (change)="updateDoubleProgressionRepRange(plan, exerciseId, $any($event.target).value, doubleProgression, $any($event.target))"
                             />
                           </mat-form-field>
 
