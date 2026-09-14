@@ -569,6 +569,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // and open the copy popup on top of (or instead of) the equipment dialog
   // our own touch-driven timer is already opening.
   private lastFieldPressWasTouch = false;
+  // Timestamp of the last real touchend/touchcancel on one of these fields.
+  // After a genuine tap, Chromium/WebView still synthesizes a compatibility
+  // mousedown+mouseup+click pair shortly afterwards (so old code that only
+  // listens for mouse events keeps working) - without this guard, that
+  // "ghost" mousedown would re-run onSetFieldMouseDown a second time with
+  // lastFieldPressWasTouch wrongly set to false (it's a real 'mousedown'
+  // event, even though it was synthesized from the same physical tap),
+  // starting a second long-press timer under the wrong touch/mouse
+  // classification. A plain tap should just focus the field, not risk
+  // opening any popup.
+  private lastTouchEndAt = 0;
   private suppressNextDocumentClick = false;
   private setFieldCopyPopupKey: string | null = null;
   setFieldCopyPopupPosition: { top: number; left: number } | null = null;
@@ -600,8 +611,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
     kind: 'targetReps' | 'reps' | 'weight',
     set?: ExerciseSet
   ): void {
+    const isTouch = event.type.startsWith('touch');
+    if (!isTouch && Date.now() - this.lastTouchEndAt < 700) {
+      // A ghost mousedown synthesized from the tap that just ended on this
+      // same field (see lastTouchEndAt) - ignore it rather than starting a
+      // second long-press timer for what was already handled as a tap.
+      return;
+    }
     this.clearLongPressTimer();
-    this.lastFieldPressWasTouch = event.type.startsWith('touch');
+    this.lastFieldPressWasTouch = isTouch;
     const triggerEl = event.currentTarget as HTMLInputElement;
     this.longPressTimeoutId = setTimeout(() => {
       this.longPressTimeoutId = null;
@@ -693,11 +711,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSetFieldMouseUp(): void {
+  onSetFieldMouseUp(event?: Event): void {
+    if (event?.type.startsWith('touch')) {
+      this.lastTouchEndAt = Date.now();
+    }
     this.clearLongPressTimer();
   }
 
-  onSetFieldMouseLeave(): void {
+  onSetFieldMouseLeave(event?: Event): void {
+    if (event?.type.startsWith('touch')) {
+      this.lastTouchEndAt = Date.now();
+    }
     this.clearLongPressTimer();
   }
 

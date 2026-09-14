@@ -6,7 +6,15 @@ import { TranslationService } from './translation.service';
 // The "gong" notification channel (Android 8+/API 26+ ignores a
 // notification's own `sound` field entirely and only honors the sound
 // configured on its channel - see createChannel below).
-const CHANNEL_ID = 'rest-gong';
+// Bumped from 'rest-gong' - Android treats a channel's sound/importance as
+// immutable once created, so a device that already has the old channel id
+// registered (e.g. from an earlier debug build installed before gong.mp3
+// existed, or before this config was correct) would silently keep ignoring
+// every future createChannel call with the same id, playing no sound at all
+// with no error anywhere. A new id forces every device onto a fresh channel
+// with the current settings; do this again in the future if the sound ever
+// needs to change.
+const CHANNEL_ID = 'rest-gong-v2';
 // Must exist as android/app/src/main/res/raw/gong.mp3 - Android's channel/
 // notification `sound` fields take a bare filename resolved against that
 // folder, iOS resolves the same name against the app bundle. iOS only reads

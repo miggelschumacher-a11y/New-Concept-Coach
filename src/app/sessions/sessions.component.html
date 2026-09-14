@@ -1065,11 +1065,11 @@
                                     (input)="onTargetRepsFieldInput($event)"
                                     (change)="updateTargetReps(session, sessionExercise, set, $any($event.target).value, $any($event.target))"
                                     (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
-                                    (mouseup)="onSetFieldMouseUp()"
-                                    (mouseleave)="onSetFieldMouseLeave()"
+                                    (mouseup)="onSetFieldMouseUp($event)"
+                                    (mouseleave)="onSetFieldMouseLeave($event)"
                                     (touchstart)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
-                                    (touchend)="onSetFieldMouseUp()"
-                                    (touchcancel)="onSetFieldMouseLeave()"
+                                    (touchend)="onSetFieldMouseUp($event)"
+                                    (touchcancel)="onSetFieldMouseLeave($event)"
                                     (contextmenu)="$event.preventDefault()"
                                   />
                                 </mat-form-field>
@@ -1099,11 +1099,11 @@
                                   (input)="onRepsFieldInput($event)"
                                   (blur)="onRepsFieldBlur(sessionExercise, set)"
                                   (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'reps')"
-                                  (mouseup)="onSetFieldMouseUp()"
-                                  (mouseleave)="onSetFieldMouseLeave()"
+                                  (mouseup)="onSetFieldMouseUp($event)"
+                                  (mouseleave)="onSetFieldMouseLeave($event)"
                                   (touchstart)="onSetFieldMouseDown($event, session, sessionExercise, 'reps')"
-                                  (touchend)="onSetFieldMouseUp()"
-                                  (touchcancel)="onSetFieldMouseLeave()"
+                                  (touchend)="onSetFieldMouseUp($event)"
+                                  (touchcancel)="onSetFieldMouseLeave($event)"
                                   (contextmenu)="$event.preventDefault()"
                                 />
                               </mat-form-field>
@@ -1135,11 +1135,11 @@
                                   (input)="onWeightFieldInput($event)"
                                   (blur)="onWeightFieldBlur(sessionExercise, set)"
                                   (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'weight', set)"
-                                  (mouseup)="onSetFieldMouseUp()"
-                                  (mouseleave)="onSetFieldMouseLeave()"
+                                  (mouseup)="onSetFieldMouseUp($event)"
+                                  (mouseleave)="onSetFieldMouseLeave($event)"
                                   (touchstart)="onSetFieldMouseDown($event, session, sessionExercise, 'weight', set)"
-                                  (touchend)="onSetFieldMouseUp()"
-                                  (touchcancel)="onSetFieldMouseLeave()"
+                                  (touchend)="onSetFieldMouseUp($event)"
+                                  (touchcancel)="onSetFieldMouseLeave($event)"
                                   (contextmenu)="onWeightFieldContextMenu($event, session, sessionExercise)"
                                 />
                               </mat-form-field>
