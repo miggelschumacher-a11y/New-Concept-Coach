@@ -66,7 +66,9 @@ import {
   PlanExerciseType,
   IncrementScheme,
   PercentageWeek,
-  WorkingSetTarget
+  WorkingSetTarget,
+  CustomPlanSession,
+  CustomSessionExercise
 } from '../core/models/training-plan.model';
 import { TrainingMethodology, GzclTier, TierLineProgressionState } from '../core/models/tier-line-progression.model';
 import { DoubleProgressionState } from '../core/models/double-progression.model';
@@ -1895,11 +1897,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
               this.buildSessionFromPlan(plan, planSession, baseSequence + index, undefined, undefined, startingWeightByExerciseId)
             )
           )
-        : plan.dayGroups && plan.dayGroups.length > 0
-          ? await this.buildDayGroupCycle(plan, baseSequence, startingWeightByExerciseId)
-          : plan.oneExercisePerSession
-            ? await this.buildOneExercisePerSessionCycle(plan, baseSequence, startingWeightByExerciseId)
-            : [await this.buildSessionFromPlan(plan, null, baseSequence, undefined, undefined, startingWeightByExerciseId)];
+        : plan.customSessions && plan.customSessions.length > 0
+          ? await Promise.all(
+              plan.customSessions.map((customSession, index) =>
+                this.buildSessionFromCustomSession(plan, customSession, baseSequence + index, index, startingWeightByExerciseId)
+              )
+            )
+          : plan.dayGroups && plan.dayGroups.length > 0
+            ? await this.buildDayGroupCycle(plan, baseSequence, startingWeightByExerciseId)
+            : plan.oneExercisePerSession
+              ? await this.buildOneExercisePerSessionCycle(plan, baseSequence, startingWeightByExerciseId)
+              : [await this.buildSessionFromPlan(plan, null, baseSequence, undefined, undefined, startingWeightByExerciseId)];
     for (const session of newSessions) {
       this.unsavedSessionIds.add(session.id);
     }
@@ -1929,6 +1937,29 @@ export class SessionsComponent implements OnInit, OnDestroy {
         oneRepMax: this.effectiveOneRepMax(exerciseId),
         oneRepMaxLabelKey: this.exerciseOneRepMaxLabelKey(exerciseId)
       }));
+    }
+    if (plan.customSessions && plan.customSessions.length > 0) {
+      const rowByExerciseId = new Map<string, PlanStartingWeightRow>();
+      for (const customSession of plan.customSessions) {
+        if (customSession.exerciseType === 'TIME_BASED') {
+          continue;
+        }
+        const isPercentageBased = customSession.exerciseType === 'PERCENTAGE_BASED';
+        for (const sessionExercise of customSession.exercises) {
+          const oneRepMax = this.effectiveOneRepMax(sessionExercise.exerciseId);
+          rowByExerciseId.set(sessionExercise.exerciseId, {
+            exerciseId: sessionExercise.exerciseId,
+            exerciseName: this.exerciseName(sessionExercise.exerciseId),
+            isPercentageBased,
+            weight: isPercentageBased
+              ? (oneRepMax ?? 0)
+              : (sessionExercise.workingSetTargets[0]?.weight ?? this.defaultWeight(sessionExercise.exerciseId, 'working')),
+            oneRepMax,
+            oneRepMaxLabelKey: this.exerciseOneRepMaxLabelKey(sessionExercise.exerciseId)
+          });
+        }
+      }
+      return [...rowByExerciseId.values()];
     }
     const rows: PlanStartingWeightRow[] = [];
     for (const exerciseId of plan.exerciseIds) {
@@ -2392,6 +2423,158 @@ export class SessionsComponent implements OnInit, OnDestroy {
     };
   }
 
+  // Counterpart to buildSessionFromPlan's flat plan.exerciseIds/
+  // exerciseConfigs branch, for a plan built entirely out of its own
+  // customSessions ("Trainingseinheiten") instead - a plan.exerciseIds-only
+  // fallback silently produced zero exercises for these, since a
+  // customSessions-only plan never populates exerciseIds/exerciseConfigs at
+  // all. Each CustomSessionExercise always carries its own explicit
+  // workingSetTargets/warmupSetTargets/cooldownSetTargets (never a plain
+  // count, unlike PlanExerciseConfig), so every set - regardless of the
+  // owning customSession's exerciseType - is built straight from its own
+  // target row. DOUBLE_PROGRESSION/REP_GOAL/WAVE_PROGRESSION have no
+  // per-scheme config object on CustomSessionExercise (unlike
+  // PlanExerciseConfig's own doubleProgression/repGoal/waveProgression) so
+  // they degrade to a literal NONE-style read of the target list, same as
+  // buildSessionFromPlan already does when a flat plan exercise picks one of
+  // those schemes without configuring it.
+  private async buildSessionFromCustomSession(
+    plan: TrainingPlan,
+    customSession: CustomPlanSession,
+    sequence: number,
+    sessionIndex: number,
+    startingWeightByExerciseId?: Map<string, number>
+  ): Promise<TrainingSession> {
+    const now = new Date();
+    const name = `${plan.name} – ${this.translationService.translate('trainingPlans.sessionLabel')} ${sessionIndex + 1}`;
+    const exerciseType = customSession.exerciseType ?? 'WEIGHT_BASED';
+    const hasIncrementScheme = exerciseType === 'WEIGHT_BASED';
+
+    const buildFromTargets = (
+      targets: WorkingSetTarget[],
+      type: SetType,
+      weightFor: (target: WorkingSetTarget) => number,
+      isTargetTimeBased: (target: WorkingSetTarget) => boolean
+    ): SessionExercise['sets'] =>
+      targets.map((target) => {
+        if (isTargetTimeBased(target)) {
+          return {
+            id: crypto.randomUUID(),
+            reps: 0,
+            weight: 0,
+            seconds: target.seconds ?? 0,
+            targetSeconds: target.seconds,
+            type,
+            referenceExerciseId: target.referenceExerciseId
+          };
+        }
+        const parsed = this.parseTargetRepsText(target.targetReps);
+        return {
+          id: crypto.randomUUID(),
+          reps: parsed.targetRepsMax ?? parsed.targetReps ?? 0,
+          targetReps: parsed.targetReps,
+          targetRepsMax: parsed.targetRepsMax,
+          isAmrap: parsed.isAmrap,
+          weight: weightFor(target),
+          type,
+          referenceExerciseId: target.referenceExerciseId
+        };
+      });
+
+    const exercises: SessionExercise[] = await Promise.all(
+      customSession.exercises.map(async (sessionExercise) => {
+        const exerciseId = sessionExercise.exerciseId;
+        const startingWeightOverride = startingWeightByExerciseId?.get(exerciseId);
+
+        let workingSets: SessionExercise['sets'];
+        if (exerciseType === 'PERCENTAGE_BASED') {
+          workingSets = buildFromTargets(
+            sessionExercise.workingSetTargets,
+            'working',
+            (target) =>
+              this.roundToWeightIncrement(
+                this.applyCustomSessionDeload(plan, exerciseId, sessionExercise, this.percentageSetWeight(exerciseId, target.weight))
+              ),
+            () => false
+          );
+        } else if (exerciseType === 'TIME_BASED') {
+          workingSets = buildFromTargets(sessionExercise.workingSetTargets, 'working', () => 0, () => true);
+        } else if (sessionExercise.incrementScheme === 'LINEAR_PROGRESSION') {
+          const seedWeight =
+            startingWeightOverride ?? sessionExercise.workingSetTargets[0]?.weight ?? this.defaultWeight(exerciseId, 'working');
+          const state = await this.getOrInitLinearProgressionState(exerciseId, seedWeight);
+          const weight = this.applyCustomSessionDeload(plan, exerciseId, sessionExercise, state.currentWeight);
+          workingSets = buildFromTargets(
+            sessionExercise.workingSetTargets,
+            'working',
+            () => weight,
+            () => false
+          );
+        } else {
+          // NONE, or a Pro scheme with no config to actually apply - literal
+          // targets, same degrade as buildSessionFromPlan's own flat-plan
+          // branch.
+          workingSets = buildFromTargets(
+            sessionExercise.workingSetTargets,
+            'working',
+            (target) => this.applyCustomSessionDeload(plan, exerciseId, sessionExercise, startingWeightOverride ?? target.weight),
+            () => false
+          );
+        }
+
+        const isReferenceTimeBased = (target: WorkingSetTarget) =>
+          target.isTimeBased ?? exerciseType === 'TIME_BASED';
+        const warmupSets = buildFromTargets(sessionExercise.warmupSetTargets ?? [], 'warmup', (target) => target.weight, isReferenceTimeBased);
+        const cooldownSets = buildFromTargets(
+          sessionExercise.cooldownSetTargets ?? [],
+          'cooldown',
+          (target) => target.weight,
+          isReferenceTimeBased
+        );
+
+        const exerciseDoubleWeightCounting = this.exercises.find((candidate) => candidate.id === exerciseId)?.doubleWeightCounting;
+        const allSets = [...warmupSets, ...workingSets, ...cooldownSets].map((set) => ({
+          ...set,
+          doubleWeightCounting: exerciseDoubleWeightCounting
+        }));
+
+        return {
+          exerciseId,
+          sets: allSets,
+          countWarmupSets: true,
+          countCooldownSets: true,
+          showWarmupSets: sessionExercise.showWarmupSets ?? warmupSets.length > 0,
+          showCooldownSets: sessionExercise.showCooldownSets ?? cooldownSets.length > 0,
+          exerciseType,
+          incrementScheme: hasIncrementScheme ? sessionExercise.incrementScheme : undefined,
+          deloadAfterFailures: sessionExercise.deloadAfterFailures,
+          deloadPercent: sessionExercise.deloadPercent,
+          deloadType: sessionExercise.deloadType,
+          weightIncrement: sessionExercise.weightIncrement,
+          incrementType: sessionExercise.incrementType,
+          firstRestAfterSet: sessionExercise.firstRestAfterSet,
+          secondRestAfterSet: sessionExercise.secondRestAfterSet,
+          restBetweenExercises: sessionExercise.restBetweenExercises
+        };
+      })
+    );
+
+    return {
+      id: crypto.randomUUID(),
+      name,
+      date: toDateTimeLocalValue(now),
+      trainingPlanId: plan.id,
+      customSessionId: customSession.id,
+      sequence,
+      exercises,
+      timerElapsedMs: 0,
+      timerRunning: false,
+      timerStartedAt: undefined,
+      startedAt: undefined,
+      finished: false
+    };
+  }
+
   private async replenishSession(sourceSession: TrainingSession): Promise<void> {
     const newSession = sourceSession.trainingPlanId
       ? await this.buildPlanReplenishment(sourceSession)
@@ -2425,6 +2608,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const plan = this.trainingPlans.find((p) => p.id === sourceSession.trainingPlanId);
     if (!plan) {
       return null;
+    }
+    if (sourceSession.customSessionId) {
+      const customSessions = plan.customSessions ?? [];
+      const customSessionIndex = customSessions.findIndex((cs) => cs.id === sourceSession.customSessionId);
+      if (customSessionIndex === -1) {
+        // Custom session no longer exists on the plan; nothing to replenish.
+        return null;
+      }
+      return this.buildSessionFromCustomSession(plan, customSessions[customSessionIndex], Date.now(), customSessionIndex);
     }
     const planSession = sourceSession.planSessionId
       ? (plan.planSessions?.find((ps) => ps.id === sourceSession.planSessionId) ?? null)
@@ -2839,6 +3031,25 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   private reduceByPercent(weight: number, percent: number): number {
     return Math.round(weight * (1 - percent / 100) * 100) / 100;
+  }
+
+  // Same idea as applyDeload above, for a custom session's own exercise -
+  // its deload settings live directly on CustomSessionExercise (same shape
+  // as SessionExercise's own deload fields, see applyManualDeload) rather
+  // than on plan.exerciseConfigs, but the failure streak is still scoped to
+  // this plan (unlike applyManualDeload's session-wide count), since a
+  // custom-session-generated TrainingSession still carries trainingPlanId.
+  private applyCustomSessionDeload(plan: TrainingPlan, exerciseId: string, sessionExercise: CustomSessionExercise, weight: number): number {
+    if (!sessionExercise.deloadAfterFailures || !sessionExercise.deloadPercent) {
+      return weight;
+    }
+    const failures = this.consecutiveExerciseFailures(plan.id, exerciseId);
+    if (failures < sessionExercise.deloadAfterFailures) {
+      return weight;
+    }
+    return (sessionExercise.deloadType ?? 'WEIGHT') === 'PERCENT'
+      ? this.reduceByPercent(weight, sessionExercise.deloadPercent)
+      : Math.max(0, Math.round((weight - sessionExercise.deloadPercent) * 100) / 100);
   }
 
   async updateSessionExercises(session: TrainingSession, exerciseIds: string[]): Promise<void> {

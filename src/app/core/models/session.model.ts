@@ -146,6 +146,13 @@ export interface TrainingSession {
   // exercises, rather than falling back to the one-exercise-per-session or
   // single-bundled-session behavior.
   dayGroupId?: string;
+  // Which of the plan's own customSessions ("Trainingseinheiten") this
+  // session was generated from, if any - same idea as planSessionId/
+  // dayGroupId, lets replenishment regenerate from the same custom session
+  // (see SessionsComponent.buildSessionFromCustomSession) instead of
+  // falling back to the flat plan-exercise path, which a customSessions-only
+  // plan has none of.
+  customSessionId?: string;
   sequence?: number;
   exercises: SessionExercise[];
   notes?: string;
