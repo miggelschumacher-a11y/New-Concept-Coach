@@ -1863,7 +1863,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       timerRunning: false,
       timerStartedAt: undefined,
       startedAt: undefined,
-      finished: false
+      finished: false,
+      isReplenished: true
     };
   }
 
@@ -3317,8 +3318,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       }
     }
     sessionExercise.incrementScheme = incrementScheme;
-    await this.seedDoubleProgressionTargets(sessionExercise);
-    await this.seedWaveProgressionTarget(sessionExercise);
+    await this.seedDoubleProgressionTargets(session, sessionExercise);
+    await this.seedWaveProgressionTarget(session, sessionExercise);
     await this.persist(session);
   }
 
@@ -3336,7 +3337,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // their target after the fact would misrepresent what they were actually
   // judged against (see DoubleProgressionResult.targetReps). Every prescribed
   // number is always shown as AMRAP (see targetRepsHint/buildSessionFromPlan).
-  private async seedDoubleProgressionTargets(sessionExercise: SessionExercise): Promise<void> {
+  private async seedDoubleProgressionTargets(session: TrainingSession, sessionExercise: SessionExercise): Promise<void> {
     if (sessionExercise.incrementScheme !== 'DOUBLE_PROGRESSION') {
       return;
     }
@@ -3351,6 +3352,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       isAmrap: settings.doubleProgressionIsAmrap,
       mode: settings.doubleProgressionMode
     };
+    const exerciseId = sessionExercise.exerciseId;
     // A read-only peek at the tracked cycle - unlike getOrInitDoubleProgressionState,
     // this must NOT create a persisted state (seeded with a fabricated 0 KG
     // starting weight) just because the user is setting up sets before any
@@ -3358,9 +3360,23 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // initializes tracking, seeded from what was really lifted - if this ran
     // first, that real weight would find the state already existing (at 0)
     // and never get the chance to seed it.
-    const cached =
-      this.doubleProgressionStates.get(sessionExercise.exerciseId) ??
-      (await this.doubleProgressionService.getState(sessionExercise.exerciseId));
+    let cached = this.doubleProgressionStates.get(exerciseId) ?? (await this.doubleProgressionService.getState(exerciseId));
+    // A brand-new, hand-created session (session.isReplenished unset, and
+    // not part of a plan - a plan's own sessions always continue regardless
+    // of how they were created) isn't a continuation of an ongoing cycle,
+    // so it starts every auto-tracked exercise's rep cycle fresh rather than
+    // wherever unrelated past use happens to have left it - the tracked
+    // WEIGHT is deliberately left untouched, only the rep-cycle portion
+    // resets. This has to actually reset the shared state, not just this
+    // session's own display of it: finishing this session judges success
+    // against whatever rung its sets show, and computeNextDoubleProgressionState
+    // advances from state.repsAddedThisCycle - leaving that stale while
+    // showing a fresh rung here would advance from a rung this session
+    // never actually tested.
+    if (cached && !session.trainingPlanId && !session.isReplenished) {
+      cached = await this.doubleProgressionService.resetState(exerciseId, cached.currentWeight);
+      this.doubleProgressionStates.set(exerciseId, cached);
+    }
     const prescribedReps = computePrescribedReps(config, cached?.repsAddedThisCycle ?? 0, workingSets.length);
     workingSets.forEach((set, index) => {
       if (set.done) {
@@ -3388,7 +3404,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // is added while it already is, every not-yet-done working set gets the
   // current target. Already-done sets keep whatever target they were
   // judged against.
-  private async seedWaveProgressionTarget(sessionExercise: SessionExercise): Promise<void> {
+  private async seedWaveProgressionTarget(session: TrainingSession, sessionExercise: SessionExercise): Promise<void> {
     if (sessionExercise.incrementScheme !== 'WAVE_PROGRESSION') {
       return;
     }
@@ -3396,13 +3412,19 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (workingSets.length === 0) {
       return;
     }
+    const exerciseId = sessionExercise.exerciseId;
+    const settings = this.settingsService.getSettings();
     // Read-only peek, same reasoning as seedDoubleProgressionTargets's own -
     // must not create a persisted state seeded with a fabricated 0 KG
     // starting weight before any real weight is known.
-    const cached =
-      this.waveProgressionStates.get(sessionExercise.exerciseId) ??
-      (await this.waveProgressionService.getState(sessionExercise.exerciseId));
-    const targetReps = cached?.currentReps ?? this.settingsService.getSettings().waveProgressionInitialReps;
+    let cached = this.waveProgressionStates.get(exerciseId) ?? (await this.waveProgressionService.getState(exerciseId));
+    // Same "hand-created session starts the rep cycle fresh, weight stays"
+    // reset as seedDoubleProgressionTargets's own - see its comment.
+    if (cached && !session.trainingPlanId && !session.isReplenished) {
+      cached = await this.waveProgressionService.resetState(exerciseId, settings.waveProgressionInitialReps, cached.currentWeight);
+      this.waveProgressionStates.set(exerciseId, cached);
+    }
+    const targetReps = cached?.currentReps ?? settings.waveProgressionInitialReps;
     for (const set of workingSets) {
       if (set.done) {
         continue;
@@ -3614,8 +3636,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     sessionExercise.sets = [...sessionExercise.sets, newSet];
     if (type === 'working') {
-      await this.seedDoubleProgressionTargets(sessionExercise);
-      await this.seedWaveProgressionTarget(sessionExercise);
+      await this.seedDoubleProgressionTargets(session, sessionExercise);
+      await this.seedWaveProgressionTarget(session, sessionExercise);
     }
     await this.persist(session);
   }
