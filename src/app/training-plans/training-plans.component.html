@@ -867,15 +867,6 @@
                                         (change)="updateCustomSessionSetSeconds(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $any($event.target).value)"
                                       />
                                     </mat-form-field>
-                                    <button
-                                      mat-icon-button
-                                      type="button"
-                                      (click)="openHoldTimer(plan, session.id, sessionExercise.exerciseId, field, targetIndex)"
-                                      [matTooltip]="'trainingPlans.startHoldTimerButton' | translate"
-                                      [attr.aria-label]="'trainingPlans.startHoldTimerButton' | translate"
-                                    >
-                                      <mat-icon>play_arrow</mat-icon>
-                                    </button>
                                   } @else {
                                     @if (field !== 'workingSetTargets' || sessionExercise.incrementScheme !== 'DOUBLE_PROGRESSION') {
                                       <mat-form-field

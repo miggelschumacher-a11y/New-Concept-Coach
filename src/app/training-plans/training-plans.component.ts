@@ -42,7 +42,6 @@ import {
   AddDefaultWarmupRow,
   AddDefaultWarmupSelection
 } from '../sessions/add-default-warmup-dialog/add-default-warmup-dialog.component';
-import { HoldTimerDialogComponent } from './hold-timer-dialog/hold-timer-dialog.component';
 import { GzclTier, TrainingMethodology } from '../core/models/tier-line-progression.model';
 import { WEIGHT_INCREMENT_BY_EXERCISE_TYPE } from '../core/utils/tier-line-progression.util';
 import { effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideChecked } from '../core/utils/one-rep-max.util';
@@ -1282,20 +1281,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
       targets.map((target, i) => (i === index ? { ...target, isTimeBased: checked } : target))
     );
-  }
-
-  // Lets the plan author time themselves performing the reference exercise
-  // on the spot instead of guessing a duration - opens the same tap-to-stop
-  // popup style as the live session's own rest timer (see
-  // RestTimerDialogComponent), returning the elapsed seconds to store as
-  // this target's own prescribed duration.
-  async openHoldTimer(plan: TrainingPlan, sessionId: string, exerciseId: string, field: SetTargetField, index: number): Promise<void> {
-    const dialogRef = this.dialog.open<HoldTimerDialogComponent, void, number>(HoldTimerDialogComponent, { disableClose: true });
-    const elapsedSeconds = await firstValueFrom(dialogRef.afterClosed());
-    if (elapsedSeconds === undefined) {
-      return;
-    }
-    await this.updateCustomSessionSetSeconds(plan, sessionId, exerciseId, field, index, String(elapsedSeconds));
   }
 
   // Live preview only, never stored - same %1RM-to-weight rounding
