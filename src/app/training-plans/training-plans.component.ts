@@ -598,6 +598,13 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async removePlanExercise(plan: TrainingPlan, exerciseId: string): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { messageKey: 'sessions.confirmRemoveExerciseQuestion' }
+    });
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) {
+      return;
+    }
     await this.updatePlanExercises(
       plan,
       plan.exerciseIds.filter((id) => id !== exerciseId)
@@ -709,10 +716,16 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     await this.trainingPlansService.update(plan);
   }
 
-  // Removes one exercise from a custom session - same immediate-delete
-  // behavior (no confirm step) as a flat plan's own per-exercise delete
-  // button below.
+  // Removes one exercise from a custom session - same confirm-before-delete
+  // step as a flat plan's own per-exercise delete button below.
   async removeCustomSessionExercise(plan: TrainingPlan, sessionId: string, exerciseId: string): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { messageKey: 'sessions.confirmRemoveExerciseQuestion' }
+    });
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) {
+      return;
+    }
     plan.customSessions = (plan.customSessions ?? []).map((session) => {
       if (session.id !== sessionId) {
         return session;

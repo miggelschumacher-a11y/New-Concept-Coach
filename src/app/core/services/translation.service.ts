@@ -550,9 +550,9 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Cooldown',
     'exercises.cooldownRampTooltip':
       'Prozentsätze vom Arbeitsgewicht, mit denen die Cooldown-Sätze dieser Übung automatisch erzeugt werden - in Trainingseinheiten und Trainingsplänen, sofern dort noch keine eigenen Cooldown-Sätze angelegt sind.',
-    'exercises.useAsWarmupExercise': 'Auch als Aufwärmübung nehmen',
+    'exercises.useAsWarmupExercise': 'Auch als Aufwärmübung verwenden',
     'exercises.onlyAsWarmupExercise': 'Nur als Aufwärmübung nehmen',
-    'exercises.useAsCooldownExercise': 'Auch als Cooldown-Übung nehmen',
+    'exercises.useAsCooldownExercise': 'Auch als Cooldown-Übung verwenden',
     'exercises.onlyAsCooldownExercise': 'Nur als Cooldown-Übung nehmen',
     'exercises.useAsWarmupExerciseTooltip':
       'Diese Übung erscheint zusätzlich in der Aufwärm-Auswahlliste anderer Übungen, bleibt aber weiterhin in der normalen Übungsauswahl für Trainingseinheiten und -pläne wählbar.',
