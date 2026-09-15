@@ -225,13 +225,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // progression state/config rather than a flat number (see
   // buildSessionFromPlan's per-scheme branches) - a working set added via
   // addSet with no previous set to copy a real target from has no
-  // trustworthy value to fall back to, so it's left without one rather than
-  // stamped with the generic DEFAULT_TARGET_REPS, which would misreport the
-  // exercise's real prescription. Rep Goal has no "real prescription" to
-  // fall back to either (unlike the other three, it's not derived from
-  // anything tracked) - its target is whatever the user themselves enters
-  // per set, required greater than 0 before that set can be completed (see
-  // completeSet), so it's just as wrong to stamp a fabricated default there.
+  // trustworthy value to fall back to here, so it's left without one rather
+  // than stamped with the generic DEFAULT_TARGET_REPS, which would misreport
+  // the exercise's real prescription. Double Progression's addSet call is
+  // immediately followed by seedDoubleProgressionTargets, which computes and
+  // overwrites the real prescription for every not-yet-done working set
+  // (including whatever this default-skip or the previous-set copy above
+  // left it with) - so this only actually matters as this set's OWN default
+  // until that runs. Rep Goal has no "real prescription" to fall back to at
+  // all (unlike the other three, it's not derived from anything tracked) -
+  // its target is whatever the user themselves enters per set, required
+  // greater than 0 before that set can be completed (see completeSet), so
+  // it's just as wrong to stamp a fabricated default there.
   private readonly noDefaultTargetRepsSchemes: ReadonlySet<IncrementScheme> = new Set([
     'REP_GOAL',
     'DOUBLE_PROGRESSION',
@@ -2077,16 +2082,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
               const state = await this.getOrInitDoubleProgressionState(exerciseId, seedWeight);
               const prescribedReps = computePrescribedReps(config.doubleProgression, state.repsAddedThisCycle, workingSetCount);
               const weight = this.applyDeload(plan, exerciseId, state.currentWeight);
-              const { upperReps, isAmrap } = config.doubleProgression;
               workingSets = prescribedReps.map((reps) => ({
                 id: crypto.randomUUID(),
                 reps,
                 targetReps: reps,
-                // Only a set actually prescribed the top of the range is
-                // "hit at least this many" rather than "hit exactly this
-                // many to progress" - sets still ramping up mid-range keep a
-                // hard target.
-                isAmrap: isAmrap && reps === upperReps,
+                // Every prescribed number is a floor to reach, not a hard cap
+                // to land on exactly - always shown as AMRAP (see
+                // targetRepsHint), independent of the exercise's own "+"
+                // toggle, which no longer singles out just the top-of-cycle
+                // set.
+                isAmrap: true,
                 weight,
                 type: 'working' as SetType
               }));
@@ -3142,7 +3147,49 @@ export class SessionsComponent implements OnInit, OnDestroy {
       }
     }
     sessionExercise.incrementScheme = incrementScheme;
+    await this.seedDoubleProgressionTargets(sessionExercise);
     await this.persist(session);
+  }
+
+  // Double Progression's per-set reps are algorithmically prescribed, not
+  // user-entered (see computePrescribedReps) - a plan-generated session gets
+  // them stamped on at generation time, but a manual session's exercise has
+  // no such generation step to seed them from (see noDefaultTargetRepsSchemes),
+  // so this fills that gap here instead: whenever the scheme is switched to
+  // Double Progression, or a working set is added while it already is, every
+  // not-yet-done working set gets (re)assigned its prescribed number for the
+  // exercise's current tracked cycle - the same computation and Settings-page
+  // config a fresh plan session's own generation would use. Already-done sets
+  // keep whatever target they were judged against, since a set count change
+  // shifts the round-robin sequence in ADD_ONE_TOTAL_REP mode and recomputing
+  // their target after the fact would misrepresent what they were actually
+  // judged against (see DoubleProgressionResult.targetReps). Every prescribed
+  // number is always shown as AMRAP (see targetRepsHint/buildSessionFromPlan).
+  private async seedDoubleProgressionTargets(sessionExercise: SessionExercise): Promise<void> {
+    if (sessionExercise.incrementScheme !== 'DOUBLE_PROGRESSION') {
+      return;
+    }
+    const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+    if (workingSets.length === 0) {
+      return;
+    }
+    const settings = this.settingsService.getSettings();
+    const config: DoubleProgressionConfig = {
+      lowerReps: settings.doubleProgressionLowerReps,
+      upperReps: settings.doubleProgressionUpperReps,
+      isAmrap: settings.doubleProgressionIsAmrap,
+      mode: settings.doubleProgressionMode
+    };
+    const state = await this.getOrInitDoubleProgressionState(sessionExercise.exerciseId);
+    const prescribedReps = computePrescribedReps(config, state.repsAddedThisCycle, workingSets.length);
+    workingSets.forEach((set, index) => {
+      if (set.done) {
+        return;
+      }
+      set.targetReps = prescribedReps[index];
+      set.targetRepsMax = undefined;
+      set.isAmrap = true;
+    });
   }
 
   onDeloadAfterFailuresFieldInput(event: Event): void {
@@ -3344,6 +3391,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       newSet.doubleWeightCounting = exercise?.doubleWeightCounting;
     }
     sessionExercise.sets = [...sessionExercise.sets, newSet];
+    if (type === 'working') {
+      await this.seedDoubleProgressionTargets(sessionExercise);
+    }
     await this.persist(session);
   }
 
