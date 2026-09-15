@@ -564,11 +564,36 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     if (plan.isDefault) {
       return;
     }
-    plan.exerciseIds = exerciseIds;
+    // Exercises stay in the order they were added (including any manual
+    // drag-reorder via dropPlanExercise), not the alphabetical order the
+    // "Exercises" multi-select's own option list happens to report a
+    // selection in (mat-select reports $event.value in option order, not
+    // click order) - same fix as SessionsComponent.updateSessionExercises,
+    // for the identical reason: still-selected exercises keep their current
+    // position, and only ones newly checked this time get appended at the end.
+    const orderedExerciseIds = [
+      ...plan.exerciseIds.filter((exerciseId) => exerciseIds.includes(exerciseId)),
+      ...exerciseIds.filter((exerciseId) => !plan.exerciseIds.includes(exerciseId))
+    ];
+    plan.exerciseIds = orderedExerciseIds;
     const existingByExerciseId = new Map((plan.exerciseConfigs ?? []).map((config) => [config.exerciseId, config]));
-    plan.exerciseConfigs = exerciseIds.map(
+    plan.exerciseConfigs = orderedExerciseIds.map(
       (exerciseId) => existingByExerciseId.get(exerciseId) ?? this.defaultExerciseConfig(exerciseId)
     );
+    await this.trainingPlansService.update(plan);
+  }
+
+  // Drags a whole exercise (and its config) to a new position in the plan's
+  // own flat exercise list - separate from dropSetTarget, which reorders the
+  // working-set targets INSIDE one already-placed exercise.
+  async dropPlanExercise(plan: TrainingPlan, event: CdkDragDrop<string[]>): Promise<void> {
+    if (plan.isDefault || event.previousIndex === event.currentIndex) {
+      return;
+    }
+    moveItemInArray(plan.exerciseIds, event.previousIndex, event.currentIndex);
+    if (plan.exerciseConfigs) {
+      moveItemInArray(plan.exerciseConfigs, event.previousIndex, event.currentIndex);
+    }
     await this.trainingPlansService.update(plan);
   }
 
@@ -622,12 +647,20 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
 
     const newlyAddedIds = exerciseIds.filter((exerciseId) => !existingByExerciseId.has(exerciseId));
     const confirmedRampKeys = await this.confirmDefaultRampsForExercises(newlyAddedIds);
+    // Same order-preserving fix as updatePlanExercises/SessionsComponent.
+    // updateSessionExercises - keep every still-selected exercise where it
+    // already was (including any manual drag-reorder via
+    // dropCustomSessionExercise) and only append newly checked ones.
+    const orderedExerciseIds = [
+      ...(session?.exercises ?? []).map((exercise) => exercise.exerciseId).filter((exerciseId) => exerciseIds.includes(exerciseId)),
+      ...newlyAddedIds
+    ];
 
     plan.customSessions = (plan.customSessions ?? []).map((candidate) => {
       if (candidate.id !== sessionId) {
         return candidate;
       }
-      const sessionExercises: CustomSessionExercise[] = exerciseIds.map((exerciseId) => {
+      const sessionExercises: CustomSessionExercise[] = orderedExerciseIds.map((exerciseId) => {
         const existing = existingByExerciseId.get(exerciseId);
         if (existing) {
           return existing;
@@ -655,8 +688,24 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
           // when the exercise was added.
         };
       });
-      return { ...candidate, exerciseIds, exercises: sessionExercises };
+      return { ...candidate, exerciseIds: orderedExerciseIds, exercises: sessionExercises };
     });
+    await this.trainingPlansService.update(plan);
+  }
+
+  // Drags a whole exercise to a new position within one custom session's own
+  // list - separate from dropCustomSessionSet, which reorders the working-
+  // set targets INSIDE one already-placed exercise.
+  async dropCustomSessionExercise(plan: TrainingPlan, sessionId: string, event: CdkDragDrop<CustomSessionExercise[]>): Promise<void> {
+    if (event.previousIndex === event.currentIndex) {
+      return;
+    }
+    const session = (plan.customSessions ?? []).find((candidate) => candidate.id === sessionId);
+    if (!session) {
+      return;
+    }
+    moveItemInArray(session.exercises, event.previousIndex, event.currentIndex);
+    session.exerciseIds = session.exercises.map((exercise) => exercise.exerciseId);
     await this.trainingPlansService.update(plan);
   }
 

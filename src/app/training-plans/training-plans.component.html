@@ -530,9 +530,14 @@
                     </mat-form-field>
 
                     @if ((session.exercises ?? []).length > 0) {
-                      <mat-accordion multi class="exercise-accordion">
+                      <mat-accordion
+                        multi
+                        class="exercise-accordion"
+                        cdkDropList
+                        (cdkDropListDropped)="dropCustomSessionExercise(plan, session.id, $event)"
+                      >
                         @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
-                          <mat-expansion-panel>
+                          <mat-expansion-panel cdkDrag>
                             <mat-expansion-panel-header>
                               <div class="header-delete-action">
                                 <button
@@ -544,6 +549,15 @@
                                 >
                                   <mat-icon>delete</mat-icon>
                                 </button>
+                              </div>
+                              <div
+                                class="exercise-drag-handle"
+                                cdkDragHandle
+                                (click)="$event.stopPropagation()"
+                                [matTooltip]="'sessions.dragToReorder' | translate"
+                                [attr.aria-label]="'sessions.dragToReorder' | translate"
+                              >
+                                <mat-icon>drag_indicator</mat-icon>
                               </div>
                               <mat-panel-title>
                                 {{ exerciseName(sessionExercise.exerciseId) }}
@@ -1055,9 +1069,15 @@
           (!plan.dayGroups || plan.dayGroups.length === 0) &&
           plan.exerciseIds.length > 0
         ) {
-          <mat-accordion multi class="exercise-accordion">
+          <mat-accordion
+            multi
+            class="exercise-accordion"
+            cdkDropList
+            [cdkDropListDisabled]="!!plan.isDefault"
+            (cdkDropListDropped)="dropPlanExercise(plan, $event)"
+          >
             @for (exerciseId of plan.exerciseIds; track exerciseId) {
-              <mat-expansion-panel>
+              <mat-expansion-panel cdkDrag [cdkDragDisabled]="!!plan.isDefault">
                 <mat-expansion-panel-header>
                   @if (!plan.isDefault) {
                     <div class="header-delete-action">
@@ -1070,6 +1090,15 @@
                       >
                         <mat-icon>delete</mat-icon>
                       </button>
+                    </div>
+                    <div
+                      class="exercise-drag-handle"
+                      cdkDragHandle
+                      (click)="$event.stopPropagation()"
+                      [matTooltip]="'sessions.dragToReorder' | translate"
+                      [attr.aria-label]="'sessions.dragToReorder' | translate"
+                    >
+                      <mat-icon>drag_indicator</mat-icon>
                     </div>
                   }
                   <mat-panel-title>
