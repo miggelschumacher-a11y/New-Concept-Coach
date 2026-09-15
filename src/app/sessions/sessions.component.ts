@@ -3127,6 +3127,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return sessionExercise.exerciseType ?? 'WEIGHT_BASED';
   }
 
+  // Whether THIS set shows the Time-Based seconds field (with its own
+  // start/stop countdown) instead of reps/weight - for an ordinary set this
+  // just follows the owning sessionExercise's own type, same as before this
+  // existed. A warm-up/cooldown set added for a DIFFERENT exercise (see
+  // ExerciseSet.referenceExerciseId) instead follows THAT exercise's own
+  // Exercise.warmupCooldownTimeBased flag, since the referenced exercise
+  // (e.g. a mobility drill logged in seconds) has nothing to do with the
+  // owning exercise's own type (e.g. a weight-based Squat).
+  isSetTimeBased(sessionExercise: SessionExercise, set: ExerciseSet): boolean {
+    if (set.referenceExerciseId) {
+      return this.exercises.find((exercise) => exercise.id === set.referenceExerciseId)?.warmupCooldownTimeBased ?? false;
+    }
+    return this.sessionExerciseTypeDisplay(sessionExercise) === 'TIME_BASED';
+  }
+
   sessionIncrementSchemeDisplay(sessionExercise: SessionExercise): IncrementScheme {
     return sessionExercise.incrementScheme ?? 'NONE';
   }
@@ -4446,18 +4461,21 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Applies to every not-yet-done set of the exercise - unlike
-  // updateTargetReps, there's no long-press copy popup for this field, so
-  // this stays the only way to propagate a target across the exercise's
-  // sets. Also prefills the achieved-seconds field with the target, so
-  // hitting it needs no typing, just confirming the set.
-  async updateTargetSeconds(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
+  // Applies to every not-yet-done set of the SAME group (same type and same
+  // referenceExerciseId, or lack thereof - a warm-up/cooldown set added for
+  // a different, Time-Based reference exercise is its own group, distinct
+  // from the owning exercise's own working sets) - unlike updateTargetReps,
+  // there's no long-press copy popup for this field, so this stays the only
+  // way to propagate a target across that group's sets. Also prefills the
+  // achieved-seconds field with the target, so hitting it needs no typing,
+  // just confirming the set.
+  async updateTargetSeconds(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, value: string): Promise<void> {
     const trimmed = value.trim();
     const parsed = trimmed === '' ? undefined : parseInt(trimmed, 10);
     const targetSeconds = parsed !== undefined && Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_COUNTDOWN_SECONDS) : undefined;
 
     for (const candidate of sessionExercise.sets) {
-      if (candidate.done) {
+      if (candidate.done || candidate.type !== set.type || candidate.referenceExerciseId !== set.referenceExerciseId) {
         continue;
       }
       candidate.targetSeconds = targetSeconds;

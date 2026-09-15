@@ -225,6 +225,16 @@
           >
             {{ 'exercises.onlyAsCooldownExercise' | translate }}
           </mat-checkbox>
+          @if (isWarmupOrCooldownReference(exercise)) {
+            <mat-checkbox
+              [checked]="exercise.warmupCooldownTimeBased ?? false"
+              (change)="updateWarmupCooldownTimeBased(exercise, $event.checked)"
+              [matTooltip]="'exercises.warmupCooldownTimeBasedTooltip' | translate"
+              matTooltipPosition="above"
+            >
+              {{ 'exercises.warmupCooldownTimeBased' | translate }}
+            </mat-checkbox>
+          }
         </div>
 
         <mat-accordion multi class="ramp-accordion">
