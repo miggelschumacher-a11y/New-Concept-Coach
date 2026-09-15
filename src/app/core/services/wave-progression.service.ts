@@ -78,4 +78,15 @@ export class WaveProgressionService {
       await this.db.delete(STORES.waveProgression, exerciseId);
     });
   }
+
+  // Writes back a full snapshot captured earlier (see SessionsComponent.
+  // captureProgressionSnapshots) - used to undo a single advance when the
+  // session it produced is discarded, unlike resetState above which only
+  // ever moves currentReps/currentWeight/waveStartWeight to fresh starting
+  // values.
+  async restoreState(state: WaveProgressionState): Promise<void> {
+    await this.lock.acquire(async () => {
+      await this.db.put(STORES.waveProgression, state);
+    });
+  }
 }

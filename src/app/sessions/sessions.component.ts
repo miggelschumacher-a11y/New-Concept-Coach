@@ -51,7 +51,7 @@ import { LinearProgressionService } from '../core/services/linear-progression.se
 import { BodyWeightService } from '../core/services/body-weight.service';
 import { DumbbellsService } from '../core/services/dumbbells.service';
 import { PlatesService } from '../core/services/plates.service';
-import { TrainingSession, SessionExercise, SetType, ExerciseSet } from '../core/models/session.model';
+import { TrainingSession, SessionExercise, SetType, ExerciseSet, ProgressionSnapshot } from '../core/models/session.model';
 import { Exercise, WarmupRampStep } from '../core/models/exercise.model';
 import { DumbbellEntry } from '../core/models/dumbbell-entry.model';
 import { PlateEntry } from '../core/models/plate-entry.model';
@@ -175,6 +175,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
   private readonly repGoalStates = new Map<string, RepGoalState>();
   private readonly waveProgressionStates = new Map<string, WaveProgressionState>();
   private readonly linearProgressionStates = new Map<string, LinearProgressionState>();
+  // Undo backups captured right before a just-finished session's own
+  // record*Progress call advances each exercise's tracked state, keyed by
+  // that source session's id - consumed by replenishSession once the
+  // replenished session actually exists (immediately in "always" mode, or
+  // whenever confirmReplenish runs in "ask" mode) so it can carry the
+  // relevant snapshots forward onto that new session (see
+  // TrainingSession.progressionSnapshots).
+  private readonly pendingProgressionSnapshots = new Map<string, Record<string, ProgressionSnapshot>>();
 
   bodyWeightEntries: BodyWeightEntry[] = [];
   private readonly confirmedBodyWeightFallbackSessionIds = new Set<string>();
@@ -1082,6 +1090,92 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const state = existing ?? (await this.linearProgressionService.initState(exerciseId, seedWeight));
     this.linearProgressionStates.set(exerciseId, state);
     return state;
+  }
+
+  // A read-only snapshot of every auto-tracked exercise in `session`, taken
+  // right before finishing it runs any record*Progress call - see
+  // pendingProgressionSnapshots. Each state object returned by a service's
+  // getState/cache is never mutated in place (every computeNext* function
+  // returns a new object via spread - see e.g. computeNextDoubleProgressionState),
+  // so holding onto this reference stays safe even after the real advance
+  // happens moments later.
+  private async captureProgressionSnapshots(session: TrainingSession): Promise<Record<string, ProgressionSnapshot>> {
+    const snapshots: Record<string, ProgressionSnapshot> = {};
+    for (const sessionExercise of session.exercises) {
+      const exerciseId = sessionExercise.exerciseId;
+      switch (sessionExercise.incrementScheme) {
+        case 'DOUBLE_PROGRESSION': {
+          const state = this.doubleProgressionStates.get(exerciseId) ?? (await this.doubleProgressionService.getState(exerciseId));
+          snapshots[exerciseId] = { scheme: 'DOUBLE_PROGRESSION', exerciseId, state };
+          break;
+        }
+        case 'REP_GOAL': {
+          const state = this.repGoalStates.get(exerciseId) ?? (await this.repGoalService.getState(exerciseId));
+          snapshots[exerciseId] = { scheme: 'REP_GOAL', exerciseId, state };
+          break;
+        }
+        case 'WAVE_PROGRESSION': {
+          const state = this.waveProgressionStates.get(exerciseId) ?? (await this.waveProgressionService.getState(exerciseId));
+          snapshots[exerciseId] = { scheme: 'WAVE_PROGRESSION', exerciseId, state };
+          break;
+        }
+        case 'LINEAR_PROGRESSION': {
+          const state = this.linearProgressionStates.get(exerciseId) ?? (await this.linearProgressionService.getState(exerciseId));
+          snapshots[exerciseId] = { scheme: 'LINEAR_PROGRESSION', exerciseId, state };
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    return snapshots;
+  }
+
+  // Undoes exactly the advances `snapshots` back up - see deleteSession. A
+  // null state means the exercise had no tracked state before this session's
+  // source was finished (its very first session ever) - restoring that
+  // means deleting the state finishing created, not writing anything back.
+  private async restoreProgressionSnapshots(snapshots: Record<string, ProgressionSnapshot>): Promise<void> {
+    for (const snapshot of Object.values(snapshots)) {
+      switch (snapshot.scheme) {
+        case 'DOUBLE_PROGRESSION':
+          if (snapshot.state) {
+            await this.doubleProgressionService.restoreState(snapshot.state);
+            this.doubleProgressionStates.set(snapshot.exerciseId, snapshot.state);
+          } else {
+            await this.doubleProgressionService.deleteState(snapshot.exerciseId);
+            this.doubleProgressionStates.delete(snapshot.exerciseId);
+          }
+          break;
+        case 'REP_GOAL':
+          if (snapshot.state) {
+            await this.repGoalService.restoreState(snapshot.state);
+            this.repGoalStates.set(snapshot.exerciseId, snapshot.state);
+          } else {
+            await this.repGoalService.deleteState(snapshot.exerciseId);
+            this.repGoalStates.delete(snapshot.exerciseId);
+          }
+          break;
+        case 'WAVE_PROGRESSION':
+          if (snapshot.state) {
+            await this.waveProgressionService.restoreState(snapshot.state);
+            this.waveProgressionStates.set(snapshot.exerciseId, snapshot.state);
+          } else {
+            await this.waveProgressionService.deleteState(snapshot.exerciseId);
+            this.waveProgressionStates.delete(snapshot.exerciseId);
+          }
+          break;
+        case 'LINEAR_PROGRESSION':
+          if (snapshot.state) {
+            await this.linearProgressionService.restoreState(snapshot.state);
+            this.linearProgressionStates.set(snapshot.exerciseId, snapshot.state);
+          } else {
+            await this.linearProgressionService.deleteState(snapshot.exerciseId);
+            this.linearProgressionStates.delete(snapshot.exerciseId);
+          }
+          break;
+      }
+    }
   }
 
   private async recordLinearProgressionProgress(session: TrainingSession): Promise<void> {
@@ -2282,8 +2376,25 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const newSession = sourceSession.trainingPlanId
       ? await this.buildPlanReplenishment(sourceSession)
       : await this.buildManualReplenishment(sourceSession);
+    const pendingSnapshots = this.pendingProgressionSnapshots.get(sourceSession.id);
+    this.pendingProgressionSnapshots.delete(sourceSession.id);
     if (!newSession) {
       return;
+    }
+    if (pendingSnapshots) {
+      // Only the exercises this new session actually carries forward - a
+      // rotating plan's next day can drop some of the source session's
+      // exercises entirely, and there's nothing to undo for those here.
+      const relevantSnapshots: Record<string, ProgressionSnapshot> = {};
+      for (const sessionExercise of newSession.exercises) {
+        const snapshot = pendingSnapshots[sessionExercise.exerciseId];
+        if (snapshot) {
+          relevantSnapshots[sessionExercise.exerciseId] = snapshot;
+        }
+      }
+      if (Object.keys(relevantSnapshots).length > 0) {
+        newSession.progressionSnapshots = relevantSnapshots;
+      }
     }
     this.unsavedSessionIds.add(newSession.id);
     this.sessions = [...this.sessions, newSession];
@@ -2407,6 +2518,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session.timerStartedAt = undefined;
     session.finished = true;
     await this.persist(session);
+    // Captured before any of the record*Progress calls below actually
+    // advance each exercise's tracked state, so replenishSession can carry
+    // the pre-advance snapshot forward onto whatever session replaces this
+    // one - see pendingProgressionSnapshots.
+    this.pendingProgressionSnapshots.set(session.id, await this.captureProgressionSnapshots(session));
     await this.recordTierLineProgress(session);
     await this.recordDoubleProgressionProgress(session);
     await this.recordRepGoalProgress(session);
@@ -4448,9 +4564,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async deleteSession(id: string): Promise<void> {
+    // Deleting a still-unfinished replenished session before it's ever
+    // touched means the user doesn't want to accept the single progression
+    // advance that produced it - undo exactly that (see
+    // captureProgressionSnapshots/replenishSession). A FINISHED session's
+    // snapshot is left alone even if somehow still present: real training
+    // actually happened against that advanced target, so nothing here
+    // should un-happen it.
+    const session = this.sessions.find((candidate) => candidate.id === id);
+    if (session && !session.finished && session.progressionSnapshots) {
+      await this.restoreProgressionSnapshots(session.progressionSnapshots);
+    }
     if (this.unsavedSessionIds.has(id)) {
       this.unsavedSessionIds.delete(id);
-      this.sessions = this.sessions.filter((session) => session.id !== id);
+      this.sessions = this.sessions.filter((candidate) => candidate.id !== id);
       return;
     }
     await this.sessionsService.delete(id);
@@ -4474,6 +4601,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   cancelReplenish(): void {
+    if (this.pendingReplenishSession) {
+      this.pendingProgressionSnapshots.delete(this.pendingReplenishSession.id);
+    }
     this.pendingReplenishSession = null;
   }
 

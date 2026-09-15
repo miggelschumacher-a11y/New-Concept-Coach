@@ -1,6 +1,22 @@
 import { PlanExerciseType, IncrementScheme } from './training-plan.model';
+import { DoubleProgressionState } from './double-progression.model';
+import { RepGoalState } from './rep-goal.model';
+import { WaveProgressionState } from './wave-progression.model';
+import { LinearProgressionState } from './linear-progression.model';
 
 export type SetType = 'warmup' | 'working' | 'cooldown';
+
+// One auto-tracked exercise's progression state from just before it was
+// last advanced, tagged by which scheme it belongs to (each scheme's state
+// shape differs) - see TrainingSession.progressionSnapshots. `state: null`
+// means the exercise had no tracked state at all yet (this was its very
+// first session ever) - restoring such a snapshot deletes the state that
+// finishing created, rather than writing anything back.
+export type ProgressionSnapshot =
+  | { scheme: 'DOUBLE_PROGRESSION'; exerciseId: string; state: DoubleProgressionState | null }
+  | { scheme: 'REP_GOAL'; exerciseId: string; state: RepGoalState | null }
+  | { scheme: 'WAVE_PROGRESSION'; exerciseId: string; state: WaveProgressionState | null }
+  | { scheme: 'LINEAR_PROGRESSION'; exerciseId: string; state: LinearProgressionState | null };
 
 export interface ExerciseSet {
   id: string;
@@ -141,4 +157,15 @@ export interface TrainingSession {
   // session's body weight lookup corresponds to.
   startedAt?: string;
   finished: boolean;
+  // Undo backup for the single progression advance that generated THIS
+  // session by replenishing a just-finished one, keyed by exerciseId -
+  // captured immediately before that source session's finish updated each
+  // exercise's tracked state (Double Progression/Rep Goal/Wave Progression/
+  // Linear Progression). Deleting this session while still unfinished
+  // restores each snapshot, undoing exactly that one advance without
+  // needing to replay the exercise's whole history (see SessionsComponent.
+  // captureProgressionSnapshots/restoreProgressionSnapshots/deleteSession).
+  // Absent for a session not created this way (built from scratch, or a
+  // bulk "create sessions from plan").
+  progressionSnapshots?: Record<string, ProgressionSnapshot>;
 }
