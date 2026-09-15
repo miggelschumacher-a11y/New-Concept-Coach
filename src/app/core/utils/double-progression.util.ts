@@ -25,10 +25,13 @@ export function computePrescribedReps(
   }
   // ADD_ONE_TOTAL_REP: one extra rep lands on one more set each session,
   // round-robin, until every set has caught up — then the base level rises.
+  // The bonus lands on the LAST sets first (e.g. 4 sets: 8,8,8,9 then
+  // 8,8,9,9), not the first - later sets are the ones actually testing
+  // whether the extra rep still comes easily once fatigue has built up.
   const fullRounds = Math.floor(repsAddedThisCycle / workingSets);
   const setsAheadByOne = repsAddedThisCycle % workingSets;
   const base = config.lowerReps + fullRounds;
-  return Array.from({ length: workingSets }, (_, index) => (index < setsAheadByOne ? base + 1 : base));
+  return Array.from({ length: workingSets }, (_, index) => (index >= workingSets - setsAheadByOne ? base + 1 : base));
 }
 
 export interface DoubleProgressionResult {

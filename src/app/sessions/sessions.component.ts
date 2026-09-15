@@ -1659,51 +1659,86 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const now = new Date();
     const name = sourceSession.name;
     const exercises: SessionExercise[] = await Promise.all(
-      sourceSession.exercises.map(async (sessionExercise) => ({
-        exerciseId: sessionExercise.exerciseId,
-        sets: await Promise.all(
-          sessionExercise.sets.map(async (set) => ({
-            id: crypto.randomUUID(),
-            // Carries the just-finished set's own target reps forward (same
-            // prescription, next session), same as addSet() already does for
-            // a manually added set - and prefills the achieved-reps field
-            // from that target's top (fieldBuffer()'s own convention), not
-            // from cross-session history, now that there's a real target to
-            // prefill from. Falls back to history when the set had no target.
-            reps:
-              set.targetReps !== undefined
-                ? (set.targetRepsMax ?? set.targetReps)
-                : this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
-            weight: await this.replenishedSetWeight(sessionExercise, set),
-            type: set.type,
-            targetReps: set.targetReps,
-            targetRepsMax: set.targetRepsMax,
-            isAmrap: set.isAmrap,
-            // Time-Based counterpart to targetReps above: carries the
-            // just-finished set's prescribed duration forward, but always
-            // resets the achieved seconds back to 0 rather than carrying
-            // over what was actually held last time.
-            seconds: 0,
-            targetSeconds: set.targetSeconds
-          }))
-        ),
-        countWarmupSets: sessionExercise.countWarmupSets,
-        countCooldownSets: sessionExercise.countCooldownSets,
-        showWarmupSets: sessionExercise.showWarmupSets,
-        showCooldownSets: sessionExercise.showCooldownSets,
-        exerciseType: sessionExercise.exerciseType,
-        incrementScheme: sessionExercise.incrementScheme,
-        minReps: sessionExercise.minReps,
-        minWeight: sessionExercise.minWeight,
-        deloadAfterFailures: sessionExercise.deloadAfterFailures,
-        deloadType: sessionExercise.deloadType,
-        deloadPercent: sessionExercise.deloadPercent,
-        weightIncrement: sessionExercise.weightIncrement,
-        incrementType: sessionExercise.incrementType,
-        firstRestAfterSet: sessionExercise.firstRestAfterSet,
-        secondRestAfterSet: sessionExercise.secondRestAfterSet,
-        restBetweenExercises: sessionExercise.restBetweenExercises
-      }))
+      sourceSession.exercises.map(async (sessionExercise) => {
+        // Double Progression's targets aren't carried forward from the
+        // just-finished session's own sets like every other scheme's below -
+        // recordManualProgressionProgress has already advanced this
+        // exercise's tracked cycle by the time replenishment runs (see
+        // finishSession), so copying the old sets' targetReps verbatim would
+        // replenish the session at the SAME rung it just finished at,
+        // instead of the newly prescribed one (see computePrescribedReps).
+        let doubleProgressionPrescribedReps: number[] | undefined;
+        if (sessionExercise.incrementScheme === 'DOUBLE_PROGRESSION') {
+          const workingSetCount = sessionExercise.sets.filter((set) => set.type === 'working').length;
+          if (workingSetCount > 0) {
+            const settings = this.settingsService.getSettings();
+            const config: DoubleProgressionConfig = {
+              lowerReps: settings.doubleProgressionLowerReps,
+              upperReps: settings.doubleProgressionUpperReps,
+              isAmrap: settings.doubleProgressionIsAmrap,
+              mode: settings.doubleProgressionMode
+            };
+            const state = await this.getOrInitDoubleProgressionState(sessionExercise.exerciseId);
+            doubleProgressionPrescribedReps = computePrescribedReps(config, state.repsAddedThisCycle, workingSetCount);
+          }
+        }
+        let workingSetIndex = 0;
+        return {
+          exerciseId: sessionExercise.exerciseId,
+          sets: await Promise.all(
+            sessionExercise.sets.map(async (set) => {
+              const prescribedReps =
+                doubleProgressionPrescribedReps && set.type === 'working'
+                  ? doubleProgressionPrescribedReps[workingSetIndex++]
+                  : undefined;
+              const targetReps = prescribedReps ?? set.targetReps;
+              const targetRepsMax = prescribedReps !== undefined ? undefined : set.targetRepsMax;
+              const isAmrap = prescribedReps !== undefined ? true : set.isAmrap;
+              return {
+                id: crypto.randomUUID(),
+                // Carries the just-finished set's own target reps forward
+                // (same prescription, next session), same as addSet() already
+                // does for a manually added set - and prefills the achieved-
+                // reps field from that target's top (fieldBuffer()'s own
+                // convention), not from cross-session history, now that
+                // there's a real target to prefill from. Falls back to
+                // history when the set had no target.
+                reps:
+                  targetReps !== undefined
+                    ? (targetRepsMax ?? targetReps)
+                    : this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
+                weight: await this.replenishedSetWeight(sessionExercise, set),
+                type: set.type,
+                targetReps,
+                targetRepsMax,
+                isAmrap,
+                // Time-Based counterpart to targetReps above: carries the
+                // just-finished set's prescribed duration forward, but always
+                // resets the achieved seconds back to 0 rather than carrying
+                // over what was actually held last time.
+                seconds: 0,
+                targetSeconds: set.targetSeconds
+              };
+            })
+          ),
+          countWarmupSets: sessionExercise.countWarmupSets,
+          countCooldownSets: sessionExercise.countCooldownSets,
+          showWarmupSets: sessionExercise.showWarmupSets,
+          showCooldownSets: sessionExercise.showCooldownSets,
+          exerciseType: sessionExercise.exerciseType,
+          incrementScheme: sessionExercise.incrementScheme,
+          minReps: sessionExercise.minReps,
+          minWeight: sessionExercise.minWeight,
+          deloadAfterFailures: sessionExercise.deloadAfterFailures,
+          deloadType: sessionExercise.deloadType,
+          deloadPercent: sessionExercise.deloadPercent,
+          weightIncrement: sessionExercise.weightIncrement,
+          incrementType: sessionExercise.incrementType,
+          firstRestAfterSet: sessionExercise.firstRestAfterSet,
+          secondRestAfterSet: sessionExercise.secondRestAfterSet,
+          restBetweenExercises: sessionExercise.restBetweenExercises
+        };
+      })
     );
     return {
       id: crypto.randomUUID(),
@@ -3180,8 +3215,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
       isAmrap: settings.doubleProgressionIsAmrap,
       mode: settings.doubleProgressionMode
     };
-    const state = await this.getOrInitDoubleProgressionState(sessionExercise.exerciseId);
-    const prescribedReps = computePrescribedReps(config, state.repsAddedThisCycle, workingSets.length);
+    // A read-only peek at the tracked cycle - unlike getOrInitDoubleProgressionState,
+    // this must NOT create a persisted state (seeded with a fabricated 0 KG
+    // starting weight) just because the user is setting up sets before any
+    // real weight is known. recordManualProgressionProgress is what actually
+    // initializes tracking, seeded from what was really lifted - if this ran
+    // first, that real weight would find the state already existing (at 0)
+    // and never get the chance to seed it.
+    const cached =
+      this.doubleProgressionStates.get(sessionExercise.exerciseId) ??
+      (await this.doubleProgressionService.getState(sessionExercise.exerciseId));
+    const prescribedReps = computePrescribedReps(config, cached?.repsAddedThisCycle ?? 0, workingSets.length);
     workingSets.forEach((set, index) => {
       if (set.done) {
         return;
