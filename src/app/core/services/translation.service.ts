@@ -107,9 +107,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       "Also lets this exercise be picked in another exercise's cooldown reference list, without removing it from the normal exercise picker for sessions and plans.",
     'exercises.onlyAsCooldownExerciseTooltip':
       "Only lets this exercise be picked in another exercise's cooldown reference list - hides it from the normal exercise picker for sessions and plans.",
-    'exercises.warmupCooldownTimeBased': 'Time-Based when used as a reference',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      "When added as a warm-up/cooldown set for another exercise, this exercise uses a seconds field with its own start/stop timer instead of reps and weight.",
     'exercises.empty': 'No exercises yet.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -565,9 +562,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Diese Übung erscheint zusätzlich in der Cooldown-Auswahlliste anderer Übungen, bleibt aber weiterhin in der normalen Übungsauswahl für Trainingseinheiten und -pläne wählbar.',
     'exercises.onlyAsCooldownExerciseTooltip':
       'Diese Übung erscheint nur noch in der Cooldown-Auswahlliste anderer Übungen - sie wird aus der normalen Übungsauswahl für Trainingseinheiten und -pläne entfernt.',
-    'exercises.warmupCooldownTimeBased': 'Zeitbasiert bei Verwendung als Referenz',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      'Wird diese Übung als Aufwärm- oder Cooldown-Satz einer anderen Übung hinzugefügt, wird statt Wiederholungen und Gewicht ein Sekundenfeld mit eigenem Start-/Stopp-Timer angezeigt.',
     'exercises.empty': 'Noch keine Übungen vorhanden.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -1025,9 +1019,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Este ejercicio también aparecerá en la lista de enfriamiento de otros ejercicios, sin dejar de estar disponible en la selección normal de ejercicios para sesiones y planes.',
     'exercises.onlyAsCooldownExerciseTooltip':
       'Este ejercicio solo aparecerá en la lista de enfriamiento de otros ejercicios - se ocultará de la selección normal de ejercicios para sesiones y planes.',
-    'exercises.warmupCooldownTimeBased': 'Basado en tiempo al usarse como referencia',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      'Al añadirse como serie de calentamiento o enfriamiento de otro ejercicio, este ejercicio usa un campo de segundos con su propio temporizador de inicio/parada en lugar de repeticiones y peso.',
     'exercises.empty': 'Aún no hay ejercicios.',
     'exercises.oneRepMaxEstimated': 'Máx. ≈',
     'exercises.oneRepMaxCustom': 'Máx. =',
@@ -1485,9 +1476,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Este exercício também aparecerá na lista de desaquecimento de outros exercícios, continuando disponível na seleção normal de exercícios para sessões e planos.',
     'exercises.onlyAsCooldownExerciseTooltip':
       'Este exercício só aparecerá na lista de desaquecimento de outros exercícios - será ocultado da seleção normal de exercícios para sessões e planos.',
-    'exercises.warmupCooldownTimeBased': 'Baseado em tempo ao ser usado como referência',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      'Quando adicionado como série de aquecimento ou desaquecimento de outro exercício, este exercício usa um campo de segundos com o seu próprio temporizador de início/paragem em vez de repetições e peso.',
     'exercises.empty': 'Ainda não há exercícios.',
     'exercises.oneRepMaxEstimated': 'Máx. ≈',
     'exercises.oneRepMaxCustom': 'Máx. =',
@@ -1945,9 +1933,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       "Questo esercizio comparirà anche nell'elenco di defaticamento di altri esercizi, restando comunque selezionabile normalmente per sessioni e piani.",
     'exercises.onlyAsCooldownExerciseTooltip':
       "Questo esercizio comparirà solo nell'elenco di defaticamento di altri esercizi - non sarà più selezionabile normalmente per sessioni e piani.",
-    'exercises.warmupCooldownTimeBased': 'Basato sul tempo se usato come riferimento',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      "Quando viene aggiunto come serie di riscaldamento o defaticamento di un altro esercizio, questo esercizio usa un campo dei secondi con un proprio timer di avvio/stop invece di ripetizioni e peso.",
     'exercises.empty': 'Nessun esercizio ancora presente.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -2405,9 +2390,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       "Deze oefening verschijnt ook in de cooling-down-lijst van andere oefeningen, en blijft daarnaast gewoon kiesbaar in de normale oefeningselectie voor sessies en schema's.",
     'exercises.onlyAsCooldownExerciseTooltip':
       "Deze oefening verschijnt alleen nog in de cooling-down-lijst van andere oefeningen - ze wordt uit de normale oefeningselectie voor sessies en schema's verwijderd.",
-    'exercises.warmupCooldownTimeBased': 'Tijdgebaseerd bij gebruik als referentie',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      "Wanneer toegevoegd als warming-up- of cooling-downset van een andere oefening, gebruikt deze oefening een secondenveld met een eigen start-/stopptimer in plaats van herhalingen en gewicht.",
     'exercises.empty': 'Nog geen oefeningen aanwezig.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -2865,9 +2847,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'To ćwiczenie pojawi się także na liście wyciszającej innych ćwiczeń, pozostając nadal dostępne w zwykłym wyborze ćwiczeń dla sesji i planów.',
     'exercises.onlyAsCooldownExerciseTooltip':
       'To ćwiczenie pojawi się tylko na liście wyciszającej innych ćwiczeń - zniknie ze zwykłego wyboru ćwiczeń dla sesji i planów.',
-    'exercises.warmupCooldownTimeBased': 'Oparte na czasie przy użyciu jako referencja',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      'Gdy zostanie dodane jako seria rozgrzewkowa lub wyciszająca innego ćwiczenia, to ćwiczenie używa pola sekund z własnym przyciskiem start/stop zamiast powtórzeń i ciężaru.',
     'exercises.empty': 'Brak ćwiczeń.',
     'exercises.oneRepMaxEstimated': 'Maks. ≈',
     'exercises.oneRepMaxCustom': 'Maks. =',
@@ -3325,9 +3304,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Это упражнение также появится в списке заминочных упражнений для других упражнений, оставаясь при этом доступным в обычном выборе упражнений для тренировок и планов.',
     'exercises.onlyAsCooldownExerciseTooltip':
       'Это упражнение будет доступно только в списке заминочных упражнений для других упражнений - оно исчезнет из обычного выбора упражнений для тренировок и планов.',
-    'exercises.warmupCooldownTimeBased': 'На основе времени при использовании как референс',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      'При добавлении как разминочный или заминочный подход другого упражнения это упражнение использует поле секунд с собственным таймером старт/стоп вместо повторений и веса.',
     'exercises.empty': 'Упражнений пока нет.',
     'exercises.oneRepMaxEstimated': 'Макс. ≈',
     'exercises.oneRepMaxCustom': 'Макс. =',
@@ -3785,9 +3761,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
       'Ez a gyakorlat más gyakorlatok levezető-listájában is megjelenik, miközben továbbra is kiválasztható marad az edzések és edzéstervek szokásos gyakorlatválasztójában.',
     'exercises.onlyAsCooldownExerciseTooltip':
       'Ez a gyakorlat csak más gyakorlatok levezető-listájában jelenik meg - eltűnik az edzések és edzéstervek szokásos gyakorlatválasztójából.',
-    'exercises.warmupCooldownTimeBased': 'Időalapú referenciaként használva',
-    'exercises.warmupCooldownTimeBasedTooltip':
-      'Ha egy másik gyakorlat bemelegítő vagy levezető szettjeként adod hozzá, ez a gyakorlat ismétlések és súly helyett egy másodperc mezőt használ saját start/stop időzítővel.',
     'exercises.empty': 'Még nincsenek gyakorlatok.',
     'exercises.oneRepMaxEstimated': 'Max. ≈',
     'exercises.oneRepMaxCustom': 'Max. =',

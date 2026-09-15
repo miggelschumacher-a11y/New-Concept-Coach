@@ -153,18 +153,6 @@ export class ExercisesComponent implements OnInit {
     await this.exercisesService.update(exercise);
   }
 
-  // Gates the warmupCooldownTimeBased checkbox - meaningless (and hidden)
-  // unless this exercise can actually be added as a warm-up/cooldown
-  // reference set in the first place.
-  isWarmupOrCooldownReference(exercise: Exercise): boolean {
-    return !!(exercise.useAsWarmupExercise || exercise.onlyAsWarmupExercise || exercise.useAsCooldownExercise || exercise.onlyAsCooldownExercise);
-  }
-
-  async updateWarmupCooldownTimeBased(exercise: Exercise, checked: boolean): Promise<void> {
-    exercise.warmupCooldownTimeBased = checked;
-    await this.exercisesService.update(exercise);
-  }
-
   // Copies the previous step's own percentage/reps, same convenience as
   // adding a set target row in the plan editor - only the very first step
   // falls back to a plain default.

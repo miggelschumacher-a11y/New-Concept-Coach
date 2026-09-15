@@ -73,15 +73,6 @@ export interface Exercise {
   // cooldown reference picker instead.
   useAsCooldownExercise?: boolean;
   onlyAsCooldownExercise?: boolean;
-  // When true, a session set added for this exercise via the warm-up/
-  // cooldown reference picker's own "Add set" button (see ExerciseSet.
-  // referenceExerciseId) shows a Time-Based seconds field with its own
-  // start/stop countdown instead of the owning exercise's own reps/weight
-  // fields - see SessionsComponent.isSetTimeBased. Meaningless (and hidden)
-  // for an exercise with neither useAsWarmupExercise/onlyAsWarmupExercise
-  // nor useAsCooldownExercise/onlyAsCooldownExercise set, since it can never
-  // be added as a reference set in the first place.
-  warmupCooldownTimeBased?: boolean;
   // Manually entered 1RM override for Percentage-Based progression, used
   // instead of the auto-estimated oneRepMax above when useCustomOneRepMax
   // is on - see SessionsComponent.percentageSetWeight /

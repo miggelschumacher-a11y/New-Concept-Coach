@@ -1045,7 +1045,7 @@
                             </div>
                             <div class="set-row">
                           <div class="set-fields">
-                            @if (!isSetTimeBased(sessionExercise, set)) {
+                            @if (sessionExerciseTypeDisplay(sessionExercise) !== 'TIME_BASED') {
                               @if (canEditExerciseTypeInSession(session) && sessionExercise.incrementScheme !== 'DOUBLE_PROGRESSION') {
                                 <mat-form-field
                                   appearance="outline"
@@ -1157,7 +1157,7 @@
                                     [disabled]="isPaused(session)"
                                     selectOnFocus
                                     (input)="onTargetSecondsFieldInput($event)"
-                                    (change)="updateTargetSeconds(session, sessionExercise, set, $any($event.target).value)"
+                                    (change)="updateTargetSeconds(session, sessionExercise, $any($event.target).value)"
                                   />
                                 </mat-form-field>
                               }
