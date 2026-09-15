@@ -192,6 +192,41 @@
           </mat-checkbox>
         </div>
 
+        <div class="reference-usage-row">
+          <mat-checkbox
+            [checked]="exercise.useAsWarmupExercise ?? false"
+            (change)="updateUseAsWarmupExercise(exercise, $event.checked)"
+            [matTooltip]="'exercises.useAsWarmupExerciseTooltip' | translate"
+            matTooltipPosition="above"
+          >
+            {{ 'exercises.useAsWarmupExercise' | translate }}
+          </mat-checkbox>
+          <mat-checkbox
+            [checked]="exercise.onlyAsWarmupExercise ?? false"
+            (change)="updateOnlyAsWarmupExercise(exercise, $event.checked)"
+            [matTooltip]="'exercises.onlyAsWarmupExerciseTooltip' | translate"
+            matTooltipPosition="above"
+          >
+            {{ 'exercises.onlyAsWarmupExercise' | translate }}
+          </mat-checkbox>
+          <mat-checkbox
+            [checked]="exercise.useAsCooldownExercise ?? false"
+            (change)="updateUseAsCooldownExercise(exercise, $event.checked)"
+            [matTooltip]="'exercises.useAsCooldownExerciseTooltip' | translate"
+            matTooltipPosition="above"
+          >
+            {{ 'exercises.useAsCooldownExercise' | translate }}
+          </mat-checkbox>
+          <mat-checkbox
+            [checked]="exercise.onlyAsCooldownExercise ?? false"
+            (change)="updateOnlyAsCooldownExercise(exercise, $event.checked)"
+            [matTooltip]="'exercises.onlyAsCooldownExerciseTooltip' | translate"
+            matTooltipPosition="above"
+          >
+            {{ 'exercises.onlyAsCooldownExercise' | translate }}
+          </mat-checkbox>
+        </div>
+
         <mat-accordion multi class="ramp-accordion">
           <mat-expansion-panel>
             <mat-expansion-panel-header>
@@ -200,24 +235,6 @@
               </mat-panel-title>
               <mat-panel-description>{{ (exercise.warmupRamp ?? []).length }}</mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="reference-usage-row">
-              <mat-checkbox
-                [checked]="exercise.useAsWarmupExercise ?? false"
-                (change)="updateUseAsWarmupExercise(exercise, $event.checked)"
-                [matTooltip]="'exercises.useAsWarmupExerciseTooltip' | translate"
-                matTooltipPosition="above"
-              >
-                {{ 'exercises.useAsWarmupExercise' | translate }}
-              </mat-checkbox>
-              <mat-checkbox
-                [checked]="exercise.onlyAsWarmupExercise ?? false"
-                (change)="updateOnlyAsWarmupExercise(exercise, $event.checked)"
-                [matTooltip]="'exercises.onlyAsWarmupExerciseTooltip' | translate"
-                matTooltipPosition="above"
-              >
-                {{ 'exercises.onlyAsWarmupExercise' | translate }}
-              </mat-checkbox>
-            </div>
             @for (step of exercise.warmupRamp ?? []; track step.id; let stepIndex = $index) {
               <div class="ramp-row">
                 <button
@@ -273,24 +290,6 @@
               </mat-panel-title>
               <mat-panel-description>{{ (exercise.cooldownRamp ?? []).length }}</mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="reference-usage-row">
-              <mat-checkbox
-                [checked]="exercise.useAsCooldownExercise ?? false"
-                (change)="updateUseAsCooldownExercise(exercise, $event.checked)"
-                [matTooltip]="'exercises.useAsCooldownExerciseTooltip' | translate"
-                matTooltipPosition="above"
-              >
-                {{ 'exercises.useAsCooldownExercise' | translate }}
-              </mat-checkbox>
-              <mat-checkbox
-                [checked]="exercise.onlyAsCooldownExercise ?? false"
-                (change)="updateOnlyAsCooldownExercise(exercise, $event.checked)"
-                [matTooltip]="'exercises.onlyAsCooldownExerciseTooltip' | translate"
-                matTooltipPosition="above"
-              >
-                {{ 'exercises.onlyAsCooldownExercise' | translate }}
-              </mat-checkbox>
-            </div>
             @for (step of exercise.cooldownRamp ?? []; track step.id; let stepIndex = $index) {
               <div class="ramp-row">
                 <button
