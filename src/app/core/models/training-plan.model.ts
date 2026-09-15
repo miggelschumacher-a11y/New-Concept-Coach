@@ -99,6 +99,15 @@ export interface WorkingSetTarget {
   // cooldownExerciseId) this target is actually for. Unset means it
   // belongs to the owning exercise itself.
   referenceExerciseId?: string;
+  // Per-target override of whether THIS warmup/cooldown target is Time-Based
+  // (a held duration in seconds) rather than following the owning session's
+  // own overall exerciseType - e.g. a Weight-Based session's warm-up target
+  // for a mobility drill reference exercise, timed in seconds instead of
+  // reps/weight. Unset falls back to the owning session's exerciseType, same
+  // as before this field existed - only ever meaningful for a warmup/
+  // cooldown target (see TrainingPlansComponent.isCustomSessionSetTimeBased),
+  // never set for a workingSetTargets entry.
+  isTimeBased?: boolean;
 }
 
 export interface PlanExerciseConfig {
