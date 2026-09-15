@@ -2908,7 +2908,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const sessionSettings = this.sessionSettingsBuffer(session);
     const restSettings = this.settingsService.getSettings();
     const weightUnit = restSettings.weightUnit;
-    session.exercises = exerciseIds.map((exerciseId) => {
+    // Exercises stay in the order they were added (including any manual
+    // drag-reorder via dropExercise), not the alphabetical order the
+    // "Exercises" multi-select's own option list happens to report a
+    // selection in (mat-select reports $event.value in option order, not
+    // click order) - still-selected exercises keep their current position,
+    // and only ones newly checked this time get appended at the end.
+    const orderedExerciseIds = [
+      ...session.exercises.map((sessionExercise) => sessionExercise.exerciseId).filter((exerciseId) => exerciseIds.includes(exerciseId)),
+      ...newlyAddedIds
+    ];
+    session.exercises = orderedExerciseIds.map((exerciseId) => {
       const existing = existingByExerciseId.get(exerciseId);
       if (existing) {
         return existing;
