@@ -1776,18 +1776,37 @@ export class SessionsComponent implements OnInit, OnDestroy {
             doubleProgressionPrescribedReps = computePrescribedReps(config, state.repsAddedThisCycle, workingSetCount);
           }
         }
+        // Wave Progression's target is a single value shared by every
+        // working set (state.currentReps) - same staleness problem as
+        // Double Progression's own above, just without the per-set
+        // round-robin math, since every set gets the same number.
+        let waveProgressionTargetReps: number | undefined;
+        if (sessionExercise.incrementScheme === 'WAVE_PROGRESSION') {
+          // Read-only peek, same reasoning as seedWaveProgressionTarget's own
+          // - getOrInitWaveProgressionState would create a state seeded with
+          // whatever placeholder config/weight got passed in if none exists
+          // yet, which is never the case here anyway (recordManualProgression
+          // Progress already ran and would have initialized it for real), but
+          // there's no reason to risk it.
+          const cached =
+            this.waveProgressionStates.get(sessionExercise.exerciseId) ??
+            (await this.waveProgressionService.getState(sessionExercise.exerciseId));
+          waveProgressionTargetReps = cached?.currentReps ?? this.settingsService.getSettings().waveProgressionInitialReps;
+        }
         let workingSetIndex = 0;
         return {
           exerciseId: sessionExercise.exerciseId,
           sets: await Promise.all(
             sessionExercise.sets.map(async (set) => {
               const prescribedReps =
-                doubleProgressionPrescribedReps && set.type === 'working'
-                  ? doubleProgressionPrescribedReps[workingSetIndex++]
+                set.type === 'working'
+                  ? doubleProgressionPrescribedReps
+                    ? doubleProgressionPrescribedReps[workingSetIndex++]
+                    : waveProgressionTargetReps
                   : undefined;
               const targetReps = prescribedReps ?? set.targetReps;
               const targetRepsMax = prescribedReps !== undefined ? undefined : set.targetRepsMax;
-              const isAmrap = prescribedReps !== undefined ? true : set.isAmrap;
+              const isAmrap = doubleProgressionPrescribedReps !== undefined && set.type === 'working' ? true : set.isAmrap;
               return {
                 id: crypto.randomUUID(),
                 // Carries the just-finished set's own target reps forward
@@ -3299,6 +3318,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     sessionExercise.incrementScheme = incrementScheme;
     await this.seedDoubleProgressionTargets(sessionExercise);
+    await this.seedWaveProgressionTarget(sessionExercise);
     await this.persist(session);
   }
 
@@ -3349,7 +3369,49 @@ export class SessionsComponent implements OnInit, OnDestroy {
       set.targetReps = prescribedReps[index];
       set.targetRepsMax = undefined;
       set.isAmrap = true;
+      // fieldBuffer() only prefills a set's achieved-reps field from its
+      // target the FIRST time it's read for that set - a set added (or
+      // rendered) before this ran can already have a stale, un-prefilled
+      // buffer cached, which a target assigned after the fact wouldn't
+      // otherwise reach. Overwriting it directly here matches the same
+      // prefill updateTargetReps already gives a manually entered target.
+      this.fieldBuffer(set).reps = String(prescribedReps[index]);
     });
+  }
+
+  // Wave Progression's target is a single value shared by every working set
+  // (state.currentReps, defaulting to the exercise's configured Initial
+  // reps for a brand new exercise) - manual sessions have nothing else to
+  // seed it from (see noDefaultTargetRepsSchemes), so this fills that gap
+  // the same way seedDoubleProgressionTargets does for its own scheme:
+  // whenever the scheme is switched to Wave Progression, or a working set
+  // is added while it already is, every not-yet-done working set gets the
+  // current target. Already-done sets keep whatever target they were
+  // judged against.
+  private async seedWaveProgressionTarget(sessionExercise: SessionExercise): Promise<void> {
+    if (sessionExercise.incrementScheme !== 'WAVE_PROGRESSION') {
+      return;
+    }
+    const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
+    if (workingSets.length === 0) {
+      return;
+    }
+    // Read-only peek, same reasoning as seedDoubleProgressionTargets's own -
+    // must not create a persisted state seeded with a fabricated 0 KG
+    // starting weight before any real weight is known.
+    const cached =
+      this.waveProgressionStates.get(sessionExercise.exerciseId) ??
+      (await this.waveProgressionService.getState(sessionExercise.exerciseId));
+    const targetReps = cached?.currentReps ?? this.settingsService.getSettings().waveProgressionInitialReps;
+    for (const set of workingSets) {
+      if (set.done) {
+        continue;
+      }
+      set.targetReps = targetReps;
+      set.targetRepsMax = undefined;
+      set.isAmrap = undefined;
+      this.fieldBuffer(set).reps = String(targetReps);
+    }
   }
 
   onDeloadAfterFailuresFieldInput(event: Event): void {
@@ -3553,6 +3615,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sessionExercise.sets = [...sessionExercise.sets, newSet];
     if (type === 'working') {
       await this.seedDoubleProgressionTargets(sessionExercise);
+      await this.seedWaveProgressionTarget(sessionExercise);
     }
     await this.persist(session);
   }
