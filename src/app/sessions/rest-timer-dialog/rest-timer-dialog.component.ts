@@ -56,12 +56,19 @@ export interface RestTimerDialogData {
 })
 export class RestTimerDialogComponent implements OnInit, OnDestroy {
   elapsedSeconds = 0;
+  // Toggled on for PULSE_DURATION_MS whenever a gong fires, so the ring and
+  // elapsed-time text can play a short reward animation in sync with the
+  // sound instead of the threshold passing silently on-screen.
+  pulsing = false;
 
   // Matches the ring's r="28" in the template - circumference = 2*pi*r.
   readonly ringCircumference = 2 * Math.PI * 28;
 
+  private static readonly PULSE_DURATION_MS = 650;
+
   private readonly startedAt = Date.now();
   private intervalId?: ReturnType<typeof setInterval>;
+  private pulseTimeoutId?: ReturnType<typeof setTimeout>;
   private firstBeeped = false;
   private secondBeeped = false;
   // Index-aligned with the two thresholds, i.e. [0] is the first gong's
@@ -95,6 +102,9 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
+    if (this.pulseTimeoutId) {
+      clearTimeout(this.pulseTimeoutId);
+    }
     document.removeEventListener('visibilitychange', this.handleVisibilityChange);
     this.cancelAllNativeGongs();
   }
@@ -105,12 +115,32 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
       this.firstBeeped = true;
       this.soundService.playGong();
       this.cancelNativeGong(0);
+      this.triggerPulse();
     }
     if (!this.secondBeeped && this.data.secondThresholdSeconds !== undefined && this.elapsedSeconds >= this.data.secondThresholdSeconds) {
       this.secondBeeped = true;
       this.soundService.playGong();
       this.cancelNativeGong(1);
+      this.triggerPulse();
     }
+  }
+
+  // Restarts the CSS pulse animation - clearing the class first (via the
+  // timeout below) even when a pulse is already running, so back-to-back
+  // gongs (an edge case: identical first/second threshold values) each get
+  // their own full-length animation instead of the second one being a no-op
+  // because the class was already set.
+  private triggerPulse(): void {
+    if (this.pulseTimeoutId) {
+      clearTimeout(this.pulseTimeoutId);
+    }
+    this.pulsing = false;
+    requestAnimationFrame(() => {
+      this.pulsing = true;
+      this.pulseTimeoutId = setTimeout(() => {
+        this.pulsing = false;
+      }, RestTimerDialogComponent.PULSE_DURATION_MS);
+    });
   }
 
   // Schedules the native fallback for whichever threshold(s) haven't beeped
