@@ -53,12 +53,15 @@ mat-card {
   flex: 0 0 auto;
 }
 
-// Sits between the delete button and the drag handle - the DOM position
-// this button is declared at, combined with the same order:-1 as
-// header-delete-action, keeps it there instead of sliding after the panel
-// title (see header-delete-action's own comment on why order:-1 matters).
+// Deliberately NOT order:-1, unlike header-delete-action above - this one
+// needs to land just before the drag handle, which sits AFTER the panel
+// title (title always projects first, see header-delete-action's comment;
+// exercise-drag-handle has no order override, so it renders right after
+// title in plain DOM order). Staying at the default order:0 groups this
+// with the drag handle in that same "after title" bucket, and its DOM
+// position right before .exercise-drag-handle keeps it immediately to that
+// handle's left.
 .header-exercise-settings-action {
-  order: -1;
   flex: 0 0 auto;
 }
 
