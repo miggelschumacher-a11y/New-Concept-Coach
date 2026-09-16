@@ -4,7 +4,25 @@ import { DoubleProgressionMode } from '../models/training-plan.model';
 
 export type WeightUnit = 'kg' | 'lbs';
 export type DateFormat = 'dd.MM.yyyy' | 'MM/dd/yyyy';
-export type Language = 'de' | 'en' | 'es' | 'pt' | 'it' | 'nl' | 'pl' | 'ru' | 'hu';
+export type Language =
+  | 'de'
+  | 'en'
+  | 'es'
+  | 'pt'
+  | 'it'
+  | 'nl'
+  | 'pl'
+  | 'ru'
+  | 'hu'
+  | 'da'
+  | 'no'
+  | 'sv'
+  | 'fi'
+  | 'cs'
+  | 'tr'
+  | 'ar'
+  | 'zh'
+  | 'ja';
 export type FinishedSessionReplenishMode = 'always' | 'never' | 'ask';
 export type Theme = 'dark' | 'light';
 export type AutoAdvanceMode = 'immediate' | 'confirm' | 'off';
@@ -61,7 +79,16 @@ export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
   nl: 'dd.MM.yyyy',
   pl: 'dd.MM.yyyy',
   ru: 'dd.MM.yyyy',
-  hu: 'dd.MM.yyyy'
+  hu: 'dd.MM.yyyy',
+  da: 'dd.MM.yyyy',
+  no: 'dd.MM.yyyy',
+  sv: 'dd.MM.yyyy',
+  fi: 'dd.MM.yyyy',
+  cs: 'dd.MM.yyyy',
+  tr: 'dd.MM.yyyy',
+  ar: 'dd.MM.yyyy',
+  zh: 'MM/dd/yyyy',
+  ja: 'MM/dd/yyyy'
 };
 
 const LEGACY_STORAGE_KEY = 'trainings-app-settings';
