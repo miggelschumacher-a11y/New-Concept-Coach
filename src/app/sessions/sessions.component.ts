@@ -898,6 +898,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.setFieldCopyPopupKey && !target?.closest('.set-field-copy-popup')) {
       this.closeSetFieldCopyPopup();
     }
+    // Applies to both the info button and its popup - this listener runs in
+    // the capture phase, ahead of the button's own bubble-phase click
+    // handler, so a same-button re-click would otherwise get closed here
+    // first and immediately reopened by the toggle method that runs after.
+    if (this.openIncrementSchemeInfoKey && !target?.closest('.increment-scheme-info-trigger')) {
+      this.closeIncrementSchemeInfo();
+    }
   };
 
   private async getOrInitProgressionState(
@@ -3387,6 +3394,72 @@ export class SessionsComponent implements OnInit, OnDestroy {
       default:
         return 'sessions.incrementSchemeNoneTooltip';
     }
+  }
+
+  incrementSchemeInfoTooltipKey(scheme: IncrementScheme): string {
+    switch (scheme) {
+      case 'NONE':
+        return 'sessions.incrementSchemeNoneTooltip';
+      case 'DOUBLE_PROGRESSION':
+        return 'config.incrementSchemeDescription';
+      case 'REP_GOAL':
+        return 'config.repGoalDescription';
+      case 'WAVE_PROGRESSION':
+        return 'config.waveProgressionDescription';
+      case 'LINEAR_PROGRESSION':
+        return 'config.linearProgressionDescription';
+    }
+  }
+
+  // mat-select's own default closed-state display (`viewValue`) reads the
+  // selected mat-option's whole textContent, which would otherwise include
+  // the info button's nested mat-icon text ("info") once an option holds
+  // more than a plain label - hence the explicit mat-select-trigger driven
+  // by this lookup instead of relying on that default.
+  incrementSchemeLabel(scheme: IncrementScheme): string {
+    switch (scheme) {
+      case 'NONE':
+        return 'None';
+      case 'DOUBLE_PROGRESSION':
+        return `Double Progression${this.isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : ''}`;
+      case 'REP_GOAL':
+        return `Rep Goal System${this.isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : ''}`;
+      case 'WAVE_PROGRESSION':
+        return `Wave Progression${this.isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : ''}`;
+      case 'LINEAR_PROGRESSION':
+        return 'Linear Progression';
+    }
+  }
+
+  // Increment Scheme's own per-option info popup - a tap-triggered popup
+  // rather than a hover/long-press matTooltip, since the latter turned out
+  // not to be reliably reachable on a real touch device inside an open
+  // mat-select overlay. Only one Increment Scheme dropdown can be open at a
+  // time, so a single shared key (rather than one per exercise) is enough to
+  // track which option's popup is open. Mirrors TrainingPlansComponent's own
+  // identical fix for its Increment Scheme dropdowns.
+  openIncrementSchemeInfoKey: IncrementScheme | null = null;
+  incrementSchemeInfoPosition: { top: number; left: number } | null = null;
+
+  toggleIncrementSchemeInfo(scheme: IncrementScheme, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.openIncrementSchemeInfoKey === scheme) {
+      this.closeIncrementSchemeInfo();
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.incrementSchemeInfoPosition = { top: rect.bottom + 4, left: rect.left };
+    this.openIncrementSchemeInfoKey = scheme;
+    this.fitPopupToViewport('increment-scheme-info-popup', this.incrementSchemeInfoPosition);
+  }
+
+  isIncrementSchemeInfoOpen(scheme: IncrementScheme): boolean {
+    return this.openIncrementSchemeInfoKey === scheme;
+  }
+
+  closeIncrementSchemeInfo(): void {
+    this.openIncrementSchemeInfoKey = null;
+    this.incrementSchemeInfoPosition = null;
   }
 
   private countedSets(sessionExercise: SessionExercise): ExerciseSet[] {

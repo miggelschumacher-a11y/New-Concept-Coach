@@ -201,6 +201,14 @@ mat-expansion-panel-header .mat-content {
   }
 }
 
+// The Increment Scheme dropdown's own info-button/popup CSS
+// (.increment-scheme-info-button/-popup, .mat-mdc-option's flex layout) is
+// shared with TrainingPlansComponent's identical dropdown and lives in the
+// global src/styles.scss instead of being duplicated here - a mat-select's
+// option panel is a CDK overlay outside either component's view
+// encapsulation anyway, so a component-scoped ::ng-deep rule bought nothing
+// but budget pressure.
+
 .exercise-accordion {
   margin-top: 1rem;
 }

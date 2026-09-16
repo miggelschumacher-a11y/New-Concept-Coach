@@ -600,34 +600,30 @@
                                             [ngModel]="sessionExercise.incrementScheme"
                                             name="customSessionIncrementScheme-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
                                             (selectionChange)="updateCustomSessionExerciseIncrementScheme(plan, session.id, sessionExercise.exerciseId, $event.value)"
+                                            (closed)="closeIncrementSchemeInfo()"
                                           >
-                                            <mat-option value="NONE" [matTooltip]="'sessions.incrementSchemeNoneTooltip' | translate" matTooltipPosition="right"
-                                              >None</mat-option
-                                            >
+                                            <mat-select-trigger>{{ incrementSchemeLabel(sessionExercise.incrementScheme) }}</mat-select-trigger>
+                                            <mat-option value="NONE"
+                                              >None<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'NONE' }"></ng-container
+                                            ></mat-option>
                                             <mat-option
                                               value="DOUBLE_PROGRESSION"
                                               [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
-                                              [matTooltip]="'config.incrementSchemeDescription' | translate"
-                                              matTooltipPosition="right"
-                                              >Double Progression{{ isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
-                                            >
+                                              >Double Progression{{ isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : '' }}<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'DOUBLE_PROGRESSION' }"></ng-container
+                                            ></mat-option>
                                             <mat-option
                                               value="REP_GOAL"
                                               [disabled]="isIncrementSchemeLocked('REP_GOAL')"
-                                              [matTooltip]="'config.repGoalDescription' | translate"
-                                              matTooltipPosition="right"
-                                              >Rep Goal System{{ isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : '' }}</mat-option
-                                            >
+                                              >Rep Goal System{{ isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : '' }}<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'REP_GOAL' }"></ng-container
+                                            ></mat-option>
                                             <mat-option
                                               value="WAVE_PROGRESSION"
                                               [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
-                                              [matTooltip]="'config.waveProgressionDescription' | translate"
-                                              matTooltipPosition="right"
-                                              >Wave Progression{{ isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
-                                            >
-                                            <mat-option value="LINEAR_PROGRESSION" [matTooltip]="'config.linearProgressionDescription' | translate" matTooltipPosition="right"
-                                              >Linear Progression</mat-option
-                                            >
+                                              >Wave Progression{{ isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : '' }}<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'WAVE_PROGRESSION' }"></ng-container
+                                            ></mat-option>
+                                            <mat-option value="LINEAR_PROGRESSION"
+                                              >Linear Progression<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'LINEAR_PROGRESSION' }"></ng-container
+                                            ></mat-option>
                                           </mat-select>
                                         </mat-form-field>
                                       </div>
@@ -1197,34 +1193,30 @@
                                     [ngModel]="planExerciseConfig(plan, exerciseId).incrementScheme"
                                     name="incrementScheme-{{ exerciseId }}"
                                     (selectionChange)="updatePlanExerciseIncrementScheme(plan, exerciseId, $event.value)"
+                                    (closed)="closeIncrementSchemeInfo()"
                                   >
-                                    <mat-option value="NONE" [matTooltip]="'sessions.incrementSchemeNoneTooltip' | translate" matTooltipPosition="right"
-                                      >None</mat-option
-                                    >
+                                    <mat-select-trigger>{{ incrementSchemeLabel(planExerciseConfig(plan, exerciseId).incrementScheme) }}</mat-select-trigger>
+                                    <mat-option value="NONE"
+                                      >None<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'NONE' }"></ng-container
+                                    ></mat-option>
                                     <mat-option
                                       value="DOUBLE_PROGRESSION"
                                       [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
-                                      [matTooltip]="'config.incrementSchemeDescription' | translate"
-                                      matTooltipPosition="right"
-                                      >Double Progression{{ isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
-                                    >
+                                      >Double Progression{{ isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : '' }}<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'DOUBLE_PROGRESSION' }"></ng-container
+                                    ></mat-option>
                                     <mat-option
                                       value="REP_GOAL"
                                       [disabled]="isIncrementSchemeLocked('REP_GOAL')"
-                                      [matTooltip]="'config.repGoalDescription' | translate"
-                                      matTooltipPosition="right"
-                                      >Rep Goal System{{ isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : '' }}</mat-option
-                                    >
+                                      >Rep Goal System{{ isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : '' }}<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'REP_GOAL' }"></ng-container
+                                    ></mat-option>
                                     <mat-option
                                       value="WAVE_PROGRESSION"
                                       [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
-                                      [matTooltip]="'config.waveProgressionDescription' | translate"
-                                      matTooltipPosition="right"
-                                      >Wave Progression{{ isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
-                                    >
-                                    <mat-option value="LINEAR_PROGRESSION" [matTooltip]="'config.linearProgressionDescription' | translate" matTooltipPosition="right"
-                                      >Linear Progression</mat-option
-                                    >
+                                      >Wave Progression{{ isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : '' }}<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'WAVE_PROGRESSION' }"></ng-container
+                                    ></mat-option>
+                                    <mat-option value="LINEAR_PROGRESSION"
+                                      >Linear Progression<ng-container *ngTemplateOutlet="incrementSchemeInfo; context: { $implicit: 'LINEAR_PROGRESSION' }"></ng-container
+                                    ></mat-option>
                                   </mat-select>
                                 </mat-form-field>
                               </div>
@@ -1998,6 +1990,30 @@
   </mat-accordion>
 }
 
+<!-- Tap-triggered info button for an Increment Scheme option - a hover/
+     long-press matTooltip isn't reliably reachable on a real touch device
+     inside an open mat-select overlay, so each option gets an explicit info
+     icon instead. Declared at the top level (not inside the plan/session
+     loops above) so *ngTemplateOutlet can reference it from both the
+     custom-session and flat-plan Increment Scheme dropdowns, which live in
+     separate branches of the template. The actual popup renders once,
+     globally, further below (not nested here) - the mat-select panel is a
+     CDK overlay that may apply its own transform for its open/close
+     animation, and a `position: fixed` descendant of a transformed ancestor
+     resolves against that ancestor instead of the viewport, breaking the
+     button-rect-based coordinates the popup is positioned with. -->
+<ng-template #incrementSchemeInfo let-scheme>
+  <button
+    type="button"
+    mat-icon-button
+    class="increment-scheme-info-button increment-scheme-info-trigger"
+    (click)="toggleIncrementSchemeInfo(scheme, $event)"
+    [attr.aria-label]="'sessions.incrementSchemeInfoButton' | translate"
+  >
+    <mat-icon>info</mat-icon>
+  </button>
+</ng-template>
+
 @if (setTargetCopyPopupOpen && setTargetCopyPopupPosition) {
   <div
     class="set-target-copy-popup"
@@ -2015,5 +2031,17 @@
     <button mat-stroked-button type="button" (click)="cancelSetTargetCopy()">
       {{ 'sessions.confirmCancel' | translate }}
     </button>
+  </div>
+}
+
+@if (openIncrementSchemeInfoKey && incrementSchemeInfoPosition) {
+  <div
+    class="increment-scheme-info-popup increment-scheme-info-trigger"
+    data-popup-key="increment-scheme-info-popup"
+    [style.top.px]="incrementSchemeInfoPosition.top"
+    [style.left.px]="incrementSchemeInfoPosition.left"
+    (click)="$event.stopPropagation()"
+  >
+    <p>{{ incrementSchemeInfoTooltipKey(openIncrementSchemeInfoKey) | translate }}</p>
   </div>
 }

@@ -133,6 +133,14 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   editDescription = '';
   private descriptionInfoOpenPlanId: string | null = null;
   descriptionInfoPosition: { top: number; left: number } | null = null;
+  // Increment Scheme's own per-option info popup - a tap-triggered popup
+  // rather than a hover/long-press matTooltip, since the latter turned out
+  // not to be reliably reachable on a real touch device inside an open
+  // mat-select overlay. Only one Increment Scheme dropdown can be open at a
+  // time, so a single shared key (rather than one per exercise/session) is
+  // enough to track which option's popup is open.
+  openIncrementSchemeInfoKey: IncrementScheme | null = null;
+  incrementSchemeInfoPosition: { top: number; left: number } | null = null;
   // Which custom-session exercises currently have their Settings content
   // shown - a gear icon in the exercise's own header toggles this, replacing
   // the old nested "Settings" accordion panel. Keyed by
@@ -285,6 +293,63 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     this.descriptionInfoPosition = null;
   }
 
+  // mat-select's own default closed-state display (`viewValue`) reads the
+  // selected mat-option's whole textContent, which would otherwise include
+  // the info button's nested mat-icon text ("info") once an option holds
+  // more than a plain label - hence the explicit mat-select-trigger driven
+  // by this lookup instead of relying on that default.
+  incrementSchemeLabel(scheme: IncrementScheme | undefined): string {
+    switch (scheme) {
+      case undefined:
+      case 'NONE':
+        return 'None';
+      case 'DOUBLE_PROGRESSION':
+        return `Double Progression${this.isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : ''}`;
+      case 'REP_GOAL':
+        return `Rep Goal System${this.isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : ''}`;
+      case 'WAVE_PROGRESSION':
+        return `Wave Progression${this.isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : ''}`;
+      case 'LINEAR_PROGRESSION':
+        return 'Linear Progression';
+    }
+  }
+
+  incrementSchemeInfoTooltipKey(scheme: IncrementScheme): string {
+    switch (scheme) {
+      case 'NONE':
+        return 'sessions.incrementSchemeNoneTooltip';
+      case 'DOUBLE_PROGRESSION':
+        return 'config.incrementSchemeDescription';
+      case 'REP_GOAL':
+        return 'config.repGoalDescription';
+      case 'WAVE_PROGRESSION':
+        return 'config.waveProgressionDescription';
+      case 'LINEAR_PROGRESSION':
+        return 'config.linearProgressionDescription';
+    }
+  }
+
+  toggleIncrementSchemeInfo(scheme: IncrementScheme, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.openIncrementSchemeInfoKey === scheme) {
+      this.closeIncrementSchemeInfo();
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.incrementSchemeInfoPosition = { top: rect.bottom + 4, left: rect.left };
+    this.openIncrementSchemeInfoKey = scheme;
+    this.fitPopupToViewport('increment-scheme-info-popup', this.incrementSchemeInfoPosition);
+  }
+
+  isIncrementSchemeInfoOpen(scheme: IncrementScheme): boolean {
+    return this.openIncrementSchemeInfoKey === scheme;
+  }
+
+  closeIncrementSchemeInfo(): void {
+    this.openIncrementSchemeInfoKey = null;
+    this.incrementSchemeInfoPosition = null;
+  }
+
   private readonly handleDocumentClick = (event: MouseEvent): void => {
     // Releasing the mouse button that just opened the copy popup (after the
     // 500ms hold) fires its own click on the field afterwards - skip that
@@ -296,6 +361,9 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLElement | null;
     if (this.descriptionInfoOpenPlanId && !target?.closest('.description-info-trigger')) {
       this.closeDescriptionInfo();
+    }
+    if (this.openIncrementSchemeInfoKey && !target?.closest('.increment-scheme-info-trigger')) {
+      this.closeIncrementSchemeInfo();
     }
     if (this.setTargetCopyPopupKey && !target?.closest('.set-target-copy-popup')) {
       this.closeSetTargetCopyPopup();
