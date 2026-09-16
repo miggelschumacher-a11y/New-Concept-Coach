@@ -164,6 +164,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // move on to the next exercise entirely once this one has nothing left
   // pending, not just the next section within the same exercise.
   private readonly expandedExerciseKeys = new Set<string>();
+  // Which per-exercise Settings panels are open - a gear icon in the
+  // exercise's own header toggles this instead of a nested "Settings"
+  // accordion, same treatment as TrainingPlansComponent's own custom-session
+  // exercises. Same key shape as expandedExerciseKeys.
+  private readonly expandedExerciseSettingsKeys = new Set<string>();
   private timerTickerId?: ReturnType<typeof setInterval>;
   pendingFinishSessionId: string | null = null;
   pendingDeleteSetId: string | null = null;
@@ -1562,6 +1567,24 @@ export class SessionsComponent implements OnInit, OnDestroy {
       this.expandedExerciseKeys.add(key);
     } else {
       this.expandedExerciseKeys.delete(key);
+    }
+  }
+
+  isExerciseSettingsOpen(session: TrainingSession, sessionExercise: SessionExercise): boolean {
+    return this.expandedExerciseSettingsKeys.has(this.exercisePanelKey(session, sessionExercise));
+  }
+
+  // Opening replaces the old nested accordion's own (afterExpand) - the
+  // mat-tab-group inside was rendered while hidden, so its ink bar/tab
+  // widths need a resize event once it's actually visible to lay out
+  // correctly (see onSettingsPanelExpand's own comment).
+  toggleExerciseSettings(session: TrainingSession, sessionExercise: SessionExercise): void {
+    const key = this.exercisePanelKey(session, sessionExercise);
+    if (this.expandedExerciseSettingsKeys.has(key)) {
+      this.expandedExerciseSettingsKeys.delete(key);
+    } else {
+      this.expandedExerciseSettingsKeys.add(key);
+      this.onSettingsPanelExpand();
     }
   }
 

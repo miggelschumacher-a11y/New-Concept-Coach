@@ -469,6 +469,18 @@
                       </button>
                     }
                   </div>
+                  @if (exercisePanelExpanded(session, sessionExercise)) {
+                    <div class="header-exercise-settings-action">
+                      <button
+                        mat-icon-button
+                        (click)="toggleExerciseSettings(session, sessionExercise); $event.stopPropagation()"
+                        [matTooltip]="'trainingPlans.settingsTitle' | translate"
+                        [attr.aria-label]="'trainingPlans.settingsTitle' | translate"
+                      >
+                        <mat-icon>tune</mat-icon>
+                      </button>
+                    </div>
+                  }
                   @if (canEditExerciseTypeInSession(session)) {
                     <div
                       class="exercise-drag-handle"
@@ -529,12 +541,8 @@
                   }
                 </mat-expansion-panel-header>
 
-                <mat-accordion multi class="exercise-settings-accordion">
-                  <mat-expansion-panel (afterExpand)="onSettingsPanelExpand()">
-                    <mat-expansion-panel-header>
-                      <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
-                    </mat-expansion-panel-header>
-
+                @if (isExerciseSettingsOpen(session, sessionExercise)) {
+                  <div class="exercise-settings-panel">
                     @if (canEditExerciseTypeInSession(session)) {
                       <mat-form-field
                         appearance="outline"
@@ -874,8 +882,8 @@
                         <ng-container *ngTemplateOutlet="exerciseSettingsSetsTab"></ng-container>
                       </div>
                     }
-                  </mat-expansion-panel>
-                </mat-accordion>
+                  </div>
+                }
 
                 <mat-accordion multi class="set-type-accordion">
                   @for (setType of setTypes; track setType.value) {

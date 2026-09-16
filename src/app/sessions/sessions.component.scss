@@ -53,6 +53,26 @@ mat-expansion-panel-header .mat-content {
   flex: 0 0 auto;
 }
 
+// Deliberately NOT order:-1, unlike header-delete-action above - mat-panel-
+// title always projects first in a mat-expansion-panel-header regardless of
+// source order, and exercise-drag-handle has no order override, so it
+// renders right after the title in plain DOM order. Staying at the default
+// order:0 groups this with the drag handle in that same "after title"
+// bucket, and its DOM position right before .exercise-drag-handle keeps it
+// immediately to that handle's left (same fix as TrainingPlansComponent's
+// own custom-session exercise header).
+.header-exercise-settings-action {
+  flex: 0 0 auto;
+}
+
+// A session exercise's Settings content - toggled by the gear icon in its
+// own header instead of living in a nested accordion panel (see
+// SessionsComponent.toggleExerciseSettings).
+.exercise-settings-panel {
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
 // Below this width, title/description/tune-icon splitting a single row
 // each get squeezed to almost nothing - most visibly the session name,
 // which was ellipsizing after only a few characters. Moving the
