@@ -64,11 +64,26 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   // Matches the ring's r="28" in the template - circumference = 2*pi*r.
   readonly ringCircumference = 2 * Math.PI * 28;
 
+  // Updated every animation frame from the exact same Date.now() delta the
+  // gong itself is timed against (see updateRing) - never from the
+  // once-a-second elapsedSeconds. That used to drive this value instead, with
+  // a CSS transition easing each whole-second jump into a smooth sweep, but
+  // the transition only *starts* on the tick where a threshold is crossed, so
+  // the ring's own "fully closed" frame landed a full second after the gong
+  // that was supposed to coincide with it (reported as the gong firing
+  // "before" the ring visibly closed). Computing this continuously instead
+  // keeps the ring's fraction and the gong's threshold check reading off the
+  // same clock, so the ring reaches 1 at essentially the same instant the
+  // gong plays, not a whole tick later. Starts fully "empty" (offset ==
+  // circumference), same as fraction 0 below.
+  ringDashOffset = this.ringCircumference;
+
   private static readonly PULSE_DURATION_MS = 650;
 
   private readonly startedAt = Date.now();
   private intervalId?: ReturnType<typeof setInterval>;
   private pulseTimeoutId?: ReturnType<typeof setTimeout>;
+  private ringFrameId?: number;
   private firstBeeped = false;
   private secondBeeped = false;
   // Index-aligned with the two thresholds, i.e. [0] is the first gong's
@@ -93,6 +108,7 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.intervalId = setInterval(() => this.tick(), 1000);
+    this.ringFrameId = requestAnimationFrame(() => this.updateRing());
     if (this.restNotificationService.isAvailable) {
       document.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
@@ -105,8 +121,20 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     if (this.pulseTimeoutId) {
       clearTimeout(this.pulseTimeoutId);
     }
+    if (this.ringFrameId !== undefined) {
+      cancelAnimationFrame(this.ringFrameId);
+    }
     document.removeEventListener('visibilitychange', this.handleVisibilityChange);
     this.cancelAllNativeGongs();
+  }
+
+  // Runs every frame rather than once a second (see ringDashOffset's own
+  // comment for why) - self-scheduling instead of setInterval so it stops
+  // being called at all while the tab is hidden, instead of queuing up calls
+  // that would otherwise all fire back-to-back once it's visible again.
+  private updateRing(): void {
+    this.ringDashOffset = this.computeRingDashOffset((Date.now() - this.startedAt) / 1000);
+    this.ringFrameId = requestAnimationFrame(() => this.updateRing());
   }
 
   private tick(): void {
@@ -211,24 +239,21 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   // elapsed has passed every boundary - a single-threshold timer (the
   // between-exercises case) only ever has one boundary to reach.
   //
-  // The <= below (not <) matters: elapsedSeconds reaching a boundary is
-  // exactly the instant tick() plays that gong, so the ring must still show
-  // that phase as full (fraction 1) at that same tick, moving on to the next
-  // phase only the tick after. With a plain <, elapsed===boundary already
-  // read as "past it", jumping straight to the next phase's fraction 0 and
-  // visibly resetting the ring one tick before its gong actually played.
-  get ringDashOffset(): number {
+  // Takes the precise (fractional) elapsed seconds, not the once-a-second
+  // elapsedSeconds field - see updateRing/ringDashOffset for why that
+  // distinction is what keeps the ring in sync with the gong.
+  private computeRingDashOffset(elapsedSecondsPrecise: number): number {
     const boundaries = this.phaseBoundaries();
     let start = boundaries[boundaries.length - 1];
     let target = start;
     for (let i = 0; i < boundaries.length - 1; i++) {
-      if (this.elapsedSeconds <= boundaries[i + 1]) {
+      if (elapsedSecondsPrecise <= boundaries[i + 1]) {
         start = boundaries[i];
         target = boundaries[i + 1];
         break;
       }
     }
-    const fraction = target > start ? Math.min(1, Math.max(0, (this.elapsedSeconds - start) / (target - start))) : 1;
+    const fraction = target > start ? Math.min(1, Math.max(0, (elapsedSecondsPrecise - start) / (target - start))) : 1;
     return this.ringCircumference * (1 - fraction);
   }
 

@@ -27,9 +27,12 @@
   stroke: #90caf9;
   stroke-width: 6;
   stroke-linecap: round;
-  // Ticks once per second (see RestTimerDialogComponent.tick) - this eases
-  // each jump into a smooth-looking sweep instead of a visible snap.
-  transition: stroke-dashoffset 1s linear;
+  // No transition here on purpose: RestTimerDialogComponent.updateRing
+  // already recomputes this every animation frame from a continuous clock,
+  // so it's smooth by construction. A transition on top of that would fight
+  // its own per-frame updates - each new value would restart a fresh 1s
+  // easing before the last one finished, and reintroduces exactly the
+  // gong/ring desync this replaced (see ringDashOffset's comment).
 }
 
 // Plays once per gong (see RestTimerDialogComponent.triggerPulse), giving the
