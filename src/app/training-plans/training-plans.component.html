@@ -495,7 +495,7 @@
                       <mat-panel-title>{{ 'trainingPlans.sessionLabel' | translate }} {{ sessionIndex + 1 }}</mat-panel-title>
                     </mat-expansion-panel-header>
 
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" class="custom-session-exercises-field">
                       <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'trainingPlans.exercisesLabel' | translate }}</mat-label>
                       <mat-select
                         [ngModel]="session.exerciseIds ?? []"

@@ -289,8 +289,7 @@ mat-card {
 
 .add-set-for-exercise-button {
   display: block;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
   margin-bottom: 0.75rem;
   white-space: normal;
   text-align: left;
@@ -485,4 +484,12 @@ mat-card {
   min-width: 260px;
   max-width: 100%;
   margin-bottom: 0.75rem;
+}
+
+// A custom session's own exercise picker - full width instead of the
+// mat-form-field default, since it carries the session's whole exercise
+// list and its selected-values chip text is often long.
+.custom-session-exercises-field {
+  display: block;
+  width: 100%;
 }
