@@ -721,17 +721,33 @@
                                   name="sessionIncrementScheme-{{ sessionExercise.exerciseId }}"
                                   (selectionChange)="updateSessionIncrementScheme(session, sessionExercise, $event.value)"
                                 >
-                                  <mat-option value="NONE">None</mat-option>
-                                  <mat-option value="DOUBLE_PROGRESSION" [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
+                                  <mat-option value="NONE" [matTooltip]="'sessions.incrementSchemeNoneTooltip' | translate" matTooltipPosition="right"
+                                    >None</mat-option
+                                  >
+                                  <mat-option
+                                    value="DOUBLE_PROGRESSION"
+                                    [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
+                                    [matTooltip]="'config.incrementSchemeDescription' | translate"
+                                    matTooltipPosition="right"
                                     >Double Progression{{ isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
                                   >
-                                  <mat-option value="REP_GOAL" [disabled]="isIncrementSchemeLocked('REP_GOAL')"
+                                  <mat-option
+                                    value="REP_GOAL"
+                                    [disabled]="isIncrementSchemeLocked('REP_GOAL')"
+                                    [matTooltip]="'config.repGoalDescription' | translate"
+                                    matTooltipPosition="right"
                                     >Rep Goal System{{ isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : '' }}</mat-option
                                   >
-                                  <mat-option value="WAVE_PROGRESSION" [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
+                                  <mat-option
+                                    value="WAVE_PROGRESSION"
+                                    [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
+                                    [matTooltip]="'config.waveProgressionDescription' | translate"
+                                    matTooltipPosition="right"
                                     >Wave Progression{{ isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
                                   >
-                                  <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                                  <mat-option value="LINEAR_PROGRESSION" [matTooltip]="'config.linearProgressionDescription' | translate" matTooltipPosition="right"
+                                    >Linear Progression</mat-option
+                                  >
                                 </mat-select>
                               </mat-form-field>
 
