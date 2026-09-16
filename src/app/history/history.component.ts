@@ -73,9 +73,19 @@ export class HistoryComponent implements OnInit {
   // Plain component-local filter state (not persisted) - narrows the
   // sessions shown in both the Sessions tab and the Charts tab, since the
   // latter's exercisesWithHistory/chartPoints are derived from
-  // finishedSessions too (see below).
-  dateFrom = '';
+  // finishedSessions too (see below). dateFrom defaults to 90 days back
+  // rather than an open lower bound, so a long history doesn't load every
+  // session on first view.
+  dateFrom = HistoryComponent.dateInputValue(90);
   dateTo = '';
+
+  private static dateInputValue(daysAgo: number): string {
+    const date = new Date();
+    date.setDate(date.getDate() - daysAgo);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${date.getFullYear()}-${month}-${day}`;
+  }
 
   private readonly chartWidth = 600;
   private readonly chartHeight = 260;
