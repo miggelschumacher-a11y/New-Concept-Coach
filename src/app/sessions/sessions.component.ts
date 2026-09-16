@@ -1489,10 +1489,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  isPaused(session: TrainingSession): boolean {
-    return !session.finished && !session.timerRunning;
-  }
-
   doneAttemptFieldKey: string | null = null;
   private doneAttemptTimeoutId?: ReturnType<typeof setTimeout>;
 
@@ -4156,9 +4152,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async completeSet(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): Promise<void> {
-    if (this.isPaused(session)) {
-      return;
-    }
     // Manual sessions have no plan config to read a Rep Goal exercise's total
     // from any more (see exerciseSucceeded/recordManualProgressionProgress) -
     // it's derived from the sum of each working set's own target instead, so

@@ -318,10 +318,6 @@
         <div class="session-timer">
           <span class="timer-display">{{ sessionDuration(session) }}</span>
 
-          @if (isPaused(session) && pendingFinishSessionId !== session.id) {
-            <span class="paused-hint">{{ 'sessions.pausedHint' | translate }}</span>
-          }
-
           @if (pendingFinishSessionId === session.id) {
             <div class="confirm-dialog">
               <span class="finish-confirm-label">{{ 'sessions.confirmFinishQuestion' | translate }}</span>
@@ -995,11 +991,10 @@
                         class="set-list"
                         cdkDropList
                         [cdkDropListData]="setsByType(sessionExercise, setType.value)"
-                        [cdkDropListDisabled]="isPaused(session)"
                         (cdkDropListDropped)="dropSet(session, sessionExercise, setType.value, $event)"
                       >
                         @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
-                          <div class="set-item" cdkDrag [cdkDragDisabled]="isPaused(session)">
+                          <div class="set-item" cdkDrag>
                             @if (doneAttemptFieldKey === set.id) {
                               <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                             }
@@ -1068,7 +1063,6 @@
                                     [value]="targetRepsInputValue(set)"
                                     name="targetReps-{{ set.id }}"
                                     [readonly]="set.done"
-                                    [disabled]="isPaused(session)"
                                     selectOnFocus
                                     (input)="onTargetRepsFieldInput($event)"
                                     (change)="updateTargetReps(session, sessionExercise, set, $any($event.target).value, $any($event.target))"
@@ -1102,7 +1096,6 @@
                                   [(ngModel)]="fieldBuffer(set, session, sessionExercise).reps"
                                   name="reps-{{ set.id }}"
                                   [readonly]="set.done"
-                                  [disabled]="isPaused(session)"
                                   (focus)="onSetFieldFocus(set, $event)"
                                   (input)="onRepsFieldInput($event)"
                                   (blur)="onRepsFieldBlur(sessionExercise, set)"
@@ -1138,7 +1131,6 @@
                                   [(ngModel)]="fieldBuffer(set, session, sessionExercise).weight"
                                   name="weight-{{ set.id }}"
                                   [readonly]="set.done"
-                                  [disabled]="isPaused(session)"
                                   (focus)="onSetFieldFocus(set, $event)"
                                   (input)="onWeightFieldInput($event)"
                                   (blur)="onWeightFieldBlur(sessionExercise, set)"
@@ -1162,7 +1154,6 @@
                                     [value]="targetSecondsInputValue(set)"
                                     name="targetSeconds-{{ set.id }}"
                                     [readonly]="set.done"
-                                    [disabled]="isPaused(session)"
                                     selectOnFocus
                                     (input)="onTargetSecondsFieldInput($event)"
                                     (change)="updateTargetSeconds(session, sessionExercise, set, $any($event.target).value)"
@@ -1192,7 +1183,7 @@
                                   [value]="isCountdownRunning(set) ? countdownElapsed(set) : (set.seconds ?? 0)"
                                   name="seconds-{{ set.id }}"
                                   [readonly]="set.done"
-                                  [disabled]="isPaused(session) || isCountdownRunning(set)"
+                                  [disabled]="isCountdownRunning(set)"
                                   selectOnFocus
                                   (input)="onSecondsFieldInput($event)"
                                   (change)="updateSetSeconds(session, sessionExercise, set, $any($event.target).value)"
@@ -1200,7 +1191,7 @@
                               </mat-form-field>
                               <button
                                 mat-icon-button
-                                [disabled]="isPaused(session) || set.done"
+                                [disabled]="set.done"
                                 (click)="isCountdownRunning(set) ? stopCountdown(set) : startCountdown(session, set)"
                                 [matTooltip]="(isCountdownRunning(set) ? 'sessions.stopCountdownButton' : 'sessions.startCountdownButton') | translate"
                                 [attr.aria-label]="(isCountdownRunning(set) ? 'sessions.stopCountdownButton' : 'sessions.startCountdownButton') | translate"
@@ -1213,7 +1204,6 @@
                               class="set-complete-btn"
                               [class.set-complete-success]="set.done && setMetTarget(set)"
                               [class.set-complete-fail]="set.done && !setMetTarget(set)"
-                              [disabled]="isPaused(session)"
                               (click)="completeSet(session, sessionExercise, set)"
                               [matTooltip]="'sessions.completeSet' | translate"
                               [attr.aria-label]="'sessions.completeSet' | translate"

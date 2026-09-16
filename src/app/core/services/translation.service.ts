@@ -333,7 +333,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Cancel',
     'sessions.confirmNo': 'No',
     'sessions.finishRequiresName': 'Enter a name to save the session.',
-    'sessions.pausedHint': 'Paused. Resume to edit this session.',
 
     'history.title': 'Training History',
     'history.empty': 'No finished sessions yet.',
@@ -793,7 +792,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Abbrechen',
     'sessions.confirmNo': 'Nein',
     'sessions.finishRequiresName': 'Gib einen Namen ein, um die Session zu speichern.',
-    'sessions.pausedHint': 'Pausiert. Zum Bearbeiten fortsetzen.',
 
     'history.title': 'Trainingsverlauf',
     'history.empty': 'Noch keine beendeten Sessions.',
@@ -1253,7 +1251,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Cancelar',
     'sessions.confirmNo': 'No',
     'sessions.finishRequiresName': 'Introduce un nombre para guardar la sesión.',
-    'sessions.pausedHint': 'En pausa. Reanuda para editar esta sesión.',
 
     'history.title': 'Historial de entrenamiento',
     'history.empty': 'Aún no hay sesiones finalizadas.',
@@ -1713,7 +1710,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Cancelar',
     'sessions.confirmNo': 'Não',
     'sessions.finishRequiresName': 'Insira um nome para salvar a sessão.',
-    'sessions.pausedHint': 'Pausada. Retome para editar esta sessão.',
 
     'history.title': 'Histórico de treino',
     'history.empty': 'Ainda não há sessões concluídas.',
@@ -2173,7 +2169,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Annulla',
     'sessions.confirmNo': 'No',
     'sessions.finishRequiresName': 'Inserisci un nome per salvare la sessione.',
-    'sessions.pausedHint': 'In pausa. Riprendi per modificare questa sessione.',
 
     'history.title': 'Cronologia allenamenti',
     'history.empty': 'Nessuna sessione conclusa ancora.',
@@ -2633,7 +2628,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Annuleren',
     'sessions.confirmNo': 'Nee',
     'sessions.finishRequiresName': 'Voer een naam in om de sessie op te slaan.',
-    'sessions.pausedHint': 'Gepauzeerd. Hervat om deze sessie te bewerken.',
 
     'history.title': 'Trainingsgeschiedenis',
     'history.empty': 'Nog geen afgeronde sessies.',
@@ -3093,7 +3087,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Anuluj',
     'sessions.confirmNo': 'Nie',
     'sessions.finishRequiresName': 'Wprowadź nazwę, aby zapisać sesję.',
-    'sessions.pausedHint': 'Wstrzymano. Wznów, aby edytować tę sesję.',
 
     'history.title': 'Historia treningów',
     'history.empty': 'Brak jeszcze zakończonych sesji.',
@@ -3553,7 +3546,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Отмена',
     'sessions.confirmNo': 'Нет',
     'sessions.finishRequiresName': 'Введите название, чтобы сохранить тренировку.',
-    'sessions.pausedHint': 'На паузе. Возобновите, чтобы редактировать эту тренировку.',
 
     'history.title': 'История тренировок',
     'history.empty': 'Пока нет завершённых тренировок.',
@@ -4013,7 +4005,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.confirmCancel': 'Mégse',
     'sessions.confirmNo': 'Nem',
     'sessions.finishRequiresName': 'Adj meg egy nevet az edzés mentéséhez.',
-    'sessions.pausedHint': 'Szüneteltetve. Folytatás a szerkesztéshez.',
 
     'history.title': 'Edzési előzmények',
     'history.empty': 'Még nincs befejezett edzés.',
