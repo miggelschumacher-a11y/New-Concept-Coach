@@ -5,6 +5,14 @@
   flex-wrap: wrap;
 }
 
+// Now the only field in the entry form (the description pre-fill field
+// beside it was removed) - grows to fill the row instead of sitting at the
+// mat-form-field default width.
+.plan-name-field {
+  flex: 1 1 20rem;
+  min-width: 12rem;
+}
+
 // Forces the description field onto its own full-width row below
 // name/save/cancel, which - being flex-basis 100% - can't share a row with
 // anything else in this wrapping flex container.
@@ -41,6 +49,15 @@ mat-card {
 // flex layout regardless of source order, so this needs `order: -1` to
 // actually appear before the title.
 .header-delete-action {
+  order: -1;
+  flex: 0 0 auto;
+}
+
+// Sits between the delete button and the drag handle - the DOM position
+// this button is declared at, combined with the same order:-1 as
+// header-delete-action, keeps it there instead of sliding after the panel
+// title (see header-delete-action's own comment on why order:-1 matters).
+.header-exercise-settings-action {
   order: -1;
   flex: 0 0 auto;
 }
@@ -94,6 +111,14 @@ mat-card {
   // computed display was "inline"), which makes a vertical margin-bottom a
   // no-op since inline boxes ignore block-axis margins entirely.
   display: block;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+// A custom session exercise's Settings content - toggled by the gear icon in
+// its own header instead of living in a nested accordion panel (see
+// TrainingPlansComponent.toggleCustomSessionExerciseSettings).
+.exercise-settings-panel {
   margin-top: 0.5rem;
   margin-bottom: 1.5rem;
 }
@@ -315,6 +340,11 @@ mat-card {
 
 .percentage-input-field {
   width: 5rem;
+}
+
+// Wide enough for "Zeitbasiert"/"Time-Based", the longer of its two options.
+.set-mode-field {
+  width: 9rem;
 }
 
 // Wider than a plain percentage-input-field - its floating label carries the

@@ -127,13 +127,18 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   plans: TrainingPlan[] = [];
   exercises: Exercise[] = [];
   name = '';
-  description = '';
   readonly descriptionMaxLength = 1000;
   editingPlanId: string | null = null;
   editName = '';
   editDescription = '';
   private descriptionInfoOpenPlanId: string | null = null;
   descriptionInfoPosition: { top: number; left: number } | null = null;
+  // Which custom-session exercises currently have their Settings content
+  // shown - a gear icon in the exercise's own header toggles this, replacing
+  // the old nested "Settings" accordion panel. Keyed by
+  // `${sessionId}-${exerciseId}` since the same exercise can appear in more
+  // than one custom session.
+  private openCustomSessionExerciseSettingsKeys = new Set<string>();
 
   constructor(
     private readonly trainingPlansService: TrainingPlansService,
@@ -466,11 +471,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     }
     await this.trainingPlansService.add({
       name: this.name.trim(),
-      description: this.description.trim(),
+      description: '',
       exerciseIds: []
     });
     this.name = '';
-    this.description = '';
     await this.load();
   }
 
@@ -632,23 +636,25 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   async updateCustomSessionExercises(plan: TrainingPlan, sessionId: string, exerciseIds: string[]): Promise<void> {
     const session = (plan.customSessions ?? []).find((candidate) => candidate.id === sessionId);
     const existingByExerciseId = new Map((session?.exercises ?? []).map((exercise) => [exercise.exerciseId, exercise]));
-    // Deselecting an exercise that already has configured sets would
-    // silently discard them - confirm first, and restore the exercise (with
-    // its sets untouched) into the selection if the user backs out.
-    const deselectedIdsWithSets = (session?.exercises ?? [])
-      .filter(
-        (exercise) =>
-          !exerciseIds.includes(exercise.exerciseId) &&
-          (exercise.workingSetTargets.length > 0 || (exercise.warmupSetTargets?.length ?? 0) > 0 || (exercise.cooldownSetTargets?.length ?? 0) > 0)
-      )
+    // Deselecting any exercise always asks for confirmation first, and
+    // restores it (with its sets untouched) into the selection if the user
+    // backs out - one already carrying configured sets gets the stronger,
+    // sets-aware warning instead of the plain one.
+    const deselectedIds = (session?.exercises ?? [])
+      .filter((exercise) => !exerciseIds.includes(exercise.exerciseId))
       .map((exercise) => exercise.exerciseId);
-    if (deselectedIdsWithSets.length > 0) {
+    if (deselectedIds.length > 0) {
+      const deselectedHasSets = (session?.exercises ?? []).some(
+        (exercise) =>
+          deselectedIds.includes(exercise.exerciseId) &&
+          (exercise.workingSetTargets.length > 0 || (exercise.warmupSetTargets?.length ?? 0) > 0 || (exercise.cooldownSetTargets?.length ?? 0) > 0)
+      );
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        data: { messageKey: 'sessions.confirmRemoveExerciseWithSetsQuestion' }
+        data: { messageKey: deselectedHasSets ? 'sessions.confirmRemoveExerciseWithSetsQuestion' : 'sessions.confirmRemoveExerciseQuestion' }
       });
       const confirmed = await firstValueFrom(dialogRef.afterClosed());
       if (!confirmed) {
-        exerciseIds = [...exerciseIds, ...deselectedIdsWithSets];
+        exerciseIds = [...exerciseIds, ...deselectedIds];
       }
     }
 
@@ -891,6 +897,19 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
       };
     });
     await this.trainingPlansService.update(plan);
+  }
+
+  isCustomSessionExerciseSettingsOpen(sessionId: string, exerciseId: string): boolean {
+    return this.openCustomSessionExerciseSettingsKeys.has(`${sessionId}-${exerciseId}`);
+  }
+
+  toggleCustomSessionExerciseSettings(sessionId: string, exerciseId: string): void {
+    const key = `${sessionId}-${exerciseId}`;
+    if (this.openCustomSessionExerciseSettingsKeys.has(key)) {
+      this.openCustomSessionExerciseSettingsKeys.delete(key);
+    } else {
+      this.openCustomSessionExerciseSettingsKeys.add(key);
+    }
   }
 
   async updateCustomSessionExerciseIncrementScheme(

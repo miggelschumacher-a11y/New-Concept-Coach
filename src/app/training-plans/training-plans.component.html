@@ -3,7 +3,7 @@
 <mat-card>
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addPlan()">
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline" class="plan-name-field">
         <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
         <input matInput name="name" [(ngModel)]="name" required selectOnFocus />
       </mat-form-field>
@@ -20,14 +20,6 @@
           <mat-icon>add</mat-icon>
         </button>
       </span>
-
-      <mat-form-field appearance="outline" class="plan-description-field">
-        <mat-label>
-          <mat-icon class="label-icon">description</mat-icon>{{ 'trainingPlans.description' | translate }}
-          <span class="description-char-count">({{ descriptionMaxLength - description.length }}/{{ descriptionMaxLength }})</span>
-        </mat-label>
-        <textarea matInput name="description" rows="3" [maxlength]="descriptionMaxLength" [(ngModel)]="description" selectOnFocus></textarea>
-      </mat-form-field>
     </form>
   </mat-card-content>
 </mat-card>
@@ -537,7 +529,7 @@
                         (cdkDropListDropped)="dropCustomSessionExercise(plan, session.id, $event)"
                       >
                         @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
-                          <mat-expansion-panel cdkDrag>
+                          <mat-expansion-panel cdkDrag #exercisePanel="matExpansionPanel">
                             <mat-expansion-panel-header>
                               <div class="header-delete-action">
                                 <button
@@ -550,6 +542,18 @@
                                   <mat-icon>delete</mat-icon>
                                 </button>
                               </div>
+                              @if (exercisePanel.expanded) {
+                                <div class="header-exercise-settings-action">
+                                  <button
+                                    mat-icon-button
+                                    (click)="toggleCustomSessionExerciseSettings(session.id, sessionExercise.exerciseId); $event.stopPropagation()"
+                                    [matTooltip]="'trainingPlans.settingsTitle' | translate"
+                                    [attr.aria-label]="'trainingPlans.settingsTitle' | translate"
+                                  >
+                                    <mat-icon>tune</mat-icon>
+                                  </button>
+                                </div>
+                              }
                               <div
                                 class="exercise-drag-handle"
                                 cdkDragHandle
@@ -569,12 +573,8 @@
                               </mat-panel-title>
                             </mat-expansion-panel-header>
 
-                            <mat-accordion multi class="exercise-settings-accordion">
-                              <mat-expansion-panel>
-                                <mat-expansion-panel-header>
-                                  <mat-panel-title><mat-icon class="label-icon">tune</mat-icon>{{ 'trainingPlans.settingsTitle' | translate }}</mat-panel-title>
-                                </mat-expansion-panel-header>
-
+                            @if (isCustomSessionExerciseSettingsOpen(session.id, sessionExercise.exerciseId)) {
+                              <div class="exercise-settings-panel">
                                 <div class="exercise-type-row">
                                   <mat-form-field appearance="outline" class="exercise-type-field">
                                     <mat-label>Select Exercise-Type</mat-label>
@@ -593,28 +593,46 @@
                                 <mat-tab-group class="exercise-settings-tabs" animationDuration="0ms">
                                   @if (session.exerciseType !== 'TIME_BASED') {
                                     <mat-tab [label]="'trainingPlans.progressionTabLabel' | translate">
-                                      <div class="exercise-settings-row">
-                                        <mat-form-field appearance="outline" class="exercise-settings-field">
+                                      <div class="exercise-type-row">
+                                        <mat-form-field appearance="outline" class="exercise-type-field">
                                           <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
                                           <mat-select
                                             [ngModel]="sessionExercise.incrementScheme"
                                             name="customSessionIncrementScheme-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
                                             (selectionChange)="updateCustomSessionExerciseIncrementScheme(plan, session.id, sessionExercise.exerciseId, $event.value)"
                                           >
-                                            <mat-option value="NONE">None</mat-option>
-                                            <mat-option value="DOUBLE_PROGRESSION" [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
+                                            <mat-option value="NONE" [matTooltip]="'sessions.incrementSchemeNoneTooltip' | translate" matTooltipPosition="right"
+                                              >None</mat-option
+                                            >
+                                            <mat-option
+                                              value="DOUBLE_PROGRESSION"
+                                              [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
+                                              [matTooltip]="'config.incrementSchemeDescription' | translate"
+                                              matTooltipPosition="right"
                                               >Double Progression{{ isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
                                             >
-                                            <mat-option value="REP_GOAL" [disabled]="isIncrementSchemeLocked('REP_GOAL')"
+                                            <mat-option
+                                              value="REP_GOAL"
+                                              [disabled]="isIncrementSchemeLocked('REP_GOAL')"
+                                              [matTooltip]="'config.repGoalDescription' | translate"
+                                              matTooltipPosition="right"
                                               >Rep Goal System{{ isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : '' }}</mat-option
                                             >
-                                            <mat-option value="WAVE_PROGRESSION" [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
+                                            <mat-option
+                                              value="WAVE_PROGRESSION"
+                                              [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
+                                              [matTooltip]="'config.waveProgressionDescription' | translate"
+                                              matTooltipPosition="right"
                                               >Wave Progression{{ isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
                                             >
-                                            <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                                            <mat-option value="LINEAR_PROGRESSION" [matTooltip]="'config.linearProgressionDescription' | translate" matTooltipPosition="right"
+                                              >Linear Progression</mat-option
+                                            >
                                           </mat-select>
                                         </mat-form-field>
+                                      </div>
 
+                                      <div class="exercise-settings-row">
                                         <mat-form-field
                                           appearance="outline"
                                           class="exercise-settings-field"
@@ -808,8 +826,8 @@
                                     </div>
                                   </mat-tab>
                                 </mat-tab-group>
-                              </mat-expansion-panel>
-                            </mat-accordion>
+                              </div>
+                            }
 
                             <ng-template #customSetTargetRows let-field="field" let-targets="targets">
                               <div
@@ -845,13 +863,20 @@
                                     </div>
                                     <div class="percentage-set-row">
                                   @if (field === 'warmupSetTargets' || field === 'cooldownSetTargets') {
-                                    <mat-checkbox
-                                      [checked]="isCustomSessionSetTimeBased(session, target)"
-                                      (change)="updateCustomSessionSetTimeBased(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $event.checked)"
-                                      [matTooltip]="'trainingPlans.setTimeBasedTooltip' | translate"
-                                    >
-                                      {{ 'trainingPlans.setTimeBasedLabel' | translate }}
-                                    </mat-checkbox>
+                                    <mat-form-field appearance="outline" class="set-mode-field">
+                                      <mat-select
+                                        [ngModel]="isCustomSessionSetTimeBased(session, target) ? 'TIME_BASED' : 'STANDARD'"
+                                        name="customSessionSetMode-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}-{{ target.id }}"
+                                        (selectionChange)="
+                                          updateCustomSessionSetTimeBased(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $event.value === 'TIME_BASED')
+                                        "
+                                      >
+                                        <mat-option value="STANDARD">{{ 'trainingPlans.setModeStandard' | translate }}</mat-option>
+                                        <mat-option value="TIME_BASED" [matTooltip]="'trainingPlans.setTimeBasedTooltip' | translate">{{
+                                          'trainingPlans.setTimeBasedLabel' | translate
+                                        }}</mat-option>
+                                      </mat-select>
+                                    </mat-form-field>
                                   }
                                   @if (isCustomSessionSetTimeBased(session, target)) {
                                     <mat-form-field appearance="outline" class="percentage-input-field">
@@ -1173,17 +1198,33 @@
                                     name="incrementScheme-{{ exerciseId }}"
                                     (selectionChange)="updatePlanExerciseIncrementScheme(plan, exerciseId, $event.value)"
                                   >
-                                    <mat-option value="NONE">None</mat-option>
-                                    <mat-option value="DOUBLE_PROGRESSION" [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
+                                    <mat-option value="NONE" [matTooltip]="'sessions.incrementSchemeNoneTooltip' | translate" matTooltipPosition="right"
+                                      >None</mat-option
+                                    >
+                                    <mat-option
+                                      value="DOUBLE_PROGRESSION"
+                                      [disabled]="isIncrementSchemeLocked('DOUBLE_PROGRESSION')"
+                                      [matTooltip]="'config.incrementSchemeDescription' | translate"
+                                      matTooltipPosition="right"
                                       >Double Progression{{ isIncrementSchemeLocked('DOUBLE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
                                     >
-                                    <mat-option value="REP_GOAL" [disabled]="isIncrementSchemeLocked('REP_GOAL')"
+                                    <mat-option
+                                      value="REP_GOAL"
+                                      [disabled]="isIncrementSchemeLocked('REP_GOAL')"
+                                      [matTooltip]="'config.repGoalDescription' | translate"
+                                      matTooltipPosition="right"
                                       >Rep Goal System{{ isIncrementSchemeLocked('REP_GOAL') ? ' (Pro)' : '' }}</mat-option
                                     >
-                                    <mat-option value="WAVE_PROGRESSION" [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
+                                    <mat-option
+                                      value="WAVE_PROGRESSION"
+                                      [disabled]="isIncrementSchemeLocked('WAVE_PROGRESSION')"
+                                      [matTooltip]="'config.waveProgressionDescription' | translate"
+                                      matTooltipPosition="right"
                                       >Wave Progression{{ isIncrementSchemeLocked('WAVE_PROGRESSION') ? ' (Pro)' : '' }}</mat-option
                                     >
-                                    <mat-option value="LINEAR_PROGRESSION">Linear Progression</mat-option>
+                                    <mat-option value="LINEAR_PROGRESSION" [matTooltip]="'config.linearProgressionDescription' | translate" matTooltipPosition="right"
+                                      >Linear Progression</mat-option
+                                    >
                                   </mat-select>
                                 </mat-form-field>
                               </div>
