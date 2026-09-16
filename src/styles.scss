@@ -210,13 +210,14 @@ html.light-theme body {
   width: 1.15em;
 }
 
-// Shared by the Increment Scheme dropdown in both SessionsComponent and
-// TrainingPlansComponent - global (not component-scoped) because a
-// mat-select's own option panel is a CDK overlay appended to
-// .cdk-overlay-container, outside either component's view encapsulation,
-// so a component-scoped ::ng-deep rule would need to duplicate this in both
-// places (and did, until it pushed sessions.component.scss over the
-// per-component style budget).
+// Shared by every mat-select dropdown in this app that gives its own options
+// a tap-triggered info popup (Increment Scheme in SessionsComponent and
+// TrainingPlansComponent, Finished Sessions in ConfigComponent, and any
+// future one) - global (not component-scoped) because a mat-select's own
+// option panel is a CDK overlay appended to .cdk-overlay-container, outside
+// any component's view encapsulation, so a component-scoped ::ng-deep rule
+// would need to duplicate this in every consumer (and did, until it pushed
+// sessions.component.scss over the per-component style budget).
 //
 // mat-option's own label wrapper defaults to plain inline text flow, which
 // wraps a same-line info button onto its own line once the label text alone
@@ -231,12 +232,12 @@ html.light-theme body {
   width: 100%;
 }
 
-// The Increment Scheme dropdown's own per-option info button - lives inside
-// mat-option's projected content, right after the option's label text. A
-// tap-triggered popup rather than a hover/long-press matTooltip, since the
-// latter turned out not to be reliably reachable on a real touch device
-// inside an open mat-select overlay.
-.increment-scheme-info-button {
+// A dropdown option's own per-option info button - lives inside mat-option's
+// projected content, right after the option's label text. A tap-triggered
+// popup rather than a hover/long-press matTooltip, since the latter turned
+// out not to be reliably reachable on a real touch device inside an open
+// mat-select overlay.
+.dropdown-option-info-button {
   width: 32px;
   height: 32px;
   line-height: 32px;
@@ -250,11 +251,11 @@ html.light-theme body {
   }
 }
 
-// mat-option sets pointer-events:none on its whole row while Pro-locked,
-// which would otherwise also block taps on its own info button - exactly the
-// entries a free user most wants a description for. Carve the button back
-// out from that blanket rule.
-.mat-mdc-option.mdc-list-item--disabled .increment-scheme-info-button {
+// mat-option sets pointer-events:none on its whole row while disabled (e.g.
+// Pro-locked), which would otherwise also block taps on its own info button
+// - exactly the entries a user most wants a description for. Carve the
+// button back out from that blanket rule.
+.mat-mdc-option.mdc-list-item--disabled .dropdown-option-info-button {
   pointer-events: auto;
 }
 
@@ -269,7 +270,7 @@ html.light-theme body {
 // @angular/cdk/overlay-prebuilt.css) - this popup is opened FROM WITHIN an
 // already-open mat-select overlay, so it needs to paint above that overlay,
 // not just above regular page content.
-.increment-scheme-info-popup {
+.dropdown-option-info-popup {
   position: fixed;
   z-index: 1100;
   width: 420px;

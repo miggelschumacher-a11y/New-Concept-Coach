@@ -33,10 +33,48 @@
       <mat-label
         ><mat-icon class="label-icon">repeat</mat-icon>{{ 'config.finishedSessionReplenish' | translate }}</mat-label
       >
-      <mat-select [(ngModel)]="finishedSessionReplenishMode" (selectionChange)="onFinishedSessionReplenishModeChange()">
-        <mat-option value="always">{{ 'config.finishedSessionReplenishAlways' | translate }}</mat-option>
-        <mat-option value="never">{{ 'config.finishedSessionReplenishNever' | translate }}</mat-option>
-        <mat-option value="ask">{{ 'config.finishedSessionReplenishAsk' | translate }}</mat-option>
+      <mat-select
+        [(ngModel)]="finishedSessionReplenishMode"
+        (selectionChange)="onFinishedSessionReplenishModeChange()"
+        (closed)="closeFinishedSessionInfo()"
+      >
+        <mat-select-trigger>{{ finishedSessionLabel(finishedSessionReplenishMode) }}</mat-select-trigger>
+        <mat-option value="always"
+          >{{ 'config.finishedSessionReplenishAlways' | translate }}
+          <button
+            type="button"
+            mat-icon-button
+            class="dropdown-option-info-button finished-session-info-trigger"
+            (click)="toggleFinishedSessionInfo('always', $event)"
+            [attr.aria-label]="'sessions.dropdownOptionInfoButton' | translate"
+          >
+            <mat-icon>info</mat-icon>
+          </button>
+        </mat-option>
+        <mat-option value="never"
+          >{{ 'config.finishedSessionReplenishNever' | translate }}
+          <button
+            type="button"
+            mat-icon-button
+            class="dropdown-option-info-button finished-session-info-trigger"
+            (click)="toggleFinishedSessionInfo('never', $event)"
+            [attr.aria-label]="'sessions.dropdownOptionInfoButton' | translate"
+          >
+            <mat-icon>info</mat-icon>
+          </button>
+        </mat-option>
+        <mat-option value="ask"
+          >{{ 'config.finishedSessionReplenishAsk' | translate }}
+          <button
+            type="button"
+            mat-icon-button
+            class="dropdown-option-info-button finished-session-info-trigger"
+            (click)="toggleFinishedSessionInfo('ask', $event)"
+            [attr.aria-label]="'sessions.dropdownOptionInfoButton' | translate"
+          >
+            <mat-icon>info</mat-icon>
+          </button>
+        </mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -90,33 +128,41 @@
         <span class="age-display">{{ 'config.heartRateMax' | translate }}: {{ heartRateMax }}</span>
       }
     </div>
+  </mat-card-content>
+</mat-card>
 
-    <mat-card-title class="zones-title"
-      ><mat-icon class="label-icon">favorite</mat-icon>{{ 'trainingZones.title' | translate }}</mat-card-title
-    >
+<mat-card>
+  <mat-card-content>
+    <mat-accordion class="training-zones-accordion">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title><mat-icon class="label-icon">favorite</mat-icon>{{ 'trainingZones.title' | translate }}</mat-panel-title>
+        </mat-expansion-panel-header>
 
-    <div class="zones-table-wrapper">
-      <table class="zones-table">
-        <thead>
-          <tr>
-            <th>{{ 'trainingZones.zoneColumn' | translate }}</th>
-            <th>{{ 'trainingZones.percentColumn' | translate }}</th>
-            <th>{{ 'trainingZones.heartRateColumn' | translate }}</th>
-            <th>{{ 'trainingZones.purposeColumn' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (zone of trainingZones; track zone.nameKey) {
-            <tr>
-              <td>{{ zone.nameKey | translate }}</td>
-              <td>{{ zonePercentDisplay(zone) }}</td>
-              <td>{{ zoneHeartRateDisplay(zone) }}</td>
-              <td>{{ zone.purposeKey | translate }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+        <div class="zones-table-wrapper">
+          <table class="zones-table">
+            <thead>
+              <tr>
+                <th>{{ 'trainingZones.zoneColumn' | translate }}</th>
+                <th>{{ 'trainingZones.percentColumn' | translate }}</th>
+                <th>{{ 'trainingZones.heartRateColumn' | translate }}</th>
+                <th>{{ 'trainingZones.purposeColumn' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (zone of trainingZones; track zone.nameKey) {
+                <tr>
+                  <td>{{ zone.nameKey | translate }}</td>
+                  <td>{{ zonePercentDisplay(zone) }}</td>
+                  <td>{{ zoneHeartRateDisplay(zone) }}</td>
+                  <td>{{ zone.purposeKey | translate }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
   </mat-card-content>
 </mat-card>
 
@@ -875,3 +921,15 @@
     </a>
   </mat-card-content>
 </mat-card>
+
+@if (openFinishedSessionInfoKey && finishedSessionInfoPosition) {
+  <div
+    class="dropdown-option-info-popup finished-session-info-trigger"
+    data-popup-key="finished-session-info-popup"
+    [style.top.px]="finishedSessionInfoPosition.top"
+    [style.left.px]="finishedSessionInfoPosition.left"
+    (click)="$event.stopPropagation()"
+  >
+    <p>{{ finishedSessionInfoTooltipKey(openFinishedSessionInfoKey) | translate }}</p>
+  </div>
+}

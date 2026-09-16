@@ -7,7 +7,8 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
-.body-weight-accordion mat-expansion-panel-header .mat-content {
+.body-weight-accordion mat-expansion-panel-header .mat-content,
+.training-zones-accordion mat-expansion-panel-header .mat-content {
   align-items: center;
 }
 
@@ -113,7 +114,8 @@ mat-card {
 }
 
 .finished-session-field {
-  min-width: 260px;
+  flex: 1 1 100%;
+  width: 100%;
 }
 
 .auto-advance-field {
@@ -147,11 +149,6 @@ mat-card {
 
 .age-display {
   color: rgba(var(--app-fg-rgb), 0.95);
-}
-
-.zones-title {
-  display: block;
-  margin-top: 1rem;
 }
 
 .zones-table-wrapper {

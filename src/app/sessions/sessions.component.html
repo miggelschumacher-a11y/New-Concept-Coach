@@ -1278,9 +1278,9 @@
   <button
     type="button"
     mat-icon-button
-    class="increment-scheme-info-button increment-scheme-info-trigger"
+    class="dropdown-option-info-button increment-scheme-info-trigger"
     (click)="toggleIncrementSchemeInfo(scheme, $event)"
-    [attr.aria-label]="'sessions.incrementSchemeInfoButton' | translate"
+    [attr.aria-label]="'sessions.dropdownOptionInfoButton' | translate"
   >
     <mat-icon>info</mat-icon>
   </button>
@@ -1288,7 +1288,7 @@
 
 @if (openIncrementSchemeInfoKey && incrementSchemeInfoPosition) {
   <div
-    class="increment-scheme-info-popup increment-scheme-info-trigger"
+    class="dropdown-option-info-popup increment-scheme-info-trigger"
     data-popup-key="increment-scheme-info-popup"
     [style.top.px]="incrementSchemeInfoPosition.top"
     [style.left.px]="incrementSchemeInfoPosition.left"

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -27,7 +27,7 @@ import { DoubleProgressionMode } from '../core/models/training-plan.model';
 import { formatRepRangeText, parseRepRangeText, sanitizeRepRangeInput } from '../core/utils/rep-range-text.util';
 import { IndexedDbService } from '../core/services/indexed-db.service';
 import { DriveBackupFile, GoogleDriveService } from '../core/services/google-drive.service';
-import { LANGUAGES } from '../core/services/translation.service';
+import { LANGUAGES, TranslationService } from '../core/services/translation.service';
 import { BodyWeightService } from '../core/services/body-weight.service';
 import { DumbbellsService } from '../core/services/dumbbells.service';
 import { DumbbellEntry } from '../core/models/dumbbell-entry.model';
@@ -73,7 +73,7 @@ interface FileSystemFileHandleLike {
   templateUrl: './config.component.html',
   styleUrl: './config.component.scss'
 })
-export class ConfigComponent implements OnInit {
+export class ConfigComponent implements OnInit, OnDestroy {
   readonly languages = LANGUAGES;
   readonly trainingZones = TRAINING_ZONES;
   weightUnit: WeightUnit;
@@ -127,7 +127,8 @@ export class ConfigComponent implements OnInit {
     private readonly bodyWeightService: BodyWeightService,
     private readonly dumbbellsService: DumbbellsService,
     private readonly platesService: PlatesService,
-    private readonly purchasesService: PurchasesService
+    private readonly purchasesService: PurchasesService,
+    private readonly translationService: TranslationService
   ) {
     const settings = this.settingsService.getSettings();
     this.weightUnit = settings.weightUnit;
@@ -184,6 +185,78 @@ export class ConfigComponent implements OnInit {
       const proPackage = await this.purchasesService.getProPackage();
       this.proPackagePriceString = proPackage?.product.priceString ?? null;
     }
+    document.addEventListener('click', this.handleDocumentClick, true);
+  }
+
+  ngOnDestroy(): void {
+    document.removeEventListener('click', this.handleDocumentClick, true);
+  }
+
+  // Finished Sessions' own per-option info popup - a tap-triggered popup
+  // rather than a hover/long-press matTooltip, since the latter turned out
+  // not to be reliably reachable on a real touch device inside an open
+  // mat-select overlay (see TrainingPlansComponent's identical Increment
+  // Scheme fix). Only one dropdown can be open at a time, so a single
+  // shared key is enough to track which option's popup is open.
+  openFinishedSessionInfoKey: FinishedSessionReplenishMode | null = null;
+  finishedSessionInfoPosition: { top: number; left: number } | null = null;
+
+  finishedSessionInfoTooltipKey(mode: FinishedSessionReplenishMode): string {
+    switch (mode) {
+      case 'always':
+        return 'config.finishedSessionReplenishAlwaysTooltip';
+      case 'never':
+        return 'config.finishedSessionReplenishNeverTooltip';
+      case 'ask':
+        return 'config.finishedSessionReplenishAskTooltip';
+    }
+  }
+
+  toggleFinishedSessionInfo(mode: FinishedSessionReplenishMode, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.openFinishedSessionInfoKey === mode) {
+      this.closeFinishedSessionInfo();
+      return;
+    }
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.finishedSessionInfoPosition = { top: rect.bottom + 4, left: rect.left };
+    this.openFinishedSessionInfoKey = mode;
+    this.fitPopupToViewport('finished-session-info-popup', this.finishedSessionInfoPosition);
+  }
+
+  isFinishedSessionInfoOpen(mode: FinishedSessionReplenishMode): boolean {
+    return this.openFinishedSessionInfoKey === mode;
+  }
+
+  closeFinishedSessionInfo(): void {
+    this.openFinishedSessionInfoKey = null;
+    this.finishedSessionInfoPosition = null;
+  }
+
+  private readonly handleDocumentClick = (event: MouseEvent): void => {
+    const target = event.target as HTMLElement | null;
+    if (this.openFinishedSessionInfoKey && !target?.closest('.finished-session-info-trigger')) {
+      this.closeFinishedSessionInfo();
+    }
+  };
+
+  // Same viewport-fit correction as the Training Plans/Sessions pages' own
+  // popups: the initial position is a best guess anchored to the trigger
+  // button, corrected a tick later once the popup has actually rendered and
+  // its real size is known, so it never clips off-screen.
+  private fitPopupToViewport(dataKey: string, position: { top: number; left: number }): void {
+    setTimeout(() => {
+      const el = document.querySelector(`[data-popup-key="${dataKey}"]`) as HTMLElement | null;
+      if (!el) {
+        return;
+      }
+      const margin = 8;
+      const rect = el.getBoundingClientRect();
+      const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
+      const maxTop = Math.max(margin, window.innerHeight - rect.height - margin);
+      position.left = Math.min(Math.max(margin, position.left), maxLeft);
+      position.top = Math.min(Math.max(margin, position.top), maxTop);
+    });
   }
 
   // False in the browser and before the RevenueCat API keys are filled in
@@ -306,6 +379,22 @@ export class ConfigComponent implements OnInit {
 
   async onFinishedSessionReplenishModeChange(): Promise<void> {
     await this.settingsService.updateSettings({ finishedSessionReplenishMode: this.finishedSessionReplenishMode });
+  }
+
+  // mat-select's own default closed-state display (`viewValue`) reads the
+  // selected mat-option's whole textContent, which would otherwise include
+  // the info button's nested mat-icon text ("info") once an option holds
+  // more than a plain label - hence the explicit mat-select-trigger driven
+  // by this lookup instead of relying on that default.
+  finishedSessionLabel(mode: FinishedSessionReplenishMode): string {
+    switch (mode) {
+      case 'always':
+        return this.translationService.translate('config.finishedSessionReplenishAlways');
+      case 'never':
+        return this.translationService.translate('config.finishedSessionReplenishNever');
+      case 'ask':
+        return this.translationService.translate('config.finishedSessionReplenishAsk');
+    }
   }
 
   async onWarmupSetsAutoAdvanceChange(): Promise<void> {
