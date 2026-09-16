@@ -264,9 +264,14 @@ html.light-theme body {
 // and a `position: fixed` descendant of a transformed ancestor resolves
 // against that ancestor instead of the viewport, breaking the button-rect-
 // based coordinates it's positioned with.
+//
+// z-index is above .cdk-overlay-container's own 1000 (see
+// @angular/cdk/overlay-prebuilt.css) - this popup is opened FROM WITHIN an
+// already-open mat-select overlay, so it needs to paint above that overlay,
+// not just above regular page content.
 .increment-scheme-info-popup {
   position: fixed;
-  z-index: 1000;
+  z-index: 1100;
   width: 280px;
   max-width: calc(100vw - 16px);
   background: linear-gradient(145deg, var(--app-popup-gradient-start), var(--app-popup-gradient-end));
