@@ -22,7 +22,8 @@ export type Language =
   | 'tr'
   | 'ar'
   | 'zh'
-  | 'ja';
+  | 'ja'
+  | 'el';
 export type FinishedSessionReplenishMode = 'always' | 'never' | 'ask';
 export type Theme = 'dark' | 'light';
 export type AutoAdvanceMode = 'immediate' | 'confirm' | 'off';
@@ -88,7 +89,8 @@ export const LANGUAGE_DATE_FORMATS: Record<Language, DateFormat> = {
   tr: 'dd.MM.yyyy',
   ar: 'dd.MM.yyyy',
   zh: 'MM/dd/yyyy',
-  ja: 'MM/dd/yyyy'
+  ja: 'MM/dd/yyyy',
+  el: 'dd.MM.yyyy'
 };
 
 const LEGACY_STORAGE_KEY = 'trainings-app-settings';
