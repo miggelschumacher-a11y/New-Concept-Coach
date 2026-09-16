@@ -76,6 +76,15 @@ export interface ExerciseSet {
   // to the owning SessionExercise itself, as every set did before this
   // field existed.
   referenceExerciseId?: string;
+  // Per-set override of whether THIS set is Time-Based (reps/weight replaced
+  // by the seconds field above) rather than following the owning
+  // SessionExercise's own uniform exerciseType - set when a custom session's
+  // warmup/cooldown target carried its own Time-Based override (see
+  // TrainingPlansComponent.isCustomSessionSetTimeBased and
+  // SessionsComponent.buildSessionFromCustomSession). Unset falls back to
+  // the owning exercise's own type, same as every set did before this field
+  // existed - see SessionsComponent.isSetTimeBased.
+  isTimeBased?: boolean;
 }
 
 export interface SessionExercise {
