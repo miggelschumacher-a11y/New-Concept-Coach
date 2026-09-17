@@ -231,6 +231,14 @@
                   </div>
                 </fieldset>
 
+                <fieldset class="session-settings-group" [matTooltip]="'sessions.sessionCountWorkingTooltip' | translate">
+                  <legend><mat-icon class="label-icon">fitness_center</mat-icon>{{ 'sessions.sessionCountWorkingLegend' | translate }}</legend>
+                  <div class="session-settings-actions">
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'countWorkingSets', true)">{{ 'common.yes' | translate }}</button>
+                    <button mat-stroked-button type="button" (click)="applySessionSettingToAllExercises(session, 'countWorkingSets', false)">{{ 'common.no' | translate }}</button>
+                  </div>
+                </fieldset>
+
                 <fieldset class="session-settings-group" [matTooltip]="'sessions.sessionCountCooldownTooltip' | translate">
                   <legend><mat-icon class="label-icon">ac_unit</mat-icon>{{ 'sessions.sessionCountCooldownLegend' | translate }}</legend>
                   <div class="session-settings-actions">
@@ -576,6 +584,28 @@
                             type="button"
                             [class.active]="!sessionExercise.countWarmupSets"
                             (click)="updateSessionExercisePreference(session, sessionExercise, 'countWarmupSets', false)"
+                          >
+                            {{ 'common.no' | translate }}
+                          </button>
+                        </div>
+                      </fieldset>
+
+                      <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountWorkingTooltip' | translate">
+                        <legend><mat-icon class="label-icon">fitness_center</mat-icon>{{ 'sessions.countWorking' | translate }}</legend>
+                        <div class="session-settings-actions">
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="sessionExercise.countWorkingSets ?? true"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'countWorkingSets', true)"
+                          >
+                            {{ 'common.yes' | translate }}
+                          </button>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="!(sessionExercise.countWorkingSets ?? true)"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'countWorkingSets', false)"
                           >
                             {{ 'common.no' | translate }}
                           </button>

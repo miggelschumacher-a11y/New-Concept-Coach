@@ -13,6 +13,9 @@
   @if (data.feedbackMessage) {
     <p class="rest-timer-feedback">{{ data.feedbackMessage }}</p>
   }
-  <p class="rest-timer-elapsed" [class.rest-timer-pulse]="pulsing">{{ 'sessions.restTimerLabel' | translate }}: {{ elapsedSeconds }} {{ 'sessions.secondsField' | translate }}</p>
+  <p class="rest-timer-elapsed" [class.rest-timer-pulse]="pulsing">
+    {{ (hasSecondThreshold ? (isSecondPhase ? 'config.secondRestAfterSetLabel' : 'config.firstRestAfterSetLabel') : 'sessions.restTimerLabel') | translate }}:
+    {{ elapsedSeconds }} / {{ activeThresholdSeconds }} {{ 'sessions.secondsField' | translate }}
+  </p>
   <p class="rest-timer-hint">{{ 'sessions.restTimerDismissHint' | translate }}</p>
 </div>

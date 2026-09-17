@@ -230,6 +230,26 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
+  // Only the between-sets timer ever has two independent thresholds (see
+  // SessionsComponent.openBetweenSetsRestTimer) - the single-threshold
+  // between-exercises timer never sets secondThresholdSeconds, so it always
+  // reads as "no second phase" here and keeps the plain, unnumbered label.
+  get hasSecondThreshold(): boolean {
+    return this.data.secondThresholdSeconds !== undefined;
+  }
+
+  // openBetweenSetsRestTimer only ever sets secondThresholdSeconds when it's
+  // strictly greater than firstThresholdSeconds, so comparing the live
+  // elapsed count against firstThresholdSeconds alone is enough to tell
+  // which of the two reminders is the one still ahead.
+  get isSecondPhase(): boolean {
+    return this.hasSecondThreshold && this.elapsedSeconds >= this.data.firstThresholdSeconds;
+  }
+
+  get activeThresholdSeconds(): number {
+    return this.isSecondPhase ? this.data.secondThresholdSeconds! : this.data.firstThresholdSeconds;
+  }
+
   // The two thresholds are independent durations from the same start (see
   // openBetweenSetsRestTimer) - either can be the smaller one - so the ring's
   // phase boundaries are just those two values in ascending order, not

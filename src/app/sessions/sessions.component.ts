@@ -510,7 +510,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
   sessionSettingsInfoPosition: { top: number; left: number } | null = null;
   private sessionSettingsBuffers = new Map<
     string,
-    { countWarmupSets: boolean; countCooldownSets: boolean; showWarmupSets: boolean; showCooldownSets: boolean }
+    {
+      countWarmupSets: boolean;
+      countCooldownSets: boolean;
+      countWorkingSets: boolean;
+      showWarmupSets: boolean;
+      showCooldownSets: boolean;
+    }
   >();
 
   toggleSessionSettingsInfo(session: TrainingSession, event: MouseEvent): void {
@@ -541,6 +547,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   sessionSettingsBuffer(session: TrainingSession): {
     countWarmupSets: boolean;
     countCooldownSets: boolean;
+    countWorkingSets: boolean;
     showWarmupSets: boolean;
     showCooldownSets: boolean;
   } {
@@ -550,6 +557,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       buffer = {
         countWarmupSets: first?.countWarmupSets ?? true,
         countCooldownSets: first?.countCooldownSets ?? true,
+        countWorkingSets: first?.countWorkingSets ?? true,
         showWarmupSets: first?.showWarmupSets ?? true,
         showCooldownSets: first?.showCooldownSets ?? true
       };
@@ -565,7 +573,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // added exercise from it.
   async applySessionSettingToAllExercises(
     session: TrainingSession,
-    field: 'countWarmupSets' | 'countCooldownSets' | 'showWarmupSets' | 'showCooldownSets',
+    field: 'countWarmupSets' | 'countCooldownSets' | 'countWorkingSets' | 'showWarmupSets' | 'showCooldownSets',
     value: boolean
   ): Promise<void> {
     this.sessionSettingsBuffer(session)[field] = value;
@@ -3471,7 +3479,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       if (set.type === 'cooldown') {
         return sessionExercise.countCooldownSets;
       }
-      return true;
+      return sessionExercise.countWorkingSets ?? true;
     });
   }
 
@@ -3571,7 +3579,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async onCountingPreferenceChange(
     session: TrainingSession,
     sessionExercise: SessionExercise,
-    field: 'countWarmupSets' | 'countCooldownSets' | 'showWarmupSets' | 'showCooldownSets'
+    field: 'countWarmupSets' | 'countCooldownSets' | 'countWorkingSets' | 'showWarmupSets' | 'showCooldownSets'
   ): Promise<void> {
     if (sessionExercise[field] === false) {
       this.sessionSettingsBuffer(session)[field] = false;
@@ -3585,7 +3593,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   async updateSessionExercisePreference(
     session: TrainingSession,
     sessionExercise: SessionExercise,
-    field: 'countWarmupSets' | 'countCooldownSets' | 'showWarmupSets' | 'showCooldownSets',
+    field: 'countWarmupSets' | 'countCooldownSets' | 'countWorkingSets' | 'showWarmupSets' | 'showCooldownSets',
     value: boolean
   ): Promise<void> {
     sessionExercise[field] = value;

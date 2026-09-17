@@ -96,6 +96,13 @@ export interface SessionExercise {
   // field existed keep showing their warmup/cooldown panels unchanged.
   showWarmupSets?: boolean;
   showCooldownSets?: boolean;
+  // Same idea as showWarmupSets/showCooldownSets above (optional, true when
+  // absent) rather than countWarmupSets/countCooldownSets' own required
+  // shape - lets an existing session's working sets keep counting exactly as
+  // they always did without a migration, while still letting this one be
+  // turned off per exercise (see SessionsComponent.countedSets) for the rare
+  // case a working set's own weight shouldn't add to the total after all.
+  countWorkingSets?: boolean;
   // Session-local snapshot of the plan exercise's type/scheme at the time
   // the session was generated - editable from within the session itself
   // without touching the source training plan. Purely informational: it
