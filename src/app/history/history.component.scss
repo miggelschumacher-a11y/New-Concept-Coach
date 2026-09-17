@@ -29,6 +29,23 @@
   min-width: 0;
 }
 
+// Without this, the header keeps Material's default fixed height and clips
+// anything taller that's rendered inside it - namely the delete-confirm
+// popup below, whose label-plus-button-row content is taller than a
+// collapsed header. Same fix as SessionsComponent's own identical
+// .session-card accordion (view encapsulation means that component's CSS
+// doesn't reach this template, so it has to be repeated here).
+.session-card mat-expansion-panel-header {
+  height: auto;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+mat-expansion-panel-header .mat-content {
+  align-items: center;
+  overflow: visible;
+}
+
 .header-delete-action {
   order: -1;
   flex: 0 0 auto;
