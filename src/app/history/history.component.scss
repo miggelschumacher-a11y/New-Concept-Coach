@@ -237,6 +237,40 @@ mat-expansion-panel-header .mat-content {
   fill: #66bb6a;
 }
 
+// The whole chart listens for mousemove (see HistoryComponent.
+// onExerciseChartMove/onBodyWeightChartMove) rather than just the dots
+// themselves, so the crosshair tracks smoothly instead of only snapping into
+// existence right on top of a point.
+.progress-chart {
+  cursor: crosshair;
+}
+
+.chart-dot-active {
+  r: 5px;
+  stroke: rgba(var(--app-fg-rgb), 0.9);
+  stroke-width: 1.5px;
+}
+
+.chart-crosshair-line {
+  stroke: rgba(var(--app-fg-rgb), 0.4);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+
+.chart-tooltip-box {
+  fill: var(--app-confirm-gradient-end);
+  stroke: rgba(var(--app-fg-rgb), 0.2);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.chart-tooltip-text {
+  fill: rgba(var(--app-fg-rgb), 0.92);
+  font-size: 11px;
+  pointer-events: none;
+}
+
 .chart-x-labels {
   display: flex;
   justify-content: space-between;

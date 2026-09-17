@@ -209,7 +209,13 @@
         <span class="chart-legend-item"><span class="chart-legend-swatch chart-legend-weight"></span>{{ 'history.chartWeightLegend' | translate }}</span>
         <span class="chart-legend-item"><span class="chart-legend-swatch chart-legend-1rm"></span>{{ 'history.chartOneRepMaxLegend' | translate }}</span>
       </div>
-      <svg class="progress-chart" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet">
+      <svg
+        class="progress-chart"
+        viewBox="0 0 600 260"
+        preserveAspectRatio="xMidYMid meet"
+        (mousemove)="onExerciseChartMove($event)"
+        (mouseleave)="onExerciseChartLeave()"
+      >
         @for (line of chartGridLines(selectedChartPoints); track line.y) {
           <line x1="48" x2="584" [attr.y1]="line.y" [attr.y2]="line.y" class="chart-grid-line" />
           <text x="4" [attr.y]="line.y + 4" class="chart-axis-label">{{ line.label }}</text>
@@ -217,14 +223,42 @@
         <polyline [attr.points]="chartPolylinePoints(chartCoords(selectedChartPoints, 'weight'))" class="chart-line chart-line-weight" />
         <polyline [attr.points]="chartPolylinePoints(chartCoords(selectedChartPoints, 'oneRepMax'))" class="chart-line chart-line-1rm" />
         @for (coord of chartCoords(selectedChartPoints, 'weight'); track $index) {
-          <circle [attr.cx]="coord.x" [attr.cy]="coord.y" r="3.5" class="chart-dot chart-dot-weight">
-            <title>{{ chartPointLabel(selectedChartPoints[$index]) }}</title>
-          </circle>
+          <circle
+            [attr.cx]="coord.x"
+            [attr.cy]="coord.y"
+            r="3.5"
+            class="chart-dot chart-dot-weight"
+            [class.chart-dot-active]="hoveredExerciseChartIndex === $index"
+          />
         }
         @for (coord of chartCoords(selectedChartPoints, 'oneRepMax'); track $index) {
-          <circle [attr.cx]="coord.x" [attr.cy]="coord.y" r="3.5" class="chart-dot chart-dot-1rm">
-            <title>{{ chartPointLabel(selectedChartPoints[$index]) }}</title>
-          </circle>
+          <circle
+            [attr.cx]="coord.x"
+            [attr.cy]="coord.y"
+            r="3.5"
+            class="chart-dot chart-dot-1rm"
+            [class.chart-dot-active]="hoveredExerciseChartIndex === $index"
+          />
+        }
+        @if (exerciseChartTooltip; as tooltip) {
+          <line
+            [attr.x1]="tooltip.crosshairX"
+            [attr.x2]="tooltip.crosshairX"
+            [attr.y1]="tooltip.crosshairTop"
+            [attr.y2]="tooltip.crosshairBottom"
+            class="chart-crosshair-line"
+          />
+          <rect
+            [attr.x]="tooltip.box.x"
+            [attr.y]="tooltip.box.y"
+            [attr.width]="tooltip.box.width"
+            [attr.height]="tooltip.box.height"
+            rx="4"
+            class="chart-tooltip-box"
+          />
+          @for (line of tooltip.lines; track $index) {
+            <text [attr.x]="tooltip.box.x + 8" [attr.y]="tooltip.box.y + 16 + $index * 16" class="chart-tooltip-text">{{ line }}</text>
+          }
         }
       </svg>
       <div class="chart-x-labels">
@@ -242,16 +276,46 @@
     @if (bodyWeightChartPoints.length === 0) {
       <p>{{ 'history.chartBodyWeightEmpty' | translate }}</p>
     } @else {
-      <svg class="progress-chart" viewBox="0 0 600 260" preserveAspectRatio="xMidYMid meet">
+      <svg
+        class="progress-chart"
+        viewBox="0 0 600 260"
+        preserveAspectRatio="xMidYMid meet"
+        (mousemove)="onBodyWeightChartMove($event)"
+        (mouseleave)="onBodyWeightChartLeave()"
+      >
         @for (line of bodyWeightChartGridLines(bodyWeightChartPoints); track line.y) {
           <line x1="48" x2="584" [attr.y1]="line.y" [attr.y2]="line.y" class="chart-grid-line" />
           <text x="4" [attr.y]="line.y + 4" class="chart-axis-label">{{ line.label }}</text>
         }
         <polyline [attr.points]="chartPolylinePoints(bodyWeightChartCoords(bodyWeightChartPoints))" class="chart-line chart-line-bodyweight" />
         @for (coord of bodyWeightChartCoords(bodyWeightChartPoints); track $index) {
-          <circle [attr.cx]="coord.x" [attr.cy]="coord.y" r="3.5" class="chart-dot chart-dot-bodyweight">
-            <title>{{ bodyWeightPointLabel(bodyWeightChartPoints[$index]) }}</title>
-          </circle>
+          <circle
+            [attr.cx]="coord.x"
+            [attr.cy]="coord.y"
+            r="3.5"
+            class="chart-dot chart-dot-bodyweight"
+            [class.chart-dot-active]="hoveredBodyWeightChartIndex === $index"
+          />
+        }
+        @if (bodyWeightChartTooltip; as tooltip) {
+          <line
+            [attr.x1]="tooltip.crosshairX"
+            [attr.x2]="tooltip.crosshairX"
+            [attr.y1]="tooltip.crosshairTop"
+            [attr.y2]="tooltip.crosshairBottom"
+            class="chart-crosshair-line"
+          />
+          <rect
+            [attr.x]="tooltip.box.x"
+            [attr.y]="tooltip.box.y"
+            [attr.width]="tooltip.box.width"
+            [attr.height]="tooltip.box.height"
+            rx="4"
+            class="chart-tooltip-box"
+          />
+          @for (line of tooltip.lines; track $index) {
+            <text [attr.x]="tooltip.box.x + 8" [attr.y]="tooltip.box.y + 16 + $index * 16" class="chart-tooltip-text">{{ line }}</text>
+          }
         }
       </svg>
       <div class="chart-x-labels">

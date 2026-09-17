@@ -28,6 +28,7 @@ interface ExerciseChartPoint {
   date: Date;
   weight: number;
   oneRepMax: number;
+  reps: number;
 }
 
 interface BodyWeightChartPoint {
@@ -38,6 +39,19 @@ interface BodyWeightChartPoint {
 interface ChartCoord {
   x: number;
   y: number;
+}
+
+// What the crosshair overlay needs to draw itself: a vertical guide line
+// spanning the plot area at the hovered point's x, and a small floating box
+// of text lines positioned near that point (see HistoryComponent.tooltipBox
+// for how box.x/y are chosen to stay inside the chart and clear of the
+// point itself).
+interface ChartTooltip {
+  crosshairX: number;
+  crosshairTop: number;
+  crosshairBottom: number;
+  box: { x: number; y: number; width: number; height: number };
+  lines: string[];
 }
 
 @Component({
@@ -78,6 +92,14 @@ export class HistoryComponent implements OnInit {
   // session on first view.
   dateFrom = HistoryComponent.dateInputValue(90);
   dateTo = '';
+
+  // Index into the currently hovered chart's own points array (null when
+  // the pointer is outside it) - drives the crosshair line and floating
+  // tooltip in the template. Kept separate per chart since both can exist
+  // on screen (this exercise's own chart and the body-weight chart below
+  // it) and hovering one must never affect the other's crosshair.
+  hoveredExerciseChartIndex: number | null = null;
+  hoveredBodyWeightChartIndex: number | null = null;
 
   private static dateInputValue(daysAgo: number): string {
     const date = new Date();
@@ -386,7 +408,8 @@ export class HistoryComponent implements OnInit {
         return {
           date: new Date(session.date),
           weight: liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting),
-          oneRepMax: estimateOneRepMax(liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting), bestSet.reps)
+          oneRepMax: estimateOneRepMax(liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting), bestSet.reps),
+          reps: bestSet.reps
         };
       })
       .filter((point): point is ExerciseChartPoint => point !== null);
@@ -432,10 +455,76 @@ export class HistoryComponent implements OnInit {
     return this.gridLinesForValues(points.flatMap((point) => [point.weight, point.oneRepMax]));
   }
 
-  chartPointLabel(point: ExerciseChartPoint): string {
+  // Finds which point's x is closest to the pointer, in the chart's own SVG
+  // viewBox units rather than screen pixels - the chart scales to fit its
+  // container (preserveAspectRatio), so a raw clientX only lines up with the
+  // 600x260 viewBox coordinates chartCoords works in once rescaled by the
+  // element's actual on-screen width.
+  private nearestChartIndex(event: MouseEvent, coords: ChartCoord[]): number | null {
+    if (coords.length === 0) {
+      return null;
+    }
+    const svg = event.currentTarget as SVGSVGElement;
+    const rect = svg.getBoundingClientRect();
+    if (rect.width === 0) {
+      return null;
+    }
+    const x = ((event.clientX - rect.left) / rect.width) * this.chartWidth;
+    let nearestIndex = 0;
+    let nearestDistance = Infinity;
+    coords.forEach((coord, index) => {
+      const distance = Math.abs(coord.x - x);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+    return nearestIndex;
+  }
+
+  onExerciseChartMove(event: MouseEvent): void {
+    this.hoveredExerciseChartIndex = this.nearestChartIndex(event, this.chartCoords(this.selectedChartPoints, 'weight'));
+  }
+
+  onExerciseChartLeave(): void {
+    this.hoveredExerciseChartIndex = null;
+  }
+
+  // Positions a tooltip box near (but not on top of) the hovered point,
+  // flipping to the point's left once it would otherwise run past the
+  // chart's right edge, and clamping vertically so it never spills above or
+  // below the plot area regardless of where the point itself sits.
+  private tooltipBox(coord: ChartCoord, lineCount: number): { x: number; y: number; width: number; height: number } {
+    const width = 150;
+    const height = lineCount * 16 + 12;
+    const wouldOverflowRight = coord.x + 10 + width > this.chartWidth - this.chartPadding.right;
+    const x = wouldOverflowRight ? coord.x - 10 - width : coord.x + 10;
+    const minY = this.chartPadding.top;
+    const maxY = this.chartHeight - this.chartPadding.bottom - height;
+    const y = Math.min(Math.max(coord.y - height / 2, minY), maxY);
+    return { x, y, width, height };
+  }
+
+  get exerciseChartTooltip(): ChartTooltip | null {
+    if (this.hoveredExerciseChartIndex === null) {
+      return null;
+    }
+    const point = this.selectedChartPoints[this.hoveredExerciseChartIndex];
+    const coord = this.chartCoords(this.selectedChartPoints, 'weight')[this.hoveredExerciseChartIndex];
+    if (!point || !coord) {
+      return null;
+    }
     const dateText = this.datePipe.transform(point.date, this.settingsService.getSettings().dateFormat) ?? '';
-    const oneRepMaxLabel = this.translationService.translate('history.chartOneRepMaxLegend');
-    return `${dateText}: ${point.weight.toFixed(2)} ${this.weightUnitLabel} / ${oneRepMaxLabel} ${point.oneRepMax.toFixed(2)} ${this.weightUnitLabel}`;
+    const repsLabel = this.translationService.translate('sessions.reps');
+    const weightLabel = this.translationService.translate('history.chartWeightLegend');
+    const lines = [dateText, `${repsLabel}: ${point.reps}`, `${weightLabel}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`];
+    return {
+      crosshairX: coord.x,
+      crosshairTop: this.chartPadding.top,
+      crosshairBottom: this.chartHeight - this.chartPadding.bottom,
+      box: this.tooltipBox(coord, lines.length),
+      lines
+    };
   }
 
   // Oldest first, one point per logged body-weight entry - unlike the
@@ -455,8 +544,32 @@ export class HistoryComponent implements OnInit {
     return this.gridLinesForValues(points.map((point) => point.weight));
   }
 
-  bodyWeightPointLabel(point: BodyWeightChartPoint): string {
+  onBodyWeightChartMove(event: MouseEvent): void {
+    this.hoveredBodyWeightChartIndex = this.nearestChartIndex(event, this.bodyWeightChartCoords(this.bodyWeightChartPoints));
+  }
+
+  onBodyWeightChartLeave(): void {
+    this.hoveredBodyWeightChartIndex = null;
+  }
+
+  get bodyWeightChartTooltip(): ChartTooltip | null {
+    if (this.hoveredBodyWeightChartIndex === null) {
+      return null;
+    }
+    const point = this.bodyWeightChartPoints[this.hoveredBodyWeightChartIndex];
+    const coord = this.bodyWeightChartCoords(this.bodyWeightChartPoints)[this.hoveredBodyWeightChartIndex];
+    if (!point || !coord) {
+      return null;
+    }
     const dateText = this.datePipe.transform(point.date, this.settingsService.getSettings().dateFormat) ?? '';
-    return `${dateText}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`;
+    const weightLabel = this.translationService.translate('history.chartWeightLegend');
+    const lines = [dateText, `${weightLabel}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`];
+    return {
+      crosshairX: coord.x,
+      crosshairTop: this.chartPadding.top,
+      crosshairBottom: this.chartHeight - this.chartPadding.bottom,
+      box: this.tooltipBox(coord, lines.length),
+      lines
+    };
   }
 }
