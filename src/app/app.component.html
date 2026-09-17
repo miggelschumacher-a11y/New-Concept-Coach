@@ -1,5 +1,20 @@
 @if (showSplash) {
   <div class="splash-screen" (click)="dismissSplash()">
+    <!-- Referenced by .splash-logo's filter below - a real 0x0 SVG element
+    (not just a template), since a CSS url() filter needs an actual filter
+    node in the rendered DOM to point at. The turbulence's own baseFrequency
+    animates continuously via SMIL (still fully supported in Chromium/the
+    Android WebView, despite an old, since-reversed deprecation attempt),
+    giving the logo a rippling "flag in the wind" motion for as long as the
+    splash stays up, without needing a hand-authored keyframe animation. -->
+    <svg class="splash-flag-wave-defs" aria-hidden="true" focusable="false">
+      <filter id="splashFlagWave">
+        <feTurbulence type="fractalNoise" numOctaves="2" baseFrequency="0.01 0.04" seed="3" result="splashFlagWaveNoise">
+          <animate attributeName="baseFrequency" dur="2.4s" values="0.01 0.04;0.016 0.07;0.01 0.04" repeatCount="indefinite" />
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="splashFlagWaveNoise" scale="14" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
     <img src="logo.png" alt="Concept Coach" class="splash-logo" />
   </div>
 }
