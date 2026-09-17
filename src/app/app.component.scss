@@ -16,29 +16,9 @@ html.light-theme .splash-screen {
   background-color: #fafafa;
 }
 
-// The filter element itself renders nothing and needs no layout box - only
-// its id needs to exist in the DOM for .splash-logo's url() reference below
-// to resolve.
-.splash-flag-wave-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-}
-
 .splash-logo {
   width: min(60vw, 280px);
   animation: splash-logo-in 0.4s ease-out;
-  filter: url(#splashFlagWave);
-}
-
-// Keeps the plain logo for anyone who's asked their OS to cut down on
-// motion - the entrance fade/scale above is a one-off and left alone, but
-// the continuous flag-ripple is exactly the kind of ongoing decorative
-// motion that preference exists for.
-@media (prefers-reduced-motion: reduce) {
-  .splash-logo {
-    filter: none;
-  }
 }
 
 @keyframes splash-logo-in {
