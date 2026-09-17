@@ -512,6 +512,9 @@
                         <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
                       }
                     }
+                    @if (hiddenSetsWarningTooltip(sessionExercise); as hiddenSetsWarning) {
+                      <mat-icon class="exercise-status-icon exercise-hidden-sets-warning" [matTooltip]="hiddenSetsWarning">visibility_off</mat-icon>
+                    }
                   </mat-panel-title>
                   @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
                     <div class="weight-info-trigger">
@@ -654,6 +657,9 @@
                             {{ 'common.no' | translate }}
                           </button>
                         </div>
+                        @if (hasHiddenWarmupSets(sessionExercise)) {
+                          <p class="deload-warning-hint">{{ 'sessions.hiddenWarmupSetsHint' | translate }}</p>
+                        }
                       </fieldset>
 
                       <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowCooldownTooltip' | translate">
@@ -676,6 +682,9 @@
                             {{ 'common.no' | translate }}
                           </button>
                         </div>
+                        @if (hasHiddenCooldownSets(sessionExercise)) {
+                          <p class="deload-warning-hint">{{ 'sessions.hiddenCooldownSetsHint' | translate }}</p>
+                        }
                       </fieldset>
 
                       <div class="exercise-settings-info-row">

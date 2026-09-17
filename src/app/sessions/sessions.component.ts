@@ -3500,6 +3500,33 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return allMet ? 'success' : 'fail';
   }
 
+  // True when this exercise's warm-up/cooldown section is hidden (see
+  // showWarmupSets/showCooldownSets) yet still has real sets sitting behind
+  // that hidden accordion - those sets still count toward
+  // exerciseCompletionStatus/countedSets above, so an un-done one there is
+  // an easy-to-miss reason the exercise header's own thumb never appears (or
+  // the weight total looks off) with no visible set to explain why. Shown as
+  // a standalone warning in the exercise header and as a hint right on the
+  // "zeigen" toggle itself (see hiddenSetsWarningTooltip below).
+  hasHiddenWarmupSets(sessionExercise: SessionExercise): boolean {
+    return !(sessionExercise.showWarmupSets ?? true) && sessionExercise.sets.some((set) => set.type === 'warmup');
+  }
+
+  hasHiddenCooldownSets(sessionExercise: SessionExercise): boolean {
+    return !(sessionExercise.showCooldownSets ?? true) && sessionExercise.sets.some((set) => set.type === 'cooldown');
+  }
+
+  hiddenSetsWarningTooltip(sessionExercise: SessionExercise): string | null {
+    const parts: string[] = [];
+    if (this.hasHiddenWarmupSets(sessionExercise)) {
+      parts.push(this.translationService.translate('sessions.hiddenWarmupSetsHint'));
+    }
+    if (this.hasHiddenCooldownSets(sessionExercise)) {
+      parts.push(this.translationService.translate('sessions.hiddenCooldownSetsHint'));
+    }
+    return parts.length > 0 ? parts.join(' ') : null;
+  }
+
   // Same idea as exerciseCompletionStatus above, scoped to just one
   // section's own sets (warm-up, working, or cooldown) - shown in that
   // section's own accordion header instead of the exercise's.
