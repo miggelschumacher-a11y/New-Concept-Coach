@@ -1,5 +1,10 @@
 <div class="rest-timer-content" (click)="close()">
-  <svg class="rest-timer-ring" [class.rest-timer-pulse]="pulsing" viewBox="0 0 64 64">
+  <svg
+    class="rest-timer-ring"
+    [class.rest-timer-pulse]="pulsing"
+    [class.rest-timer-ring-second-phase]="isSecondPhase"
+    viewBox="0 0 64 64"
+  >
     <circle class="rest-timer-ring-track" cx="32" cy="32" r="28" />
     <circle
       class="rest-timer-ring-progress"
