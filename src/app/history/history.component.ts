@@ -46,12 +46,21 @@ interface ChartCoord {
 // of text lines positioned near that point (see HistoryComponent.tooltipBox
 // for how box.x/y are chosen to stay inside the chart and clear of the
 // point itself).
+interface ChartTooltipLine {
+  text: string;
+  // Matches the line/dot color it reports on (e.g. the weight line's own
+  // blue) so it's unambiguous which number belongs to which series even
+  // though both dots highlight identically on hover - omitted for lines
+  // (the date, the rep count) that aren't tied to a colored series.
+  color?: string;
+}
+
 interface ChartTooltip {
   crosshairX: number;
   crosshairTop: number;
   crosshairBottom: number;
   box: { x: number; y: number; width: number; height: number };
-  lines: string[];
+  lines: ChartTooltipLine[];
 }
 
 @Component({
@@ -495,7 +504,7 @@ export class HistoryComponent implements OnInit {
   // chart's right edge, and clamping vertically so it never spills above or
   // below the plot area regardless of where the point itself sits.
   private tooltipBox(coord: ChartCoord, lineCount: number): { x: number; y: number; width: number; height: number } {
-    const width = 150;
+    const width = 165;
     const height = lineCount * 16 + 12;
     const wouldOverflowRight = coord.x + 10 + width > this.chartWidth - this.chartPadding.right;
     const x = wouldOverflowRight ? coord.x - 10 - width : coord.x + 10;
@@ -517,7 +526,17 @@ export class HistoryComponent implements OnInit {
     const dateText = this.datePipe.transform(point.date, this.settingsService.getSettings().dateFormat) ?? '';
     const repsLabel = this.translationService.translate('sessions.reps');
     const weightLabel = this.translationService.translate('history.chartWeightLegend');
-    const lines = [dateText, `${repsLabel}: ${point.reps}`, `${weightLabel}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`];
+    const oneRepMaxLabel = this.translationService.translate('history.chartOneRepMaxLegend');
+    // Colors match .chart-line-weight/.chart-dot-weight and .chart-line-1rm/
+    // .chart-dot-1rm exactly, so the tooltip's own text ties each number
+    // back to its line/dot without the reader having to cross-reference the
+    // legend above the chart.
+    const lines: ChartTooltipLine[] = [
+      { text: dateText },
+      { text: `${repsLabel}: ${point.reps}` },
+      { text: `${weightLabel}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`, color: '#64b5f6' },
+      { text: `${oneRepMaxLabel}: ${point.oneRepMax.toFixed(2)} ${this.weightUnitLabel}`, color: '#ffca28' }
+    ];
     return {
       crosshairX: coord.x,
       crosshairTop: this.chartPadding.top,
@@ -563,7 +582,11 @@ export class HistoryComponent implements OnInit {
     }
     const dateText = this.datePipe.transform(point.date, this.settingsService.getSettings().dateFormat) ?? '';
     const weightLabel = this.translationService.translate('history.chartWeightLegend');
-    const lines = [dateText, `${weightLabel}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`];
+    // Matches .chart-line-bodyweight/.chart-dot-bodyweight.
+    const lines: ChartTooltipLine[] = [
+      { text: dateText },
+      { text: `${weightLabel}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`, color: '#66bb6a' }
+    ];
     return {
       crosshairX: coord.x,
       crosshairTop: this.chartPadding.top,

@@ -257,7 +257,12 @@
             class="chart-tooltip-box"
           />
           @for (line of tooltip.lines; track $index) {
-            <text [attr.x]="tooltip.box.x + 8" [attr.y]="tooltip.box.y + 16 + $index * 16" class="chart-tooltip-text">{{ line }}</text>
+            <text
+              [attr.x]="tooltip.box.x + 8"
+              [attr.y]="tooltip.box.y + 16 + $index * 16"
+              class="chart-tooltip-text"
+              [attr.fill]="line.color"
+            >{{ line.text }}</text>
           }
         }
       </svg>
@@ -314,7 +319,12 @@
             class="chart-tooltip-box"
           />
           @for (line of tooltip.lines; track $index) {
-            <text [attr.x]="tooltip.box.x + 8" [attr.y]="tooltip.box.y + 16 + $index * 16" class="chart-tooltip-text">{{ line }}</text>
+            <text
+              [attr.x]="tooltip.box.x + 8"
+              [attr.y]="tooltip.box.y + 16 + $index * 16"
+              class="chart-tooltip-text"
+              [attr.fill]="line.color"
+            >{{ line.text }}</text>
           }
         }
       </svg>
