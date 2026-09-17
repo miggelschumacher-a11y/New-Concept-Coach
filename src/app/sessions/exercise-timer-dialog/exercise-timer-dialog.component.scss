@@ -1,0 +1,71 @@
+.exercise-timer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.exercise-timer-ring {
+  width: 3.5rem;
+  height: 3.5rem;
+  // The progress circle is drawn starting at 3 o'clock by default - rotate
+  // the whole ring so it fills starting from the top, like a clock face.
+  transform: rotate(-90deg);
+}
+
+.exercise-timer-ring-track {
+  fill: none;
+  stroke: rgba(144, 202, 249, 0.25);
+  stroke-width: 6;
+}
+
+.exercise-timer-ring-progress {
+  fill: none;
+  stroke: #90caf9;
+  stroke-width: 6;
+  stroke-linecap: round;
+  // No transition here on purpose - ExerciseTimerDialogComponent.update
+  // already recomputes this every animation frame from a continuous clock,
+  // so it's smooth by construction (see RestTimerDialogComponent's own
+  // identical rule for why stacking a CSS transition on top would fight it).
+}
+
+// Plays once, the moment the target is reached (see
+// ExerciseTimerDialogComponent.update's wasBeeped edge-detection) - every
+// keyframe re-states the ring's base rotate(-90deg) since the animation's
+// own transform otherwise briefly overrides it.
+@keyframes exercise-timer-ring-pulse {
+  0% { transform: rotate(-90deg) scale(1); filter: drop-shadow(0 0 0 rgba(144, 202, 249, 0)); }
+  35% { transform: rotate(-90deg) scale(1.22); filter: drop-shadow(0 0 10px rgba(144, 202, 249, 0.85)); }
+  100% { transform: rotate(-90deg) scale(1); filter: drop-shadow(0 0 0 rgba(144, 202, 249, 0)); }
+}
+
+.exercise-timer-ring.exercise-timer-pulse {
+  animation: exercise-timer-ring-pulse 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes exercise-timer-elapsed-pulse {
+  0% { color: inherit; transform: scale(1); }
+  35% { color: #90caf9; transform: scale(1.16); }
+  100% { color: inherit; transform: scale(1); }
+}
+
+.exercise-timer-elapsed.exercise-timer-pulse {
+  display: inline-block;
+  animation: exercise-timer-elapsed-pulse 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.exercise-timer-elapsed {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.exercise-timer-hint {
+  margin: 0;
+  color: var(--app-muted-text);
+  font-size: 0.85rem;
+}

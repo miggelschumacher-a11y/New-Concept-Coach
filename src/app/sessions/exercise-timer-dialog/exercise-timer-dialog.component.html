@@ -1,0 +1,17 @@
+<div class="exercise-timer-content" (click)="close()">
+  <svg class="exercise-timer-ring" [class.exercise-timer-pulse]="pulsing" viewBox="0 0 64 64">
+    <circle class="exercise-timer-ring-track" cx="32" cy="32" r="28" />
+    <circle
+      class="exercise-timer-ring-progress"
+      cx="32"
+      cy="32"
+      r="28"
+      [style.stroke-dasharray]="ringCircumference"
+      [style.stroke-dashoffset]="ringDashOffset"
+    />
+  </svg>
+  <p class="exercise-timer-elapsed" [class.exercise-timer-pulse]="pulsing">
+    {{ 'sessions.exerciseTimerLabel' | translate }}: {{ elapsedSeconds }} / {{ data.countdown.targetSeconds }} {{ 'sessions.secondsField' | translate }}
+  </p>
+  <p class="exercise-timer-hint">{{ 'sessions.restTimerDismissHint' | translate }}</p>
+</div>

@@ -12,7 +12,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import {
@@ -37,6 +37,7 @@ import {
   RampKind
 } from './add-default-warmup-dialog/add-default-warmup-dialog.component';
 import { RestTimerDialogComponent, RestTimerDialogData } from './rest-timer-dialog/rest-timer-dialog.component';
+import { ExerciseTimerDialogComponent, ExerciseTimerDialogData } from './exercise-timer-dialog/exercise-timer-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService, WeightUnit, AutoAdvanceMode } from '../core/services/settings.service';
@@ -4005,6 +4006,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     { startedAt: number; targetSeconds: number; beeped: boolean; session: TrainingSession; set: ExerciseSet }
   >();
 
+  // The popup opened alongside each running countdown above (see
+  // startCountdown/stopCountdown) - purely a visual mirror of the same
+  // countdownStarts entry, so tracked separately rather than folded into it.
+  private exerciseTimerDialogRefs = new Map<string, MatDialogRef<ExerciseTimerDialogComponent>>();
+
   isCountdownRunning(set: ExerciseSet): boolean {
     return this.countdownStarts.has(set.id);
   }
@@ -4026,23 +4032,39 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // (targetSeconds) is reached - falls back to whatever's currently in the
   // field only when the set has no real target, so a freshly reset set
   // (seconds back at 0, no target set) doesn't beep the instant it starts.
+  // Also opens the same popup a rest timer would (see ExerciseTimerDialog-
+  // Component), passing it this exact state object so its live elapsed/
+  // target/beeped readout can never drift from the one tickCountdowns itself
+  // ticks and beeps from.
   startCountdown(session: TrainingSession, set: ExerciseSet): void {
     if (this.countdownStarts.has(set.id)) {
       return;
     }
-    this.countdownStarts.set(set.id, {
+    const state = {
       startedAt: Date.now(),
       targetSeconds: set.targetSeconds ?? set.seconds ?? 0,
       beeped: false,
       session,
       set
+    };
+    this.countdownStarts.set(set.id, state);
+    const dialogRef = this.dialog.open<ExerciseTimerDialogComponent, ExerciseTimerDialogData>(ExerciseTimerDialogComponent, {
+      data: { countdown: state },
+      disableClose: true
+    });
+    this.exerciseTimerDialogRefs.set(set.id, dialogRef);
+    dialogRef.afterClosed().subscribe(() => {
+      this.exerciseTimerDialogRefs.delete(set.id);
     });
   }
 
   // Ends a run (manual stop, hitting the field's max, or the session
   // finishing) - writes the elapsed count back into the field itself (same
   // "the field holds whatever was actually achieved" convention as reps/
-  // weight) and re-enables it for editing.
+  // weight) and re-enables it for editing. Also closes this set's own popup,
+  // if it's still open - a no-op if the user already dismissed it themselves
+  // (see ExerciseTimerDialogComponent's class comment for why dismissing it
+  // never stops the countdown itself, only the reverse).
   stopCountdown(set: ExerciseSet): void {
     const state = this.countdownStarts.get(set.id);
     if (!state) {
@@ -4050,6 +4072,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     set.seconds = this.countdownElapsed(set);
     this.countdownStarts.delete(set.id);
+    this.exerciseTimerDialogRefs.get(set.id)?.close();
+    this.exerciseTimerDialogRefs.delete(set.id);
     void this.persist(state.session);
   }
 
