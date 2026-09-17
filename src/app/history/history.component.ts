@@ -28,7 +28,14 @@ interface ExerciseChartPoint {
   date: Date;
   weight: number;
   oneRepMax: number;
+  // The single best (highest-estimated-1RM) working set's own reps/weight -
+  // what the tooltip shows when the session only logged one working set, so
+  // a lone set is never mislabeled as an "average" of itself (see
+  // exerciseChartTooltip). allReps/averageWeight below are what it shows
+  // instead once there's more than one to actually average.
   reps: number;
+  allReps: number[];
+  averageWeight: number;
 }
 
 interface BodyWeightChartPoint {
@@ -414,11 +421,14 @@ export class HistoryComponent implements OnInit {
             ? set
             : best
         );
+        const liftedWeights = doneWorkingSets.map((set) => liftedWeight(exercise ?? {}, set.weight, set.doubleWeightCounting));
         return {
           date: new Date(session.date),
           weight: liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting),
           oneRepMax: estimateOneRepMax(liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting), bestSet.reps),
-          reps: bestSet.reps
+          reps: bestSet.reps,
+          allReps: doneWorkingSets.map((set) => set.reps),
+          averageWeight: liftedWeights.reduce((sum, weight) => sum + weight, 0) / liftedWeights.length
         };
       })
       .filter((point): point is ExerciseChartPoint => point !== null);
@@ -503,11 +513,19 @@ export class HistoryComponent implements OnInit {
   // flipping to the point's left once it would otherwise run past the
   // chart's right edge, and clamping vertically so it never spills above or
   // below the plot area regardless of where the point itself sits.
-  private tooltipBox(coord: ChartCoord, lineCount: number): { x: number; y: number; width: number; height: number } {
-    const width = 165;
-    const height = lineCount * 16 + 12;
+  // Width grows with the longest line (a multi-set exercise's "Wdh.: 8, 8, 6"
+  // list has no fixed length) rather than staying at a fixed guess that
+  // would either clip a long rep list or look oversized for a short one.
+  // The x position is then clamped back inside the plot area in case that
+  // grown width would otherwise push a tooltip near the chart's edge past
+  // it in either direction.
+  private tooltipBox(coord: ChartCoord, lines: ChartTooltipLine[]): { x: number; y: number; width: number; height: number } {
+    const longestLine = Math.max(...lines.map((line) => line.text.length), 0);
+    const width = Math.max(150, longestLine * 6 + 16);
+    const height = lines.length * 16 + 12;
     const wouldOverflowRight = coord.x + 10 + width > this.chartWidth - this.chartPadding.right;
-    const x = wouldOverflowRight ? coord.x - 10 - width : coord.x + 10;
+    const rawX = wouldOverflowRight ? coord.x - 10 - width : coord.x + 10;
+    const x = Math.min(Math.max(rawX, this.chartPadding.left), this.chartWidth - this.chartPadding.right - width);
     const minY = this.chartPadding.top;
     const maxY = this.chartHeight - this.chartPadding.bottom - height;
     const y = Math.min(Math.max(coord.y - height / 2, minY), maxY);
@@ -525,23 +543,30 @@ export class HistoryComponent implements OnInit {
     }
     const dateText = this.datePipe.transform(point.date, this.settingsService.getSettings().dateFormat) ?? '';
     const repsLabel = this.translationService.translate('sessions.reps');
-    const weightLabel = this.translationService.translate('history.chartWeightLegend');
     const oneRepMaxLabel = this.translationService.translate('history.chartOneRepMaxLegend');
+    // More than one working set that session -> list every set's own reps
+    // rather than just the single best set's, and label the weight as an
+    // explicit average (never silently averaging a single set into looking
+    // like more than it is - see ExerciseChartPoint's own comment).
+    const hasMultipleSets = point.allReps.length > 1;
+    const repsText = hasMultipleSets ? point.allReps.join(', ') : String(point.reps);
+    const weightLabel = this.translationService.translate(hasMultipleSets ? 'history.chartAverageWeightLegend' : 'history.chartWeightLegend');
+    const weightValue = hasMultipleSets ? point.averageWeight : point.weight;
     // Colors match .chart-line-weight/.chart-dot-weight and .chart-line-1rm/
     // .chart-dot-1rm exactly, so the tooltip's own text ties each number
     // back to its line/dot without the reader having to cross-reference the
     // legend above the chart.
     const lines: ChartTooltipLine[] = [
       { text: dateText },
-      { text: `${repsLabel}: ${point.reps}` },
-      { text: `${weightLabel}: ${point.weight.toFixed(2)} ${this.weightUnitLabel}`, color: '#64b5f6' },
+      { text: `${repsLabel}: ${repsText}` },
+      { text: `${weightLabel}: ${weightValue.toFixed(2)} ${this.weightUnitLabel}`, color: '#64b5f6' },
       { text: `${oneRepMaxLabel}: ${point.oneRepMax.toFixed(2)} ${this.weightUnitLabel}`, color: '#ffca28' }
     ];
     return {
       crosshairX: coord.x,
       crosshairTop: this.chartPadding.top,
       crosshairBottom: this.chartHeight - this.chartPadding.bottom,
-      box: this.tooltipBox(coord, lines.length),
+      box: this.tooltipBox(coord, lines),
       lines
     };
   }
@@ -591,7 +616,7 @@ export class HistoryComponent implements OnInit {
       crosshairX: coord.x,
       crosshairTop: this.chartPadding.top,
       crosshairBottom: this.chartHeight - this.chartPadding.bottom,
-      box: this.tooltipBox(coord, lines.length),
+      box: this.tooltipBox(coord, lines),
       lines
     };
   }
