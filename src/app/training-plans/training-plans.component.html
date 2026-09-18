@@ -512,7 +512,7 @@
                             }
                           }
                         </mat-select-trigger>
-                        @for (exercise of selectableExercises(); track exercise.id) {
+                        @for (exercise of exercises; track exercise.id) {
                           <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
                         }
                       </mat-select>
@@ -950,12 +950,10 @@
                                 }
                               </div>
 
-                              @if (field === 'workingSetTargets') {
-                                <button mat-stroked-button type="button" (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field)">
-                                  <mat-icon>add</mat-icon>
-                                  {{ 'sessions.addSet' | translate }}
-                                </button>
-                              }
+                              <button mat-stroked-button type="button" (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, field)">
+                                <mat-icon>add</mat-icon>
+                                {{ 'sessions.addSet' | translate }}
+                              </button>
                             </ng-template>
 
                             <mat-accordion multi class="set-type-accordion">
@@ -975,39 +973,6 @@
                                   >
                                     <mat-icon>whatshot</mat-icon>
                                     {{ 'sessions.addDefaultWarmupButton' | translate }}
-                                  </button>
-                                  <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
-                                    <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
-                                    <mat-select
-                                      [ngModel]="sessionExercise.warmupExerciseId"
-                                      name="warmupReferenceExercise-{{ session.id }}-{{ sessionExercise.exerciseId }}"
-                                      panelClass="exercise-select-panel"
-                                      (selectionChange)="updateCustomSessionExerciseWarmupReference(plan, session.id, sessionExercise.exerciseId, $event.value)"
-                                    >
-                                      @for (exercise of warmupReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
-                                        <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
-                                      }
-                                    </mat-select>
-                                  </mat-form-field>
-                                  <button
-                                    mat-stroked-button
-                                    type="button"
-                                    class="add-set-for-exercise-button"
-                                    [disabled]="!sessionExercise.warmupExerciseId"
-                                    (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'warmupSetTargets', sessionExercise.warmupExerciseId)"
-                                  >
-                                    @if (sessionExercise.warmupExerciseId; as refId) {
-                                      "{{ exerciseName(refId) }}"
-                                    }
-                                    {{ 'sessions.addSet' | translate }}
-                                  </button>
-                                  <button
-                                    mat-stroked-button
-                                    type="button"
-                                    class="add-set-for-exercise-button"
-                                    (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'warmupSetTargets')"
-                                  >
-                                    "{{ exerciseName(sessionExercise.exerciseId) }}" {{ 'sessions.addSet' | translate }}
                                   </button>
                                   <ng-container
                                     [ngTemplateOutlet]="customSetTargetRows"
@@ -1043,39 +1008,6 @@
                                   >
                                     <mat-icon>ac_unit</mat-icon>
                                     {{ 'sessions.addDefaultCooldownButton' | translate }}
-                                  </button>
-                                  <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
-                                    <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
-                                    <mat-select
-                                      [ngModel]="sessionExercise.cooldownExerciseId"
-                                      name="cooldownReferenceExercise-{{ session.id }}-{{ sessionExercise.exerciseId }}"
-                                      panelClass="exercise-select-panel"
-                                      (selectionChange)="updateCustomSessionExerciseCooldownReference(plan, session.id, sessionExercise.exerciseId, $event.value)"
-                                    >
-                                      @for (exercise of cooldownReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
-                                        <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
-                                      }
-                                    </mat-select>
-                                  </mat-form-field>
-                                  <button
-                                    mat-stroked-button
-                                    type="button"
-                                    class="add-set-for-exercise-button"
-                                    [disabled]="!sessionExercise.cooldownExerciseId"
-                                    (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'cooldownSetTargets', sessionExercise.cooldownExerciseId)"
-                                  >
-                                    @if (sessionExercise.cooldownExerciseId; as refId) {
-                                      "{{ exerciseName(refId) }}"
-                                    }
-                                    {{ 'sessions.addSet' | translate }}
-                                  </button>
-                                  <button
-                                    mat-stroked-button
-                                    type="button"
-                                    class="add-set-for-exercise-button"
-                                    (click)="addCustomSessionSet(plan, session.id, sessionExercise.exerciseId, 'cooldownSetTargets')"
-                                  >
-                                    "{{ exerciseName(sessionExercise.exerciseId) }}" {{ 'sessions.addSet' | translate }}
                                   </button>
                                   <ng-container
                                     [ngTemplateOutlet]="customSetTargetRows"

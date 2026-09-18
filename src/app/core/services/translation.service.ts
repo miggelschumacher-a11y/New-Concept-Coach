@@ -107,18 +107,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Cooldown',
     'exercises.cooldownRampTooltip':
       "Percentages of the working weight used to auto-generate this exercise's cooldown sets - in training sessions and plans alike, whenever one doesn't already have its own cooldown sets.",
-    'exercises.useAsWarmupExercise': 'Also usable as a warm-up exercise',
-    'exercises.onlyAsWarmupExercise': 'Only usable as a warm-up exercise',
-    'exercises.useAsCooldownExercise': 'Also usable as a cooldown exercise',
-    'exercises.onlyAsCooldownExercise': 'Only usable as a cooldown exercise',
-    'exercises.useAsWarmupExerciseTooltip':
-      "Also lets this exercise be picked in another exercise's warm-up reference list, without removing it from the normal exercise picker for sessions and plans.",
-    'exercises.onlyAsWarmupExerciseTooltip':
-      "Only lets this exercise be picked in another exercise's warm-up reference list - hides it from the normal exercise picker for sessions and plans.",
-    'exercises.useAsCooldownExerciseTooltip':
-      "Also lets this exercise be picked in another exercise's cooldown reference list, without removing it from the normal exercise picker for sessions and plans.",
-    'exercises.onlyAsCooldownExerciseTooltip':
-      "Only lets this exercise be picked in another exercise's cooldown reference list - hides it from the normal exercise picker for sessions and plans.",
     'exercises.empty': 'No exercises yet.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -270,8 +258,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': "Replaces this exercise's warm-up sets with its default ramp.",
     'sessions.addDefaultCooldownButton': 'Add default cooldown',
     'sessions.addDefaultCooldownButtonTooltip': "Replaces this exercise's cooldown sets with its default ramp.",
-    'sessions.warmupReferenceExercisesLabel': 'Warm-up exercises',
-    'sessions.cooldownReferenceExercisesLabel': 'Cooldown exercises',
     'sessions.exercisesLabel': 'Exercises',
     'sessions.noExercisesHint': 'No exercises in master data yet.',
     'sessions.selectPlanLabel': 'Training Plan',
@@ -576,18 +562,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Cooldown',
     'exercises.cooldownRampTooltip':
       'Prozentsätze vom Arbeitsgewicht, mit denen die Cooldown-Sätze dieser Übung automatisch erzeugt werden - in Trainingseinheiten und Trainingsplänen, sofern dort noch keine eigenen Cooldown-Sätze angelegt sind.',
-    'exercises.useAsWarmupExercise': 'Auch als Aufwärmübung nehmen',
-    'exercises.onlyAsWarmupExercise': 'Nur als Aufwärmübung nehmen',
-    'exercises.useAsCooldownExercise': 'Auch als Cooldown-Übung nehmen',
-    'exercises.onlyAsCooldownExercise': 'Nur als Cooldown-Übung nehmen',
-    'exercises.useAsWarmupExerciseTooltip':
-      'Diese Übung erscheint zusätzlich in der Aufwärm-Auswahlliste anderer Übungen, bleibt aber weiterhin in der normalen Übungsauswahl für Trainingseinheiten und -pläne wählbar.',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      'Diese Übung erscheint nur noch in der Aufwärm-Auswahlliste anderer Übungen - sie wird aus der normalen Übungsauswahl für Trainingseinheiten und -pläne entfernt.',
-    'exercises.useAsCooldownExerciseTooltip':
-      'Diese Übung erscheint zusätzlich in der Cooldown-Auswahlliste anderer Übungen, bleibt aber weiterhin in der normalen Übungsauswahl für Trainingseinheiten und -pläne wählbar.',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      'Diese Übung erscheint nur noch in der Cooldown-Auswahlliste anderer Übungen - sie wird aus der normalen Übungsauswahl für Trainingseinheiten und -pläne entfernt.',
     'exercises.empty': 'Noch keine Übungen vorhanden.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -741,8 +715,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Ersetzt die Aufwärmsätze dieser Übung durch ihre Standard-Rampe.',
     'sessions.addDefaultCooldownButton': 'Standard-Cooldown hinzufügen',
     'sessions.addDefaultCooldownButtonTooltip': 'Ersetzt die Cooldown-Sätze dieser Übung durch ihre Standard-Rampe.',
-    'sessions.warmupReferenceExercisesLabel': 'Aufwärmübungen',
-    'sessions.cooldownReferenceExercisesLabel': 'Cooldown-Übungen',
     'sessions.exercisesLabel': 'Übungen',
     'sessions.noExercisesHint': 'Noch keine Übungen in den Stammdaten angelegt.',
     'sessions.selectPlanLabel': 'Trainingsplan',
@@ -1047,18 +1019,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Enfriamiento',
     'exercises.cooldownRampTooltip':
       'Porcentajes del peso de trabajo usados para generar automáticamente las series de enfriamiento de este ejercicio - tanto en sesiones de entrenamiento como en planes, siempre que aún no tengan sus propias series de enfriamiento.',
-    'exercises.useAsWarmupExercise': 'También utilizable como ejercicio de calentamiento',
-    'exercises.onlyAsWarmupExercise': 'Solo utilizable como ejercicio de calentamiento',
-    'exercises.useAsCooldownExercise': 'También utilizable como ejercicio de enfriamiento',
-    'exercises.onlyAsCooldownExercise': 'Solo utilizable como ejercicio de enfriamiento',
-    'exercises.useAsWarmupExerciseTooltip':
-      'Este ejercicio también aparecerá en la lista de calentamiento de otros ejercicios, sin dejar de estar disponible en la selección normal de ejercicios para sesiones y planes.',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      'Este ejercicio solo aparecerá en la lista de calentamiento de otros ejercicios - se ocultará de la selección normal de ejercicios para sesiones y planes.',
-    'exercises.useAsCooldownExerciseTooltip':
-      'Este ejercicio también aparecerá en la lista de enfriamiento de otros ejercicios, sin dejar de estar disponible en la selección normal de ejercicios para sesiones y planes.',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      'Este ejercicio solo aparecerá en la lista de enfriamiento de otros ejercicios - se ocultará de la selección normal de ejercicios para sesiones y planes.',
     'exercises.empty': 'Aún no hay ejercicios.',
     'exercises.oneRepMaxEstimated': 'Máx. ≈',
     'exercises.oneRepMaxCustom': 'Máx. =',
@@ -1212,8 +1172,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Sustituye las series de calentamiento de este ejercicio por su rampa predeterminada.',
     'sessions.addDefaultCooldownButton': 'Añadir enfriamiento predeterminado',
     'sessions.addDefaultCooldownButtonTooltip': 'Sustituye las series de enfriamiento de este ejercicio por su rampa predeterminada.',
-    'sessions.warmupReferenceExercisesLabel': 'Ejercicios de calentamiento',
-    'sessions.cooldownReferenceExercisesLabel': 'Ejercicios de enfriamiento',
     'sessions.exercisesLabel': 'Ejercicios',
     'sessions.noExercisesHint': 'Aún no hay ejercicios en los datos maestros.',
     'sessions.selectPlanLabel': 'Plan de entrenamiento',
@@ -1518,18 +1476,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Desaquecimento',
     'exercises.cooldownRampTooltip':
       'Percentagens do peso de trabalho usadas para gerar automaticamente as séries de desaquecimento deste exercício - tanto em sessões de treino como em planos, sempre que ainda não tenham as suas próprias séries de desaquecimento.',
-    'exercises.useAsWarmupExercise': 'Também utilizável como exercício de aquecimento',
-    'exercises.onlyAsWarmupExercise': 'Apenas utilizável como exercício de aquecimento',
-    'exercises.useAsCooldownExercise': 'Também utilizável como exercício de desaquecimento',
-    'exercises.onlyAsCooldownExercise': 'Apenas utilizável como exercício de desaquecimento',
-    'exercises.useAsWarmupExerciseTooltip':
-      'Este exercício também aparecerá na lista de aquecimento de outros exercícios, continuando disponível na seleção normal de exercícios para sessões e planos.',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      'Este exercício só aparecerá na lista de aquecimento de outros exercícios - será ocultado da seleção normal de exercícios para sessões e planos.',
-    'exercises.useAsCooldownExerciseTooltip':
-      'Este exercício também aparecerá na lista de desaquecimento de outros exercícios, continuando disponível na seleção normal de exercícios para sessões e planos.',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      'Este exercício só aparecerá na lista de desaquecimento de outros exercícios - será ocultado da seleção normal de exercícios para sessões e planos.',
     'exercises.empty': 'Ainda não há exercícios.',
     'exercises.oneRepMaxEstimated': 'Máx. ≈',
     'exercises.oneRepMaxCustom': 'Máx. =',
@@ -1683,8 +1629,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Substitui as séries de aquecimento deste exercício pela sua rampa padrão.',
     'sessions.addDefaultCooldownButton': 'Adicionar desaquecimento padrão',
     'sessions.addDefaultCooldownButtonTooltip': 'Substitui as séries de desaquecimento deste exercício pela sua rampa padrão.',
-    'sessions.warmupReferenceExercisesLabel': 'Exercícios de aquecimento',
-    'sessions.cooldownReferenceExercisesLabel': 'Exercícios de desaquecimento',
     'sessions.exercisesLabel': 'Exercícios',
     'sessions.noExercisesHint': 'Ainda não há exercícios nos dados mestres.',
     'sessions.selectPlanLabel': 'Plano de treino',
@@ -1989,18 +1933,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Defaticamento',
     'exercises.cooldownRampTooltip':
       'Percentuali del peso di lavoro usate per generare automaticamente le serie di defaticamento di questo esercizio - sia nelle sessioni di allenamento che nei piani, quando non hanno ancora serie di defaticamento proprie.',
-    'exercises.useAsWarmupExercise': 'Utilizzabile anche come esercizio di riscaldamento',
-    'exercises.onlyAsWarmupExercise': 'Utilizzabile solo come esercizio di riscaldamento',
-    'exercises.useAsCooldownExercise': 'Utilizzabile anche come esercizio di defaticamento',
-    'exercises.onlyAsCooldownExercise': 'Utilizzabile solo come esercizio di defaticamento',
-    'exercises.useAsWarmupExerciseTooltip':
-      "Questo esercizio comparirà anche nell'elenco di riscaldamento di altri esercizi, restando comunque selezionabile normalmente per sessioni e piani.",
-    'exercises.onlyAsWarmupExerciseTooltip':
-      "Questo esercizio comparirà solo nell'elenco di riscaldamento di altri esercizi - non sarà più selezionabile normalmente per sessioni e piani.",
-    'exercises.useAsCooldownExerciseTooltip':
-      "Questo esercizio comparirà anche nell'elenco di defaticamento di altri esercizi, restando comunque selezionabile normalmente per sessioni e piani.",
-    'exercises.onlyAsCooldownExerciseTooltip':
-      "Questo esercizio comparirà solo nell'elenco di defaticamento di altri esercizi - non sarà più selezionabile normalmente per sessioni e piani.",
     'exercises.empty': 'Nessun esercizio ancora presente.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -2154,8 +2086,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Sostituisce le serie di riscaldamento di questo esercizio con la sua rampa predefinita.',
     'sessions.addDefaultCooldownButton': 'Aggiungi defaticamento predefinito',
     'sessions.addDefaultCooldownButtonTooltip': 'Sostituisce le serie di defaticamento di questo esercizio con la sua rampa predefinita.',
-    'sessions.warmupReferenceExercisesLabel': 'Esercizi di riscaldamento',
-    'sessions.cooldownReferenceExercisesLabel': 'Esercizi di defaticamento',
     'sessions.exercisesLabel': 'Esercizi',
     'sessions.noExercisesHint': 'Nessun esercizio ancora presente nei dati anagrafici.',
     'sessions.selectPlanLabel': 'Piano di allenamento',
@@ -2460,18 +2390,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Cooling-down',
     'exercises.cooldownRampTooltip':
       'Percentages van het werkgewicht waarmee de cooling-downsets van deze oefening automatisch worden gegenereerd - zowel in trainingssessies als in schema\'s, zolang die nog geen eigen cooling-downsets hebben.',
-    'exercises.useAsWarmupExercise': 'Ook bruikbaar als warming-up-oefening',
-    'exercises.onlyAsWarmupExercise': 'Alleen bruikbaar als warming-up-oefening',
-    'exercises.useAsCooldownExercise': 'Ook bruikbaar als cooling-down-oefening',
-    'exercises.onlyAsCooldownExercise': 'Alleen bruikbaar als cooling-down-oefening',
-    'exercises.useAsWarmupExerciseTooltip':
-      "Deze oefening verschijnt ook in de warming-up-lijst van andere oefeningen, en blijft daarnaast gewoon kiesbaar in de normale oefeningselectie voor sessies en schema's.",
-    'exercises.onlyAsWarmupExerciseTooltip':
-      "Deze oefening verschijnt alleen nog in de warming-up-lijst van andere oefeningen - ze wordt uit de normale oefeningselectie voor sessies en schema's verwijderd.",
-    'exercises.useAsCooldownExerciseTooltip':
-      "Deze oefening verschijnt ook in de cooling-down-lijst van andere oefeningen, en blijft daarnaast gewoon kiesbaar in de normale oefeningselectie voor sessies en schema's.",
-    'exercises.onlyAsCooldownExerciseTooltip':
-      "Deze oefening verschijnt alleen nog in de cooling-down-lijst van andere oefeningen - ze wordt uit de normale oefeningselectie voor sessies en schema's verwijderd.",
     'exercises.empty': 'Nog geen oefeningen aanwezig.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -2625,8 +2543,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Vervangt de opwarmsets van deze oefening door de standaardramp.',
     'sessions.addDefaultCooldownButton': 'Standaard cooling-down toevoegen',
     'sessions.addDefaultCooldownButtonTooltip': 'Vervangt de cooling-downsets van deze oefening door de standaardramp.',
-    'sessions.warmupReferenceExercisesLabel': 'Warming-up-oefeningen',
-    'sessions.cooldownReferenceExercisesLabel': 'Cooling-down-oefeningen',
     'sessions.exercisesLabel': 'Oefeningen',
     'sessions.noExercisesHint': 'Nog geen oefeningen in de stamgegevens aangemaakt.',
     'sessions.selectPlanLabel': 'Trainingsplan',
@@ -2931,18 +2847,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Wyciszenie',
     'exercises.cooldownRampTooltip':
       'Procenty ciężaru roboczego używane do automatycznego generowania serii wyciszających tego ćwiczenia - zarówno w jednostkach treningowych, jak i w planach, o ile nie mają jeszcze własnych serii wyciszających.',
-    'exercises.useAsWarmupExercise': 'Można też użyć jako ćwiczenie rozgrzewkowe',
-    'exercises.onlyAsWarmupExercise': 'Można użyć tylko jako ćwiczenie rozgrzewkowe',
-    'exercises.useAsCooldownExercise': 'Można też użyć jako ćwiczenie wyciszające',
-    'exercises.onlyAsCooldownExercise': 'Można użyć tylko jako ćwiczenie wyciszające',
-    'exercises.useAsWarmupExerciseTooltip':
-      'To ćwiczenie pojawi się także na liście rozgrzewkowej innych ćwiczeń, pozostając nadal dostępne w zwykłym wyborze ćwiczeń dla sesji i planów.',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      'To ćwiczenie pojawi się tylko na liście rozgrzewkowej innych ćwiczeń - zniknie ze zwykłego wyboru ćwiczeń dla sesji i planów.',
-    'exercises.useAsCooldownExerciseTooltip':
-      'To ćwiczenie pojawi się także na liście wyciszającej innych ćwiczeń, pozostając nadal dostępne w zwykłym wyborze ćwiczeń dla sesji i planów.',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      'To ćwiczenie pojawi się tylko na liście wyciszającej innych ćwiczeń - zniknie ze zwykłego wyboru ćwiczeń dla sesji i planów.',
     'exercises.empty': 'Brak ćwiczeń.',
     'exercises.oneRepMaxEstimated': 'Maks. ≈',
     'exercises.oneRepMaxCustom': 'Maks. =',
@@ -3096,8 +3000,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Zastępuje serie rozgrzewkowe tego ćwiczenia jego domyślną rampą.',
     'sessions.addDefaultCooldownButton': 'Dodaj domyślne wyciszenie',
     'sessions.addDefaultCooldownButtonTooltip': 'Zastępuje serie wyciszające tego ćwiczenia jego domyślną rampą.',
-    'sessions.warmupReferenceExercisesLabel': 'Ćwiczenia rozgrzewkowe',
-    'sessions.cooldownReferenceExercisesLabel': 'Ćwiczenia wyciszające',
     'sessions.exercisesLabel': 'Ćwiczenia',
     'sessions.noExercisesHint': 'Brak ćwiczeń w danych podstawowych.',
     'sessions.selectPlanLabel': 'Plan treningowy',
@@ -3402,18 +3304,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Заминка',
     'exercises.cooldownRampTooltip':
       'Проценты от рабочего веса, используемые для автоматической генерации заминочных подходов этого упражнения - как в тренировках, так и в планах тренировок, если там ещё нет собственных заминочных подходов.',
-    'exercises.useAsWarmupExercise': 'Также можно использовать как разминочное упражнение',
-    'exercises.onlyAsWarmupExercise': 'Можно использовать только как разминочное упражнение',
-    'exercises.useAsCooldownExercise': 'Также можно использовать как заминочное упражнение',
-    'exercises.onlyAsCooldownExercise': 'Можно использовать только как заминочное упражнение',
-    'exercises.useAsWarmupExerciseTooltip':
-      'Это упражнение также появится в списке разминочных упражнений для других упражнений, оставаясь при этом доступным в обычном выборе упражнений для тренировок и планов.',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      'Это упражнение будет доступно только в списке разминочных упражнений для других упражнений - оно исчезнет из обычного выбора упражнений для тренировок и планов.',
-    'exercises.useAsCooldownExerciseTooltip':
-      'Это упражнение также появится в списке заминочных упражнений для других упражнений, оставаясь при этом доступным в обычном выборе упражнений для тренировок и планов.',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      'Это упражнение будет доступно только в списке заминочных упражнений для других упражнений - оно исчезнет из обычного выбора упражнений для тренировок и планов.',
     'exercises.empty': 'Упражнений пока нет.',
     'exercises.oneRepMaxEstimated': 'Макс. ≈',
     'exercises.oneRepMaxCustom': 'Макс. =',
@@ -3567,8 +3457,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Заменяет разминочные подходы этого упражнения его стандартной рампой.',
     'sessions.addDefaultCooldownButton': 'Добавить стандартную заминку',
     'sessions.addDefaultCooldownButtonTooltip': 'Заменяет заминочные подходы этого упражнения его стандартной рампой.',
-    'sessions.warmupReferenceExercisesLabel': 'Разминочные упражнения',
-    'sessions.cooldownReferenceExercisesLabel': 'Заминочные упражнения',
     'sessions.exercisesLabel': 'Упражнения',
     'sessions.noExercisesHint': 'В базовых данных пока нет упражнений.',
     'sessions.selectPlanLabel': 'План тренировок',
@@ -3873,18 +3761,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Levezetés',
     'exercises.cooldownRampTooltip':
       'A munkasúly százalékai, amelyekkel a gyakorlat levezető szettjei automatikusan létrejönnek - edzéseknél és edzésterveknél egyaránt, amíg azoknak még nincs saját levezető szettjük.',
-    'exercises.useAsWarmupExercise': 'Bemelegítő gyakorlatként is használható',
-    'exercises.onlyAsWarmupExercise': 'Csak bemelegítő gyakorlatként használható',
-    'exercises.useAsCooldownExercise': 'Levezető gyakorlatként is használható',
-    'exercises.onlyAsCooldownExercise': 'Csak levezető gyakorlatként használható',
-    'exercises.useAsWarmupExerciseTooltip':
-      'Ez a gyakorlat más gyakorlatok bemelegítő-listájában is megjelenik, miközben továbbra is kiválasztható marad az edzések és edzéstervek szokásos gyakorlatválasztójában.',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      'Ez a gyakorlat csak más gyakorlatok bemelegítő-listájában jelenik meg - eltűnik az edzések és edzéstervek szokásos gyakorlatválasztójából.',
-    'exercises.useAsCooldownExerciseTooltip':
-      'Ez a gyakorlat más gyakorlatok levezető-listájában is megjelenik, miközben továbbra is kiválasztható marad az edzések és edzéstervek szokásos gyakorlatválasztójában.',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      'Ez a gyakorlat csak más gyakorlatok levezető-listájában jelenik meg - eltűnik az edzések és edzéstervek szokásos gyakorlatválasztójából.',
     'exercises.empty': 'Még nincsenek gyakorlatok.',
     'exercises.oneRepMaxEstimated': 'Max. ≈',
     'exercises.oneRepMaxCustom': 'Max. =',
@@ -4038,8 +3914,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Lecseréli ennek a gyakorlatnak a bemelegítő szettjeit az alapértelmezett rámpájára.',
     'sessions.addDefaultCooldownButton': 'Alapértelmezett levezetés hozzáadása',
     'sessions.addDefaultCooldownButtonTooltip': 'Lecseréli ennek a gyakorlatnak a levezető szettjeit az alapértelmezett rámpájára.',
-    'sessions.warmupReferenceExercisesLabel': 'Bemelegítő gyakorlatok',
-    'sessions.cooldownReferenceExercisesLabel': 'Levezető gyakorlatok',
     'sessions.exercisesLabel': 'Gyakorlatok',
     'sessions.noExercisesHint': 'Az alapadatokban még nincsenek gyakorlatok.',
     'sessions.selectPlanLabel': 'Edzésterv',
@@ -4336,14 +4210,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.warmupRampTooltip': 'Procentdele af arbejdsvægten, der bruges til automatisk at generere denne øvelses opvarmningssæt - både i træningssessioner og planer, når en af dem ikke allerede har sine egne opvarmningssæt.',
     'exercises.cooldownRampLabel': 'Nedkøling',
     'exercises.cooldownRampTooltip': 'Procentdele af arbejdsvægten, der bruges til automatisk at generere denne øvelses nedkølingssæt - både i træningssessioner og planer, når en af dem ikke allerede har sine egne nedkølingssæt.',
-    'exercises.useAsWarmupExercise': 'Kan også bruges som opvarmningsøvelse',
-    'exercises.onlyAsWarmupExercise': 'Kan kun bruges som opvarmningsøvelse',
-    'exercises.useAsCooldownExercise': 'Kan også bruges som nedkølingsøvelse',
-    'exercises.onlyAsCooldownExercise': 'Kan kun bruges som nedkølingsøvelse',
-    'exercises.useAsWarmupExerciseTooltip': 'Gør det også muligt at vælge denne øvelse i en anden øvelses liste over opvarmningsøvelser, uden at fjerne den fra den normale øvelsesvælger til sessioner og planer.',
-    'exercises.onlyAsWarmupExerciseTooltip': 'Gør det kun muligt at vælge denne øvelse i en anden øvelses liste over opvarmningsøvelser - skjuler den fra den normale øvelsesvælger til sessioner og planer.',
-    'exercises.useAsCooldownExerciseTooltip': 'Gør det også muligt at vælge denne øvelse i en anden øvelses liste over nedkølingsøvelser, uden at fjerne den fra den normale øvelsesvælger til sessioner og planer.',
-    'exercises.onlyAsCooldownExerciseTooltip': 'Gør det kun muligt at vælge denne øvelse i en anden øvelses liste over nedkølingsøvelser - skjuler den fra den normale øvelsesvælger til sessioner og planer.',
     'exercises.empty': 'Ingen øvelser endnu.',
     'exercises.oneRepMaxEstimated': 'Maks ≈',
     'exercises.oneRepMaxCustom': 'Maks =',
@@ -4467,8 +4333,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Erstatter denne øvelses opvarmningssæt med dens standardramp.',
     'sessions.addDefaultCooldownButton': 'Tilføj standardnedkøling',
     'sessions.addDefaultCooldownButtonTooltip': 'Erstatter denne øvelses nedkølingssæt med dens standardramp.',
-    'sessions.warmupReferenceExercisesLabel': 'Opvarmningsøvelser',
-    'sessions.cooldownReferenceExercisesLabel': 'Nedkølingsøvelser',
     'sessions.exercisesLabel': 'Øvelser',
     'sessions.noExercisesHint': 'Ingen øvelser i stamdata endnu.',
     'sessions.selectPlanLabel': 'Træningsplan',
@@ -4761,18 +4625,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Nedtrapping',
     'exercises.cooldownRampTooltip':
       'Prosentandeler av arbeidsvekten som brukes til å automatisk generere denne øvelsens nedtrappingssett - både i treningsøkter og planer, når disse ikke allerede har egne nedtrappingssett.',
-    'exercises.useAsWarmupExercise': 'Kan også brukes som oppvarmingsøvelse',
-    'exercises.onlyAsWarmupExercise': 'Kan kun brukes som oppvarmingsøvelse',
-    'exercises.useAsCooldownExercise': 'Kan også brukes som nedtrappingsøvelse',
-    'exercises.onlyAsCooldownExercise': 'Kan kun brukes som nedtrappingsøvelse',
-    'exercises.useAsWarmupExerciseTooltip':
-      'Lar denne øvelsen også velges i en annen øvelses oppvarmingsliste, uten å fjerne den fra den vanlige øvelsesvelgeren for økter og planer.',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      'Lar denne øvelsen kun velges i en annen øvelses oppvarmingsliste - skjuler den fra den vanlige øvelsesvelgeren for økter og planer.',
-    'exercises.useAsCooldownExerciseTooltip':
-      'Lar denne øvelsen også velges i en annen øvelses nedtrappingsliste, uten å fjerne den fra den vanlige øvelsesvelgeren for økter og planer.',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      'Lar denne øvelsen kun velges i en annen øvelses nedtrappingsliste - skjuler den fra den vanlige øvelsesvelgeren for økter og planer.',
     'exercises.empty': 'Ingen øvelser ennå.',
     'exercises.oneRepMaxEstimated': 'Maks ≈',
     'exercises.oneRepMaxCustom': 'Maks =',
@@ -4924,8 +4776,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Erstatter denne øvelsens oppvarmingssett med dens standardrampe.',
     'sessions.addDefaultCooldownButton': 'Legg til standard nedtrapping',
     'sessions.addDefaultCooldownButtonTooltip': 'Erstatter denne øvelsens nedtrappingssett med dens standardrampe.',
-    'sessions.warmupReferenceExercisesLabel': 'Oppvarmingsøvelser',
-    'sessions.cooldownReferenceExercisesLabel': 'Nedtrappingsøvelser',
     'sessions.exercisesLabel': 'Øvelser',
     'sessions.noExercisesHint': 'Ingen øvelser i stamdata ennå.',
     'sessions.selectPlanLabel': 'Treningsplan',
@@ -5230,18 +5080,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Nedvarvning',
     'exercises.cooldownRampTooltip':
       'Procentsatser av arbetsvikten som används för att automatiskt generera denna övnings nedvarvningsset - i både träningspass och träningsprogram, närhelst ett sådant inte redan har egna nedvarvningsset.',
-    'exercises.useAsWarmupExercise': 'Kan även användas som uppvärmningsövning',
-    'exercises.onlyAsWarmupExercise': 'Kan endast användas som uppvärmningsövning',
-    'exercises.useAsCooldownExercise': 'Kan även användas som nedvarvningsövning',
-    'exercises.onlyAsCooldownExercise': 'Kan endast användas som nedvarvningsövning',
-    'exercises.useAsWarmupExerciseTooltip':
-      'Gör även att denna övning kan väljas i en annan övnings referenslista för uppvärmning, utan att ta bort den från det vanliga övningsvalet för pass och program.',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      'Gör att denna övning endast kan väljas i en annan övnings referenslista för uppvärmning - döljer den från det vanliga övningsvalet för pass och program.',
-    'exercises.useAsCooldownExerciseTooltip':
-      'Gör även att denna övning kan väljas i en annan övnings referenslista för nedvarvning, utan att ta bort den från det vanliga övningsvalet för pass och program.',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      'Gör att denna övning endast kan väljas i en annan övnings referenslista för nedvarvning - döljer den från det vanliga övningsvalet för pass och program.',
     'exercises.empty': 'Inga övningar än.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -5393,8 +5231,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Ersätter denna övnings uppvärmningsset med dess standardramp.',
     'sessions.addDefaultCooldownButton': 'Lägg till standardnedvarvning',
     'sessions.addDefaultCooldownButtonTooltip': 'Ersätter denna övnings nedvarvningsset med dess standardramp.',
-    'sessions.warmupReferenceExercisesLabel': 'Uppvärmningsövningar',
-    'sessions.cooldownReferenceExercisesLabel': 'Nedvarvningsövningar',
     'sessions.exercisesLabel': 'Övningar',
     'sessions.noExercisesHint': 'Inga övningar i grunddata än.',
     'sessions.selectPlanLabel': 'Träningsprogram',
@@ -5691,14 +5527,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.warmupRampTooltip': 'Työpainon prosenttiosuudet, joita käytetään luomaan automaattisesti tämän liikkeen alkuverryttelysarjat - sekä harjoituksissa että ohjelmissa, aina kun niillä ei jo ole omia alkuverryttelysarjoja.',
     'exercises.cooldownRampLabel': 'Loppuverryttely',
     'exercises.cooldownRampTooltip': 'Työpainon prosenttiosuudet, joita käytetään luomaan automaattisesti tämän liikkeen loppuverryttelysarjat - sekä harjoituksissa että ohjelmissa, aina kun niillä ei jo ole omia loppuverryttelysarjoja.',
-    'exercises.useAsWarmupExercise': 'Käytettävissä myös alkuverryttelyliikkeenä',
-    'exercises.onlyAsWarmupExercise': 'Käytettävissä vain alkuverryttelyliikkeenä',
-    'exercises.useAsCooldownExercise': 'Käytettävissä myös loppuverryttelyliikkeenä',
-    'exercises.onlyAsCooldownExercise': 'Käytettävissä vain loppuverryttelyliikkeenä',
-    'exercises.useAsWarmupExerciseTooltip': 'Sallii myös tämän liikkeen valitsemisen toisen liikkeen alkuverryttelyn viiteluettelosta poistamatta sitä harjoitusten ja ohjelmien tavallisesta liikevalitsimesta.',
-    'exercises.onlyAsWarmupExerciseTooltip': 'Sallii tämän liikkeen valitsemisen vain toisen liikkeen alkuverryttelyn viiteluettelosta - piilottaa sen harjoitusten ja ohjelmien tavallisesta liikevalitsimesta.',
-    'exercises.useAsCooldownExerciseTooltip': 'Sallii myös tämän liikkeen valitsemisen toisen liikkeen loppuverryttelyn viiteluettelosta poistamatta sitä harjoitusten ja ohjelmien tavallisesta liikevalitsimesta.',
-    'exercises.onlyAsCooldownExerciseTooltip': 'Sallii tämän liikkeen valitsemisen vain toisen liikkeen loppuverryttelyn viiteluettelosta - piilottaa sen harjoitusten ja ohjelmien tavallisesta liikevalitsimesta.',
     'exercises.empty': 'Ei vielä liikkeitä.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -5822,8 +5650,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Korvaa tämän liikkeen alkuverryttelysarjat sen oletusporrastuksella.',
     'sessions.addDefaultCooldownButton': 'Lisää oletusloppuverryttely',
     'sessions.addDefaultCooldownButtonTooltip': 'Korvaa tämän liikkeen loppuverryttelysarjat sen oletusporrastuksella.',
-    'sessions.warmupReferenceExercisesLabel': 'Alkuverryttelyliikkeet',
-    'sessions.cooldownReferenceExercisesLabel': 'Loppuverryttelyliikkeet',
     'sessions.exercisesLabel': 'Liikkeet',
     'sessions.noExercisesHint': 'Perustiedoissa ei ole vielä liikkeitä.',
     'sessions.selectPlanLabel': 'Harjoitusohjelma',
@@ -6108,14 +5934,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.warmupRampTooltip': 'Procenta pracovní váhy použitá k automatickému vytvoření rozcvičovacích sérií tohoto cviku - jak v tréninkových jednotkách, tak v plánech, kdykoli daná jednotka nemá vlastní rozcvičovací série.',
     'exercises.cooldownRampLabel': 'Zklidnění',
     'exercises.cooldownRampTooltip': 'Procenta pracovní váhy použitá k automatickému vytvoření zklidňovacích sérií tohoto cviku - jak v tréninkových jednotkách, tak v plánech, kdykoli daná jednotka nemá vlastní zklidňovací série.',
-    'exercises.useAsWarmupExercise': 'Použitelný i jako rozcvičovací cvik',
-    'exercises.onlyAsWarmupExercise': 'Použitelný pouze jako rozcvičovací cvik',
-    'exercises.useAsCooldownExercise': 'Použitelný i jako zklidňovací cvik',
-    'exercises.onlyAsCooldownExercise': 'Použitelný pouze jako zklidňovací cvik',
-    'exercises.useAsWarmupExerciseTooltip': 'Umožní vybrat tento cvik i v seznamu rozcvičovacích cviků jiného cviku, aniž by zmizel z běžného výběru cviků pro jednotky a plány.',
-    'exercises.onlyAsWarmupExerciseTooltip': 'Umožní vybrat tento cvik pouze v seznamu rozcvičovacích cviků jiného cviku - skryje ho z běžného výběru cviků pro jednotky a plány.',
-    'exercises.useAsCooldownExerciseTooltip': 'Umožní vybrat tento cvik i v seznamu zklidňovacích cviků jiného cviku, aniž by zmizel z běžného výběru cviků pro jednotky a plány.',
-    'exercises.onlyAsCooldownExerciseTooltip': 'Umožní vybrat tento cvik pouze v seznamu zklidňovacích cviků jiného cviku - skryje ho z běžného výběru cviků pro jednotky a plány.',
     'exercises.empty': 'Zatím žádné cviky.',
     'exercises.oneRepMaxEstimated': 'Max ≈',
     'exercises.oneRepMaxCustom': 'Max =',
@@ -6239,8 +6057,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Nahradí rozcvičovací série tohoto cviku jeho výchozí rampou.',
     'sessions.addDefaultCooldownButton': 'Přidat výchozí zklidnění',
     'sessions.addDefaultCooldownButtonTooltip': 'Nahradí zklidňovací série tohoto cviku jeho výchozí rampou.',
-    'sessions.warmupReferenceExercisesLabel': 'Rozcvičovací cviky',
-    'sessions.cooldownReferenceExercisesLabel': 'Zklidňovací cviky',
     'sessions.exercisesLabel': 'Cviky',
     'sessions.noExercisesHint': 'V základních datech zatím nejsou žádné cviky.',
     'sessions.selectPlanLabel': 'Tréninkový plán',
@@ -6533,18 +6349,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': 'Soğuma',
     'exercises.cooldownRampTooltip':
       "Bu egzersizin soğuma setlerini otomatik oluşturmak için kullanılan, çalışma ağırlığının yüzdeleri - kendi soğuma setleri olmadığı sürece hem antrenman seanslarında hem de planlarda geçerlidir.",
-    'exercises.useAsWarmupExercise': 'Isınma egzersizi olarak da kullanılabilir',
-    'exercises.onlyAsWarmupExercise': 'Sadece ısınma egzersizi olarak kullanılabilir',
-    'exercises.useAsCooldownExercise': 'Soğuma egzersizi olarak da kullanılabilir',
-    'exercises.onlyAsCooldownExercise': 'Sadece soğuma egzersizi olarak kullanılabilir',
-    'exercises.useAsWarmupExerciseTooltip':
-      "Bu egzersizin, seans ve planlar için normal egzersiz seçicisinden kaldırılmadan, başka bir egzersizin ısınma referans listesinden de seçilebilmesini sağlar.",
-    'exercises.onlyAsWarmupExerciseTooltip':
-      "Bu egzersizin yalnızca başka bir egzersizin ısınma referans listesinden seçilebilmesini sağlar - seans ve planlar için normal egzersiz seçicisinde gizlenir.",
-    'exercises.useAsCooldownExerciseTooltip':
-      "Bu egzersizin, seans ve planlar için normal egzersiz seçicisinden kaldırılmadan, başka bir egzersizin soğuma referans listesinden de seçilebilmesini sağlar.",
-    'exercises.onlyAsCooldownExerciseTooltip':
-      "Bu egzersizin yalnızca başka bir egzersizin soğuma referans listesinden seçilebilmesini sağlar - seans ve planlar için normal egzersiz seçicisinde gizlenir.",
     'exercises.empty': 'Henüz egzersiz yok.',
     'exercises.oneRepMaxEstimated': 'Maks ≈',
     'exercises.oneRepMaxCustom': 'Maks =',
@@ -6696,8 +6500,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': "Bu egzersizin ısınma setlerini varsayılan rampasıyla değiştirir.",
     'sessions.addDefaultCooldownButton': 'Varsayılan soğumayı ekle',
     'sessions.addDefaultCooldownButtonTooltip': "Bu egzersizin soğuma setlerini varsayılan rampasıyla değiştirir.",
-    'sessions.warmupReferenceExercisesLabel': 'Isınma egzersizleri',
-    'sessions.cooldownReferenceExercisesLabel': 'Soğuma egzersizleri',
     'sessions.exercisesLabel': 'Egzersizler',
     'sessions.noExercisesHint': 'Ana verilerde henüz egzersiz yok.',
     'sessions.selectPlanLabel': 'Antrenman Planı',
@@ -6996,14 +6798,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.warmupRampTooltip': 'نسب مئوية من وزن العمل تُستخدم لإنشاء مجموعات الإحماء لهذا التمرين تلقائياً - في جلسات التدريب والخطط على حد سواء، كلما لم تكن هناك مجموعات إحماء خاصة بها بالفعل.',
     'exercises.cooldownRampLabel': 'التهدئة',
     'exercises.cooldownRampTooltip': 'نسب مئوية من وزن العمل تُستخدم لإنشاء مجموعات التهدئة لهذا التمرين تلقائياً - في جلسات التدريب والخطط على حد سواء، كلما لم تكن هناك مجموعات تهدئة خاصة بها بالفعل.',
-    'exercises.useAsWarmupExercise': 'يمكن استخدامه أيضاً كتمرين إحماء',
-    'exercises.onlyAsWarmupExercise': 'يُستخدم فقط كتمرين إحماء',
-    'exercises.useAsCooldownExercise': 'يمكن استخدامه أيضاً كتمرين تهدئة',
-    'exercises.onlyAsCooldownExercise': 'يُستخدم فقط كتمرين تهدئة',
-    'exercises.useAsWarmupExerciseTooltip': 'يتيح أيضاً اختيار هذا التمرين في قائمة مرجع الإحماء لتمرين آخر، دون إزالته من قائمة اختيار التمارين العادية للجلسات والخطط.',
-    'exercises.onlyAsWarmupExerciseTooltip': 'يتيح اختيار هذا التمرين فقط في قائمة مرجع الإحماء لتمرين آخر - ويخفيه من قائمة اختيار التمارين العادية للجلسات والخطط.',
-    'exercises.useAsCooldownExerciseTooltip': 'يتيح أيضاً اختيار هذا التمرين في قائمة مرجع التهدئة لتمرين آخر، دون إزالته من قائمة اختيار التمارين العادية للجلسات والخطط.',
-    'exercises.onlyAsCooldownExerciseTooltip': 'يتيح اختيار هذا التمرين فقط في قائمة مرجع التهدئة لتمرين آخر - ويخفيه من قائمة اختيار التمارين العادية للجلسات والخطط.',
     'exercises.empty': 'لا توجد تمارين بعد.',
     'exercises.oneRepMaxEstimated': 'الحد الأقصى ≈',
     'exercises.oneRepMaxCustom': 'الحد الأقصى =',
@@ -7129,8 +6923,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'يستبدل مجموعات إحماء هذا التمرين بتدرجه الافتراضي.',
     'sessions.addDefaultCooldownButton': 'إضافة تهدئة افتراضية',
     'sessions.addDefaultCooldownButtonTooltip': 'يستبدل مجموعات تهدئة هذا التمرين بتدرجه الافتراضي.',
-    'sessions.warmupReferenceExercisesLabel': 'تمارين الإحماء',
-    'sessions.cooldownReferenceExercisesLabel': 'تمارين التهدئة',
     'sessions.exercisesLabel': 'التمارين',
     'sessions.noExercisesHint': 'لا توجد تمارين في البيانات الأساسية بعد.',
     'sessions.selectPlanLabel': 'خطة التدريب',
@@ -7427,18 +7219,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.cooldownRampLabel': '放松',
     'exercises.cooldownRampTooltip':
       '用于自动生成此动作放松组的工作重量百分比——无论在训练课程还是训练计划中，只要尚未设置自己的放松组，都会应用。',
-    'exercises.useAsWarmupExercise': '也可用作热身动作',
-    'exercises.onlyAsWarmupExercise': '仅可用作热身动作',
-    'exercises.useAsCooldownExercise': '也可用作放松动作',
-    'exercises.onlyAsCooldownExercise': '仅可用作放松动作',
-    'exercises.useAsWarmupExerciseTooltip':
-      '也允许在其他动作的热身参考列表中选择此动作，同时不会将其从训练课程和训练计划的常规动作选择器中移除。',
-    'exercises.onlyAsWarmupExerciseTooltip':
-      '仅允许在其他动作的热身参考列表中选择此动作——会将其从训练课程和训练计划的常规动作选择器中隐藏。',
-    'exercises.useAsCooldownExerciseTooltip':
-      '也允许在其他动作的放松参考列表中选择此动作，同时不会将其从训练课程和训练计划的常规动作选择器中移除。',
-    'exercises.onlyAsCooldownExerciseTooltip':
-      '仅允许在其他动作的放松参考列表中选择此动作——会将其从训练课程和训练计划的常规动作选择器中隐藏。',
     'exercises.empty': '暂无训练动作。',
     'exercises.oneRepMaxEstimated': '最大重量 ≈',
     'exercises.oneRepMaxCustom': '最大重量 =',
@@ -7590,8 +7370,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': '用此动作的默认递增替换其热身组。',
     'sessions.addDefaultCooldownButton': '添加默认放松',
     'sessions.addDefaultCooldownButtonTooltip': '用此动作的默认递增替换其放松组。',
-    'sessions.warmupReferenceExercisesLabel': '热身动作',
-    'sessions.cooldownReferenceExercisesLabel': '放松动作',
     'sessions.exercisesLabel': '训练动作',
     'sessions.noExercisesHint': '主数据中暂无训练动作。',
     'sessions.selectPlanLabel': '训练计划',
@@ -7888,14 +7666,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.warmupRampTooltip': 'このエクササイズのウォームアップセットを自動生成する際に使用する、ワーキングウェイトに対する割合です。トレーニングセッションとプランのどちらでも、独自のウォームアップセットがまだ設定されていない場合に適用されます。',
     'exercises.cooldownRampLabel': 'クールダウン',
     'exercises.cooldownRampTooltip': 'このエクササイズのクールダウンセットを自動生成する際に使用する、ワーキングウェイトに対する割合です。トレーニングセッションとプランのどちらでも、独自のクールダウンセットがまだ設定されていない場合に適用されます。',
-    'exercises.useAsWarmupExercise': 'ウォームアップ種目としても使用可能',
-    'exercises.onlyAsWarmupExercise': 'ウォームアップ種目としてのみ使用可能',
-    'exercises.useAsCooldownExercise': 'クールダウン種目としても使用可能',
-    'exercises.onlyAsCooldownExercise': 'クールダウン種目としてのみ使用可能',
-    'exercises.useAsWarmupExerciseTooltip': 'セッションやプランの通常のエクササイズ選択からは除外せずに、他のエクササイズのウォームアップ参照リストでもこのエクササイズを選択できるようにします。',
-    'exercises.onlyAsWarmupExerciseTooltip': 'このエクササイズを他のエクササイズのウォームアップ参照リストでのみ選択できるようにします。セッションやプランの通常のエクササイズ選択からは非表示になります。',
-    'exercises.useAsCooldownExerciseTooltip': 'セッションやプランの通常のエクササイズ選択からは除外せずに、他のエクササイズのクールダウン参照リストでもこのエクササイズを選択できるようにします。',
-    'exercises.onlyAsCooldownExerciseTooltip': 'このエクササイズを他のエクササイズのクールダウン参照リストでのみ選択できるようにします。セッションやプランの通常のエクササイズ選択からは非表示になります。',
     'exercises.empty': 'まだエクササイズがありません。',
     'exercises.oneRepMaxEstimated': '最大 ≈',
     'exercises.oneRepMaxCustom': '最大 =',
@@ -8019,8 +7789,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'このエクササイズのウォームアップセットをデフォルトのランプに置き換えます。',
     'sessions.addDefaultCooldownButton': 'デフォルトのクールダウンを追加',
     'sessions.addDefaultCooldownButtonTooltip': 'このエクササイズのクールダウンセットをデフォルトのランプに置き換えます。',
-    'sessions.warmupReferenceExercisesLabel': 'ウォームアップ種目',
-    'sessions.cooldownReferenceExercisesLabel': 'クールダウン種目',
     'sessions.exercisesLabel': 'エクササイズ',
     'sessions.noExercisesHint': 'マスターデータにまだエクササイズがありません。',
     'sessions.selectPlanLabel': 'トレーニングプラン',
@@ -8307,14 +8075,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.warmupRampTooltip': 'Ποσοστά του βάρους εργασίας που χρησιμοποιούνται για την αυτόματη δημιουργία των σετ προθέρμανσης αυτής της άσκησης - τόσο σε συνεδρίες όσο και σε προγράμματα προπόνησης, όποτε δεν υπάρχουν ήδη δικά τους σετ προθέρμανσης.',
     'exercises.cooldownRampLabel': 'Αποθεραπεία',
     'exercises.cooldownRampTooltip': 'Ποσοστά του βάρους εργασίας που χρησιμοποιούνται για την αυτόματη δημιουργία των σετ αποθεραπείας αυτής της άσκησης - τόσο σε συνεδρίες όσο και σε προγράμματα προπόνησης, όποτε δεν υπάρχουν ήδη δικά τους σετ αποθεραπείας.',
-    'exercises.useAsWarmupExercise': 'Χρήση επίσης ως άσκηση προθέρμανσης',
-    'exercises.onlyAsWarmupExercise': 'Χρήση μόνο ως άσκηση προθέρμανσης',
-    'exercises.useAsCooldownExercise': 'Χρήση επίσης ως άσκηση αποθεραπείας',
-    'exercises.onlyAsCooldownExercise': 'Χρήση μόνο ως άσκηση αποθεραπείας',
-    'exercises.useAsWarmupExerciseTooltip': 'Επιτρέπει επίσης την επιλογή αυτής της άσκησης στη λίστα αναφοράς προθέρμανσης μιας άλλης άσκησης, χωρίς να την αφαιρεί από τον κανονικό επιλογέα ασκήσεων για συνεδρίες και προγράμματα.',
-    'exercises.onlyAsWarmupExerciseTooltip': 'Επιτρέπει την επιλογή αυτής της άσκησης μόνο στη λίστα αναφοράς προθέρμανσης μιας άλλης άσκησης - την αποκρύπτει από τον κανονικό επιλογέα ασκήσεων για συνεδρίες και προγράμματα.',
-    'exercises.useAsCooldownExerciseTooltip': 'Επιτρέπει επίσης την επιλογή αυτής της άσκησης στη λίστα αναφοράς αποθεραπείας μιας άλλης άσκησης, χωρίς να την αφαιρεί από τον κανονικό επιλογέα ασκήσεων για συνεδρίες και προγράμματα.',
-    'exercises.onlyAsCooldownExerciseTooltip': 'Επιτρέπει την επιλογή αυτής της άσκησης μόνο στη λίστα αναφοράς αποθεραπείας μιας άλλης άσκησης - την αποκρύπτει από τον κανονικό επιλογέα ασκήσεων για συνεδρίες και προγράμματα.',
     'exercises.empty': 'Δεν υπάρχουν ασκήσεις ακόμα.',
     'exercises.oneRepMaxEstimated': 'Μεγ. ≈',
     'exercises.oneRepMaxCustom': 'Μεγ. =',
@@ -8440,8 +8200,6 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.addDefaultWarmupButtonTooltip': 'Αντικαθιστά τα σετ προθέρμανσης αυτής της άσκησης με την προεπιλεγμένη της ράμπα.',
     'sessions.addDefaultCooldownButton': 'Προσθήκη προεπιλεγμένης αποθεραπείας',
     'sessions.addDefaultCooldownButtonTooltip': 'Αντικαθιστά τα σετ αποθεραπείας αυτής της άσκησης με την προεπιλεγμένη της ράμπα.',
-    'sessions.warmupReferenceExercisesLabel': 'Ασκήσεις προθέρμανσης',
-    'sessions.cooldownReferenceExercisesLabel': 'Ασκήσεις αποθεραπείας',
     'sessions.exercisesLabel': 'Ασκήσεις',
     'sessions.noExercisesHint': 'Δεν υπάρχουν ακόμα ασκήσεις στα βασικά δεδομένα.',
     'sessions.selectPlanLabel': 'Πρόγραμμα Προπόνησης',

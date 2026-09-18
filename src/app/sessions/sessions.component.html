@@ -411,7 +411,7 @@
                   }
                 }
               </mat-select-trigger>
-              @for (exercise of selectableExercises(); track exercise.id) {
+              @for (exercise of exercises; track exercise.id) {
                 <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
               }
             </mat-select>
