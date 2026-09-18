@@ -3235,22 +3235,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.exercises.filter((exercise) => !exercise.onlyAsWarmupExercise && !exercise.onlyAsCooldownExercise);
   }
 
-  // Exercises offered in a session exercise's own warm-up reference picker -
-  // only ones explicitly marked usable there, and never the exercise
-  // itself (it can't warm up with itself).
-  warmupReferenceExerciseOptions(currentExerciseId: string): Exercise[] {
-    return this.exercises.filter(
-      (exercise) => exercise.id !== currentExerciseId && (exercise.useAsWarmupExercise || exercise.onlyAsWarmupExercise)
-    );
-  }
-
-  // Same idea as warmupReferenceExerciseOptions above, for the cooldown
-  // reference picker instead.
-  cooldownReferenceExerciseOptions(currentExerciseId: string): Exercise[] {
-    return this.exercises.filter(
-      (exercise) => exercise.id !== currentExerciseId && (exercise.useAsCooldownExercise || exercise.onlyAsCooldownExercise)
-    );
-  }
 
   // Retroactively (re)applies the exercise's warm-up ramp to one session
   // exercise, replacing whatever warm-up sets it has now - for whenever
@@ -3285,18 +3269,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const cooldownSets = this.buildSetsFromRamp(ramp, workingWeight, weightUnit, 'cooldown');
     sessionExercise.sets = [...sessionExercise.sets.filter((set) => set.type !== 'cooldown'), ...cooldownSets];
     sessionExercise.showCooldownSets = true;
-    await this.persist(session);
-  }
-
-  // The reference picker itself never generates sets - only its "Add set"
-  // button does. See SessionExercise.warmupExerciseId/cooldownExerciseId.
-  async updateWarmupReferenceExercise(session: TrainingSession, sessionExercise: SessionExercise, exerciseId: string): Promise<void> {
-    sessionExercise.warmupExerciseId = exerciseId;
-    await this.persist(session);
-  }
-
-  async updateCooldownReferenceExercise(session: TrainingSession, sessionExercise: SessionExercise, exerciseId: string): Promise<void> {
-    sessionExercise.cooldownExerciseId = exerciseId;
     await this.persist(session);
   }
 

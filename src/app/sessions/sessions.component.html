@@ -967,34 +967,6 @@
                           <mat-icon>whatshot</mat-icon>
                           {{ 'sessions.addDefaultWarmupButton' | translate }}
                         </button>
-                        <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
-                          <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.warmupReferenceExercisesLabel' | translate }}</mat-label>
-                          <mat-select
-                            [ngModel]="sessionExercise.warmupExerciseId"
-                            name="warmupReferenceExercise-{{ sessionExercise.exerciseId }}"
-                            panelClass="exercise-select-panel"
-                            (selectionChange)="updateWarmupReferenceExercise(session, sessionExercise, $event.value)"
-                          >
-                            @for (exercise of warmupReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
-                              <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
-                            }
-                          </mat-select>
-                        </mat-form-field>
-                        <button
-                          mat-stroked-button
-                          type="button"
-                          class="add-set-for-exercise-button"
-                          [disabled]="!sessionExercise.warmupExerciseId"
-                          (click)="addSet(session, sessionExercise, 'warmup', sessionExercise.warmupExerciseId)"
-                        >
-                          @if (sessionExercise.warmupExerciseId; as refId) {
-                            "{{ exerciseName(refId) }}"
-                          }
-                          {{ 'sessions.addSet' | translate }}
-                        </button>
-                        <button mat-stroked-button type="button" class="add-set-for-exercise-button" (click)="addSet(session, sessionExercise, 'warmup')">
-                          "{{ exerciseName(sessionExercise.exerciseId) }}" {{ 'sessions.addSet' | translate }}
-                        </button>
                       }
                       @if (setType.value === 'cooldown') {
                         <button
@@ -1007,34 +979,6 @@
                         >
                           <mat-icon>ac_unit</mat-icon>
                           {{ 'sessions.addDefaultCooldownButton' | translate }}
-                        </button>
-                        <mat-form-field appearance="outline" class="reference-exercises-field" subscriptSizing="dynamic">
-                          <mat-label><mat-icon class="label-icon">directions_run</mat-icon>{{ 'sessions.cooldownReferenceExercisesLabel' | translate }}</mat-label>
-                          <mat-select
-                            [ngModel]="sessionExercise.cooldownExerciseId"
-                            name="cooldownReferenceExercise-{{ sessionExercise.exerciseId }}"
-                            panelClass="exercise-select-panel"
-                            (selectionChange)="updateCooldownReferenceExercise(session, sessionExercise, $event.value)"
-                          >
-                            @for (exercise of cooldownReferenceExerciseOptions(sessionExercise.exerciseId); track exercise.id) {
-                              <mat-option [value]="exercise.id">{{ exercise.name }}</mat-option>
-                            }
-                          </mat-select>
-                        </mat-form-field>
-                        <button
-                          mat-stroked-button
-                          type="button"
-                          class="add-set-for-exercise-button"
-                          [disabled]="!sessionExercise.cooldownExerciseId"
-                          (click)="addSet(session, sessionExercise, 'cooldown', sessionExercise.cooldownExerciseId)"
-                        >
-                          @if (sessionExercise.cooldownExerciseId; as refId) {
-                            "{{ exerciseName(refId) }}"
-                          }
-                          {{ 'sessions.addSet' | translate }}
-                        </button>
-                        <button mat-stroked-button type="button" class="add-set-for-exercise-button" (click)="addSet(session, sessionExercise, 'cooldown')">
-                          "{{ exerciseName(sessionExercise.exerciseId) }}" {{ 'sessions.addSet' | translate }}
                         </button>
                       }
 
@@ -1277,17 +1221,15 @@
                         }
                       </div>
 
-                      @if (setType.value === 'working') {
-                        <button
-                          mat-stroked-button
-                          type="button"
-                          (click)="addSet(session, sessionExercise, setType.value)"
-                          [matTooltip]="'sessions.addSet' | translate"
-                          [attr.aria-label]="'sessions.addSet' | translate"
-                        >
-                          <mat-icon>add</mat-icon>
-                        </button>
-                      }
+                      <button
+                        mat-stroked-button
+                        type="button"
+                        (click)="addSet(session, sessionExercise, setType.value)"
+                        [matTooltip]="'sessions.addSet' | translate"
+                        [attr.aria-label]="'sessions.addSet' | translate"
+                      >
+                        <mat-icon>add</mat-icon>
+                      </button>
                     </mat-expansion-panel>
                     }
                   }
