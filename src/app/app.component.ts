@@ -38,7 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.splashTimeoutId = setTimeout(() => this.dismissSplash(), 3000);
+    this.splashTimeoutId = setTimeout(() => this.dismissSplash(), 2000);
     await this.themeService.applyPersistedTheme();
     await this.purchasesService.initialize();
   }

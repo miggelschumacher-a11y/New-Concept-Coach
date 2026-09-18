@@ -1,4 +1,4 @@
-// Shown for up to 3s on cold start (AppComponent.ngOnInit), or until tapped -
+// Shown for up to 2s on cold start (AppComponent.ngOnInit), or until tapped -
 // whichever comes first. Fixed/full-viewport so it covers the toolbar and
 // router-outlet underneath while it's up.
 .splash-screen {
@@ -18,7 +18,10 @@ html.light-theme .splash-screen {
 
 .splash-logo {
   width: min(60vw, 280px);
-  animation: splash-logo-in 0.4s ease-out;
+  // Fades/scales in immediately, then pulses shortly after.
+  animation:
+    splash-logo-in 0.4s ease-out,
+    splash-logo-pulse 1s ease-in-out 0.25s;
 }
 
 @keyframes splash-logo-in {
@@ -28,6 +31,18 @@ html.light-theme .splash-screen {
   }
   to {
     opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splash-logo-pulse {
+  from {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  to {
     transform: scale(1);
   }
 }
