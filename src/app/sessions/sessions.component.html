@@ -593,6 +593,31 @@
                         </div>
                       </fieldset>
 
+                      <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate">
+                        <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}</legend>
+                        <div class="session-settings-actions">
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="sessionExercise.showWarmupSets ?? true"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', true)"
+                          >
+                            {{ 'common.yes' | translate }}
+                          </button>
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            [class.active]="!(sessionExercise.showWarmupSets ?? true)"
+                            (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', false)"
+                          >
+                            {{ 'common.no' | translate }}
+                          </button>
+                        </div>
+                        @if (hasHiddenWarmupSets(sessionExercise)) {
+                          <p class="deload-warning-hint">{{ 'sessions.hiddenWarmupSetsHint' | translate }}</p>
+                        }
+                      </fieldset>
+
                       <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseCountWorkingTooltip' | translate">
                         <legend><mat-icon class="label-icon">fitness_center</mat-icon>{{ 'sessions.countWorking' | translate }}</legend>
                         <div class="session-settings-actions">
@@ -635,31 +660,6 @@
                             {{ 'common.no' | translate }}
                           </button>
                         </div>
-                      </fieldset>
-
-                      <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowWarmupTooltip' | translate">
-                        <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.showWarmupSets' | translate }}</legend>
-                        <div class="session-settings-actions">
-                          <button
-                            mat-stroked-button
-                            type="button"
-                            [class.active]="sessionExercise.showWarmupSets ?? true"
-                            (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', true)"
-                          >
-                            {{ 'common.yes' | translate }}
-                          </button>
-                          <button
-                            mat-stroked-button
-                            type="button"
-                            [class.active]="!(sessionExercise.showWarmupSets ?? true)"
-                            (click)="updateSessionExercisePreference(session, sessionExercise, 'showWarmupSets', false)"
-                          >
-                            {{ 'common.no' | translate }}
-                          </button>
-                        </div>
-                        @if (hasHiddenWarmupSets(sessionExercise)) {
-                          <p class="deload-warning-hint">{{ 'sessions.hiddenWarmupSetsHint' | translate }}</p>
-                        }
                       </fieldset>
 
                       <fieldset class="session-settings-group" [matTooltip]="'sessions.exerciseShowCooldownTooltip' | translate">
