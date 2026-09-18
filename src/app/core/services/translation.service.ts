@@ -759,7 +759,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.countWarmup': 'Aufwärmsatz mitzählen',
     'sessions.countWorking': 'Arbeitssatz mitzählen',
     'sessions.countCooldown': 'Cool-Down-Satz mitzählen',
-    'sessions.showWarmupSets': 'Aufwärmen-Sätze zeigen',
+    'sessions.showWarmupSets': 'Aufwärm-Sätze zeigen',
     'sessions.showCooldownSets': 'Cool-Down-Sätze zeigen',
     'sessions.exerciseCountWarmupTooltip': 'Legt fest, ob Aufwärmsätze bei dieser Übung zur Gesamtzahl der Sätze und zum gehobenen Gewicht zählen.',
     'sessions.exerciseCountWorkingTooltip': 'Legt fest, ob Arbeitssätze bei dieser Übung zur Gesamtzahl der Sätze und zum gehobenen Gewicht zählen.',
