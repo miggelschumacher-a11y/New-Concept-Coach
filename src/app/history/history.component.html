@@ -131,7 +131,7 @@
                           @if (isTimeBasedExercise(sessionExercise)) {
                             <mat-form-field appearance="outline" class="history-set-field">
                               <mat-label>
-                                {{ 'sessions.secondsField' | translate }}
+                                {{ 'sessions.timeField' | translate }}
                                 @if (targetSecondsHint(set); as targetHint) {
                                   ({{ targetHint | duration }})
                                 }

@@ -1176,7 +1176,7 @@
                                   @if (isCountdownRunning(set)) {
                                     {{ (set.seconds ?? 0) | duration }}
                                   } @else {
-                                    {{ 'sessions.secondsField' | translate }}
+                                    {{ 'sessions.timeField' | translate }}
                                   }
                                   @if (targetSecondsHint(set); as targetHint) {
                                     &nbsp;({{ targetHint | duration }})
