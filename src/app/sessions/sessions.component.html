@@ -1189,7 +1189,7 @@
                               <button
                                 mat-icon-button
                                 [disabled]="set.done"
-                                (click)="isCountdownRunning(set) ? stopCountdown(set) : startCountdown(session, sessionExercise, set)"
+                                (click)="isCountdownRunning(set) ? stopCountdown(set) : onStartCountdownClick(session, sessionExercise, set)"
                                 [matTooltip]="(isCountdownRunning(set) ? 'sessions.stopCountdownButton' : 'sessions.startCountdownButton') | translate"
                                 [attr.aria-label]="(isCountdownRunning(set) ? 'sessions.stopCountdownButton' : 'sessions.startCountdownButton') | translate"
                               >
@@ -1201,7 +1201,7 @@
                               class="set-complete-btn"
                               [class.set-complete-success]="set.done && setMetTarget(set)"
                               [class.set-complete-fail]="set.done && !setMetTarget(set)"
-                              (click)="completeSet(session, sessionExercise, set)"
+                              (click)="onCompleteSetClick(session, sessionExercise, set)"
                               [matTooltip]="'sessions.completeSet' | translate"
                               [attr.aria-label]="'sessions.completeSet' | translate"
                             >

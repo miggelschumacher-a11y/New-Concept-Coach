@@ -1541,6 +1541,43 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }, 2500);
   }
 
+  // Sessions already asked "this session isn't running - start it?" since
+  // their accordion was last opened - closing the accordion (onExpandedChange)
+  // is what makes the question due again.
+  private readonly notRunningPromptedSessionIds = new Set<string>();
+
+  // Asked when a set's start-countdown or complete button is used in a session
+  // whose timer isn't running, once per opening of its accordion. Either
+  // answer lets the pressed button carry on afterwards; "yes" also starts the
+  // session's timer.
+  private async askToStartSessionIfNotRunning(session: TrainingSession): Promise<void> {
+    if (session.finished || session.timerRunning || this.notRunningPromptedSessionIds.has(session.id)) {
+      return;
+    }
+    this.notRunningPromptedSessionIds.add(session.id);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        messageKey: 'sessions.sessionNotRunningQuestion',
+        confirmLabelKey: 'sessions.startSessionYes',
+        cancelLabelKey: 'sessions.confirmNo',
+        confirmColor: 'primary'
+      }
+    });
+    if (await firstValueFrom(dialogRef.afterClosed())) {
+      await this.toggleTimer(session);
+    }
+  }
+
+  async onStartCountdownClick(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): Promise<void> {
+    await this.askToStartSessionIfNotRunning(session);
+    this.startCountdown(session, sessionExercise, set);
+  }
+
+  async onCompleteSetClick(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): Promise<void> {
+    await this.askToStartSessionIfNotRunning(session);
+    await this.completeSet(session, sessionExercise, set);
+  }
+
   isExpanded(session: TrainingSession): boolean {
     return this.autoExpandedSessionIds.has(session.id);
   }
@@ -1551,6 +1588,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     this.autoExpandedSessionIds.delete(session.id);
+    this.notRunningPromptedSessionIds.delete(session.id);
     if (this.sessionSettingsInfoOpenKey === session.id) {
       this.closeSessionSettingsInfo();
     }
