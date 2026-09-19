@@ -92,7 +92,7 @@ import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 import { DurationMaskDirective } from '../core/directives/duration-mask.directive';
 import { DurationPipe } from '../core/pipes/duration.pipe';
-import { parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
+import { formatDuration, parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
 import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 
 function toDateTimeLocalValue(date: Date): string {
@@ -4600,8 +4600,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // seconds when no target was set), collapsed to one value when every set
   // already shares it.
   private nextSecondsSummaryText(workingSets: ExerciseSet[]): string {
-    const secondsUnit = this.translationService.translate('sessions.secondsField');
-    const secondsTexts = workingSets.map((s) => `${s.targetSeconds ?? s.seconds ?? 0} ${secondsUnit}`);
+    const secondsTexts = workingSets.map((s) => formatDuration(s.targetSeconds ?? s.seconds ?? 0));
     return this.joinWithAnd([...new Set(secondsTexts)]);
   }
 

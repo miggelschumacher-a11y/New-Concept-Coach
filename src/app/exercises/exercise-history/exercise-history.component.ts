@@ -8,6 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ExercisesService } from '../../core/services/exercises.service';
 import { SessionsService } from '../../core/services/sessions.service';
 import { SettingsService } from '../../core/services/settings.service';
+import { DurationPipe } from '../../core/pipes/duration.pipe';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { buildExerciseHistory, ExerciseHistoryEntry } from '../../core/utils/exercise-history.util';
 
@@ -17,7 +18,7 @@ import { buildExerciseHistory, ExerciseHistoryEntry } from '../../core/utils/exe
 @Component({
   selector: 'app-exercise-history',
   standalone: true,
-  imports: [DatePipe, MatCardModule, MatButtonModule, MatIconModule, MatTooltipModule, TranslatePipe],
+  imports: [DatePipe, MatCardModule, MatButtonModule, MatIconModule, MatTooltipModule, DurationPipe, TranslatePipe],
   templateUrl: './exercise-history.component.html',
   styleUrl: './exercise-history.component.scss'
 })

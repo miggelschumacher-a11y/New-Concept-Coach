@@ -27,7 +27,7 @@
         @for (set of entry.sets; track $index) {
           <li>
             @if (set.timeBased) {
-              {{ set.seconds }} {{ 'sessions.secondsField' | translate }}
+              {{ set.seconds | duration }}
             } @else {
               {{ set.reps }} × {{ set.weight.toFixed(2) }} {{ weightUnitLabel }}
             }
@@ -39,7 +39,7 @@
           <span>{{ 'sessions.weightLifted' | translate }}: {{ entry.totalWeight.toFixed(2) }} {{ weightUnitLabel }}</span>
         }
         @if (entry.hasTimeSets) {
-          <span>{{ 'sessions.exerciseTimerLabel' | translate }}: {{ entry.totalSeconds }} {{ 'sessions.secondsField' | translate }}</span>
+          <span>{{ 'sessions.exerciseTimerLabel' | translate }}: {{ entry.totalSeconds | duration }}</span>
         }
       </div>
     </mat-card-content>
