@@ -1,5 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 export interface ExerciseTimerDialogData {
@@ -13,20 +13,24 @@ export interface ExerciseTimerDialogData {
   // this component re-deciding the threshold on its own separate clock and
   // risking the two disagreeing (see RestTimerDialogComponent's class
   // comment for the bug that exact shape of duplication caused there).
-  countdown: { startedAt: number; targetSeconds: number; beeped: boolean };
+  // hasTarget is false when the set has no real target seconds - hides the
+  // ring (nothing meaningful to fill toward) and, since tickCountdowns never
+  // flips beeped in that case either, the reward pulse never fires.
+  countdown: { startedAt: number; targetSeconds: number; hasTarget: boolean; beeped: boolean };
 }
 
-// A tap-to-dismiss popup mirroring a running Time-Based set's count-up,
-// opened the instant SessionsComponent.startCountdown starts one - shows
-// the live elapsed count next to the set's own prescribed target, plus a
-// reward pulse (matching RestTimerDialogComponent's own) the moment the
+// A non-modal, non-dismissible popup mirroring a running Time-Based set's
+// count-up, opened the instant SessionsComponent.startCountdown starts one -
+// shows the live elapsed count next to the set's own prescribed target, plus
+// a reward pulse (matching RestTimerDialogComponent's own) the moment the
 // target is reached.
 //
-// Purely a visual layer on top of SessionsComponent's own countdown state:
-// dismissing it (disableClose means tapping the content is the only way)
-// never stops the underlying countdown - that keeps running and ticking in
-// the set's own row exactly as it did before this dialog existed, sound
-// included. SessionsComponent closes this dialog itself once the countdown
+// Purely a visual layer on top of SessionsComponent's own countdown state,
+// with no close() of its own and no backdrop (see the dialog.open() call in
+// SessionsComponent.startCountdown) - unlike RestTimerDialogComponent, this
+// one can't be tapped away early, and the page underneath stays reachable so
+// the set's own stop/done controls in its row can still be used while it's
+// up. SessionsComponent closes this dialog itself once the countdown
 // actually stops (manually, by reaching its cap, or the set being marked
 // done - see SessionsComponent.stopCountdown), so it never lingers open on a
 // set that's no longer running.
@@ -53,10 +57,7 @@ export class ExerciseTimerDialogComponent implements OnInit, OnDestroy {
   // fires exactly once per run rather than every frame it stays true.
   private wasBeeped = false;
 
-  constructor(
-    public readonly dialogRef: MatDialogRef<ExerciseTimerDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public readonly data: ExerciseTimerDialogData
-  ) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public readonly data: ExerciseTimerDialogData) {}
 
   ngOnInit(): void {
     this.frameId = requestAnimationFrame(() => this.update());
@@ -71,10 +72,6 @@ export class ExerciseTimerDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  close(): void {
-    this.dialogRef.close();
-  }
-
   // Runs every frame (see RestTimerDialogComponent's ringDashOffset comment
   // for why a once-a-second value plus a CSS transition previously caused a
   // visible desync there) - recomputes the ring from the same continuous
@@ -85,7 +82,7 @@ export class ExerciseTimerDialogComponent implements OnInit, OnDestroy {
     const elapsedPrecise = (Date.now() - this.data.countdown.startedAt) / 1000;
     this.elapsedSeconds = Math.floor(elapsedPrecise);
     const target = this.data.countdown.targetSeconds;
-    const fraction = target > 0 ? Math.min(1, elapsedPrecise / target) : 1;
+    const fraction = this.data.countdown.hasTarget && target > 0 ? Math.min(1, elapsedPrecise / target) : 1;
     this.ringDashOffset = this.ringCircumference * (1 - fraction);
     if (this.data.countdown.beeped && !this.wasBeeped) {
       this.wasBeeped = true;

@@ -4002,7 +4002,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // finish can stop a run without needing to search for them.
   private countdownStarts = new Map<
     string,
-    { startedAt: number; targetSeconds: number; beeped: boolean; session: TrainingSession; set: ExerciseSet }
+    { startedAt: number; targetSeconds: number; hasTarget: boolean; beeped: boolean; session: TrainingSession; set: ExerciseSet }
   >();
 
   // The popup opened alongside each running countdown above (see
@@ -4028,13 +4028,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   // Counts up from 0, beeping once the set's actual prescribed duration
-  // (targetSeconds) is reached - falls back to whatever's currently in the
-  // field only when the set has no real target, so a freshly reset set
-  // (seconds back at 0, no target set) doesn't beep the instant it starts.
-  // Also opens the same popup a rest timer would (see ExerciseTimerDialog-
-  // Component), passing it this exact state object so its live elapsed/
-  // target/beeped readout can never drift from the one tickCountdowns itself
-  // ticks and beeps from.
+  // (targetSeconds) is reached. hasTarget is false whenever the set itself
+  // has no real target - gates both the beep/gong below (tickCountdowns) and
+  // the popup's ring/pulse (ExerciseTimerDialogComponent), which otherwise
+  // have nothing meaningful to count toward. Opens that same popup, passing
+  // it this exact state object so its live elapsed/target/beeped readout can
+  // never drift from the one tickCountdowns itself ticks and beeps from -
+  // unlike the rest timer's own popup, this one has no backdrop and can't be
+  // tapped away (see ExerciseTimerDialogComponent's class comment), only
+  // ever closed by stopCountdown below once the set itself is actually done.
   startCountdown(session: TrainingSession, set: ExerciseSet): void {
     if (this.countdownStarts.has(set.id)) {
       return;
@@ -4042,6 +4044,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const state = {
       startedAt: Date.now(),
       targetSeconds: set.targetSeconds ?? set.seconds ?? 0,
+      hasTarget: (set.targetSeconds ?? 0) > 0,
       beeped: false,
       session,
       set
@@ -4049,7 +4052,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.countdownStarts.set(set.id, state);
     const dialogRef = this.dialog.open<ExerciseTimerDialogComponent, ExerciseTimerDialogData>(ExerciseTimerDialogComponent, {
       data: { countdown: state },
-      disableClose: true
+      disableClose: true,
+      hasBackdrop: false,
+      backdropClass: 'exercise-timer-backdrop'
     });
     this.exerciseTimerDialogRefs.set(set.id, dialogRef);
     dialogRef.afterClosed().subscribe(() => {
@@ -4090,12 +4095,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   // Runs every second (see timerTickerId) - beeps exactly once per run, the
   // moment its elapsed count reaches its target, and auto-stops a run once
-  // it hits the field's own max (it can't count any higher).
+  // it hits the field's own max (it can't count any higher). Never beeps for
+  // a set with no real target (hasTarget false) - elapsed >= 0 would
+  // otherwise fire the very first tick.
   private tickCountdowns(): void {
     for (const set of Array.from(this.countdownStarts.keys()).map((setId) => this.countdownStarts.get(setId)!.set)) {
       const state = this.countdownStarts.get(set.id)!;
       const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
-      if (!state.beeped && elapsed >= state.targetSeconds) {
+      if (state.hasTarget && !state.beeped && elapsed >= state.targetSeconds) {
         state.beeped = true;
         this.soundService.playGong();
       }

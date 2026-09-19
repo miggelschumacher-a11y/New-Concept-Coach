@@ -290,3 +290,19 @@ html.light-theme body {
     font-size: 0.9rem;
   }
 }
+
+// ExerciseTimerDialogComponent's own popup (opened from SessionsComponent.
+// startCountdown) is meant to be non-modal - the set's own stop/done controls
+// underneath must stay reachable while it's up. hasBackdrop: false on that
+// dialog.open() call already makes Material substitute its normal dark
+// backdrop for a fully transparent one, but that substitute still defaults to
+// pointer-events: auto (so it can itself be tapped to close a dialog that
+// allows outside-click dismissal) - this dialog disables that entirely
+// (disableClose: true), so the invisible backdrop was otherwise just an inert
+// pane silently swallowing every tap meant for the page underneath. Global
+// (not component-scoped) for the same reason as .dropdown-option-info-popup
+// above - a dialog's backdrop is appended to .cdk-overlay-container, outside
+// any component's view encapsulation.
+.exercise-timer-backdrop {
+  pointer-events: none;
+}
