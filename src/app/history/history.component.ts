@@ -28,8 +28,8 @@ interface ExerciseChartPoint {
   date: Date;
   weight: number;
   oneRepMax: number;
-  // The single best (highest-estimated-1RM) working set's own reps/weight -
-  // what the tooltip shows when the session only logged one working set, so
+  // The single best (highest-estimated-1RM) chartable set's own reps/weight -
+  // what the tooltip shows when the session only logged one such set, so
   // a lone set is never mislabeled as an "average" of itself (see
   // exerciseChartTooltip). allReps/averageWeight below are what it shows
   // instead once there's more than one to actually average.
@@ -383,15 +383,33 @@ export class HistoryComponent implements OnInit {
     this.sessions = this.sessions.filter((session) => session.id !== id);
   }
 
-  // Only exercises that have at least one completed working set in some
+  // The completed sets the charts are built from: only those of a type whose
+  // "count warm-up/working/cooldown sets" setting is on for this session
+  // exercise (working sets count unless explicitly turned off, same default as
+  // SessionsComponent.countedSets). All three off leaves nothing, so that
+  // exercise drops out of the charts entirely.
+  private chartSets(sessionExercise: SessionExercise): ExerciseSet[] {
+    return sessionExercise.sets.filter((set) => {
+      if (!set.done) {
+        return false;
+      }
+      if (set.type === 'warmup') {
+        return sessionExercise.countWarmupSets;
+      }
+      if (set.type === 'cooldown') {
+        return sessionExercise.countCooldownSets;
+      }
+      return sessionExercise.countWorkingSets ?? true;
+    });
+  }
+
+  // Only exercises with at least one chartable set (see chartSets) in some
   // finished session show up in the chart picker - every other exercise has
   // nothing to plot.
   get exercisesWithHistory(): Exercise[] {
     const idsWithHistory = new Set(
       this.finishedSessions.flatMap((session) =>
-        session.exercises
-          .filter((sessionExercise) => sessionExercise.sets.some((set) => set.type === 'working' && set.done))
-          .map((sessionExercise) => sessionExercise.exerciseId)
+        session.exercises.filter((sessionExercise) => this.chartSets(sessionExercise).length > 0).map((sessionExercise) => sessionExercise.exerciseId)
       )
     );
     return this.exercises.filter((exercise) => idsWithHistory.has(exercise.id));
@@ -402,32 +420,33 @@ export class HistoryComponent implements OnInit {
   }
 
   // Oldest first, one point per finished session that logged this exercise -
-  // the point is the working set with the best estimated 1RM that session,
-  // so the weight/1RM lines both trace the same set rather than mismatched
-  // "heaviest weight this session" vs "best estimate this session" sets.
+  // the point is the chartable set (see chartSets) with the best estimated 1RM
+  // that session, so the weight/1RM lines both trace the same set rather than
+  // mismatched "heaviest weight this session" vs "best estimate this session"
+  // sets.
   private chartPoints(exerciseId: string): ExerciseChartPoint[] {
     const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
     return [...this.finishedSessions]
       .reverse()
       .map((session): ExerciseChartPoint | null => {
         const sessionExercise = session.exercises.find((exercise) => exercise.exerciseId === exerciseId);
-        const doneWorkingSets = sessionExercise?.sets.filter((set) => set.type === 'working' && set.done) ?? [];
-        if (doneWorkingSets.length === 0) {
+        const countedDoneSets = sessionExercise ? this.chartSets(sessionExercise) : [];
+        if (countedDoneSets.length === 0) {
           return null;
         }
-        const bestSet = doneWorkingSets.reduce((best, set) =>
+        const bestSet = countedDoneSets.reduce((best, set) =>
           estimateOneRepMax(liftedWeight(exercise ?? {}, set.weight, set.doubleWeightCounting), set.reps) >
           estimateOneRepMax(liftedWeight(exercise ?? {}, best.weight, best.doubleWeightCounting), best.reps)
             ? set
             : best
         );
-        const liftedWeights = doneWorkingSets.map((set) => liftedWeight(exercise ?? {}, set.weight, set.doubleWeightCounting));
+        const liftedWeights = countedDoneSets.map((set) => liftedWeight(exercise ?? {}, set.weight, set.doubleWeightCounting));
         return {
           date: new Date(session.date),
           weight: liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting),
           oneRepMax: estimateOneRepMax(liftedWeight(exercise ?? {}, bestSet.weight, bestSet.doubleWeightCounting), bestSet.reps),
           reps: bestSet.reps,
-          allReps: doneWorkingSets.map((set) => set.reps),
+          allReps: countedDoneSets.map((set) => set.reps),
           averageWeight: liftedWeights.reduce((sum, weight) => sum + weight, 0) / liftedWeights.length
         };
       })
