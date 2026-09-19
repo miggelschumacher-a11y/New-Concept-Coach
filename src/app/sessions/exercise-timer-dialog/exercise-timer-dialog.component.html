@@ -19,4 +19,12 @@
       {{ 'sessions.exerciseTimerLabel' | translate }}: {{ elapsedSeconds | duration }}
     }
   </p>
+  <div class="exercise-timer-actions">
+    <button mat-stroked-button type="button" (click)="data.stopCountdown()">
+      {{ 'sessions.stopCountdownButton' | translate }}
+    </button>
+    <button mat-flat-button color="primary" type="button" (click)="data.finishSet()">
+      {{ 'sessions.completeSet' | translate }}
+    </button>
+  </div>
 </div>

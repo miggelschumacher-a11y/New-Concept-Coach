@@ -1,4 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { DurationPipe } from '../../core/pipes/duration.pipe';
@@ -18,6 +19,11 @@ export interface ExerciseTimerDialogData {
   // ring (nothing meaningful to fill toward) and, since tickCountdowns never
   // flips beeped in that case either, the reward pulse never fires.
   countdown: { startedAt: number; targetSeconds: number; hasTarget: boolean; beeped: boolean };
+  // What the popup's two buttons do - both end the run, and SessionsComponent's
+  // stopCountdown (which either of them ends up in) closes this dialog, so
+  // neither button closes it itself.
+  finishSet: () => void;
+  stopCountdown: () => void;
 }
 
 // A non-modal, non-dismissible popup mirroring a running Time-Based set's
@@ -26,19 +32,19 @@ export interface ExerciseTimerDialogData {
 // a reward pulse (matching RestTimerDialogComponent's own) the moment the
 // target is reached.
 //
-// Purely a visual layer on top of SessionsComponent's own countdown state,
-// with no close() of its own and no backdrop (see the dialog.open() call in
-// SessionsComponent.startCountdown) - unlike RestTimerDialogComponent, this
-// one can't be tapped away early, and the page underneath stays reachable so
-// the set's own stop/done controls in its row can still be used while it's
-// up. SessionsComponent closes this dialog itself once the countdown
-// actually stops (manually, by reaching its cap, or the set being marked
-// done - see SessionsComponent.stopCountdown), so it never lingers open on a
+// A visual layer on top of SessionsComponent's own countdown state, with no
+// backdrop (see the dialog.open() call in SessionsComponent.startCountdown) -
+// unlike RestTimerDialogComponent, this one can't be tapped away early, and
+// the page underneath stays reachable so the set's own stop/done controls in
+// its row can still be used while it's up. Its own two buttons do the same
+// as those controls: finish the set, or just stop the countdown. Either way
+// SessionsComponent closes this dialog itself once the countdown actually
+// stops (see SessionsComponent.stopCountdown), so it never lingers open on a
 // set that's no longer running.
 @Component({
   selector: 'app-exercise-timer-dialog',
   standalone: true,
-  imports: [MatDialogModule, TranslatePipe, DurationPipe],
+  imports: [MatDialogModule, MatButtonModule, TranslatePipe, DurationPipe],
   templateUrl: './exercise-timer-dialog.component.html',
   styleUrl: './exercise-timer-dialog.component.scss'
 })

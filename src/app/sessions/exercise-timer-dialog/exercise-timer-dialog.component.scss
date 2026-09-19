@@ -63,6 +63,14 @@
   font-weight: 500;
 }
 
+.exercise-timer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
 .exercise-timer-hint {
   margin: 0;
   color: var(--app-muted-text);

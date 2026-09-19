@@ -4059,7 +4059,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // unlike the rest timer's own popup, this one has no backdrop and can't be
   // tapped away (see ExerciseTimerDialogComponent's class comment), only
   // ever closed by stopCountdown below once the set itself is actually done.
-  startCountdown(session: TrainingSession, set: ExerciseSet): void {
+  startCountdown(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet): void {
     if (this.countdownStarts.has(set.id)) {
       return;
     }
@@ -4079,7 +4079,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
       state.beepTimeoutId = setTimeout(() => this.beepCountdown(state), state.targetSeconds * 1000);
     }
     const dialogRef = this.dialog.open<ExerciseTimerDialogComponent, ExerciseTimerDialogData>(ExerciseTimerDialogComponent, {
-      data: { countdown: state },
+      data: {
+        countdown: state,
+        finishSet: () => void this.completeSet(session, sessionExercise, set),
+        stopCountdown: () => this.stopCountdown(set)
+      },
       disableClose: true,
       hasBackdrop: false,
       backdropClass: 'exercise-timer-backdrop'
