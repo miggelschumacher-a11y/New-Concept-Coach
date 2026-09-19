@@ -49,6 +49,9 @@ import { effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideCheck
 import { formatRepRangeText, parseRepRangeText, sanitizeRepRangeInput } from '../core/utils/rep-range-text.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
+import { DurationMaskDirective } from '../core/directives/duration-mask.directive';
+import { DurationPipe } from '../core/pipes/duration.pipe';
+import { parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
 import { DEFAULT_5X5_PLAN_ID } from '../core/data/default-5x5-plan';
 import { DEFAULT_531_PLAN_ID } from '../core/data/default-531-plan';
 import { DEFAULT_GZCLP_PLAN_ID } from '../core/data/default-gzclp-plan';
@@ -120,7 +123,9 @@ type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTar
     NgTemplateOutlet,
     DragDropModule,
     TranslatePipe,
-    SelectOnFocusDirective
+    SelectOnFocusDirective,
+    DurationMaskDirective,
+    DurationPipe
   ],
   templateUrl: './training-plans.component.html',
   styleUrl: './training-plans.component.scss'
@@ -1021,8 +1026,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     exerciseId: string,
     value: string
   ): Promise<void> {
-    const parsed = parseInt(value, 10);
-    const firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    const firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { firstRestAfterSet });
   }
 
@@ -1036,8 +1041,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     exerciseId: string,
     value: string
   ): Promise<void> {
-    const parsed = parseInt(value, 10);
-    const secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    const secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { secondRestAfterSet });
   }
 
@@ -1051,8 +1056,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     exerciseId: string,
     value: string
   ): Promise<void> {
-    const parsed = parseInt(value, 10);
-    const restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    const restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.updateCustomSessionExerciseConfig(plan, sessionId, exerciseId, { restBetweenExercises });
   }
 
@@ -1319,8 +1324,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return target.weight.toFixed(2);
   }
 
-  // Time-Based sets prescribe a held duration instead of reps/weight - a
-  // plain 5-digit integer (0-99999), initialized to 0.
+  // Time-Based sets prescribe a held duration instead of reps/weight - an
+  // h:mm:ss input (see duration-mask.util), initialized to 0.
   async updateCustomSessionSetSeconds(
     plan: TrainingPlan,
     sessionId: string,
@@ -1329,8 +1334,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     index: number,
     value: string
   ): Promise<void> {
-    const parsed = parseInt(value, 10);
-    const seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : 0;
+    const parsed = parseDuration(value);
+    const seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : 0;
     await this.updateCustomSessionSetTargets(plan, sessionId, exerciseId, field, (targets) =>
       targets.map((target, i) => (i === index ? { ...target, seconds } : target))
     );
@@ -1609,15 +1614,6 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 5-digit integer, no decimals - 0 to 99999 seconds.
-  onSecondsFieldInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d{0,5}/)?.[0] ?? '';
-    if (sanitized !== input.value) {
-      input.value = sanitized;
-    }
-  }
-
   onWorkingSetTargetWeightInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
@@ -1763,8 +1759,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async updatePlanExerciseFirstRestAfterSet(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
-    const firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    const firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.updateConfig(plan, exerciseId, { firstRestAfterSet });
   }
 
@@ -1773,8 +1769,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async updatePlanExerciseSecondRestAfterSet(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
-    const secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    const secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.updateConfig(plan, exerciseId, { secondRestAfterSet });
   }
 
@@ -1783,8 +1779,8 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   }
 
   async updatePlanExerciseRestBetweenExercises(plan: TrainingPlan, exerciseId: string, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
-    const restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    const restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.updateConfig(plan, exerciseId, { restBetweenExercises });
   }
 

@@ -90,6 +90,9 @@ import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/bod
 import { calculateWarmupSets } from '../core/utils/warmup-ramp.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
+import { DurationMaskDirective } from '../core/directives/duration-mask.directive';
+import { DurationPipe } from '../core/pipes/duration.pipe';
+import { parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
 import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 
 function toDateTimeLocalValue(date: Date): string {
@@ -107,9 +110,10 @@ const DEFAULT_TARGET_REPS = 10;
 // either way, only the unit differs (% vs kg/lb), matching Training Plans'
 // own DELOAD_UNUSUALLY_HIGH_THRESHOLD.
 const DELOAD_UNUSUALLY_HIGH_THRESHOLD = 20;
-// A Time-Based set's seconds field is a 5-digit integer - its own max, and
-// also where a running count-up automatically stops (see tickCountdowns).
-const MAX_COUNTDOWN_SECONDS = 99999;
+// A Time-Based set's seconds field is an h:mm:ss input (99:59:59 at most) -
+// its own max, and also where a running count-up automatically stops (see
+// tickCountdowns).
+const MAX_COUNTDOWN_SECONDS = MAX_DURATION_SECONDS;
 
 export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
   { value: 'warmup', labelKey: 'sessions.warmupSets', icon: 'whatshot' },
@@ -138,7 +142,9 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
     DatePipe,
     NgTemplateOutlet,
     TranslatePipe,
-    SelectOnFocusDirective
+    SelectOnFocusDirective,
+    DurationMaskDirective,
+    DurationPipe
   ],
   providers: [DatePipe],
   templateUrl: './sessions.component.html',
@@ -3856,8 +3862,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async updateSessionFirstRestAfterSet(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
-    sessionExercise.firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    sessionExercise.firstRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.persist(session);
   }
 
@@ -3866,8 +3872,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async updateSessionSecondRestAfterSet(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
-    sessionExercise.secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    sessionExercise.secondRestAfterSet = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.persist(session);
   }
 
@@ -3876,8 +3882,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   async updateSessionRestBetweenExercises(session: TrainingSession, sessionExercise: SessionExercise, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
-    sessionExercise.restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : undefined;
+    const parsed = parseDuration(value);
+    sessionExercise.restBetweenExercises = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : undefined;
     await this.persist(session);
   }
 
@@ -4183,17 +4189,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 5-digit integer, no decimals - 0 to 99999 seconds.
-  onSecondsFieldInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d{0,5}/)?.[0] ?? '';
-    if (sanitized !== input.value) {
-      input.value = sanitized;
-    }
-  }
-
   async updateSetSeconds(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
+    const parsed = parseDuration(value);
     set.seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_COUNTDOWN_SECONDS) : 0;
     await this.persist(session);
   }
@@ -4780,15 +4777,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.targetSecondsHint(set) ?? '';
   }
 
-  // Same 5-digit sanitization as onSecondsFieldInput.
-  onTargetSecondsFieldInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d{0,5}/)?.[0] ?? '';
-    if (sanitized !== input.value) {
-      input.value = sanitized;
-    }
-  }
-
   // Applies to every not-yet-done set of the SAME group (same type and same
   // referenceExerciseId, or lack thereof - a warm-up/cooldown set for a
   // Time-Based reference exercise is its own group, distinct from the
@@ -4799,7 +4787,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // just confirming the set.
   async updateTargetSeconds(session: TrainingSession, sessionExercise: SessionExercise, set: ExerciseSet, value: string): Promise<void> {
     const trimmed = value.trim();
-    const parsed = trimmed === '' ? undefined : parseInt(trimmed, 10);
+    const parsed = trimmed === '' ? undefined : parseDuration(trimmed);
     const targetSeconds = parsed !== undefined && Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_COUNTDOWN_SECONDS) : undefined;
 
     for (const candidate of sessionExercise.sets) {

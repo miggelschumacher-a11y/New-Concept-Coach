@@ -709,11 +709,11 @@
                             matInput
                             type="text"
                             inputmode="numeric"
-                            [placeholder]="defaultFirstRestAfterSet.toString()"
-                            [value]="sessionFirstRestAfterSetDisplay(sessionExercise)"
+                            [placeholder]="defaultFirstRestAfterSet | duration"
+                            [value]="sessionFirstRestAfterSetDisplay(sessionExercise) | duration"
                             name="sessionFirstRestAfterSet-{{ sessionExercise.exerciseId }}"
                             selectOnFocus
-                            (input)="onSecondsFieldInput($event)"
+                            durationMask
                             (change)="updateSessionFirstRestAfterSet(session, sessionExercise, $any($event.target).value)"
                           />
                         </mat-form-field>
@@ -728,11 +728,11 @@
                             matInput
                             type="text"
                             inputmode="numeric"
-                            [placeholder]="defaultSecondRestAfterSet.toString()"
-                            [value]="sessionSecondRestAfterSetDisplay(sessionExercise)"
+                            [placeholder]="defaultSecondRestAfterSet | duration"
+                            [value]="sessionSecondRestAfterSetDisplay(sessionExercise) | duration"
                             name="sessionSecondRestAfterSet-{{ sessionExercise.exerciseId }}"
                             selectOnFocus
-                            (input)="onSecondsFieldInput($event)"
+                            durationMask
                             (change)="updateSessionSecondRestAfterSet(session, sessionExercise, $any($event.target).value)"
                           />
                         </mat-form-field>
@@ -743,11 +743,11 @@
                             matInput
                             type="text"
                             inputmode="numeric"
-                            [placeholder]="defaultRestBetweenExercises.toString()"
-                            [value]="sessionRestBetweenExercisesDisplay(sessionExercise)"
+                            [placeholder]="defaultRestBetweenExercises | duration"
+                            [value]="sessionRestBetweenExercisesDisplay(sessionExercise) | duration"
                             name="sessionRestBetweenExercises-{{ sessionExercise.exerciseId }}"
                             selectOnFocus
-                            (input)="onSecondsFieldInput($event)"
+                            durationMask
                             (change)="updateSessionRestBetweenExercises(session, sessionExercise, $any($event.target).value)"
                           />
                         </mat-form-field>
@@ -1092,7 +1092,7 @@
                                 <mat-label>
                                   {{ 'sessions.reps' | translate }}
                                   @if (targetRepsHint(set); as targetHint) {
-                                    &nbsp;({{ targetHint }})
+                                    &nbsp;({{ targetHint | duration }})
                                   }
                                 </mat-label>
                                 <input
@@ -1157,41 +1157,41 @@
                                     matInput
                                     type="text"
                                     inputmode="numeric"
-                                    [value]="targetSecondsInputValue(set)"
+                                    [value]="targetSecondsInputValue(set) | duration"
                                     name="targetSeconds-{{ set.id }}"
                                     [readonly]="set.done"
                                     selectOnFocus
-                                    (input)="onTargetSecondsFieldInput($event)"
+                                    durationMask
                                     (change)="updateTargetSeconds(session, sessionExercise, set, $any($event.target).value)"
                                   />
                                 </mat-form-field>
                               }
                               <mat-form-field
                                 appearance="outline"
-                                class="set-field"
+                                class="set-field set-field-seconds"
                                 [class.set-field-reps-target]="targetSecondsHint(set)"
                                 [class.countdown-running]="isCountdownRunning(set)"
                               >
                                 <mat-label>
                                   @if (isCountdownRunning(set)) {
-                                    {{ set.seconds ?? 0 }}
+                                    {{ (set.seconds ?? 0) | duration }}
                                   } @else {
                                     {{ 'sessions.secondsField' | translate }}
                                   }
                                   @if (targetSecondsHint(set); as targetHint) {
-                                    &nbsp;({{ targetHint }})
+                                    &nbsp;({{ targetHint | duration }})
                                   }
                                 </mat-label>
                                 <input
                                   matInput
                                   type="text"
                                   inputmode="numeric"
-                                  [value]="isCountdownRunning(set) ? countdownElapsed(set) : (set.seconds ?? 0)"
+                                  [value]="(isCountdownRunning(set) ? countdownElapsed(set) : (set.seconds ?? 0)) | duration"
                                   name="seconds-{{ set.id }}"
                                   [readonly]="set.done"
                                   [disabled]="isCountdownRunning(set)"
                                   selectOnFocus
-                                  (input)="onSecondsFieldInput($event)"
+                                  durationMask
                                   (change)="updateSetSeconds(session, sessionExercise, set, $any($event.target).value)"
                                 />
                               </mat-form-field>

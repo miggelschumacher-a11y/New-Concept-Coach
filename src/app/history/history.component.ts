@@ -24,6 +24,9 @@ import { isSetCounted } from '../core/utils/exercise-history.util';
 import { TranslationService } from '../core/services/translation.service';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
+import { DurationMaskDirective } from '../core/directives/duration-mask.directive';
+import { DurationPipe } from '../core/pipes/duration.pipe';
+import { parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
 import { SET_TYPES } from '../sessions/sessions.component';
 
 interface ExerciseChartPoint {
@@ -90,7 +93,9 @@ interface ChartTooltip {
     DatePipe,
     NgTemplateOutlet,
     TranslatePipe,
-    SelectOnFocusDirective
+    SelectOnFocusDirective,
+    DurationMaskDirective,
+    DurationPipe
   ],
   providers: [DatePipe],
   templateUrl: './history.component.html',
@@ -357,18 +362,9 @@ export class HistoryComponent implements OnInit {
     return String(set.seconds ?? 0);
   }
 
-  // Same 5-digit sanitization as SessionsComponent.onSecondsFieldInput.
-  onHistorySecondsFieldInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitized = input.value.match(/^\d{0,5}/)?.[0] ?? '';
-    if (sanitized !== input.value) {
-      input.value = sanitized;
-    }
-  }
-
   async updateHistorySetSeconds(session: TrainingSession, set: ExerciseSet, value: string): Promise<void> {
-    const parsed = parseInt(value, 10);
-    set.seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : 0;
+    const parsed = parseDuration(value);
+    set.seconds = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : 0;
     await this.sessionsService.update(session);
   }
 

@@ -391,9 +391,9 @@
               type="text"
               inputmode="numeric"
               class="rest-input"
-              [value]="firstRestAfterSet"
+              [value]="firstRestAfterSet | duration"
               selectOnFocus
-              (input)="onRestFieldInput($event)"
+              durationMask
               (change)="onFirstRestAfterSetChange($any($event.target).value)"
             />
           </mat-form-field>
@@ -405,9 +405,9 @@
               type="text"
               inputmode="numeric"
               class="rest-input"
-              [value]="secondRestAfterSet"
+              [value]="secondRestAfterSet | duration"
               selectOnFocus
-              (input)="onRestFieldInput($event)"
+              durationMask
               (change)="onSecondRestAfterSetChange($any($event.target).value)"
             />
           </mat-form-field>
@@ -419,9 +419,9 @@
               type="text"
               inputmode="numeric"
               class="rest-input"
-              [value]="restBetweenExercises"
+              [value]="restBetweenExercises | duration"
               selectOnFocus
-              (input)="onRestFieldInput($event)"
+              durationMask
               (change)="onRestBetweenExercisesChange($any($event.target).value)"
             />
           </mat-form-field>

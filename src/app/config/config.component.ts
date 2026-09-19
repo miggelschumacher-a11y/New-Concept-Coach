@@ -38,6 +38,9 @@ import { TRAINING_ZONES, TrainingZone } from '../core/data/training-zones';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
+import { DurationMaskDirective } from '../core/directives/duration-mask.directive';
+import { DurationPipe } from '../core/pipes/duration.pipe';
+import { parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
 import { PurchasesService } from '../core/services/purchases.service';
 
 const BODY_WEIGHT_MAX = 300;
@@ -68,7 +71,9 @@ interface FileSystemFileHandleLike {
     DatePipe,
     DecimalPipe,
     TranslatePipe,
-    SelectOnFocusDirective
+    SelectOnFocusDirective,
+    DurationMaskDirective,
+    DurationPipe
   ],
   templateUrl: './config.component.html',
   styleUrl: './config.component.scss'
@@ -499,20 +504,12 @@ export class ConfigComponent implements OnInit, OnDestroy {
     await this.settingsService.updateSettings({ waveProgressionRepsDecrement: this.waveProgressionRepsDecrement });
   }
 
-  // Integer-Feld convention for the "Pausen" accordion: digits only, up to
-  // 5 of them (0-99999) - unlike clampReps above, an invalid/empty value
-  // falls back to 0 rather than 1, per this field's own spec.
-  onRestFieldInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const sanitized = input.value.replace(/\D/g, '').slice(0, 5);
-    if (sanitized !== input.value) {
-      input.value = sanitized;
-    }
-  }
-
+  // The "Pausen" accordion's fields are h:mm:ss inputs (durationMask) - unlike
+  // clampReps above, an invalid/empty value falls back to 0 rather than 1,
+  // per this field's own spec.
   private clampRestValue(value: string): number {
-    const parsed = parseInt(value, 10);
-    return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), 99999) : 0;
+    const parsed = parseDuration(value);
+    return Number.isFinite(parsed) ? Math.min(Math.max(parsed, 0), MAX_DURATION_SECONDS) : 0;
   }
 
   async onFirstRestAfterSetChange(value: string): Promise<void> {

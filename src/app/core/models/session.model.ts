@@ -41,7 +41,7 @@ export interface ExerciseSet {
   // was generated.
   percentage?: number;
   // Only meaningful for a Time-Based exercise's set - a held/timed duration
-  // in seconds (0-99999) instead of reps/weight.
+  // in seconds (0-359999, i.e. up to 99:59:59) instead of reps/weight.
   seconds?: number;
   // The prescribed hold duration this set was generated with, if any -
   // Time-Based counterpart to targetReps above, entered via the exercise's

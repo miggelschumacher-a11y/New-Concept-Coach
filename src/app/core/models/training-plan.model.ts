@@ -91,7 +91,7 @@ export interface WorkingSetTarget {
   targetReps: string;
   weight: number;
   // Only meaningful when the owning session/exercise is TIME_BASED - a
-  // held/timed duration in seconds (0-99999) instead of reps/weight.
+  // held/timed duration in seconds (0-359999, i.e. up to 99:59:59) instead of reps/weight.
   seconds?: number;
   // Set only for a warmup/cooldown target added via the reference-exercise
   // "Add set" button, same idea as ExerciseSet.referenceExerciseId - the id

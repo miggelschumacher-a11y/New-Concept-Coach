@@ -535,6 +535,17 @@ mat-expansion-panel mat-checkbox {
   width: 5.75rem;
 }
 
+// A Time-Based set's seconds field holds an h:mm:ss value (up to 8 characters, e.g. 10:10:10), wider
+// than the plain integer the 3.5rem default was sized for - and wider still
+// once its floating label also carries the target, e.g. "Sek. (1:01:08)".
+.set-fields .set-field.set-field-seconds {
+  width: 5.75rem;
+}
+
+.set-fields .set-field.set-field-seconds.set-field-reps-target {
+  width: 7rem;
+}
+
 .set-fields .set-field-target-reps-input {
   flex: 0 0 5.5rem;
   width: 5.5rem;

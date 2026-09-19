@@ -353,6 +353,12 @@ mat-card {
   width: 9rem;
 }
 
+// A Time-Based target's seconds field holds an h:mm:ss value - up to 8
+// characters (10:10:10), which clips in the 5rem default.
+.percentage-seconds-field {
+  width: 6.5rem;
+}
+
 // Wider than a plain percentage-input-field - its floating label carries the
 // computed weight preview (e.g. "77.50 KG"), which doesn't fit the 5rem
 // default without clipping.
