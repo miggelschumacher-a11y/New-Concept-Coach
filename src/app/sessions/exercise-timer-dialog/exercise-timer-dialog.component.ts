@@ -1,6 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
+import { DurationPipe } from '../../core/pipes/duration.pipe';
 
 export interface ExerciseTimerDialogData {
   // The exact same live object SessionsComponent.startCountdown creates and
@@ -37,7 +38,7 @@ export interface ExerciseTimerDialogData {
 @Component({
   selector: 'app-exercise-timer-dialog',
   standalone: true,
-  imports: [MatDialogModule, TranslatePipe],
+  imports: [MatDialogModule, TranslatePipe, DurationPipe],
   templateUrl: './exercise-timer-dialog.component.html',
   styleUrl: './exercise-timer-dialog.component.scss'
 })

@@ -20,7 +20,7 @@
   }
   <p class="rest-timer-elapsed" [class.rest-timer-pulse]="pulsing">
     {{ (hasSecondThreshold ? (isSecondPhase ? 'config.secondRestAfterSetLabel' : 'config.firstRestAfterSetLabel') : 'sessions.restTimerLabel') | translate }}:
-    {{ elapsedSeconds }} / {{ activeThresholdSeconds }} {{ 'sessions.secondsField' | translate }}
+    {{ elapsedSeconds | duration }} / {{ activeThresholdSeconds | duration }}
   </p>
   <p class="rest-timer-hint">{{ 'sessions.restTimerDismissHint' | translate }}</p>
 </div>

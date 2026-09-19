@@ -1,6 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
+import { DurationPipe } from '../../core/pipes/duration.pipe';
 import { SoundService } from '../../core/services/sound.service';
 import { RestNotificationService } from '../../core/services/rest-notification.service';
 
@@ -50,7 +51,7 @@ export interface RestTimerDialogData {
 @Component({
   selector: 'app-rest-timer-dialog',
   standalone: true,
-  imports: [MatDialogModule, TranslatePipe],
+  imports: [MatDialogModule, TranslatePipe, DurationPipe],
   templateUrl: './rest-timer-dialog.component.html',
   styleUrl: './rest-timer-dialog.component.scss'
 })

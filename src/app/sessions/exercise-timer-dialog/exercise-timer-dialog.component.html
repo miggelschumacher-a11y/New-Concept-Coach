@@ -14,9 +14,9 @@
   }
   <p class="exercise-timer-elapsed" [class.exercise-timer-pulse]="pulsing">
     @if (data.countdown.hasTarget) {
-      {{ 'sessions.exerciseTimerLabel' | translate }}: {{ elapsedSeconds }} / {{ data.countdown.targetSeconds }} {{ 'sessions.secondsField' | translate }}
+      {{ 'sessions.exerciseTimerLabel' | translate }}: {{ elapsedSeconds | duration }} / {{ data.countdown.targetSeconds | duration }}
     } @else {
-      {{ 'sessions.exerciseTimerLabel' | translate }}: {{ elapsedSeconds }} {{ 'sessions.secondsField' | translate }}
+      {{ 'sessions.exerciseTimerLabel' | translate }}: {{ elapsedSeconds | duration }}
     }
   </p>
 </div>
