@@ -114,6 +114,17 @@ a, a:visited {
   color: #e63312;
 }
 
+// The info buttons in the exercise accordion headers (opening that exercise's
+// history) are always white. Light mode's white panels would swallow a white
+// icon, so there it sits on a disc in the brand accent.
+.header-exercise-info-action a.mat-mdc-icon-button {
+  color: #fff;
+}
+html.light-theme .header-exercise-info-action a.mat-mdc-icon-button mat-icon {
+  background-color: #e63312;
+  border-radius: 50%;
+}
+
 html, body { height: 100%; }
 body {
   margin: 0;
