@@ -712,7 +712,6 @@
                             [placeholder]="defaultFirstRestAfterSet | duration"
                             [value]="sessionFirstRestAfterSetDisplay(sessionExercise) | duration"
                             name="sessionFirstRestAfterSet-{{ sessionExercise.exerciseId }}"
-                            selectOnFocus
                             durationMask
                             (change)="updateSessionFirstRestAfterSet(session, sessionExercise, $any($event.target).value)"
                           />
@@ -731,7 +730,6 @@
                             [placeholder]="defaultSecondRestAfterSet | duration"
                             [value]="sessionSecondRestAfterSetDisplay(sessionExercise) | duration"
                             name="sessionSecondRestAfterSet-{{ sessionExercise.exerciseId }}"
-                            selectOnFocus
                             durationMask
                             (change)="updateSessionSecondRestAfterSet(session, sessionExercise, $any($event.target).value)"
                           />
@@ -746,7 +744,6 @@
                             [placeholder]="defaultRestBetweenExercises | duration"
                             [value]="sessionRestBetweenExercisesDisplay(sessionExercise) | duration"
                             name="sessionRestBetweenExercises-{{ sessionExercise.exerciseId }}"
-                            selectOnFocus
                             durationMask
                             (change)="updateSessionRestBetweenExercises(session, sessionExercise, $any($event.target).value)"
                           />
@@ -1160,7 +1157,6 @@
                                     [value]="targetSecondsInputValue(set) | duration"
                                     name="targetSeconds-{{ set.id }}"
                                     [readonly]="set.done"
-                                    selectOnFocus
                                     durationMask
                                     (change)="updateTargetSeconds(session, sessionExercise, set, $any($event.target).value)"
                                   />
@@ -1186,7 +1182,6 @@
                                   name="seconds-{{ set.id }}"
                                   [readonly]="set.done"
                                   [disabled]="isCountdownRunning(set)"
-                                  selectOnFocus
                                   durationMask
                                   (change)="updateSetSeconds(session, sessionExercise, set, $any($event.target).value)"
                                 />

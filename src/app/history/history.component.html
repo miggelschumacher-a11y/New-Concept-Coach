@@ -142,7 +142,6 @@
                                 inputmode="numeric"
                                 [value]="historySetSecondsDisplay(set) | duration"
                                 [matTooltip]="'sessions.achievedSecondsTooltip' | translate"
-                                selectOnFocus
                                 durationMask
                                 (change)="updateHistorySetSeconds(session, set, $any($event.target).value)"
                               />

@@ -14,7 +14,7 @@ describe('duration mask', () => {
     expect(formatDuration(MAX_DURATION_SECONDS + 1000)).toBe('99:59:59');
   });
 
-  it('fills the mask from the right as digits are typed', () => {
+  it('fills the mask from the right for pasted digits', () => {
     expect(maskDurationInput('1')).toBe('0:00:01');
     expect(maskDurationInput('10')).toBe('0:00:10');
     expect(maskDurationInput('108')).toBe('0:01:08');
@@ -28,7 +28,7 @@ describe('duration mask', () => {
     expect(maskDurationInput('ab')).toBe('');
   });
 
-  it('shifts digits back right when one is deleted', () => {
+  it('shifts digits back right when one is dropped', () => {
     expect(maskDurationInput('1:01:0')).toBe('0:10:10');
   });
 

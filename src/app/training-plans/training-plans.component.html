@@ -791,7 +791,6 @@
                                           [placeholder]="defaultFirstRestAfterSet | duration"
                                           [value]="customSessionFirstRestAfterSetDisplay(sessionExercise) | duration"
                                           name="customSessionFirstRestAfterSet-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
-                                          selectOnFocus
                                           durationMask
                                           (change)="updateCustomSessionExerciseFirstRestAfterSet(plan, session.id, sessionExercise.exerciseId, $any($event.target).value)"
                                         />
@@ -810,7 +809,6 @@
                                           [placeholder]="defaultSecondRestAfterSet | duration"
                                           [value]="customSessionSecondRestAfterSetDisplay(sessionExercise) | duration"
                                           name="customSessionSecondRestAfterSet-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
-                                          selectOnFocus
                                           durationMask
                                           (change)="updateCustomSessionExerciseSecondRestAfterSet(plan, session.id, sessionExercise.exerciseId, $any($event.target).value)"
                                         />
@@ -825,7 +823,6 @@
                                           [placeholder]="defaultRestBetweenExercises | duration"
                                           [value]="customSessionRestBetweenExercisesDisplay(sessionExercise) | duration"
                                           name="customSessionRestBetweenExercises-{{ plan.id }}-{{ session.id }}-{{ sessionExercise.exerciseId }}"
-                                          selectOnFocus
                                           durationMask
                                           (change)="updateCustomSessionExerciseRestBetweenExercises(plan, session.id, sessionExercise.exerciseId, $any($event.target).value)"
                                         />
@@ -894,7 +891,6 @@
                                         inputmode="numeric"
                                         class="plan-sets-input"
                                         [value]="(target.seconds ?? 0) | duration"
-                                        selectOnFocus
                                         durationMask
                                         (change)="updateCustomSessionSetSeconds(plan, session.id, sessionExercise.exerciseId, field, targetIndex, $any($event.target).value)"
                                       />
@@ -1288,7 +1284,6 @@
                                 [placeholder]="defaultFirstRestAfterSet | duration"
                                 [value]="firstRestAfterSetDisplay(plan, exerciseId) | duration"
                                 name="firstRestAfterSet-{{ plan.id }}-{{ exerciseId }}"
-                                selectOnFocus
                                 durationMask
                                 (change)="updatePlanExerciseFirstRestAfterSet(plan, exerciseId, $any($event.target).value)"
                               />
@@ -1307,7 +1302,6 @@
                                 [placeholder]="defaultSecondRestAfterSet | duration"
                                 [value]="secondRestAfterSetDisplay(plan, exerciseId) | duration"
                                 name="secondRestAfterSet-{{ plan.id }}-{{ exerciseId }}"
-                                selectOnFocus
                                 durationMask
                                 (change)="updatePlanExerciseSecondRestAfterSet(plan, exerciseId, $any($event.target).value)"
                               />
@@ -1322,7 +1316,6 @@
                                 [placeholder]="defaultRestBetweenExercises | duration"
                                 [value]="restBetweenExercisesDisplay(plan, exerciseId) | duration"
                                 name="restBetweenExercises-{{ plan.id }}-{{ exerciseId }}"
-                                selectOnFocus
                                 durationMask
                                 (change)="updatePlanExerciseRestBetweenExercises(plan, exerciseId, $any($event.target).value)"
                               />

@@ -13,10 +13,12 @@ interface DurationParts {
   seconds: number;
 }
 
-// The mask fills from the right, like a pocket calculator: typing 1, 0, 1, 0,
-// 8 yields 1:01:08, and a colon typed along the way is simply ignored. Digits
-// beyond six (hh mm ss) are dropped, and minutes/seconds above 59 are clamped
-// to 59. Returns null when the text holds no digit at all (an empty field).
+// Free text (a paste, or input the browser applied itself) fills from the
+// right, like a pocket calculator: the digits 1, 0, 1, 0, 8 yield 1:01:08, and
+// colons among them are simply ignored. Digits beyond six (hh mm ss) are
+// dropped, and minutes/seconds above 59 are clamped to 59. Returns null when
+// the text holds no digit at all (an empty field). Typing into an input goes
+// through DurationMaskDirective's per-segment editing instead.
 function durationParts(text: string): DurationParts | null {
   const digits = text.replace(/\D/g, '');
   if (digits === '') {
@@ -34,7 +36,7 @@ function formatParts(parts: DurationParts): string {
   return `${parts.hours}:${String(parts.minutes).padStart(2, '0')}:${String(parts.seconds).padStart(2, '0')}`;
 }
 
-// What an input shows while (and after) the user types into it - '' for an
+// The well-formed text for pasted or otherwise unstructured input - '' for an
 // empty field, so an optional field (a rest override, a target) can still be
 // left blank.
 export function maskDurationInput(text: string): string {
