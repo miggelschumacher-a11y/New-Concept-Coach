@@ -7,13 +7,37 @@ import { Injectable } from '@angular/core';
 // browsers).
 @Injectable({ providedIn: 'root' })
 export class SoundService {
+  private gong?: HTMLAudioElement;
+
+  // Starts loading the gong ahead of time - a timer that must gong at an
+  // exact moment (see SessionsComponent.startCountdown) calls this when it
+  // starts, so the sound file isn't still being fetched when that moment
+  // arrives.
+  preloadGong(): void {
+    try {
+      this.gongElement();
+    } catch {
+      // Audio playback isn't available - nothing to warm up.
+    }
+  }
+
   playGong(): void {
     try {
-      void new Audio('/sounds/Gong.mp3').play().catch(() => {
+      const gong = this.gongElement();
+      gong.currentTime = 0;
+      void gong.play().catch(() => {
         // Audio playback isn't available - fail silently rather than block the caller.
       });
     } catch {
       // Audio playback isn't available - fail silently rather than block the caller.
     }
+  }
+
+  private gongElement(): HTMLAudioElement {
+    if (!this.gong) {
+      this.gong = new Audio('/sounds/Gong.mp3');
+      this.gong.preload = 'auto';
+    }
+    return this.gong;
   }
 }

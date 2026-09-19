@@ -331,6 +331,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.doneAttemptTimeoutId) {
       clearTimeout(this.doneAttemptTimeoutId);
     }
+    for (const state of this.countdownStarts.values()) {
+      clearTimeout(state.beepTimeoutId);
+    }
     document.removeEventListener('click', this.handleDocumentClick, true);
     // Navigating to another nav-bar entry destroys this component - pause
     // every still-running session's own timer rather than leaving it ticking
@@ -4003,14 +4006,25 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // session's own elapsed timer (see timerElapsedMs/timerStartedAt).
   // targetSeconds is the field's own value at the moment it was started (its
   // "goal"), read back for the field's floating label instead of ticking
-  // there. beeped guards the sound so it plays exactly once, from
-  // tickCountdowns below - the same timerTickerId interval that already
-  // forces a redraw every second rather than a dedicated per-set interval.
+  // there. beeped guards the sound so it plays exactly once (see
+  // beepCountdown): from beepTimeoutId, a timer set for exactly the moment
+  // the target is reached so the gong lands with the popup's ring closing,
+  // with tickCountdowns below - the timerTickerId interval that already
+  // forces a redraw every second - only as a fallback, since that interval
+  // isn't aligned to this run's own start and would beep up to a second late.
   // Keeps its own session/set references so tickCountdowns and a session
   // finish can stop a run without needing to search for them.
   private countdownStarts = new Map<
     string,
-    { startedAt: number; targetSeconds: number; hasTarget: boolean; beeped: boolean; session: TrainingSession; set: ExerciseSet }
+    {
+      startedAt: number;
+      targetSeconds: number;
+      hasTarget: boolean;
+      beeped: boolean;
+      beepTimeoutId?: ReturnType<typeof setTimeout>;
+      session: TrainingSession;
+      set: ExerciseSet;
+    }
   >();
 
   // The popup opened alongside each running countdown above (see
@@ -4049,7 +4063,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.countdownStarts.has(set.id)) {
       return;
     }
-    const state = {
+    const state: { startedAt: number; targetSeconds: number; hasTarget: boolean; beeped: boolean; beepTimeoutId?: ReturnType<typeof setTimeout>; session: TrainingSession; set: ExerciseSet } = {
       startedAt: Date.now(),
       targetSeconds: set.targetSeconds ?? set.seconds ?? 0,
       hasTarget: (set.targetSeconds ?? 0) > 0,
@@ -4058,6 +4072,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
       set
     };
     this.countdownStarts.set(set.id, state);
+    if (state.hasTarget) {
+      // Warms the gong up now so playing it at the target isn't held up by
+      // loading the sound file at that moment.
+      this.soundService.preloadGong();
+      state.beepTimeoutId = setTimeout(() => this.beepCountdown(state), state.targetSeconds * 1000);
+    }
     const dialogRef = this.dialog.open<ExerciseTimerDialogComponent, ExerciseTimerDialogData>(ExerciseTimerDialogComponent, {
       data: { countdown: state },
       disableClose: true,
@@ -4083,7 +4103,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     set.seconds = this.countdownElapsed(set);
-    this.countdownStarts.delete(set.id);
+    this.discardCountdown(set.id);
     this.exerciseTimerDialogRefs.get(set.id)?.close();
     this.exerciseTimerDialogRefs.delete(set.id);
     void this.persist(state.session);
@@ -4101,6 +4121,24 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Plays the gong and flips beeped (which the popup's pulse keys off) exactly
+  // once per run, whichever of the exact-time timeout or the tick fallback
+  // gets there first.
+  private beepCountdown(state: { beeped: boolean }): void {
+    if (state.beeped) {
+      return;
+    }
+    state.beeped = true;
+    this.soundService.playGong();
+  }
+
+  // Drops a run's state along with its pending beep timeout, so a stopped or
+  // reset set can't still gong at its old target.
+  private discardCountdown(setId: string): void {
+    clearTimeout(this.countdownStarts.get(setId)?.beepTimeoutId);
+    this.countdownStarts.delete(setId);
+  }
+
   // Runs every second (see timerTickerId) - beeps exactly once per run, the
   // moment its elapsed count reaches its target, and auto-stops a run once
   // it hits the field's own max (it can't count any higher). Never beeps for
@@ -4110,9 +4148,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     for (const set of Array.from(this.countdownStarts.keys()).map((setId) => this.countdownStarts.get(setId)!.set)) {
       const state = this.countdownStarts.get(set.id)!;
       const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
-      if (state.hasTarget && !state.beeped && elapsed >= state.targetSeconds) {
-        state.beeped = true;
-        this.soundService.playGong();
+      if (state.hasTarget && elapsed >= state.targetSeconds) {
+        this.beepCountdown(state);
       }
       if (elapsed >= MAX_COUNTDOWN_SECONDS) {
         this.stopCountdown(set);
@@ -4666,7 +4703,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // showing whatever duration was last held instead of starting fresh.
     set.seconds = 0;
     this.fieldBuffers.delete(set.id);
-    this.countdownStarts.delete(set.id);
+    this.discardCountdown(set.id);
     void this.persist(session);
   }
 
