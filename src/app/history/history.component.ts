@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
@@ -75,6 +76,7 @@ interface ChartTooltip {
   selector: 'app-history',
   standalone: true,
   imports: [
+    RouterLink,
     MatCardModule,
     MatExpansionModule,
     MatIconModule,
