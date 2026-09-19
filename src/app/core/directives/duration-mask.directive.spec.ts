@@ -85,15 +85,16 @@ describe('DurationMaskDirective', () => {
     expect(selection()).toEqual([5, 7]);
     type('9');
     expect(input.value).toBe('0:07:09');
-    expect(selection()).toEqual([5, 7]);
+    expect(selection()).toEqual([0, 1]);
   });
 
   it('keeps minutes and seconds within 59', () => {
     activate('0:00:00');
     tap();
-    type('59');
+    type('5959');
+    expect(input.value).toBe('0:59:59');
     type('99');
-    expect(input.value).toBe('0:59:09');
+    expect(input.value).toBe('99:59:59');
   });
 
   it('moves on with a colon or space typed', () => {
@@ -101,6 +102,23 @@ describe('DurationMaskDirective', () => {
     type('2:5 ');
     expect(input.value).toBe('2:05:00');
     expect(selection()).toEqual([5, 7]);
+  });
+
+  it('jumps from the seconds back to the hours on a completed segment, a space or a colon', () => {
+    activate('0:00:00');
+    tap();
+    tap();
+    type('12');
+    expect(input.value).toBe('0:00:12');
+    expect(selection()).toEqual([0, 1]);
+    tap();
+    tap();
+    type(' ');
+    expect(selection()).toEqual([0, 1]);
+    tap();
+    tap();
+    type(':');
+    expect(selection()).toEqual([0, 1]);
   });
 
   it('never lets a key remove or move a colon', () => {

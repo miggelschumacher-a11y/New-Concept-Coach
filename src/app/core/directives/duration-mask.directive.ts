@@ -11,7 +11,8 @@ type Segment = 0 | 1 | 2;
 // - Typing digits replaces the selected segment. A second digit completes it
 //   and moves on to the next segment; minutes/seconds whose first digit
 //   couldn't take a second one (6-9) complete right away. A colon or space
-//   moves on too. Minutes and seconds never exceed 59, hours never 99.
+//   moves on too. From the seconds it goes back round to the hours. Minutes
+//   and seconds never exceed 59, hours never 99.
 // - The colons are fixed - no key can delete or move them.
 // - Backspace empties the selected segment (or its last typed digit); once
 //   every segment is zero it clears the whole field, which is how an optional
@@ -200,7 +201,7 @@ export class DurationMaskDirective {
   }
 
   private moveToNextSegment(): void {
-    this.selectSegment(Math.min(2, this.segment + 1) as Segment);
+    this.selectSegment(((this.segment + 1) % 3) as Segment);
   }
 
   private segmentMax(segment: Segment): number {
