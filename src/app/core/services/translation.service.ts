@@ -729,7 +729,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.workingSets': 'Arbeitssätze',
     'sessions.cooldownSets': 'Cooldown-Sätze',
     'sessions.countWarmup': 'Aufwärmsatz mitzählen',
-    'sessions.countWorking': 'Arbeitssatz mitzählen',
+    'sessions.countWorking': 'Arbeitssätze mitzählen',
     'sessions.countCooldown': 'Cool-Down-Satz mitzählen',
     'sessions.showWarmupSets': 'Aufwärm-Sätze zeigen',
     'sessions.showCooldownSets': 'Cool-Down-Sätze zeigen',
