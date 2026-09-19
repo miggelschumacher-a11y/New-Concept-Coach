@@ -542,6 +542,17 @@
                                   <mat-icon>delete</mat-icon>
                                 </button>
                               </div>
+                              <div class="header-exercise-info-action">
+                                <a
+                                  mat-icon-button
+                                  [routerLink]="['/exercise-history', sessionExercise.exerciseId]"
+                                  (click)="$event.stopPropagation()"
+                                  [matTooltip]="'exerciseHistory.tooltip' | translate"
+                                  [attr.aria-label]="'exerciseHistory.tooltip' | translate"
+                                >
+                                  <mat-icon>info</mat-icon>
+                                </a>
+                              </div>
                               @if (exercisePanel.expanded) {
                                 <div class="header-exercise-settings-action">
                                   <button
@@ -1070,6 +1081,17 @@
                       >({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }}@if (exerciseOneRepMax(exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
                     >
                   </mat-panel-title>
+                  <div class="header-exercise-info-action">
+                    <a
+                      mat-icon-button
+                      [routerLink]="['/exercise-history', exerciseId]"
+                      (click)="$event.stopPropagation()"
+                      [matTooltip]="'exerciseHistory.tooltip' | translate"
+                      [attr.aria-label]="'exerciseHistory.tooltip' | translate"
+                    >
+                      <mat-icon>info</mat-icon>
+                    </a>
+                  </div>
                 </mat-expansion-panel-header>
 
                 @if (!plan.isDefault) {

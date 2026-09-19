@@ -473,6 +473,17 @@
                       </button>
                     }
                   </div>
+                  <div class="header-exercise-info-action">
+                    <a
+                      mat-icon-button
+                      [routerLink]="['/exercise-history', sessionExercise.exerciseId]"
+                      (click)="$event.stopPropagation()"
+                      [matTooltip]="'exerciseHistory.tooltip' | translate"
+                      [attr.aria-label]="'exerciseHistory.tooltip' | translate"
+                    >
+                      <mat-icon>info</mat-icon>
+                    </a>
+                  </div>
                   @if (exercisePanelExpanded(session, sessionExercise)) {
                     <div class="header-exercise-settings-action">
                       <button

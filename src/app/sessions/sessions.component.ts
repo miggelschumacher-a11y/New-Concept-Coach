@@ -15,6 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { RouterLink } from '@angular/router';
 import {
   PlanStartingWeightsDialogComponent,
   PlanStartingWeightRow
@@ -120,6 +121,7 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
   selector: 'app-sessions',
   standalone: true,
   imports: [
+    RouterLink,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,

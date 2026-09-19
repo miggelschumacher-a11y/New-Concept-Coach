@@ -53,6 +53,10 @@ mat-expansion-panel-header .mat-content {
   flex: 0 0 auto;
 }
 
+.header-exercise-info-action {
+  flex: 0 0 auto;
+}
+
 // Deliberately NOT order:-1, unlike header-delete-action above - mat-panel-
 // title always projects first in a mat-expansion-panel-header regardless of
 // source order, and exercise-drag-handle has no order override, so it

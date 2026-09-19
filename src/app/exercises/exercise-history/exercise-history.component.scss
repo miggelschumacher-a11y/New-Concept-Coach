@@ -1,0 +1,53 @@
+.exercise-history-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.exercise-history-entry {
+  margin-top: 1rem;
+}
+
+.exercise-history-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+}
+
+.exercise-history-session-name {
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+
+.exercise-history-date {
+  color: var(--app-muted-text);
+  font-size: 0.9rem;
+}
+
+.exercise-history-sets-count {
+  margin-top: 0.5rem;
+  color: var(--app-muted-text);
+  font-size: 0.9rem;
+}
+
+.exercise-history-sets {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.exercise-history-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(var(--app-fg-rgb), 0.12);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}

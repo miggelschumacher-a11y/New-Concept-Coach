@@ -1,0 +1,47 @@
+<div class="exercise-history-header">
+  <button
+    mat-icon-button
+    type="button"
+    (click)="back()"
+    [matTooltip]="'exerciseHistory.back' | translate"
+    [attr.aria-label]="'exerciseHistory.back' | translate"
+  >
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <h2><mat-icon class="label-icon">info</mat-icon>{{ 'exerciseHistory.title' | translate }}: {{ exerciseName }}</h2>
+</div>
+
+@if (loaded && entries.length === 0) {
+  <p>{{ 'exerciseHistory.empty' | translate }}</p>
+}
+
+@for (entry of entries; track entry.sessionId) {
+  <mat-card class="exercise-history-entry">
+    <mat-card-content>
+      <div class="exercise-history-entry-head">
+        <span class="exercise-history-session-name">{{ entry.sessionName }}</span>
+        <span class="exercise-history-date">{{ entry.date | date: dateFormat }}</span>
+      </div>
+      <div class="exercise-history-sets-count">{{ entry.sets.length }} {{ 'sessions.setsWord' | translate }}</div>
+      <ol class="exercise-history-sets">
+        @for (set of entry.sets; track $index) {
+          <li>
+            @if (set.timeBased) {
+              {{ set.seconds }} {{ 'sessions.secondsField' | translate }}
+            } @else {
+              {{ set.reps }} × {{ set.weight.toFixed(2) }} {{ weightUnitLabel }}
+            }
+          </li>
+        }
+      </ol>
+      <div class="exercise-history-totals">
+        @if (entry.hasWeightSets) {
+          <span>{{ 'sessions.weightLifted' | translate }}: {{ entry.totalWeight.toFixed(2) }} {{ weightUnitLabel }}</span>
+        }
+        @if (entry.hasTimeSets) {
+          <span>{{ 'sessions.exerciseTimerLabel' | translate }}: {{ entry.totalSeconds }} {{ 'sessions.secondsField' | translate }}</span>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+}

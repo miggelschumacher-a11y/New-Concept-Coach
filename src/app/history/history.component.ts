@@ -19,6 +19,7 @@ import { Exercise } from '../core/models/exercise.model';
 import { BodyWeightEntry } from '../core/models/body-weight-entry.model';
 import { findBodyWeightForDate } from '../core/utils/body-weight-lookup.util';
 import { estimateOneRepMax, liftedWeight } from '../core/utils/one-rep-max.util';
+import { isSetCounted } from '../core/utils/exercise-history.util';
 import { TranslationService } from '../core/services/translation.service';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
@@ -385,22 +386,10 @@ export class HistoryComponent implements OnInit {
 
   // The completed sets the charts are built from: only those of a type whose
   // "count warm-up/working/cooldown sets" setting is on for this session
-  // exercise (working sets count unless explicitly turned off, same default as
-  // SessionsComponent.countedSets). All three off leaves nothing, so that
+  // exercise (see isSetCounted). All three off leaves nothing, so that
   // exercise drops out of the charts entirely.
   private chartSets(sessionExercise: SessionExercise): ExerciseSet[] {
-    return sessionExercise.sets.filter((set) => {
-      if (!set.done) {
-        return false;
-      }
-      if (set.type === 'warmup') {
-        return sessionExercise.countWarmupSets;
-      }
-      if (set.type === 'cooldown') {
-        return sessionExercise.countCooldownSets;
-      }
-      return sessionExercise.countWorkingSets ?? true;
-    });
+    return sessionExercise.sets.filter((set) => set.done && isSetCounted(sessionExercise, set));
   }
 
   // Only exercises with at least one chartable set (see chartSets) in some

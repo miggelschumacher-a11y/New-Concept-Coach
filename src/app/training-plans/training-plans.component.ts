@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -102,6 +103,7 @@ type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTar
   selector: 'app-training-plans',
   standalone: true,
   imports: [
+    RouterLink,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -23,6 +24,7 @@ const CUSTOM_ONE_REP_MAX_MAX = 1000;
   selector: 'app-exercises',
   standalone: true,
   imports: [
+    RouterLink,
     FormsModule,
     MatFormFieldModule,
     MatInputModule,

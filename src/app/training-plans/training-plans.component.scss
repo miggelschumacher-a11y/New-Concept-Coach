@@ -53,6 +53,10 @@ mat-card {
   flex: 0 0 auto;
 }
 
+.header-exercise-info-action {
+  flex: 0 0 auto;
+}
+
 // Deliberately NOT order:-1, unlike header-delete-action above - this one
 // needs to land just before the drag handle, which sits AFTER the panel
 // title (title always projects first, see header-delete-action's comment;
