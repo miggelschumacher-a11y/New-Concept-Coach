@@ -5,16 +5,23 @@
   min-width: 260px;
 }
 
-.set-equipment-weight-field,
 .set-equipment-select-field {
   width: 100%;
 }
 
+// - weight + in one row; the row's top margin is the gap the floated label
+// needs above the outline, right against the dialog's own top edge for the
+// content's first field - without it the label gets visually clipped there.
+.set-equipment-weight-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.25rem 0 1rem;
+}
+
 .set-equipment-weight-field {
-  // The floated label sits above the outline, right against the dialog's
-  // own top edge for the content's first field - without this gap it gets
-  // visually clipped there.
-  margin-top: 1.25rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .set-equipment-weight-input {

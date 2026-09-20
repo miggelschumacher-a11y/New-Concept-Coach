@@ -94,6 +94,7 @@ import { DurationMaskDirective } from '../core/directives/duration-mask.directiv
 import { DurationPipe } from '../core/pipes/duration.pipe';
 import { formatDuration, parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
 import { isSetCounted } from '../core/utils/exercise-history.util';
+import { exerciseWeightStep } from '../core/utils/weight-step.util';
 import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 
 function toDateTimeLocalValue(date: Date): string {
@@ -734,6 +735,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const exercise = this.exercises.find((candidate) => candidate.id === sessionExercise.exerciseId);
     const data: SetEquipmentDialogData = {
       weightText: this.fieldBuffer(set, session, sessionExercise).weight,
+      weightStep: exerciseWeightStep(exercise),
       weightUnitLabel: this.weightUnitLabel,
       equipmentId: set.equipmentId,
       doubleWeightCounting: set.doubleWeightCounting ?? exercise?.doubleWeightCounting ?? false,
@@ -810,7 +812,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   // The copy popup opens with a value stepper (- field +) for the reps and
   // weight fields: the value it copies to the other sets can be counted up or
-  // down by one (a rep, a weight unit) or typed, before choosing which sets.
+  // down by one rep / the exercise's weight step, or typed, before choosing which sets.
   get setFieldCopyStepperKind(): 'reps' | 'weight' | null {
     const kind = this.setFieldCopyContext?.kind;
     return kind === 'reps' || kind === 'weight' ? kind : null;
@@ -853,7 +855,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     const current = parseFloat(ctx.sourceValue.replace(',', '.'));
-    const next = Math.min(9999, Math.max(0, (Number.isFinite(current) ? current : 0) + delta));
+    // A rep at a time; a weight by the exercise's own weight step.
+    const step =
+      ctx.kind === 'weight'
+        ? exerciseWeightStep(this.exercises.find((candidate) => candidate.id === ctx.sessionExercise.exerciseId))
+        : 1;
+    const next = Math.min(9999, Math.max(0, (Number.isFinite(current) ? current : 0) + delta * step));
     ctx.sourceValue = ctx.kind === 'weight' ? (Math.round(next * 100) / 100).toFixed(2) : String(Math.trunc(next));
   }
 

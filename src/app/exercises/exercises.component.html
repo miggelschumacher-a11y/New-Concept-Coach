@@ -160,6 +160,20 @@
               <mat-option [value]="'UPPER_BODY'">{{ 'exercises.upperBody' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
+          <mat-form-field appearance="outline" class="weight-step-field" [matTooltip]="'exercises.weightStepTooltip' | translate" matTooltipClass="readable-tooltip">
+            <mat-label>{{ 'exercises.weightStepLabel' | translate }}</mat-label>
+            <input
+              matInput
+              type="text"
+              inputmode="decimal"
+              class="right-aligned-input"
+              [value]="weightStepDisplay(exercise)"
+              name="weightStep-{{ exercise.id }}"
+              selectOnFocus
+              (input)="onWeightStepFieldInput($event)"
+              (change)="updateWeightStep(exercise, $any($event.target))"
+            />
+          </mat-form-field>
           <mat-form-field appearance="outline" class="muscle-group-field">
             <mat-label>{{ 'exercises.muscleGroup' | translate }}</mat-label>
             <mat-select

@@ -3,6 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -16,6 +17,9 @@ import { calculatePlateLoading, PlateLoadingResult } from '../../core/utils/plat
 
 export interface SetEquipmentDialogData {
   weightText: string;
+  // What the minus/plus buttons next to the weight field count by (the
+  // exercise's weight step, see exerciseWeightStep).
+  weightStep: number;
   weightUnitLabel: string;
   equipmentId?: string;
   doubleWeightCounting: boolean;
@@ -85,6 +89,7 @@ export interface BarbellDiagram {
     DecimalPipe,
     MatDialogModule,
     MatButtonModule,
+    MatIconModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -178,6 +183,12 @@ export class SetEquipmentDialogComponent {
       input.value = sanitized;
     }
     this.weightText = input.value;
+  }
+
+  stepWeight(direction: 1 | -1): void {
+    const current = parseFloat(this.weightText.replace(',', '.'));
+    const next = Math.min(9999, Math.max(0, (Number.isFinite(current) ? current : 0) + direction * this.data.weightStep));
+    this.weightText = (Math.round(next * 100) / 100).toFixed(2);
   }
 
   onWeightFieldBlur(): void {

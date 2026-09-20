@@ -13,6 +13,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { Exercise, ExerciseEquipmentType, MuscleGroup, WarmupRampStep } from '../core/models/exercise.model';
+import { exerciseWeightStep } from '../core/utils/weight-step.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
 import { oneRepMaxOverrideChecked, oneRepMaxOverrideDisabled } from '../core/utils/one-rep-max.util';
@@ -232,6 +233,29 @@ export class ExercisesComponent implements OnInit {
 
   onSourceImageError(exercise: Exercise): void {
     this.failedImageExerciseIds.add(exercise.id);
+  }
+
+  // The weight step field always shows the step in effect - the exercise's
+  // own once entered, else the body-region default (2.5 upper / 5 lower).
+  weightStepDisplay(exercise: Exercise): string {
+    return exerciseWeightStep(exercise).toFixed(2);
+  }
+
+  // Same 4-integer/2-decimal mask as the other weight fields.
+  onWeightStepFieldInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const sanitized = input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '';
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+  }
+
+  // Emptying the field or entering 0 goes back to the body-region default.
+  async updateWeightStep(exercise: Exercise, input: HTMLInputElement): Promise<void> {
+    const parsed = parseFloat(input.value.replace(',', '.'));
+    exercise.weightStep = Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 9999) : undefined;
+    input.value = this.weightStepDisplay(exercise);
+    await this.exercisesService.update(exercise);
   }
 
   customOneRepMaxDisplay(exercise: Exercise): string {

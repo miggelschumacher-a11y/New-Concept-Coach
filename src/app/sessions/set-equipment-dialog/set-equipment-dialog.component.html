@@ -1,19 +1,39 @@
 <h2 mat-dialog-title>{{ 'sessions.setEquipmentDialogTitle' | translate }}</h2>
 <div mat-dialog-content>
-  <mat-form-field appearance="outline" class="set-equipment-weight-field">
-    <mat-label>{{ data.weightUnitLabel }}</mat-label>
-    <input
-      matInput
-      type="text"
-      inputmode="decimal"
-      class="set-equipment-weight-input"
-      [(ngModel)]="weightText"
-      name="setEquipmentWeight"
-      selectOnFocus
-      (input)="onWeightFieldInput($event)"
-      (blur)="onWeightFieldBlur()"
-    />
-  </mat-form-field>
+  <div class="set-equipment-weight-row">
+    <button
+      mat-icon-button
+      type="button"
+      (click)="stepWeight(-1)"
+      [matTooltip]="'sessions.decreaseValue' | translate"
+      [attr.aria-label]="'sessions.decreaseValue' | translate"
+    >
+      <mat-icon>remove</mat-icon>
+    </button>
+    <mat-form-field appearance="outline" class="set-equipment-weight-field" subscriptSizing="dynamic">
+      <mat-label>{{ data.weightUnitLabel }}</mat-label>
+      <input
+        matInput
+        type="text"
+        inputmode="decimal"
+        class="set-equipment-weight-input"
+        [(ngModel)]="weightText"
+        name="setEquipmentWeight"
+        selectOnFocus
+        (input)="onWeightFieldInput($event)"
+        (blur)="onWeightFieldBlur()"
+      />
+    </mat-form-field>
+    <button
+      mat-icon-button
+      type="button"
+      (click)="stepWeight(1)"
+      [matTooltip]="'sessions.increaseValue' | translate"
+      [attr.aria-label]="'sessions.increaseValue' | translate"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
 
   <mat-form-field appearance="outline" class="set-equipment-select-field">
     <mat-label>

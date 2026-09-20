@@ -51,6 +51,12 @@ export interface Exercise {
   // DUMBBELL/MACHINE. Optional/falsy for every other exercise, same
   // convention as the other classification fields being unset by default.
   doubleWeightCounting?: boolean;
+  // How much the minus/plus buttons in a set's weight fields (the equipment
+  // dialog and the copy popup) count down or up per press. Unset for an
+  // exercise the user hasn't touched it on - it then follows the body region
+  // (see exerciseWeightStep in core/utils/weight-step.util) instead of being
+  // stored, so a changed body region is followed and no migration is needed.
+  weightStep?: number;
   // Optional percentage-of-working-weight warm-up ramp - see
   // WarmupRampStep above. Unset/empty for every exercise by default, same
   // convention as every other optional classification field here.
