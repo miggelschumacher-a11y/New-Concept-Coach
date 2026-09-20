@@ -183,13 +183,15 @@
                             [class.set-complete-fail]="set.done && !setMetTarget(set)"
                             >{{ set.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon
                           >
-                          <mat-checkbox
-                            class="history-set-exclude"
-                            [checked]="!!set.excludeFromStats"
-                            (change)="updateExcludeFromStats(session, set, $event.checked)"
-                          >
-                            {{ 'history.excludeFromStats' | translate }}
-                          </mat-checkbox>
+                          @if (set.done) {
+                            <mat-checkbox
+                              class="history-set-exclude"
+                              [checked]="!!set.excludeFromStats"
+                              (change)="updateExcludeFromStats(session, set, $event.checked)"
+                            >
+                              {{ 'history.excludeFromStats' | translate }}
+                            </mat-checkbox>
+                          }
                         </div>
                       }
                     </div>
