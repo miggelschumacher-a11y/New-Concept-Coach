@@ -56,7 +56,9 @@ mat-card {
 }
 
 .weight-step-field {
-  width: 90px;
+  // Doesn't shrink with the crowded classification row, or its label gets cut off.
+  flex: 0 0 auto;
+  width: 100px;
   font-size: 0.85rem;
 
   ::ng-deep .mat-mdc-text-field-wrapper {
