@@ -2780,10 +2780,85 @@ export class SessionsComponent implements OnInit, OnDestroy {
         newSession.progressionSnapshots = relevantSnapshots;
       }
     }
+    const plan = this.trainingPlans.find((candidate) => candidate.id === sourceSession.trainingPlanId);
+    if (plan) {
+      await this.carrySetsFromFinishedSession(newSession, sourceSession, plan);
+    }
     this.applyRememberedEquipment(newSession);
     this.unsavedSessionIds.add(newSession.id);
     this.sessions = [...this.sessions, newSession];
     await this.persist(newSession);
+  }
+
+  // Whether the plan itself dictates an exercise's sets and target reps anew
+  // for every session, so the just-finished session's can't be copied over
+  // them: Tier Line plans (the tier/stage decides the scheme), Percentage-
+  // Based exercises (each week has its own percentages and reps - 5/3/1),
+  // and the Double Progression, Wave Progression and Rep Goal schemes (their
+  // tracked state prescribes the reps, or leaves the set count open).
+  private planPrescribesSets(plan: TrainingPlan, sessionExercise: SessionExercise): boolean {
+    return (
+      plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION ||
+      sessionExercise.exerciseType === 'PERCENTAGE_BASED' ||
+      sessionExercise.incrementScheme === 'DOUBLE_PROGRESSION' ||
+      sessionExercise.incrementScheme === 'WAVE_PROGRESSION' ||
+      sessionExercise.incrementScheme === 'REP_GOAL'
+    );
+  }
+
+  // Gives a session built from its plan for the next round the sets, target
+  // reps and reps of the just-finished session (like buildManualReplenishment
+  // does for a manual one), for every exercise the plan doesn't prescribe
+  // those for itself (see planPrescribesSets). What the plan still decides
+  // stays: each set's weight comes from the plan-built set at the same
+  // position of the same type (so progression, deload and per-set weights
+  // still apply), and a set the plan has no counterpart for falls back to the
+  // finished set's own progressed weight.
+  private async carrySetsFromFinishedSession(newSession: TrainingSession, sourceSession: TrainingSession, plan: TrainingPlan): Promise<void> {
+    for (const newExercise of newSession.exercises) {
+      const source = sourceSession.exercises.find((candidate) => candidate.exerciseId === newExercise.exerciseId);
+      if (!source || source.sets.length === 0 || this.planPrescribesSets(plan, newExercise)) {
+        continue;
+      }
+      const exercise = this.exercises.find((candidate) => candidate.id === newExercise.exerciseId);
+      const usedPerType = new Map<SetType, number>();
+      const sets: ExerciseSet[] = [];
+      for (const set of source.sets) {
+        const planSets = newExercise.sets.filter((candidate) => candidate.type === set.type);
+        const position = usedPerType.get(set.type) ?? 0;
+        usedPerType.set(set.type, position + 1);
+        const planSet = planSets[position] ?? planSets[planSets.length - 1];
+        const carriesAchievedReps = set.done === true && set.reps > 0;
+        sets.push({
+          id: crypto.randomUUID(),
+          reps: carriesAchievedReps
+            ? set.reps
+            : set.targetReps !== undefined
+              ? (set.targetRepsMax ?? set.targetReps)
+              : (planSet?.reps ?? this.defaultReps(newExercise.exerciseId, set.type, source.minReps)),
+          carriedReps: carriesAchievedReps || undefined,
+          weight: planSet ? planSet.weight : await this.replenishedSetWeight(source, set),
+          type: set.type,
+          targetReps: set.targetReps,
+          targetRepsMax: set.targetRepsMax,
+          isAmrap: set.isAmrap,
+          // Same as buildManualReplenishment: the prescribed duration comes
+          // along, the achieved time starts over at 0.
+          seconds: 0,
+          targetSeconds: set.targetSeconds,
+          isTimeBased: set.isTimeBased,
+          doubleWeightCounting: planSet?.doubleWeightCounting ?? exercise?.doubleWeightCounting
+        });
+      }
+      newExercise.sets = sets;
+      // A section that now has sets must not stay hidden.
+      if (sets.some((set) => set.type === 'warmup')) {
+        newExercise.showWarmupSets = true;
+      }
+      if (sets.some((set) => set.type === 'cooldown')) {
+        newExercise.showCooldownSets = true;
+      }
+    }
   }
 
   private async buildPlanReplenishment(sourceSession: TrainingSession): Promise<TrainingSession | null> {
