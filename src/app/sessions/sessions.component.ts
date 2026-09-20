@@ -1979,6 +1979,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               const targetReps = prescribedReps ?? set.targetReps;
               const targetRepsMax = prescribedReps !== undefined ? undefined : set.targetRepsMax;
               const isAmrap = doubleProgressionPrescribedReps !== undefined && set.type === 'working' ? true : set.isAmrap;
+              const carriesAchievedReps = prescribedReps === undefined && set.done === true && set.reps > 0;
               return {
                 id: crypto.randomUUID(),
                 // Carries the just-finished set's own target reps forward
@@ -1988,10 +1989,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 // convention), not from cross-session history, now that
                 // there's a real target to prefill from. Falls back to
                 // history when the set had no target.
-                reps:
-                  targetReps !== undefined
+                //
+                // A set the finished session actually completed instead
+                // starts out with the reps it was completed with (see
+                // ExerciseSet.carriedReps) - except where a progression
+                // scheme prescribes this session's reps itself.
+                reps: carriesAchievedReps
+                  ? set.reps
+                  : targetReps !== undefined
                     ? (targetRepsMax ?? targetReps)
                     : this.defaultReps(sessionExercise.exerciseId, set.type, sessionExercise.minReps),
+                carriedReps: carriesAchievedReps || undefined,
                 weight: await this.replenishedSetWeight(sessionExercise, set),
                 type: set.type,
                 targetReps,
@@ -2002,7 +2010,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
                 // resets the achieved seconds back to 0 rather than carrying
                 // over what was actually held last time.
                 seconds: 0,
-                targetSeconds: set.targetSeconds
+                targetSeconds: set.targetSeconds,
+                isTimeBased: set.isTimeBased
               };
             })
           ),
@@ -4323,7 +4332,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (!buffer) {
       // Prefill with the target reps (the top of the range, if there is
       // one) so hitting the target needs no typing at all - just confirm.
-      const reps = !set.done && set.targetReps !== undefined ? (set.targetRepsMax ?? set.targetReps) : set.reps;
+      const reps = !set.done && set.targetReps !== undefined && !set.carriedReps ? (set.targetRepsMax ?? set.targetReps) : set.reps;
       buffer = { reps: String(reps), weight: this.initialSetWeight(set, session, sessionExercise).toFixed(2) };
       this.fieldBuffers.set(set.id, buffer);
     }

@@ -87,6 +87,11 @@ export interface ExerciseSet {
   isTimeBased?: boolean;
   // Ticked in the history to keep this (finished) set out of the charts.
   excludeFromStats?: boolean;
+  // Set on a set of a session replenished from a just-finished one: its
+  // reps value is what the finished session's matching set actually achieved,
+  // and prefills the reps field even though the set also has target reps
+  // (which otherwise prefill it, see SessionsComponent.fieldBuffer).
+  carriedReps?: boolean;
 }
 
 export interface SessionExercise {
