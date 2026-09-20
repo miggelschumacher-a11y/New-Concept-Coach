@@ -85,6 +85,8 @@ export interface ExerciseSet {
   // the owning exercise's own type, same as every set did before this field
   // existed - see SessionsComponent.isSetTimeBased.
   isTimeBased?: boolean;
+  // Ticked in the history to keep this (finished) set out of the charts.
+  excludeFromStats?: boolean;
 }
 
 export interface SessionExercise {

@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -84,6 +85,7 @@ interface ChartTooltip {
     MatExpansionModule,
     MatIconModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatTooltipModule,
     MatTabsModule,
     MatFormFieldModule,
@@ -358,6 +360,11 @@ export class HistoryComponent implements OnInit {
     await this.sessionsService.update(session);
   }
 
+  async updateExcludeFromStats(session: TrainingSession, set: ExerciseSet, excluded: boolean): Promise<void> {
+    set.excludeFromStats = excluded || undefined;
+    await this.sessionsService.update(session);
+  }
+
   historySetSecondsDisplay(set: ExerciseSet): string {
     return String(set.seconds ?? 0);
   }
@@ -384,10 +391,11 @@ export class HistoryComponent implements OnInit {
 
   // The completed sets the charts are built from: only those of a type whose
   // "count warm-up/working/cooldown sets" setting is on for this session
-  // exercise (see isSetCounted). All three off leaves nothing, so that
-  // exercise drops out of the charts entirely.
+  // exercise (see isSetCounted), minus any set ticked "not in statistics".
+  // All three off leaves nothing, so that exercise drops out of the charts
+  // entirely.
   private chartSets(sessionExercise: SessionExercise): ExerciseSet[] {
-    return sessionExercise.sets.filter((set) => set.done && isSetCounted(sessionExercise, set));
+    return sessionExercise.sets.filter((set) => set.done && !set.excludeFromStats && isSetCounted(sessionExercise, set));
   }
 
   // Only exercises with at least one chartable set (see chartSets) in some
