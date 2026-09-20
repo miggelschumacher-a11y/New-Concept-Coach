@@ -188,6 +188,16 @@ html.light-theme body {
   white-space: pre-line;
 }
 
+// Material's default tooltip is set in ~10px type inside a ~200px box, which
+// is hard to read for a sentence-long explanation - larger type, more line
+// height and padding, and a wider box for tooltips that opt in.
+.readable-tooltip .mdc-tooltip__surface {
+  max-width: 20rem;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
 // The toast completeSet() shows after logging a working set - color alone
 // (via the MDC snackbar's own container-color token) carries whether the
 // set hit its target, without needing a separate icon.

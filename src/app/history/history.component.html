@@ -186,6 +186,8 @@
                           @if (set.done) {
                             <mat-checkbox
                               class="history-set-exclude"
+                              [matTooltip]="'history.excludeFromStatsTooltip' | translate"
+                              matTooltipClass="readable-tooltip"
                               [checked]="!!set.excludeFromStats"
                               (change)="updateExcludeFromStats(session, set, $event.checked)"
                             >
