@@ -245,6 +245,23 @@ mat-expansion-panel-header .mat-content {
   line-height: 1.2;
 }
 
+// The value stepper at the top of the copy popup: - field + in one row.
+.set-field-copy-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.set-field-copy-stepper-field {
+  width: 7rem;
+  font-size: 0.9rem;
+
+  input {
+    text-align: right;
+  }
+}
+
 mat-expansion-panel mat-checkbox {
   display: block;
   margin: 0.75rem 0 0.25rem;

@@ -1289,6 +1289,40 @@
     [style.left.px]="setFieldCopyPopupPosition.left"
     (click)="$event.stopPropagation()"
   >
+    @if (setFieldCopyStepperKind; as stepperKind) {
+      <div class="set-field-copy-stepper">
+        <button
+          mat-icon-button
+          type="button"
+          (click)="stepSetFieldCopyValue(-1)"
+          [matTooltip]="'sessions.decreaseValue' | translate"
+          [attr.aria-label]="'sessions.decreaseValue' | translate"
+        >
+          <mat-icon>remove</mat-icon>
+        </button>
+        <mat-form-field appearance="outline" class="set-field-copy-stepper-field" subscriptSizing="dynamic">
+          <mat-label>{{ stepperKind === 'weight' ? weightUnitLabel : ('sessions.reps' | translate) }}</mat-label>
+          <input
+            matInput
+            type="text"
+            [attr.inputmode]="stepperKind === 'weight' ? 'decimal' : 'numeric'"
+            [value]="setFieldCopyValue"
+            selectOnFocus
+            (input)="onSetFieldCopyValueInput($event)"
+            (change)="onSetFieldCopyValueChange()"
+          />
+        </mat-form-field>
+        <button
+          mat-icon-button
+          type="button"
+          (click)="stepSetFieldCopyValue(1)"
+          [matTooltip]="'sessions.increaseValue' | translate"
+          [attr.aria-label]="'sessions.increaseValue' | translate"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    }
     <button mat-stroked-button type="button" (click)="copySetFieldToUnsetSets()">
       {{ 'trainingPlans.copyToUnsetSets' | translate }}
     </button>

@@ -472,9 +472,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // these are duplicated per session/exercise in a @for loop) and clamping
   // it fully inside the viewport.
   private fitPopupToViewport(dataKey: string, position: { top: number; left: number }): void {
-    setTimeout(() => {
+    // Change detection is coalesced onto the next animation frame, so the
+    // popup may not be in the DOM yet when the first timeout fires - look
+    // again for a few frames before giving up.
+    const fit = (attemptsLeft: number): void => {
       const el = document.querySelector(`[data-popup-key="${dataKey}"]`) as HTMLElement | null;
       if (!el) {
+        if (attemptsLeft > 0) {
+          requestAnimationFrame(() => fit(attemptsLeft - 1));
+        }
         return;
       }
       const margin = 8;
@@ -483,7 +489,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       const maxTop = Math.max(margin, window.innerHeight - rect.height - margin);
       position.left = Math.min(Math.max(margin, position.left), maxLeft);
       position.top = Math.min(Math.max(margin, position.top), maxTop);
-    });
+    };
+    setTimeout(() => fit(5));
   }
 
   private weightInfoOpenKey: string | null = null;
@@ -796,6 +803,55 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.setFieldCopyContext = { session, sessionExercise, kind, sourceValue: triggerEl.value };
     this.setFieldCopyPopupKey = `${session.id}:${sessionExercise.exerciseId}:${kind}`;
     this.fitPopupToViewport('set-field-copy-popup', this.setFieldCopyPopupPosition);
+  }
+
+  // The copy popup opens with a value stepper (- field +) for the reps and
+  // weight fields: the value it copies to the other sets can be counted up or
+  // down by one (a rep, a weight unit) or typed, before choosing which sets.
+  get setFieldCopyStepperKind(): 'reps' | 'weight' | null {
+    const kind = this.setFieldCopyContext?.kind;
+    return kind === 'reps' || kind === 'weight' ? kind : null;
+  }
+
+  get setFieldCopyValue(): string {
+    return this.setFieldCopyContext?.sourceValue ?? '';
+  }
+
+  onSetFieldCopyValueInput(event: Event): void {
+    const ctx = this.setFieldCopyContext;
+    if (!ctx) {
+      return;
+    }
+    const input = event.target as HTMLInputElement;
+    const sanitized =
+      ctx.kind === 'weight' ? (input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '') : input.value.replace(/\D/g, '').slice(0, 4);
+    if (sanitized !== input.value) {
+      input.value = sanitized;
+    }
+    ctx.sourceValue = sanitized;
+  }
+
+  // Leaving the field tidies what was typed the way the set rows' own fields
+  // do: whole reps, a weight with its two decimals.
+  onSetFieldCopyValueChange(): void {
+    const ctx = this.setFieldCopyContext;
+    if (!ctx) {
+      return;
+    }
+    const value = parseFloat(ctx.sourceValue.replace(',', '.'));
+    if (Number.isFinite(value)) {
+      ctx.sourceValue = ctx.kind === 'weight' ? value.toFixed(2) : String(Math.trunc(value));
+    }
+  }
+
+  stepSetFieldCopyValue(delta: 1 | -1): void {
+    const ctx = this.setFieldCopyContext;
+    if (!ctx) {
+      return;
+    }
+    const current = parseFloat(ctx.sourceValue.replace(',', '.'));
+    const next = Math.min(9999, Math.max(0, (Number.isFinite(current) ? current : 0) + delta));
+    ctx.sourceValue = ctx.kind === 'weight' ? (Math.round(next * 100) / 100).toFixed(2) : String(Math.trunc(next));
   }
 
   get setFieldCopyPopupOpen(): boolean {
