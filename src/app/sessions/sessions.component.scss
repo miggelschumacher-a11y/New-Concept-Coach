@@ -161,6 +161,11 @@ mat-expansion-panel-header .mat-content {
   color: rgba(var(--app-fg-rgb), 0.95);
 }
 
+// Red whenever the session's timer isn't running (not started yet, or paused).
+.timer-display.timer-stopped {
+  color: var(--app-timer-stopped);
+}
+
 .finish-confirm-label {
   color: rgba(var(--app-fg-rgb), 0.95);
   font-weight: 500;

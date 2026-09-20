@@ -93,6 +93,7 @@ import { SelectOnFocusDirective } from '../core/directives/select-on-focus.direc
 import { DurationMaskDirective } from '../core/directives/duration-mask.directive';
 import { DurationPipe } from '../core/pipes/duration.pipe';
 import { formatDuration, parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
+import { isSetCounted } from '../core/utils/exercise-history.util';
 import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 
 function toDateTimeLocalValue(date: Date): string {
@@ -114,6 +115,13 @@ const DELOAD_UNUSUALLY_HIGH_THRESHOLD = 20;
 // its own max, and also where a running count-up automatically stops (see
 // tickCountdowns).
 const MAX_COUNTDOWN_SECONDS = MAX_DURATION_SECONDS;
+
+// See SessionsComponent.equipmentOf.
+interface RememberedEquipment {
+  equipmentId?: string;
+  doubleWeightCounting?: boolean;
+  singleSidedLoading?: boolean;
+}
 
 export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
   { value: 'warmup', labelKey: 'sessions.warmupSets', icon: 'whatshot' },
@@ -1541,6 +1549,84 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }, 2500);
   }
 
+  // The equipment setup (piece of equipment plus its double/single-sided
+  // flags, all chosen in the weight field's equipment dialog) an exercise was
+  // last loaded with in a session - read from that session's last working
+  // set that has one, else its last set of any type. Undefined when none of
+  // the exercise's sets have equipment chosen.
+  private equipmentOf(sessionExercise: SessionExercise): RememberedEquipment | undefined {
+    const withEquipment = sessionExercise.sets.filter((set) => set.equipmentId);
+    const source = [...withEquipment].reverse().find((set) => set.type === 'working') ?? withEquipment[withEquipment.length - 1];
+    return source
+      ? { equipmentId: source.equipmentId, doubleWeightCounting: source.doubleWeightCounting, singleSidedLoading: source.singleSidedLoading }
+      : undefined;
+  }
+
+  // What an exercise was most recently loaded with in a finished session
+  // other than the given one (the newest such session that had any equipment
+  // chosen for it) - what a new session or a newly added set of that exercise
+  // starts out with.
+  private rememberedEquipment(exerciseId: string, excludeSessionId: string): RememberedEquipment | undefined {
+    const usedAt = (session: TrainingSession) => new Date(session.startedAt ?? session.date).getTime();
+    const finishedSessions = this.sessions
+      .filter((session) => session.finished && session.id !== excludeSessionId)
+      .sort((a, b) => usedAt(b) - usedAt(a));
+    for (const session of finishedSessions) {
+      const sessionExercise = session.exercises.find((candidate) => candidate.exerciseId === exerciseId);
+      const equipment = sessionExercise && this.equipmentOf(sessionExercise);
+      if (equipment) {
+        return equipment;
+      }
+    }
+    return undefined;
+  }
+
+  private applyEquipment(set: ExerciseSet, equipment: RememberedEquipment): void {
+    set.equipmentId = equipment.equipmentId;
+    set.doubleWeightCounting = equipment.doubleWeightCounting ?? set.doubleWeightCounting;
+    set.singleSidedLoading = equipment.singleSidedLoading;
+  }
+
+  // Fills a freshly built session's sets with the equipment their exercise
+  // was last loaded with (see rememberedEquipment).
+  private applyRememberedEquipment(session: TrainingSession): void {
+    for (const sessionExercise of session.exercises) {
+      const equipment = this.rememberedEquipment(sessionExercise.exerciseId, session.id);
+      if (!equipment) {
+        continue;
+      }
+      for (const set of sessionExercise.sets) {
+        if (!set.equipmentId && !set.done) {
+          this.applyEquipment(set, equipment);
+        }
+      }
+    }
+  }
+
+  // Passes the equipment a just-finished session used on to every other
+  // pending session that has the same exercise, for their sets not done yet -
+  // so what was used last is what the upcoming sessions already show, also
+  // for sessions that were queued up before this one was done.
+  private async carryEquipmentToPendingSessions(finishedSession: TrainingSession): Promise<void> {
+    for (const pending of this.sessions.filter((session) => !session.finished && session.id !== finishedSession.id)) {
+      let changed = false;
+      for (const sessionExercise of pending.exercises) {
+        const source = finishedSession.exercises.find((candidate) => candidate.exerciseId === sessionExercise.exerciseId);
+        const equipment = source && this.equipmentOf(source);
+        if (!equipment) {
+          continue;
+        }
+        for (const set of sessionExercise.sets.filter((candidate) => !candidate.done)) {
+          this.applyEquipment(set, equipment);
+          changed = true;
+        }
+      }
+      if (changed) {
+        await this.persist(pending);
+      }
+    }
+  }
+
   // Sessions already asked "this session isn't running - start it?" since
   // their accordion was last opened - closing the accordion (onExpandedChange)
   // is what makes the question due again.
@@ -1993,6 +2079,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
               ? await this.buildOneExercisePerSessionCycle(plan, baseSequence, startingWeightByExerciseId)
               : [await this.buildSessionFromPlan(plan, null, baseSequence, undefined, undefined, startingWeightByExerciseId)];
     for (const session of newSessions) {
+      this.applyRememberedEquipment(session);
       this.unsavedSessionIds.add(session.id);
     }
     this.sessions = [...this.sessions, ...newSessions];
@@ -2684,6 +2771,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         newSession.progressionSnapshots = relevantSnapshots;
       }
     }
+    this.applyRememberedEquipment(newSession);
     this.unsavedSessionIds.add(newSession.id);
     this.sessions = [...this.sessions, newSession];
     await this.persist(newSession);
@@ -2814,7 +2902,17 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session.timerRunning = false;
     session.timerStartedAt = undefined;
     session.finished = true;
+    // Sets of a type the session doesn't count ("count warm-up/working/
+    // cooldown sets" off) start out ticked "no statistics" in the history.
+    for (const sessionExercise of session.exercises) {
+      for (const set of sessionExercise.sets) {
+        if (set.done && !isSetCounted(sessionExercise, set)) {
+          set.excludeFromStats = true;
+        }
+      }
+    }
     await this.persist(session);
+    await this.carryEquipmentToPendingSessions(session);
     // Captured before any of the record*Progress calls below actually
     // advance each exercise's tracked state, so replenishSession can carry
     // the pre-advance snapshot forward onto whatever session replaces this
@@ -3249,6 +3347,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         // the setting was at the moment the exercise was added.
       };
     });
+    this.applyRememberedEquipment(session);
     await this.persist(session);
   }
 
@@ -3264,6 +3363,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
       weight: target.weight,
       type
     }));
+  }
+
+  // Sets built for an exercise that's already in a session take its
+  // equipment from that exercise's other sets, else from what it was last
+  // loaded with in an earlier session.
+  private applyEquipmentToNewSets(session: TrainingSession, sessionExercise: SessionExercise, sets: ExerciseSet[]): void {
+    const equipment = this.equipmentOf(sessionExercise) ?? this.rememberedEquipment(sessionExercise.exerciseId, session.id);
+    if (equipment) {
+      for (const set of sets) {
+        this.applyEquipment(set, equipment);
+      }
+    }
   }
 
   // Whether this exercise has its own warm-up ramp defined - gates the
@@ -3292,6 +3403,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sessionExercise.sets.find((set) => set.type === 'working')?.weight ?? this.defaultWeight(sessionExercise.exerciseId, 'working');
     const weightUnit = this.settingsService.getSettings().weightUnit;
     const warmupSets = this.buildSetsFromRamp(ramp, workingWeight, weightUnit, 'warmup');
+    this.applyEquipmentToNewSets(session, sessionExercise, warmupSets);
     sessionExercise.sets = [...warmupSets, ...sessionExercise.sets.filter((set) => set.type !== 'warmup')];
     sessionExercise.showWarmupSets = true;
     await this.persist(session);
@@ -3308,6 +3420,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       sessionExercise.sets.find((set) => set.type === 'working')?.weight ?? this.defaultWeight(sessionExercise.exerciseId, 'working');
     const weightUnit = this.settingsService.getSettings().weightUnit;
     const cooldownSets = this.buildSetsFromRamp(ramp, workingWeight, weightUnit, 'cooldown');
+    this.applyEquipmentToNewSets(session, sessionExercise, cooldownSets);
     sessionExercise.sets = [...sessionExercise.sets.filter((set) => set.type !== 'cooldown'), ...cooldownSets];
     sessionExercise.showCooldownSets = true;
     await this.persist(session);
@@ -4006,6 +4119,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
     } else {
       const exercise = this.exercises.find((candidate) => candidate.id === exerciseId);
       newSet.doubleWeightCounting = exercise?.doubleWeightCounting;
+      // Nothing to copy from in this session - starts out with what the
+      // exercise was last loaded with in an earlier one.
+      const remembered = this.rememberedEquipment(exerciseId, session.id);
+      if (remembered) {
+        this.applyEquipment(newSet, remembered);
+      }
     }
     sessionExercise.sets = [...sessionExercise.sets, newSet];
     if (type === 'working') {

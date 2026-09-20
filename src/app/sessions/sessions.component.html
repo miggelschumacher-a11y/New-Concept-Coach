@@ -324,7 +324,7 @@
         </div>
 
         <div class="session-timer">
-          <span class="timer-display">{{ sessionDuration(session) }}</span>
+          <span class="timer-display" [class.timer-stopped]="!session.timerRunning">{{ sessionDuration(session) }}</span>
 
           @if (pendingFinishSessionId === session.id) {
             <div class="confirm-dialog">
