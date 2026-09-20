@@ -80,6 +80,22 @@
 
     <div class="settings-form-break"></div>
 
+    <mat-form-field
+      appearance="outline"
+      class="finished-session-field"
+      [matTooltip]="'config.planConflictReplenishTooltip' | translate"
+      matTooltipClass="readable-tooltip"
+    >
+      <mat-label><mat-icon class="label-icon">rule</mat-icon>{{ 'config.planConflictReplenish' | translate }}</mat-label>
+      <mat-select [(ngModel)]="planConflictReplenishMode" (selectionChange)="onPlanConflictReplenishModeChange()">
+        <mat-option value="plan">{{ 'config.planConflictReplenishPlan' | translate }}</mat-option>
+        <mat-option value="finished">{{ 'config.planConflictReplenishFinished' | translate }}</mat-option>
+        <mat-option value="ask">{{ 'config.planConflictReplenishAsk' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="settings-form-break"></div>
+
     <div class="theme-toggle-group">
       <mat-checkbox [ngModel]="isDarkTheme" (ngModelChange)="onDarkThemeChange($event)">
         {{ 'config.darkTheme' | translate }}

@@ -25,6 +25,10 @@ export type Language =
   | 'ja'
   | 'el';
 export type FinishedSessionReplenishMode = 'always' | 'never' | 'ask';
+// What a session appended from a training plan does where the plan prescribes
+// its own sets/reps (see SessionsComponent.planPrescribesSets): 'plan' keeps
+// the plan's, 'finished' takes the just-finished session's, 'ask' asks.
+export type PlanConflictReplenishMode = 'plan' | 'finished' | 'ask';
 export type Theme = 'dark' | 'light';
 export type AutoAdvanceMode = 'immediate' | 'confirm' | 'off';
 
@@ -34,6 +38,7 @@ export interface AppSettings {
   language: Language;
   dateOfBirth?: string;
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
+  planConflictReplenishMode: PlanConflictReplenishMode;
   theme: Theme;
   // Default Double Progression increment scheme (Config page). Copied into a
   // plan exercise's own config the first time it's switched to
@@ -101,6 +106,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   dateFormat: 'dd.MM.yyyy',
   language: 'en',
   finishedSessionReplenishMode: 'always',
+  planConflictReplenishMode: 'plan',
   theme: 'dark',
   doubleProgressionLowerReps: 8,
   doubleProgressionUpperReps: 10,

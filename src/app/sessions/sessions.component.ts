@@ -2782,7 +2782,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     const plan = this.trainingPlans.find((candidate) => candidate.id === sourceSession.trainingPlanId);
     if (plan) {
-      await this.carrySetsFromFinishedSession(newSession, sourceSession, plan);
+      await this.carrySetsFromFinishedSession(newSession, sourceSession, plan, await this.overridePlanSetConflicts(newSession, sourceSession, plan));
     }
     this.applyRememberedEquipment(newSession);
     this.unsavedSessionIds.add(newSession.id);
@@ -2806,18 +2806,52 @@ export class SessionsComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Whether the finished session's sets are to be copied even over exercises
+  // whose sets the plan prescribes itself (see planPrescribesSets) - by the
+  // Config setting, or, on 'ask', by asking (only when there is such an
+  // exercise to decide about).
+  private async overridePlanSetConflicts(newSession: TrainingSession, sourceSession: TrainingSession, plan: TrainingPlan): Promise<boolean> {
+    const mode = this.settingsService.getSettings().planConflictReplenishMode;
+    if (mode !== 'ask') {
+      return mode === 'finished';
+    }
+    const hasConflict = newSession.exercises.some((newExercise) => {
+      const source = sourceSession.exercises.find((candidate) => candidate.exerciseId === newExercise.exerciseId);
+      return !!source && source.sets.length > 0 && this.planPrescribesSets(plan, newExercise);
+    });
+    if (!hasConflict) {
+      return false;
+    }
+    await this.waitForNoPendingPopup();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        messageKey: 'sessions.planConflictQuestion',
+        confirmLabelKey: 'sessions.planConflictYes',
+        cancelLabelKey: 'sessions.planConflictNo',
+        confirmColor: 'primary'
+      }
+    });
+    return !!(await firstValueFrom(dialogRef.afterClosed()));
+  }
+
   // Gives a session built from its plan for the next round the sets, target
   // reps and reps of the just-finished session (like buildManualReplenishment
   // does for a manual one), for every exercise the plan doesn't prescribe
-  // those for itself (see planPrescribesSets). What the plan still decides
+  // those for itself (see planPrescribesSets) - or for those too, with
+  // overrideConflicts. What the plan still decides
   // stays: each set's weight comes from the plan-built set at the same
   // position of the same type (so progression, deload and per-set weights
   // still apply), and a set the plan has no counterpart for falls back to the
   // finished set's own progressed weight.
-  private async carrySetsFromFinishedSession(newSession: TrainingSession, sourceSession: TrainingSession, plan: TrainingPlan): Promise<void> {
+  private async carrySetsFromFinishedSession(
+    newSession: TrainingSession,
+    sourceSession: TrainingSession,
+    plan: TrainingPlan,
+    overrideConflicts: boolean
+  ): Promise<void> {
     for (const newExercise of newSession.exercises) {
       const source = sourceSession.exercises.find((candidate) => candidate.exerciseId === newExercise.exerciseId);
-      if (!source || source.sets.length === 0 || this.planPrescribesSets(plan, newExercise)) {
+      if (!source || source.sets.length === 0 || (!overrideConflicts && this.planPrescribesSets(plan, newExercise))) {
         continue;
       }
       const exercise = this.exercises.find((candidate) => candidate.id === newExercise.exerciseId);

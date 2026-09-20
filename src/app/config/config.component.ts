@@ -19,6 +19,7 @@ import {
   Language,
   LANGUAGE_DATE_FORMATS,
   FinishedSessionReplenishMode,
+  PlanConflictReplenishMode,
   Theme,
   AutoAdvanceMode
 } from '../core/services/settings.service';
@@ -86,6 +87,7 @@ export class ConfigComponent implements OnInit, OnDestroy {
   language: Language;
   dateOfBirth: string;
   finishedSessionReplenishMode: FinishedSessionReplenishMode;
+  planConflictReplenishMode: PlanConflictReplenishMode;
   theme: Theme;
   // Formatted "4-8"/"6-10+" text - see rep-range-text.util.ts. The
   // underlying settings are still two plain numbers plus an AMRAP flag;
@@ -141,6 +143,7 @@ export class ConfigComponent implements OnInit, OnDestroy {
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
+    this.planConflictReplenishMode = settings.planConflictReplenishMode;
     this.theme = settings.theme;
     this.doubleProgressionRepRange = formatRepRangeText({
       lowerReps: settings.doubleProgressionLowerReps,
@@ -167,6 +170,7 @@ export class ConfigComponent implements OnInit, OnDestroy {
     this.language = settings.language;
     this.dateOfBirth = settings.dateOfBirth ?? '';
     this.finishedSessionReplenishMode = settings.finishedSessionReplenishMode;
+    this.planConflictReplenishMode = settings.planConflictReplenishMode;
     this.theme = settings.theme;
     this.doubleProgressionRepRange = formatRepRangeText({
       lowerReps: settings.doubleProgressionLowerReps,
@@ -380,6 +384,10 @@ export class ConfigComponent implements OnInit, OnDestroy {
   async onLanguageChange(): Promise<void> {
     this.dateFormat = LANGUAGE_DATE_FORMATS[this.language];
     await this.settingsService.updateSettings({ language: this.language, dateFormat: this.dateFormat });
+  }
+
+  async onPlanConflictReplenishModeChange(): Promise<void> {
+    await this.settingsService.updateSettings({ planConflictReplenishMode: this.planConflictReplenishMode });
   }
 
   async onFinishedSessionReplenishModeChange(): Promise<void> {
