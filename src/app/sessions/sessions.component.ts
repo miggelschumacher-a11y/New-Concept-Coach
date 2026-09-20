@@ -810,12 +810,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.fitPopupToViewport('set-field-copy-popup', this.setFieldCopyPopupPosition);
   }
 
-  // The copy popup opens with a value stepper (- field +) for the reps and
-  // weight fields: the value it copies to the other sets can be counted up or
+  // The copy popup opens with a value stepper (- field +) for the target
+  // reps, reps and weight fields: the value it copies to the other sets can be counted up or
   // down by one rep / the exercise's weight step, or typed, before choosing which sets.
-  get setFieldCopyStepperKind(): 'reps' | 'weight' | null {
-    const kind = this.setFieldCopyContext?.kind;
-    return kind === 'reps' || kind === 'weight' ? kind : null;
+  get setFieldCopyStepperKind(): 'targetReps' | 'reps' | 'weight' | null {
+    return this.setFieldCopyContext?.kind ?? null;
   }
 
   get setFieldCopyValue(): string {
@@ -828,8 +827,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     const input = event.target as HTMLInputElement;
+    // Target reps keep the target field's own format: a number, a range
+    // ("8-12"), either with an AMRAP "+" - see onTargetRepsFieldInput.
     const sanitized =
-      ctx.kind === 'weight' ? (input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '') : input.value.replace(/\D/g, '').slice(0, 4);
+      ctx.kind === 'weight'
+        ? (input.value.match(/^\d{0,4}([.,]\d{0,2})?/)?.[0] ?? '')
+        : ctx.kind === 'targetReps'
+          ? (input.value.match(/^\d{1,4}(?:-\d{1,4}\+?|-|\+)?/)?.[0] ?? '')
+          : input.value.replace(/\D/g, '').slice(0, 4);
     if (sanitized !== input.value) {
       input.value = sanitized;
     }
@@ -843,15 +848,40 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (!ctx) {
       return;
     }
+    if (ctx.kind === 'targetReps') {
+      // A dangling "8-" (range never finished) is just "8".
+      ctx.sourceValue = ctx.sourceValue.replace(/-$/, '');
+      return;
+    }
     const value = parseFloat(ctx.sourceValue.replace(',', '.'));
     if (Number.isFinite(value)) {
       ctx.sourceValue = ctx.kind === 'weight' ? value.toFixed(2) : String(Math.trunc(value));
     }
   }
 
+  // Counts a target reps text up or down by one rep: "5" -> "6", a range moves
+  // as a whole ("8-12" -> "9-13"), an AMRAP "+" stays ("5+" -> "6+"). Empty
+  // text counts up to "1"; nothing goes below 1 or above 9999.
+  private steppedTargetRepsText(text: string, delta: 1 | -1): string {
+    const match = text.trim().match(/^(\d{1,4})(?:-(\d{1,4}))?(\+)?/);
+    if (!match) {
+      return delta > 0 ? '1' : text;
+    }
+    const lower = parseInt(match[1], 10) + delta;
+    const upper = match[2] !== undefined ? parseInt(match[2], 10) + delta : undefined;
+    if (lower < 1 || (upper ?? lower) > 9999) {
+      return text;
+    }
+    return `${lower}${upper !== undefined ? `-${upper}` : ''}${match[3] ?? ''}`;
+  }
+
   stepSetFieldCopyValue(delta: 1 | -1): void {
     const ctx = this.setFieldCopyContext;
     if (!ctx) {
+      return;
+    }
+    if (ctx.kind === 'targetReps') {
+      ctx.sourceValue = this.steppedTargetRepsText(ctx.sourceValue, delta);
       return;
     }
     const current = parseFloat(ctx.sourceValue.replace(',', '.'));
@@ -882,9 +912,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (!ctx) {
       return;
     }
-    const { session, kind, sourceValue, set } = ctx;
+    const { session, sessionExercise, kind, sourceValue, set } = ctx;
     this.closeSetFieldCopyPopup();
     if (!set) {
+      return;
+    }
+    if (kind === 'targetReps') {
+      // Same as typing it into the set's own target field (which also checks
+      // for a backwards range).
+      await this.updateTargetReps(session, sessionExercise, set, sourceValue);
       return;
     }
     if (kind === 'weight') {

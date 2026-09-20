@@ -1069,10 +1069,10 @@
                                     selectOnFocus
                                     (input)="onTargetRepsFieldInput($event)"
                                     (change)="updateTargetReps(session, sessionExercise, set, $any($event.target).value, $any($event.target))"
-                                    (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
+                                    (mousedown)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps', set)"
                                     (mouseup)="onSetFieldMouseUp($event)"
                                     (mouseleave)="onSetFieldMouseLeave($event)"
-                                    (touchstart)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps')"
+                                    (touchstart)="onSetFieldMouseDown($event, session, sessionExercise, 'targetReps', set)"
                                     (touchend)="onSetFieldMouseUp($event)"
                                     (touchcancel)="onSetFieldMouseLeave($event)"
                                     (contextmenu)="$event.preventDefault()"
@@ -1301,11 +1301,13 @@
           <mat-icon>remove</mat-icon>
         </button>
         <mat-form-field appearance="outline" class="set-field-copy-stepper-field" subscriptSizing="dynamic">
-          <mat-label>{{ stepperKind === 'weight' ? weightUnitLabel : ('sessions.reps' | translate) }}</mat-label>
+          <mat-label>{{
+            stepperKind === 'weight' ? weightUnitLabel : stepperKind === 'targetReps' ? ('sessions.targetRepsField' | translate) : ('sessions.reps' | translate)
+          }}</mat-label>
           <input
             matInput
             type="text"
-            [attr.inputmode]="stepperKind === 'weight' ? 'decimal' : 'numeric'"
+            [attr.inputmode]="stepperKind === 'weight' ? 'decimal' : stepperKind === 'reps' ? 'numeric' : null"
             [value]="setFieldCopyValue"
             selectOnFocus
             (input)="onSetFieldCopyValueInput($event)"
