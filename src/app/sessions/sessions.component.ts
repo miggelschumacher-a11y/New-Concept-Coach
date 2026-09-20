@@ -646,6 +646,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sessionExercise: SessionExercise;
     kind: 'targetReps' | 'reps' | 'weight';
     sourceValue: string;
+    // The set whose field the popup was opened from - what OK applies the value to.
+    set?: ExerciseSet;
     // Only set when the copy originates from the equipment/plate dialog's
     // own "copy to sets" buttons - the weight field's plain right-click copy
     // popup omits this flag, so it keeps copying just the weight value as
@@ -689,7 +691,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
         this.openSetEquipmentDialog(session, sessionExercise, set);
         return;
       }
-      this.openSetFieldCopyPopup(session, sessionExercise, kind, triggerEl);
+      this.openSetFieldCopyPopup(session, sessionExercise, kind, triggerEl, set);
     }, 500);
   }
 
@@ -702,14 +704,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // and in that case onSetFieldMouseDown's touch-driven timer is already
   // opening the equipment dialog - opening the copy popup here too would
   // stack a second, wrong popup on top of it.
-  onWeightFieldContextMenu(event: MouseEvent, session: TrainingSession, sessionExercise: SessionExercise): void {
+  onWeightFieldContextMenu(event: MouseEvent, session: TrainingSession, sessionExercise: SessionExercise, set?: ExerciseSet): void {
     event.preventDefault();
     if (this.lastFieldPressWasTouch) {
       return;
     }
     this.clearLongPressTimer();
     const triggerEl = event.currentTarget as HTMLInputElement;
-    this.openSetFieldCopyPopup(session, sessionExercise, 'weight', triggerEl);
+    this.openSetFieldCopyPopup(session, sessionExercise, 'weight', triggerEl, set);
   }
 
   // Opens the weight/equipment/plate-breakdown popup for one specific set -
@@ -794,13 +796,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     session: TrainingSession,
     sessionExercise: SessionExercise,
     kind: 'targetReps' | 'reps' | 'weight',
-    triggerEl: HTMLInputElement
+    triggerEl: HTMLInputElement,
+    set?: ExerciseSet
   ): void {
     triggerEl.blur();
     this.suppressNextDocumentClick = true;
     const rect = triggerEl.getBoundingClientRect();
     this.setFieldCopyPopupPosition = { top: rect.bottom + 8, left: rect.left };
-    this.setFieldCopyContext = { session, sessionExercise, kind, sourceValue: triggerEl.value };
+    this.setFieldCopyContext = { session, sessionExercise, kind, sourceValue: triggerEl.value, set };
     this.setFieldCopyPopupKey = `${session.id}:${sessionExercise.exerciseId}:${kind}`;
     this.fitPopupToViewport('set-field-copy-popup', this.setFieldCopyPopupPosition);
   }
@@ -862,6 +865,41 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.setFieldCopyPopupKey = null;
     this.setFieldCopyPopupPosition = null;
     this.setFieldCopyContext = null;
+  }
+
+  // OK: applies the popup's value to the set the popup was opened from, and
+  // to no other - the same way the set's own field would hold it (buffer
+  // until the set is done, straight onto the set once it is).
+  async confirmSetFieldValue(): Promise<void> {
+    const ctx = this.setFieldCopyContext;
+    if (!ctx) {
+      return;
+    }
+    const { session, kind, sourceValue, set } = ctx;
+    this.closeSetFieldCopyPopup();
+    if (!set) {
+      return;
+    }
+    if (kind === 'weight') {
+      const weight = parseFloat(sourceValue.replace(',', '.'));
+      if (!Number.isFinite(weight)) {
+        return;
+      }
+      this.fieldBuffer(set).weight = weight.toFixed(2);
+      if (set.done) {
+        set.weight = weight;
+      }
+    } else if (kind === 'reps') {
+      const reps = parseInt(sourceValue, 10);
+      if (!Number.isFinite(reps)) {
+        return;
+      }
+      this.fieldBuffer(set).reps = String(reps);
+      if (set.done) {
+        set.reps = reps;
+      }
+    }
+    await this.persist(session);
   }
 
   cancelSetFieldCopy(): void {

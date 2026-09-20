@@ -245,6 +245,16 @@ mat-expansion-panel-header .mat-content {
   line-height: 1.2;
 }
 
+// Cancel and OK side by side at the bottom of the copy popup.
+.set-field-copy-buttons {
+  display: flex;
+  gap: 0.5rem;
+
+  button {
+    flex: 1 1 0;
+  }
+}
+
 // The value stepper at the top of the copy popup: - field + in one row.
 .set-field-copy-stepper {
   display: flex;
