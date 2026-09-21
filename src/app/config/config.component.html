@@ -29,7 +29,12 @@
 
     <div class="settings-form-break"></div>
 
-    <mat-form-field appearance="outline" class="finished-session-field">
+    <mat-form-field
+      appearance="outline"
+      class="finished-session-field"
+      [matTooltip]="'config.finishedSessionReplenishTooltip' | translate"
+      matTooltipClass="readable-tooltip"
+    >
       <mat-label
         ><mat-icon class="label-icon">repeat</mat-icon>{{ 'config.finishedSessionReplenish' | translate }}</mat-label
       >
