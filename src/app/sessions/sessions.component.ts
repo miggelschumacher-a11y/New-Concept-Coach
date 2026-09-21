@@ -3112,8 +3112,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     session.timerElapsedMs ??= 0;
     session.timerRunning = true;
-    session.timerStartedAt = new Date().toISOString();
-    session.startedAt ??= session.timerStartedAt;
+    const startedAt = new Date();
+    session.timerStartedAt = startedAt.toISOString();
+    if (!session.startedAt) {
+      // The very first start: the session's date (up to now the moment it was
+      // created or queued up) becomes the moment it actually began.
+      session.date = toDateTimeLocalValue(startedAt);
+      session.startedAt = session.timerStartedAt;
+    }
     if (this.bodyWeightFallbackCandidate(session) !== null) {
       this.promptedBodyWeightFallbackSessionIds.add(session.id);
     }
