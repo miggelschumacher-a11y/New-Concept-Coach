@@ -208,7 +208,7 @@ export class DurationMaskDirective {
     return segment === 0 ? 99 : 59;
   }
 
-  // An empty field counts as all zeros, so typing into it starts from 0:00:00.
+  // An empty field counts as all zeros, so typing into it starts from 00:00:00.
   private readParts(): [number, number, number] {
     const total = parseDuration(this.input.value);
     const seconds = Number.isFinite(total) ? total : 0;

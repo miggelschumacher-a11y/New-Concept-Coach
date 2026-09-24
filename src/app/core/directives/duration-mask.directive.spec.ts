@@ -49,26 +49,26 @@ describe('DurationMaskDirective', () => {
   }
 
   it('selects the hours on activation, then minutes and seconds on each further tap, then round again', () => {
-    activate('1:01:08');
-    expect(selection()).toEqual([0, 1]);
+    activate('01:01:08');
+    expect(selection()).toEqual([0, 2]);
     tap();
-    expect(selection()).toEqual([2, 4]);
+    expect(selection()).toEqual([3, 5]);
     tap();
-    expect(selection()).toEqual([5, 7]);
+    expect(selection()).toEqual([6, 8]);
     tap();
-    expect(selection()).toEqual([0, 1]);
+    expect(selection()).toEqual([0, 2]);
   });
 
-  it('types 1:01:08 as hours, a tap to the minutes, then minutes and seconds', () => {
-    activate('0:00:00');
+  it('types 01:01:08 as hours, a tap to the minutes, then minutes and seconds', () => {
+    activate('00:00:00');
     type('1');
     tap();
     type('0108');
-    expect(input.value).toBe('1:01:08');
+    expect(input.value).toBe('01:01:08');
   });
 
   it('completes a segment with a second digit and moves on to the next one', () => {
-    activate('0:00:00');
+    activate('00:00:00');
     type('12');
     expect(input.value).toBe('12:00:00');
     expect(selection()).toEqual([3, 5]);
@@ -78,87 +78,87 @@ describe('DurationMaskDirective', () => {
   });
 
   it('completes a minute or second whose first digit cannot take a second one right away', () => {
-    activate('0:00:00');
+    activate('00:00:00');
     tap();
     type('7');
-    expect(input.value).toBe('0:07:00');
-    expect(selection()).toEqual([5, 7]);
+    expect(input.value).toBe('00:07:00');
+    expect(selection()).toEqual([6, 8]);
     type('9');
-    expect(input.value).toBe('0:07:09');
-    expect(selection()).toEqual([0, 1]);
+    expect(input.value).toBe('00:07:09');
+    expect(selection()).toEqual([0, 2]);
   });
 
   it('keeps minutes and seconds within 59', () => {
-    activate('0:00:00');
+    activate('00:00:00');
     tap();
     type('5959');
-    expect(input.value).toBe('0:59:59');
+    expect(input.value).toBe('00:59:59');
     type('99');
     expect(input.value).toBe('99:59:59');
   });
 
   it('moves on with a colon or space typed', () => {
-    activate('0:00:00');
+    activate('00:00:00');
     type('2:5 ');
-    expect(input.value).toBe('2:05:00');
-    expect(selection()).toEqual([5, 7]);
+    expect(input.value).toBe('02:05:00');
+    expect(selection()).toEqual([6, 8]);
   });
 
   it('jumps from the seconds back to the hours on a completed segment, a space or a colon', () => {
-    activate('0:00:00');
+    activate('00:00:00');
     tap();
     tap();
     type('12');
-    expect(input.value).toBe('0:00:12');
-    expect(selection()).toEqual([0, 1]);
+    expect(input.value).toBe('00:00:12');
+    expect(selection()).toEqual([0, 2]);
     tap();
     tap();
     type(' ');
-    expect(selection()).toEqual([0, 1]);
+    expect(selection()).toEqual([0, 2]);
     tap();
     tap();
     type(':');
-    expect(selection()).toEqual([0, 1]);
+    expect(selection()).toEqual([0, 2]);
   });
 
   it('never lets a key remove or move a colon', () => {
-    activate('1:01:08');
+    activate('01:01:08');
     tap();
     tap();
     backspace();
-    expect(input.value).toBe('1:01:00');
+    expect(input.value).toBe('01:01:00');
     backspace();
-    expect(input.value).toBe('1:01:00');
-    expect(selection()).toEqual([2, 4]);
+    expect(input.value).toBe('01:01:00');
+    expect(selection()).toEqual([3, 5]);
     backspace();
     backspace();
     backspace();
-    expect(input.value).toBe('0:00:00');
+    expect(input.value).toBe('00:00:00');
     expect(input.value.split(':').length).toBe(3);
   });
 
   it('clears the whole field once every segment is zero', () => {
-    activate('0:00:05');
+    activate('00:00:05');
     tap();
     tap();
     backspace();
-    expect(input.value).toBe('0:00:00');
+    expect(input.value).toBe('00:00:00');
     backspace();
     expect(input.value).toBe('');
   });
 
   it('removes the last typed digit of a segment still awaiting its second one', () => {
-    activate('0:00:00');
+    activate('00:00:00');
     tap();
     type('4');
-    expect(input.value).toBe('0:04:00');
+    expect(input.value).toBe('00:04:00');
     backspace();
-    expect(input.value).toBe('0:00:00');
+    expect(input.value).toBe('00:00:00');
   });
 
   it('shows zeros while an empty field is edited, and empties it again on blur if untouched', () => {
     activate('');
-    expect(input.value).toBe('0:00:00');
+    expect(input.value).toBe('00:00:00');
     input.dispatchEvent(new Event('blur'));
     expect(input.value).toBe('');
     expect(changeCount).toBe(0);
@@ -170,21 +170,21 @@ describe('DurationMaskDirective', () => {
     tap();
     type('30');
     input.dispatchEvent(new Event('blur'));
-    expect(input.value).toBe('1:30:00');
+    expect(input.value).toBe('01:30:00');
     expect(changeCount).toBe(1);
   });
 
   it('reports no change for a field left as it was', () => {
-    activate('0:01:00');
+    activate('00:01:00');
     input.dispatchEvent(new Event('blur'));
     expect(changeCount).toBe(0);
   });
 
   it('cancels the browser insertion so the value is only ever set by the mask', () => {
-    activate('0:00:00');
+    activate('00:00:00');
     const event = new InputEvent('beforeinput', { inputType: 'insertText', data: 'a', cancelable: true, bubbles: true });
     input.dispatchEvent(event);
     expect(event.defaultPrevented).toBeTrue();
-    expect(input.value).toBe('0:00:00');
+    expect(input.value).toBe('00:00:00');
   });
 });

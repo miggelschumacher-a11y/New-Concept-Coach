@@ -1,6 +1,6 @@
 // Every seconds field in the app (set durations, target durations, the three
-// rest timers) is entered and shown as hours:minutes:seconds, e.g. 1:01:08 -
-// hours up to 99, minutes and seconds up to 59, the latter two always with a
+// rest timers) is entered and shown as hours:minutes:seconds, e.g. 01:01:08 -
+// hours up to 99, minutes and seconds up to 59, all three always with a
 // leading zero. The stored value stays a plain number of seconds.
 
 export const MAX_DURATION_SECONDS = 99 * 3600 + 59 * 60 + 59;
@@ -14,8 +14,8 @@ interface DurationParts {
 }
 
 // Free text (a paste, or input the browser applied itself) fills from the
-// right, like a pocket calculator: the digits 1, 0, 1, 0, 8 yield 1:01:08, and
-// colons among them are simply ignored. Digits beyond six (hh mm ss) are
+// right, like a pocket calculator: the digits 1, 0, 1, 0, 8 yield 01:01:08,
+// and colons among them are simply ignored. Digits beyond six (hh mm ss) are
 // dropped, and minutes/seconds above 59 are clamped to 59. Returns null when
 // the text holds no digit at all (an empty field). Typing into an input goes
 // through DurationMaskDirective's per-segment editing instead.
@@ -33,7 +33,7 @@ function durationParts(text: string): DurationParts | null {
 }
 
 function formatParts(parts: DurationParts): string {
-  return `${parts.hours}:${String(parts.minutes).padStart(2, '0')}:${String(parts.seconds).padStart(2, '0')}`;
+  return `${String(parts.hours).padStart(2, '0')}:${String(parts.minutes).padStart(2, '0')}:${String(parts.seconds).padStart(2, '0')}`;
 }
 
 // The well-formed text for pasted or otherwise unstructured input - '' for an
