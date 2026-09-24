@@ -4923,8 +4923,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
       data: { firstThresholdSeconds: firstRestAfterSet, secondThresholdSeconds },
       disableClose: true,
-      hasBackdrop: false,
-      backdropClass: 'exercise-timer-backdrop',
       panelClass: 'rest-timer-panel'
     });
   }
@@ -4933,8 +4931,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
       data: { firstThresholdSeconds: thresholdSeconds, feedbackMessage },
       disableClose: true,
-      hasBackdrop: false,
-      backdropClass: 'exercise-timer-backdrop',
       panelClass: 'rest-timer-panel'
     });
   }

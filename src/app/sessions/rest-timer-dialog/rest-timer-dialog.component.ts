@@ -23,17 +23,14 @@ export interface RestTimerDialogData {
   feedbackMessage?: string;
 }
 
-// A non-modal, draggable popup showing a live count-up of the rest just
-// taken,
+// A modal, draggable popup showing a live count-up of the rest just taken,
 // beeping once at firstThresholdSeconds and again at secondThresholdSeconds
 // if given - see SessionsComponent's maybeShowRestPrompt for when each of
 // the two shapes (between sets, single threshold between exercises) is
-// opened. hasBackdrop is off (see the dialog.open() call - same
-// 'rest-timer-backdrop' pointer-events:none trick ExerciseTimerDialogComponent
-// uses for its own popup) so the session underneath stays fully usable while
-// this is up, and disableClose is on so only its own close button dismisses
-// it - not Escape, and not a tap on the popup itself, which now instead
-// starts a drag (see cdkDrag in the template).
+// opened. Its default backdrop blocks the session underneath while it's up,
+// and disableClose is on so only its own close button dismisses it - not
+// Escape, and not a tap on the backdrop or the popup itself, which now
+// instead starts a drag (see cdkDrag in the template).
 //
 // The actual gong is always played by tick() below, from the same
 // requestAnimationFrame-independent Date.now() delta the visible ring uses -
