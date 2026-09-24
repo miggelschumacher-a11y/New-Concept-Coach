@@ -346,3 +346,14 @@ html.light-theme body {
   min-width: 0;
   max-width: none;
 }
+
+// Same reasoning as .rest-timer-panel above, for ExerciseTimerDialogComponent
+// (the Time-Based set's own timer popup) once it became draggable too.
+.exercise-timer-panel .mat-mdc-dialog-surface {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  min-width: 0;
+  max-width: none;
+}

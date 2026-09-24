@@ -4504,7 +4504,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       },
       disableClose: true,
       hasBackdrop: false,
-      backdropClass: 'exercise-timer-backdrop'
+      backdropClass: 'exercise-timer-backdrop',
+      panelClass: 'exercise-timer-panel'
     });
     this.exerciseTimerDialogRefs.set(set.id, dialogRef);
     dialogRef.afterClosed().subscribe(() => {

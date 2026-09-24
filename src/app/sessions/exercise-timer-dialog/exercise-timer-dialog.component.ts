@@ -1,4 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
@@ -34,8 +35,11 @@ export interface ExerciseTimerDialogData {
 //
 // A visual layer on top of SessionsComponent's own countdown state, with no
 // backdrop (see the dialog.open() call in SessionsComponent.startCountdown) -
-// unlike RestTimerDialogComponent, this one can't be tapped away early, and
-// the page underneath stays reachable so the set's own stop/done controls in
+// unlike RestTimerDialogComponent, this one can't be tapped away early
+// (it can still be dragged out of the way, same as RestTimerDialogComponent -
+// see cdkDrag in the template and the exercise-timer-panel override in
+// styles.scss that lets the drag move the whole visible card), and the page
+// underneath stays reachable so the set's own stop/done controls in
 // its row can still be used while it's up. Its own two buttons do the same
 // as those controls: finish the set, or just stop the countdown. Either way
 // SessionsComponent closes this dialog itself once the countdown actually
@@ -44,7 +48,7 @@ export interface ExerciseTimerDialogData {
 @Component({
   selector: 'app-exercise-timer-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, TranslatePipe, DurationPipe],
+  imports: [MatDialogModule, DragDropModule, MatButtonModule, TranslatePipe, DurationPipe],
   templateUrl: './exercise-timer-dialog.component.html',
   styleUrl: './exercise-timer-dialog.component.scss'
 })
