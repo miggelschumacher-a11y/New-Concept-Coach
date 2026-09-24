@@ -1,4 +1,14 @@
-<div class="rest-timer-content" (click)="close()">
+<div class="rest-timer-content" cdkDrag cdkDragBoundary="body">
+  <button
+    mat-icon-button
+    type="button"
+    class="rest-timer-close"
+    (click)="close()"
+    [matTooltip]="'sessions.closeButton' | translate"
+    [attr.aria-label]="'sessions.closeButton' | translate"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
   <svg
     class="rest-timer-ring"
     [class.rest-timer-pulse]="pulsing"
@@ -22,5 +32,4 @@
     {{ (hasSecondThreshold ? (isSecondPhase ? 'config.secondRestAfterSetLabel' : 'config.firstRestAfterSetLabel') : 'sessions.restTimerLabel') | translate }}:
     {{ elapsedSeconds | duration }} / {{ activeThresholdSeconds | duration }}
   </p>
-  <p class="rest-timer-hint">{{ 'sessions.restTimerDismissHint' | translate }}</p>
 </div>

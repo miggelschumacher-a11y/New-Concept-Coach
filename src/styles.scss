@@ -329,3 +329,20 @@ html.light-theme body {
 .exercise-timer-backdrop {
   pointer-events: none;
 }
+
+// RestTimerDialogComponent draws its own floating-card look (gradient
+// background, rounded corners, shadow) on its own root element so that
+// dragging it (cdkDrag) moves the whole visible popup - Material's own
+// dialog surface has to be fully transparent and unconstrained, or a second,
+// static card would sit behind it and clip or offset the dragged content.
+// Global for the same reason as .exercise-timer-backdrop above - the dialog
+// surface is appended to .cdk-overlay-container, outside any component's
+// view encapsulation.
+.rest-timer-panel .mat-mdc-dialog-surface {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  min-width: 0;
+  max-width: none;
+}

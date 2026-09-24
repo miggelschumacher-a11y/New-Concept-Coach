@@ -1,5 +1,9 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { DurationPipe } from '../../core/pipes/duration.pipe';
 import { SoundService } from '../../core/services/sound.service';
@@ -19,13 +23,17 @@ export interface RestTimerDialogData {
   feedbackMessage?: string;
 }
 
-// A tap-to-dismiss popup showing a live count-up of the rest just taken,
+// A non-modal, draggable popup showing a live count-up of the rest just
+// taken,
 // beeping once at firstThresholdSeconds and again at secondThresholdSeconds
 // if given - see SessionsComponent's maybeShowRestPrompt for when each of
 // the two shapes (between sets, single threshold between exercises) is
-// opened. disableClose on the dialog.open() call means only this
-// component's own close() (the tap) dismisses it, not Escape or a backdrop
-// click.
+// opened. hasBackdrop is off (see the dialog.open() call - same
+// 'rest-timer-backdrop' pointer-events:none trick ExerciseTimerDialogComponent
+// uses for its own popup) so the session underneath stays fully usable while
+// this is up, and disableClose is on so only its own close button dismisses
+// it - not Escape, and not a tap on the popup itself, which now instead
+// starts a drag (see cdkDrag in the template).
 //
 // The actual gong is always played by tick() below, from the same
 // requestAnimationFrame-independent Date.now() delta the visible ring uses -
@@ -51,7 +59,7 @@ export interface RestTimerDialogData {
 @Component({
   selector: 'app-rest-timer-dialog',
   standalone: true,
-  imports: [MatDialogModule, TranslatePipe, DurationPipe],
+  imports: [MatDialogModule, DragDropModule, MatButtonModule, MatIconModule, MatTooltipModule, TranslatePipe, DurationPipe],
   templateUrl: './rest-timer-dialog.component.html',
   styleUrl: './rest-timer-dialog.component.scss'
 })

@@ -1,10 +1,30 @@
+// Material's own dialog surface would otherwise draw a second, static
+// background box behind this - see the rest-timer-panel override below,
+// which makes that surface transparent so this is the only visible box, and
+// the one that actually moves when it's dragged.
 .rest-timer-content {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
   padding: 1.5rem 1rem;
   text-align: center;
+  cursor: move;
+  background: linear-gradient(145deg, var(--app-popup-gradient-start), var(--app-popup-gradient-end));
+  border-radius: 10px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.45),
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(var(--app-fg-rgb), 0.08);
+}
+
+.rest-timer-close {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  // Don't start a drag from the close button itself.
   cursor: pointer;
 }
 
@@ -84,8 +104,3 @@
   font-weight: 500;
 }
 
-.rest-timer-hint {
-  margin: 0;
-  color: var(--app-muted-text);
-  font-size: 0.85rem;
-}

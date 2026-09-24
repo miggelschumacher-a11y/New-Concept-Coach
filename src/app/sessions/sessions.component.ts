@@ -4923,14 +4923,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const secondThresholdSeconds = secondRestAfterSet > firstRestAfterSet ? secondRestAfterSet : undefined;
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
       data: { firstThresholdSeconds: firstRestAfterSet, secondThresholdSeconds },
-      disableClose: true
+      disableClose: true,
+      hasBackdrop: false,
+      backdropClass: 'exercise-timer-backdrop',
+      panelClass: 'rest-timer-panel'
     });
   }
 
   private openBetweenExercisesRestTimer(thresholdSeconds: number, feedbackMessage: string): void {
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
       data: { firstThresholdSeconds: thresholdSeconds, feedbackMessage },
-      disableClose: true
+      disableClose: true,
+      hasBackdrop: false,
+      backdropClass: 'exercise-timer-backdrop',
+      panelClass: 'rest-timer-panel'
     });
   }
 
