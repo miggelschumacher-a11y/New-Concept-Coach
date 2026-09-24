@@ -4503,8 +4503,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
         stopCountdown: () => this.stopCountdown(set)
       },
       disableClose: true,
-      hasBackdrop: false,
-      backdropClass: 'exercise-timer-backdrop',
       panelClass: 'exercise-timer-panel'
     });
     this.exerciseTimerDialogRefs.set(set.id, dialogRef);
