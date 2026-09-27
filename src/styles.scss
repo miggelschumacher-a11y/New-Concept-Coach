@@ -335,9 +335,23 @@ html.light-theme body {
 // dragging it (cdkDrag) moves the whole visible popup - Material's own
 // dialog surface has to be fully transparent and unconstrained, or a second,
 // static card would sit behind it and clip or offset the dragged content.
-// Global for the same reason as .exercise-timer-backdrop above - the dialog
-// surface is appended to .cdk-overlay-container, outside any component's
-// view encapsulation.
+// pointer-events: none on .rest-timer-panel itself (the overlay pane this
+// class actually lands on - it's an inherited property, so it reaches the
+// container and surface inside it too) matters once the card has been
+// dragged: cdkDrag moves it via a CSS transform, which doesn't resize or
+// move these untransformed ancestors - left clickable, they'd keep silently
+// swallowing clicks aimed at whatever is now underneath the popup's ORIGINAL
+// position, even though the popup itself has visibly moved away (this is
+// also what made the page underneath feel modal again despite
+// hasBackdrop: false - nothing to do with the backdrop, this invisible
+// leftover hit area was the real cause). pointer-events: auto on the card
+// itself opts it back in, since it's the only part actually meant to be
+// seen or touched. Global for the same reason as .exercise-timer-backdrop
+// above - the dialog surface is appended to .cdk-overlay-container, outside
+// any component's view encapsulation.
+.rest-timer-panel {
+  pointer-events: none;
+}
 .rest-timer-panel .mat-mdc-dialog-surface {
   background: transparent;
   box-shadow: none;
@@ -346,9 +360,15 @@ html.light-theme body {
   min-width: 0;
   max-width: none;
 }
+.rest-timer-panel .rest-timer-content {
+  pointer-events: auto;
+}
 
 // Same reasoning as .rest-timer-panel above, for ExerciseTimerDialogComponent
 // (the Time-Based set's own timer popup) once it became draggable too.
+.exercise-timer-panel {
+  pointer-events: none;
+}
 .exercise-timer-panel .mat-mdc-dialog-surface {
   background: transparent;
   box-shadow: none;
@@ -356,4 +376,7 @@ html.light-theme body {
   overflow: visible;
   min-width: 0;
   max-width: none;
+}
+.exercise-timer-panel .exercise-timer-content {
+  pointer-events: auto;
 }
