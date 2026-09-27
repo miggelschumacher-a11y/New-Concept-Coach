@@ -4914,6 +4914,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     set: ExerciseSet,
     workingSets: ExerciseSet[]
   ): void {
+    // Whichever of the four branches below runs, any timer popup left open
+    // from a PREVIOUS set's completion is superseded by this one - not just
+    // the two branches that open a rest timer of their own. Without this, a
+    // rest timer already counting down from an earlier set stayed open and
+    // kept running when a later set finished into the showSetFeedback toast
+    // or promptFinishAllDone branch instead, since neither of those ever
+    // otherwise touches the dialog it left open - promptFinishAllDone's own
+    // waitForNoPendingPopup only waits for it to close, it doesn't close it
+    // (that dialog's disableClose also means the user has no way to dismiss
+    // it themselves except its own close button), so the finish prompt would
+    // never even appear.
+    this.closeOtherTimerDialogs();
     if (workingSets.some((s) => !s.done)) {
       this.openBetweenSetsRestTimer(sessionExercise);
       return;
@@ -4935,6 +4947,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     void this.promptFinishAllDone(session, feedbackMessage);
   }
 
+  // closeOtherTimerDialogs already ran once in maybeShowRestPrompt above,
+  // right before whichever of its branches called this - kept here as well
+  // (a harmless no-op then) so a future direct caller of this can't
+  // reintroduce the stale-popup bug that comment describes by forgetting it.
   private openBetweenSetsRestTimer(sessionExercise: SessionExercise): void {
     const settings = this.settingsService.getSettings();
     const firstRestAfterSet = sessionExercise.firstRestAfterSet ?? settings.firstRestAfterSet;
