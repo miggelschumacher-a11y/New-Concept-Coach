@@ -4042,6 +4042,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.isIncrementSchemeLocked(incrementScheme) || incrementScheme === sessionExercise.incrementScheme) {
       return;
     }
+    // Same rule and reason as updateSessionExerciseType's own guard: once a
+    // set is done, its fields are already judged under this scheme's rules
+    // (see this method's own class comment) - the template disables the
+    // select for the same condition, this is just the defense-in-depth
+    // backstop.
+    if (this.hasCompletedSetInExercise(sessionExercise)) {
+      return;
+    }
     const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
     if (workingSets.length > 0 && !this.exerciseUntouched(sessionExercise, workingSets)) {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -4752,9 +4760,48 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // the last working set, not after each one along the way.
     const workingSets = sessionExercise.sets.filter((s) => s.type === 'working');
     if (set.type === 'working') {
+      // Asked before the rest timer/finish prompts below, same reasoning as
+      // maybePromptOneRepMaxUpdate above - never stacked with them.
+      await this.maybeNotifyRepGoalMetDespiteMiss(session, sessionExercise, workingSets);
       this.maybeShowRestPrompt(session, sessionExercise, set, workingSets);
     }
     void this.maybeAutoAdvanceSection(session, sessionExercise, set.type);
+  }
+
+  // Rep Goal's own success rule is a SUM across every working set (see
+  // exerciseSucceeded), so a set that missed ITS OWN target range (see
+  // setMetTarget) can still leave the exercise as a whole having succeeded -
+  // e.g. two sets targeting "8-12" logged as 10 and 7 (17 total) still clear
+  // a goal of 8+8=16, even though the second set's own 7 fell short of its
+  // own 8. That reads as a failure from that set's own red cross alone, so
+  // this calls it out explicitly, once, the moment the last working set is
+  // done - buildSetFeedbackMessage's own success/fail wording already
+  // matches this same sum-based rule (see there), this is just the part
+  // that needs to be said outright rather than left to be inferred from it.
+  private async maybeNotifyRepGoalMetDespiteMiss(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    workingSets: ExerciseSet[]
+  ): Promise<void> {
+    if (
+      sessionExercise.incrementScheme !== 'REP_GOAL' ||
+      workingSets.length === 0 ||
+      workingSets.some((s) => !s.done) ||
+      workingSets.every((s) => this.setMetTarget(s)) ||
+      !this.exerciseSucceeded(sessionExercise, workingSets, session.trainingPlanId)
+    ) {
+      return;
+    }
+    await this.waitForNoPendingPopup();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        messageKey: 'sessions.repGoalMetDespiteMissedSetMessage',
+        confirmLabelKey: 'sessions.confirmOk',
+        confirmColor: 'primary',
+        hideCancel: true
+      }
+    });
+    await firstValueFrom(dialogRef.afterClosed());
   }
 
   // No setting exists for cooldown (nothing was ever asked to follow it),
@@ -4999,11 +5046,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // Time-Based has no weight/1RM scheme to preview a next-session weight
     // from - previews the prescribed duration instead, judged against
     // targetSeconds (see setMetTarget) rather than the targetReps check
-    // below, which every Time-Based set leaves undefined.
+    // below, which every Time-Based set leaves undefined. Rep Goal's own
+    // success rule is a SUM across every working set, not each set's own
+    // target individually (see exerciseSucceeded and
+    // maybeNotifyRepGoalMetDespiteMiss) - judging it by the generic per-set
+    // rule instead could call this a failure (and preview a deloaded weight)
+    // in a session that actually just hit its Rep Goal.
     const isTimeBased = sessionExercise.exerciseType === 'TIME_BASED';
     const succeeded = isTimeBased
       ? workingSets.every((s) => this.setMetTarget(s))
-      : workingSets.every((s) => s.targetReps === undefined || s.reps >= s.targetReps);
+      : sessionExercise.incrementScheme === 'REP_GOAL'
+        ? this.exerciseSucceeded(sessionExercise, workingSets, session.trainingPlanId)
+        : workingSets.every((s) => s.targetReps === undefined || s.reps >= s.targetReps);
     const previewText = isTimeBased
       ? this.nextSecondsSummaryText(workingSets)
       : this.nextWeightsSummaryText(session, sessionExercise, workingSets, !succeeded);

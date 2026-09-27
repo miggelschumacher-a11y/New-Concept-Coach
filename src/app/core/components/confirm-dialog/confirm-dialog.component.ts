@@ -15,6 +15,11 @@ export interface ConfirmDialogData {
   // question - e.g. the session's last set's own progression/reduction
   // toast message, folded in here instead of shown as a separate popup.
   extraMessage?: string;
+  // Purely informational popups (nothing to confirm or cancel, just an
+  // acknowledgement) hide the Cancel button and show only the confirm one -
+  // dialogRef still resolves true either way (Escape/backdrop are still
+  // blocked by disableClose, same as every other call site).
+  hideCancel?: boolean;
 }
 
 @Component({
