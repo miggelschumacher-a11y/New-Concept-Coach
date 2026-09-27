@@ -112,6 +112,16 @@ const DEFAULT_TARGET_REPS = 10;
 // either way, only the unit differs (% vs kg/lb), matching Training Plans'
 // own DELOAD_UNUSUALLY_HIGH_THRESHOLD.
 const DELOAD_UNUSUALLY_HIGH_THRESHOLD = 20;
+// Anchors every timer popup (the Time-Based exercise timer, both rest
+// timers) near the top of the viewport instead of MatDialog's own default
+// dead-center placement. Centering put it right on top of whatever the user
+// had just tapped to open it - typically mid-viewport, i.e. exactly where
+// the very next set's own row usually sits too, making that row's controls
+// unreachable without first dragging the (non-modal, but still visible and
+// un-clicked-through) popup out of the way. A fixed distance from the
+// viewport's own top edge, independent of where the page itself is
+// scrolled to, reliably keeps it off of whatever's already on screen.
+const TIMER_DIALOG_POSITION = { top: '12px' };
 // A Time-Based set's seconds field is an h:mm:ss input (99:59:59 at most) -
 // its own max, and also where a running count-up automatically stops (see
 // tickCountdowns).
@@ -4483,7 +4493,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       disableClose: true,
       hasBackdrop: false,
       backdropClass: 'exercise-timer-backdrop',
-      panelClass: 'exercise-timer-panel'
+      panelClass: 'exercise-timer-panel',
+      position: TIMER_DIALOG_POSITION
     });
     this.exerciseTimerDialogRefs.set(set.id, dialogRef);
     dialogRef.afterClosed().subscribe(() => {
@@ -4945,7 +4956,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       disableClose: true,
       hasBackdrop: false,
       backdropClass: 'exercise-timer-backdrop',
-      panelClass: 'rest-timer-panel'
+      panelClass: 'rest-timer-panel',
+      position: TIMER_DIALOG_POSITION
     });
   }
 
@@ -4956,7 +4968,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       disableClose: true,
       hasBackdrop: false,
       backdropClass: 'exercise-timer-backdrop',
-      panelClass: 'rest-timer-panel'
+      panelClass: 'rest-timer-panel',
+      position: TIMER_DIALOG_POSITION
     });
   }
 
