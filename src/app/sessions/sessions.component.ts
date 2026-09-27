@@ -3165,6 +3165,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
     this.finishBlockedSessionId = null;
     this.stopAllCountdowns(session);
+    // stopAllCountdowns only ever closes this session's OWN exercise-timer
+    // popups (see there) - a rest timer isn't tied to a specific set, so
+    // finishing while one is still showing (from a set completed earlier in
+    // this same session) would otherwise leave it open and counting down
+    // with nothing left to be a reminder for.
+    this.closeOtherTimerDialogs();
     if (session.timerRunning && session.timerStartedAt) {
       session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
     } else {
@@ -5567,6 +5573,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // actually happened against that advanced target, so nothing here
     // should un-happen it.
     const session = this.sessions.find((candidate) => candidate.id === id);
+    if (session) {
+      // Same reasoning as confirmFinishSession's own pair of calls - a
+      // deleted session leaves nothing left for either kind of timer popup
+      // to be tracking or reminding about.
+      this.stopAllCountdowns(session);
+      this.closeOtherTimerDialogs();
+    }
     if (session && !session.finished && session.progressionSnapshots) {
       await this.restoreProgressionSnapshots(session.progressionSnapshots);
     }
@@ -5589,6 +5602,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
 
   async confirmDeleteAllSessions(): Promise<void> {
     this.pendingDeleteAllSessions = false;
+    // Same reasoning as deleteSession's own pair of calls, for every session
+    // at once.
+    for (const session of this.sessions) {
+      this.stopAllCountdowns(session);
+    }
+    this.closeOtherTimerDialogs();
     const savedIds = this.sessions.filter((session) => !this.unsavedSessionIds.has(session.id)).map((session) => session.id);
     this.unsavedSessionIds.clear();
     await Promise.all(savedIds.map((id) => this.sessionsService.delete(id)));
