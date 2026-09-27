@@ -4964,15 +4964,27 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // timer) is ever shown at once, now that none of them have a backdrop of
   // their own to force the other away - opening a new one closes any other
   // still up first, rather than letting them stack on screen together.
-  // Doesn't touch any OTHER kind of popup (equipment, notes, confirm, ...),
-  // and doesn't stop what a closed rest timer's countdown was actually
-  // tracking - the Time-Based countdown lives in this component's own
-  // countdownStarts map regardless of whether its popup is showing (see
-  // ExerciseTimerDialogComponent's class comment); a closed rest timer's own
-  // reminder is genuinely cancelled, since it has no state anywhere else.
+  // Doesn't touch any OTHER kind of popup (equipment, notes, confirm, ...).
+  //
+  // A superseded timer is reset, not left running with its popup simply
+  // gone: a rest timer has no state outside its own component, so closing it
+  // already does that on its own; a Time-Based countdown's state lives in
+  // this component's own countdownStarts map regardless of whether its
+  // popup is showing (see ExerciseTimerDialogComponent's class comment), so
+  // that has to be dropped explicitly here (discardCountdown, same "gone
+  // without writing anything into the set's own seconds field" as a manual
+  // resetSet) - without it, isCountdownRunning(set) would keep reporting
+  // that set as still running with no popup left to show it, and
+  // startCountdown's own re-entrancy guard would silently refuse to start a
+  // fresh run for it later. This is what makes the new one "start over from
+  // 0" rather than resuming whatever the closed one had already counted.
   private closeOtherTimerDialogs(): void {
+    for (const [setId, ref] of [...this.exerciseTimerDialogRefs]) {
+      this.discardCountdown(setId);
+      ref.close();
+    }
     for (const ref of this.dialog.openDialogs) {
-      if (ref.componentInstance instanceof ExerciseTimerDialogComponent || ref.componentInstance instanceof RestTimerDialogComponent) {
+      if (ref.componentInstance instanceof RestTimerDialogComponent) {
         ref.close();
       }
     }
