@@ -759,18 +759,13 @@
                               <mat-form-field
                                 appearance="outline"
                                 class="exercise-settings-info-field"
-                                [matTooltip]="
-                                  hasCompletedSetInExercise(sessionExercise)
-                                    ? ('sessions.exerciseTypeLockedTooltip' | translate)
-                                    : (incrementSchemeTooltipKey(sessionExercise) | translate)
-                                "
+                                [matTooltip]="incrementSchemeTooltipKey(sessionExercise) | translate"
                                 matTooltipClass="increment-scheme-tooltip"
                               >
                                 <mat-label>{{ 'config.incrementSchemeTitle' | translate }}</mat-label>
                                 <mat-select
                                   [ngModel]="sessionIncrementSchemeDisplay(sessionExercise)"
                                   name="sessionIncrementScheme-{{ sessionExercise.exerciseId }}"
-                                  [disabled]="hasCompletedSetInExercise(sessionExercise)"
                                   (selectionChange)="updateSessionIncrementScheme(session, sessionExercise, $event.value)"
                                   (closed)="closeIncrementSchemeInfo()"
                                 >

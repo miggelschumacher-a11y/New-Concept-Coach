@@ -4026,14 +4026,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
     await this.persist(session);
   }
 
-  // Each scheme has its own idea of what a working set's fields mean
-  // (targetReps/targetRepsMax/isAmrap set vs. unset, what counts as
-  // "achieved") - switching scheme on an exercise that already has real
-  // progress would leave those fields holding values judged by rules they
-  // were never entered under, e.g. a logged "8" compared against a target
-  // that no longer means what it did. Only exercises still at their
-  // untouched defaults (see exerciseUntouched) skip the prompt and switch
-  // immediately, since there's nothing on them yet that could conflict.
   async updateSessionIncrementScheme(
     session: TrainingSession,
     sessionExercise: SessionExercise,
@@ -4041,36 +4033,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     if (this.isIncrementSchemeLocked(incrementScheme) || incrementScheme === sessionExercise.incrementScheme) {
       return;
-    }
-    // Same rule and reason as updateSessionExerciseType's own guard: once a
-    // set is done, its fields are already judged under this scheme's rules
-    // (see this method's own class comment) - the template disables the
-    // select for the same condition, this is just the defense-in-depth
-    // backstop.
-    if (this.hasCompletedSetInExercise(sessionExercise)) {
-      return;
-    }
-    const workingSets = sessionExercise.sets.filter((set) => set.type === 'working');
-    if (workingSets.length > 0 && !this.exerciseUntouched(sessionExercise, workingSets)) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        data: {
-          messageKey: 'sessions.confirmIncrementSchemeChangeQuestion',
-          confirmLabelKey: 'sessions.confirmYesReset',
-          confirmColor: 'warn'
-        }
-      });
-      const confirmed = await firstValueFrom(dialogRef.afterClosed());
-      if (!confirmed) {
-        return;
-      }
-      for (const set of workingSets) {
-        set.reps = 0;
-        set.done = false;
-        set.targetReps = undefined;
-        set.targetRepsMax = undefined;
-        set.isAmrap = undefined;
-        this.fieldBuffers.delete(set.id);
-      }
     }
     sessionExercise.incrementScheme = incrementScheme;
     await this.seedDoubleProgressionTargets(session, sessionExercise);
