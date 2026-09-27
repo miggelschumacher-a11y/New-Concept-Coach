@@ -27,23 +27,28 @@ export interface ExerciseTimerDialogData {
   stopCountdown: () => void;
 }
 
-// A modal, non-dismissible popup mirroring a running Time-Based set's
+// A non-modal, non-dismissible popup mirroring a running Time-Based set's
 // count-up, opened the instant SessionsComponent.startCountdown starts one -
 // shows the live elapsed count next to the set's own prescribed target, plus
 // a reward pulse (matching RestTimerDialogComponent's own) the moment the
 // target is reached.
 //
-// A visual layer on top of SessionsComponent's own countdown state. Its
-// default backdrop blocks the page underneath while it's up, and
-// disableClose means neither Escape nor a tap on that backdrop dismisses it -
-// only its own two buttons do (finish the set, or just stop the countdown).
-// It can still be dragged out of the way, same as RestTimerDialogComponent -
-// see cdkDrag in the template and the exercise-timer-panel override in
-// styles.scss that lets the drag move the whole visible card instead of just
-// the content inside Material's own static dialog surface. Either button
-// ends up in SessionsComponent closing this dialog itself once the countdown
-// actually stops (see SessionsComponent.stopCountdown), so it never lingers
-// open on a set that's no longer running.
+// A visual layer on top of SessionsComponent's own countdown state, with no
+// backdrop (see the dialog.open() call in SessionsComponent.startCountdown) -
+// unlike a plain confirm dialog, this one can't be tapped away early, and the
+// page underneath stays reachable so the set's own stop/done controls in its
+// row can still be used while it's up; only its own two buttons close it
+// (finish the set, or just stop the countdown) - see
+// SessionsComponent.closeOtherTimerDialogs for the one other thing that does:
+// opening any other timer popup (a rest timer, or this same popup for a
+// different set) closes this one first, so at most one is ever on screen. It
+// can still be dragged out of the way - see cdkDrag in the template and the
+// exercise-timer-panel override in styles.scss that lets the drag move the
+// whole visible card instead of just the content inside Material's own
+// static dialog surface. Either button ends up in SessionsComponent closing
+// this dialog itself once the countdown actually stops (see
+// SessionsComponent.stopCountdown), so it never lingers open on a set that's
+// no longer running.
 @Component({
   selector: 'app-exercise-timer-dialog',
   standalone: true,

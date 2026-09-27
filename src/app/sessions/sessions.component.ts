@@ -4034,6 +4034,13 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (this.isIncrementSchemeLocked(incrementScheme) || incrementScheme === sessionExercise.incrementScheme) {
       return;
     }
+    // Same rule and reason as updateSessionExerciseType's own guard: once a
+    // set is done, its fields are already judged under this scheme's rules -
+    // the template disables the select for the same condition, this is just
+    // the defense-in-depth backstop.
+    if (this.hasCompletedSetInExercise(sessionExercise)) {
+      return;
+    }
     sessionExercise.incrementScheme = incrementScheme;
     await this.seedDoubleProgressionTargets(session, sessionExercise);
     await this.seedWaveProgressionTarget(session, sessionExercise);
@@ -4466,6 +4473,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
       this.soundService.preloadGong();
       state.beepTimeoutId = setTimeout(() => this.beepCountdown(state), state.targetSeconds * 1000);
     }
+    this.closeOtherTimerDialogs();
     const dialogRef = this.dialog.open<ExerciseTimerDialogComponent, ExerciseTimerDialogData>(ExerciseTimerDialogComponent, {
       data: {
         countdown: state,
@@ -4473,6 +4481,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
         stopCountdown: () => this.stopCountdown(set)
       },
       disableClose: true,
+      hasBackdrop: false,
+      backdropClass: 'exercise-timer-backdrop',
       panelClass: 'exercise-timer-panel'
     });
     this.exerciseTimerDialogRefs.set(set.id, dialogRef);
@@ -4929,19 +4939,43 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // one came from, so it's the only place that needs to guard against an
     // invalid combination rather than every place either one can be edited.
     const secondThresholdSeconds = secondRestAfterSet > firstRestAfterSet ? secondRestAfterSet : undefined;
+    this.closeOtherTimerDialogs();
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
       data: { firstThresholdSeconds: firstRestAfterSet, secondThresholdSeconds },
       disableClose: true,
+      hasBackdrop: false,
+      backdropClass: 'exercise-timer-backdrop',
       panelClass: 'rest-timer-panel'
     });
   }
 
   private openBetweenExercisesRestTimer(thresholdSeconds: number, feedbackMessage: string): void {
+    this.closeOtherTimerDialogs();
     this.dialog.open<RestTimerDialogComponent, RestTimerDialogData>(RestTimerDialogComponent, {
       data: { firstThresholdSeconds: thresholdSeconds, feedbackMessage },
       disableClose: true,
+      hasBackdrop: false,
+      backdropClass: 'exercise-timer-backdrop',
       panelClass: 'rest-timer-panel'
     });
+  }
+
+  // Only one timer popup (the Time-Based exercise timer or either rest
+  // timer) is ever shown at once, now that none of them have a backdrop of
+  // their own to force the other away - opening a new one closes any other
+  // still up first, rather than letting them stack on screen together.
+  // Doesn't touch any OTHER kind of popup (equipment, notes, confirm, ...),
+  // and doesn't stop what a closed rest timer's countdown was actually
+  // tracking - the Time-Based countdown lives in this component's own
+  // countdownStarts map regardless of whether its popup is showing (see
+  // ExerciseTimerDialogComponent's class comment); a closed rest timer's own
+  // reminder is genuinely cancelled, since it has no state anywhere else.
+  private closeOtherTimerDialogs(): void {
+    for (const ref of this.dialog.openDialogs) {
+      if (ref.componentInstance instanceof ExerciseTimerDialogComponent || ref.componentInstance instanceof RestTimerDialogComponent) {
+        ref.close();
+      }
+    }
   }
 
   // Asks whether to finish the session now that every working set across
