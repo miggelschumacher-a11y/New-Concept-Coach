@@ -5223,6 +5223,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // if one is somehow still open, the same "gone rather than left
     // dangling" rule as closeOtherTimerDialogs' own reset.
     this.exerciseTimerDialogRefs.get(set.id)?.close();
+    // Undoing a set also invalidates whatever rest reminder its own
+    // completion may have started (the between-sets/between-exercises rest
+    // timer isn't tracked per-set - closeOtherTimerDialogs' own invariant of
+    // at most one timer popup ever open means there's nothing else it could
+    // be pointing at anyway).
+    for (const ref of this.dialog.openDialogs) {
+      if (ref.componentInstance instanceof RestTimerDialogComponent) {
+        ref.close();
+      }
+    }
     void this.persist(session);
   }
 
