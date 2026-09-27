@@ -5188,6 +5188,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
     set.seconds = 0;
     this.fieldBuffers.delete(set.id);
     this.discardCountdown(set.id);
+    // A done set's own countdown/popup is normally already closed (see
+    // completeSet's own stopCountdown call), but this is reachable from
+    // wherever a set can be marked done, so it closes this set's popup too
+    // if one is somehow still open, the same "gone rather than left
+    // dangling" rule as closeOtherTimerDialogs' own reset.
+    this.exerciseTimerDialogRefs.get(set.id)?.close();
     void this.persist(session);
   }
 
