@@ -1,3 +1,12 @@
+// Capacitor 8's local-notifications plugin requires a Java 21 toolchain to
+// compile. Rather than requiring a system-wide JDK 21 install, this lets
+// Gradle download and manage a matching JDK on its own (into its own cache,
+// untouched by anything else on this machine) whenever a project's
+// toolchain requirement isn't already satisfied locally.
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
 include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')

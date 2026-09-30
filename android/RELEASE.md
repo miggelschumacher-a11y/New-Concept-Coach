@@ -3,6 +3,23 @@
 Die App-ID ist `com.coco.conceptcoach`. Versionsnummer und Signierung
 sind vorbereitet; die eigentliche Freigabe läuft über die Play Console.
 
+## Build-Voraussetzungen
+
+Seit dem Capacitor-8-Upgrade (nötig für Google Plays Mindestanforderung an die
+Play-Billing-Library sowie targetSdk 36):
+
+- **Node.js ≥ 20** (empfohlen 22 LTS) zum Ausführen von `npm`/`npx cap ...` -
+  die Capacitor-CLI verweigert mit älteren Versionen komplett den Dienst.
+  Verwaltet über nvm-windows (`C:\Users\<Name>\AppData\Local\Author
+  Software\nvm`), damit die global installierte ältere Node-Version für
+  andere Projekte unangetastet bleibt.
+- **JDK 21** zum Bauen mit Gradle. `android/settings.gradle` bindet den
+  `foojay-resolver-convention`-Plugin ein, der Gradle bei Bedarf automatisch
+  eine passende JDK herunterlädt (nach `~/.gradle/jdks`, ohne das System zu
+  verändern) - das reicht für die meisten Module. Schlägt der Build trotzdem
+  mit `invalid source release: 21` fehl, `JAVA_HOME` für den Build-Befehl
+  explizit auf diese heruntergeladene JDK zeigen lassen.
+
 ## Einmalig: Upload-Schlüssel anlegen
 
 Den Schlüssel erzeugst du selbst und wählst die Passwörter selbst. Er gehört
