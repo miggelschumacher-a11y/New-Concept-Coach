@@ -3002,6 +3002,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
         continue;
       }
       const exercise = this.exercises.find((candidate) => candidate.id === newExercise.exerciseId);
+      // These are per-session customizations, not something the plan
+      // prescribes - the plan-built exercise otherwise always starts back at
+      // its own template defaults (exerciseType from the plan's own config,
+      // counting/showing warm-up and cooldown sets both back on), silently
+      // discarding whatever the user had actually set on the finished
+      // session, e.g. a Time-Based exercise switched to Weight-Based for
+      // that one session, or warm-up/cooldown sets hidden and excluded from
+      // the count. Carried the same way buildManualReplenishment always
+      // does for a session with no plan at all.
+      newExercise.exerciseType = source.exerciseType;
+      newExercise.countWarmupSets = source.countWarmupSets;
+      newExercise.countCooldownSets = source.countCooldownSets;
+      newExercise.showWarmupSets = source.showWarmupSets;
+      newExercise.showCooldownSets = source.showCooldownSets;
       const usedPerType = new Map<SetType, number>();
       const sets: ExerciseSet[] = [];
       for (const set of source.sets) {
@@ -3032,13 +3046,6 @@ export class SessionsComponent implements OnInit, OnDestroy {
         });
       }
       newExercise.sets = sets;
-      // A section that now has sets must not stay hidden.
-      if (sets.some((set) => set.type === 'warmup')) {
-        newExercise.showWarmupSets = true;
-      }
-      if (sets.some((set) => set.type === 'cooldown')) {
-        newExercise.showCooldownSets = true;
-      }
     }
   }
 
