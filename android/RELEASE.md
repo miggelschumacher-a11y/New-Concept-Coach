@@ -1,6 +1,6 @@
 # Android-Release (Google Play)
 
-Die App-ID ist `com.conceptcoachai.trainingsapp`. Versionsnummer und Signierung
+Die App-ID ist `com.coco.conceptcoach`. Versionsnummer und Signierung
 sind vorbereitet; die eigentliche Freigabe läuft über die Play Console.
 
 ## Einmalig: Upload-Schlüssel anlegen

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.conceptcoachai.trainingsapp',
+  appId: 'com.coco.conceptcoach',
   appName: 'Concept Coach',
   webDir: 'dist/trainings-app/browser'
 };

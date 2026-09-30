@@ -1,4 +1,4 @@
-package com.conceptcoachai.trainingsapp;
+package com.coco.conceptcoach;
 
 import com.getcapacitor.BridgeActivity;
 

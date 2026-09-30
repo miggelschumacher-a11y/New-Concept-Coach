@@ -13,10 +13,10 @@ if (keystoreFile.exists()) {
 }
 
 android {
-    namespace "com.conceptcoachai.trainingsapp"
+    namespace "com.coco.conceptcoach"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.conceptcoachai.trainingsapp"
+        applicationId "com.coco.conceptcoach"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode versionProps['versionCode'].toInteger()
