@@ -15,6 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Overlay } from '@angular/cdk/overlay';
 import { RouterLink } from '@angular/router';
 import {
   PlanStartingWeightsDialogComponent,
@@ -122,6 +123,15 @@ const DELOAD_UNUSUALLY_HIGH_THRESHOLD = 20;
 // viewport's own top edge, independent of where the page itself is
 // scrolled to, reliably keeps it off of whatever's already on screen.
 const TIMER_DIALOG_POSITION = { top: '12px' };
+// MatDialog's default scroll strategy ('block') fixes the whole page in
+// place the instant ANY dialog opens, regardless of hasBackdrop - that's
+// what made these hasBackdrop:false timer popups feel modal again even
+// though nothing about their own click-through/backdrop setup changed: the
+// user could no longer scroll the session underneath to reach another
+// exercise while a rest/exercise timer was up. Each of the three
+// dialog.open() calls below passes Overlay.scrollStrategies.noop() (via
+// SessionsComponent.noopScrollStrategy) to opt out of that page-wide lock
+// and let the session keep scrolling normally underneath.
 // A Time-Based set's seconds field is an h:mm:ss input (99:59:59 at most) -
 // its own max, and also where a running count-up automatically stops (see
 // tickCountdowns).
@@ -243,7 +253,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly datePipe: DatePipe,
     private readonly snackBar: MatSnackBar,
     private readonly dialog: MatDialog,
-    private readonly soundService: SoundService
+    private readonly soundService: SoundService,
+    private readonly overlay: Overlay
   ) {}
 
   get dateFormat(): string {
@@ -4507,7 +4518,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       hasBackdrop: false,
       backdropClass: 'exercise-timer-backdrop',
       panelClass: 'exercise-timer-panel',
-      position: TIMER_DIALOG_POSITION
+      position: TIMER_DIALOG_POSITION,
+      scrollStrategy: this.noopScrollStrategy()
     });
     this.exerciseTimerDialogRefs.set(set.id, dialogRef);
     dialogRef.afterClosed().subscribe(() => {
@@ -4986,7 +4998,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       hasBackdrop: false,
       backdropClass: 'exercise-timer-backdrop',
       panelClass: 'rest-timer-panel',
-      position: TIMER_DIALOG_POSITION
+      position: TIMER_DIALOG_POSITION,
+      scrollStrategy: this.noopScrollStrategy()
     });
   }
 
@@ -4998,7 +5011,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       hasBackdrop: false,
       backdropClass: 'exercise-timer-backdrop',
       panelClass: 'rest-timer-panel',
-      position: TIMER_DIALOG_POSITION
+      position: TIMER_DIALOG_POSITION,
+      scrollStrategy: this.noopScrollStrategy()
     });
   }
 
@@ -5020,6 +5034,15 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // startCountdown's own re-entrancy guard would silently refuse to start a
   // fresh run for it later. This is what makes the new one "start over from
   // 0" rather than resuming whatever the closed one had already counted.
+  // See the comment on TIMER_DIALOG_POSITION's scroll-strategy paragraph -
+  // this is what actually opts a timer popup out of MatDialog's page-wide
+  // scroll lock. A fresh instance per call (CDK scroll strategies are
+  // stateful once attached to an overlay, so the same instance can't be
+  // reused across dialog.open() calls).
+  private noopScrollStrategy() {
+    return this.overlay.scrollStrategies.noop();
+  }
+
   private closeOtherTimerDialogs(): void {
     for (const [setId, ref] of [...this.exerciseTimerDialogRefs]) {
       this.discardCountdown(setId);
