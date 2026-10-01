@@ -6,9 +6,13 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&amp;display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <script src="https://accounts.google.com/gsi/client" async="" defer=""></script>
+  <!-- Roboto and the Material Icons font are bundled locally (see the
+       "styles" array in angular.json) rather than pulled from
+       fonts.googleapis.com, so the app renders fully offline and makes no
+       network request to Google on startup. Google Identity Services is
+       likewise not loaded here - GoogleDriveService.ensureGisLoaded()
+       injects that script on demand, the first time the user actually
+       starts a Drive backup. -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#e63312">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
