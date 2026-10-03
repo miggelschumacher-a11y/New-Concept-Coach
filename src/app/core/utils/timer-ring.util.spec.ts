@@ -9,8 +9,9 @@ describe('timerRingDashOffset', () => {
     expect(timerRingDashOffset(0)).toBeCloseTo(TIMER_RING_CIRCUMFERENCE, 6);
   });
 
-  it('closes the ring exactly at fraction 1 - the two caps meet', () => {
-    expect(visibleArc(timerRingDashOffset(1))).toBeCloseTo(TIMER_RING_CIRCUMFERENCE, 6);
+  it('draws one complete circle at fraction 1, with no ends left to show a notch', () => {
+    // Full-length dash: offset 0, so the dash covers the whole path.
+    expect(timerRingDashOffset(1)).toBe(0);
   });
 
   it('keeps the visible arc proportional to the fraction once past the first cap', () => {
@@ -28,6 +29,6 @@ describe('timerRingDashOffset', () => {
 
   it('clamps out-of-range fractions', () => {
     expect(timerRingDashOffset(-1)).toBeCloseTo(timerRingDashOffset(0), 6);
-    expect(timerRingDashOffset(2)).toBeCloseTo(timerRingDashOffset(1), 6);
+    expect(timerRingDashOffset(2)).toBe(timerRingDashOffset(1));
   });
 });

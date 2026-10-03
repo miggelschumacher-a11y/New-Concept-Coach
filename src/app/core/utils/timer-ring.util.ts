@@ -16,12 +16,21 @@ export const TIMER_RING_CIRCUMFERENCE = 2 * Math.PI * TIMER_RING_RADIUS;
 // circumference. Setting the dash to fraction * circumference therefore made
 // the ring look shut about 3.4% of the timer early: a few seconds ahead of
 // the gong on a multi-minute rest. Subtracting the stroke width from the
-// dash makes the visible arc (dash + caps) exactly fraction * circumference,
-// so the ring closes at the same instant the gong plays. The dash can't get
-// shorter than nothing, so for the first stroke width of progress the ring
-// shows just its start cap.
+// dash makes the visible arc (dash + caps) exactly fraction * circumference.
+// The dash can't get shorter than nothing, so for the first stroke width of
+// progress the ring shows just its start cap.
+//
+// Once the fraction reaches 1 the ring is drawn as one complete circle
+// instead. Two round caps that merely meet tip to tip only touch along the
+// stroke's centre line - the inner and outer edges still show a small
+// notch between them - so "exactly closed" by arc length looked like a
+// ring that doesn't quite close. A full-length dash has no ends to show,
+// which closes it for real, at the same instant the gong plays.
 export function timerRingDashOffset(fraction: number): number {
-  const visibleArc = Math.min(1, Math.max(0, fraction)) * TIMER_RING_CIRCUMFERENCE;
+  if (fraction >= 1) {
+    return 0;
+  }
+  const visibleArc = Math.max(0, fraction) * TIMER_RING_CIRCUMFERENCE;
   const dashLength = Math.max(0, visibleArc - TIMER_RING_STROKE_WIDTH);
   return TIMER_RING_CIRCUMFERENCE - dashLength;
 }
