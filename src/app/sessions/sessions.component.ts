@@ -132,6 +132,15 @@ const TIMER_DIALOG_POSITION = { top: '12px' };
 // dialog.open() calls below passes Overlay.scrollStrategies.noop() (via
 // SessionsComponent.noopScrollStrategy) to opt out of that page-wide lock
 // and let the session keep scrolling normally underneath.
+//
+// Same idea for closeOnNavigation: MatDialog closes every dialog on a
+// history pop/hash change by default. Opening an exercise's info page (a
+// routerLink into exercise-history) leaves the popup up, but the history
+// page's back button is Location.back() - a history pop - which closed it
+// (and with it the running rest timer) on the way back into the session,
+// where OriginPageReuseStrategy hands the session page back exactly as it
+// was left. All three timer popups pass closeOnNavigation: false so a
+// running timer survives that round trip.
 // A Time-Based set's seconds field is an h:mm:ss input (99:59:59 at most) -
 // its own max, and also where a running count-up automatically stops (see
 // tickCountdowns).
@@ -4519,7 +4528,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       backdropClass: 'exercise-timer-backdrop',
       panelClass: 'exercise-timer-panel',
       position: TIMER_DIALOG_POSITION,
-      scrollStrategy: this.noopScrollStrategy()
+      scrollStrategy: this.noopScrollStrategy(),
+      closeOnNavigation: false
     });
     this.exerciseTimerDialogRefs.set(set.id, dialogRef);
     dialogRef.afterClosed().subscribe(() => {
@@ -4999,7 +5009,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       backdropClass: 'exercise-timer-backdrop',
       panelClass: 'rest-timer-panel',
       position: TIMER_DIALOG_POSITION,
-      scrollStrategy: this.noopScrollStrategy()
+      scrollStrategy: this.noopScrollStrategy(),
+      closeOnNavigation: false
     });
   }
 
@@ -5012,7 +5023,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
       backdropClass: 'exercise-timer-backdrop',
       panelClass: 'rest-timer-panel',
       position: TIMER_DIALOG_POSITION,
-      scrollStrategy: this.noopScrollStrategy()
+      scrollStrategy: this.noopScrollStrategy(),
+      closeOnNavigation: false
     });
   }
 
