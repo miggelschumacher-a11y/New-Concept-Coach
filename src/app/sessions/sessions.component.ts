@@ -2950,6 +2950,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const plan = this.trainingPlans.find((candidate) => candidate.id === sourceSession.trainingPlanId);
     if (plan) {
       await this.carrySetsFromFinishedSession(newSession, sourceSession, plan, await this.overridePlanSetConflicts(newSession, sourceSession, plan));
+      this.carryLastUsedWeights(newSession, sourceSession, plan);
     }
     this.applyRememberedEquipment(newSession);
     this.unsavedSessionIds.add(newSession.id);
@@ -3066,6 +3067,57 @@ export class SessionsComponent implements OnInit, OnDestroy {
         });
       }
       newExercise.sets = sets;
+    }
+  }
+
+  // Whether the plan itself works out this exercise's weights anew for every
+  // session, so the just-finished session's can't simply be carried over:
+  // Tier Line plans, Percentage-Based exercises (percent of the current 1RM),
+  // any increment scheme (the tracked state's weight, incl. its increments),
+  // and an auto-deload that is actually in effect right now (the streak has
+  // reached its threshold - until then it changes nothing). Everything else
+  // only has the plan's fixed template weight, which never follows what was
+  // really lifted.
+  private planComputesWeights(plan: TrainingPlan, newExercise: SessionExercise): boolean {
+    if (plan.methodology === TrainingMethodology.TIER_LINE_PROGRESSION || newExercise.exerciseType === 'PERCENTAGE_BASED') {
+      return true;
+    }
+    if (newExercise.incrementScheme && newExercise.incrementScheme !== 'NONE') {
+      return true;
+    }
+    return (
+      !!newExercise.deloadAfterFailures &&
+      !!newExercise.deloadPercent &&
+      this.consecutiveExerciseFailures(plan.id, newExercise.exerciseId) >= newExercise.deloadAfterFailures
+    );
+  }
+
+  // Puts the weights the just-finished session was actually done with into
+  // its plan-built successor - whatever Config's plan-conflict setting says,
+  // since that only governs the sets, target reps and the like (see
+  // carrySetsFromFinishedSession), not the weight. Without this a plan
+  // exercise started over at the plan's template weight every round (0 for a
+  // self-made plan) instead of where the user left off. Each new set takes
+  // the weight of the finished session's set at the same position of the
+  // same type (the last one of that type when the new session has more),
+  // like buildManualReplenishment's own per-set carry. Exercises whose
+  // weights the plan computes itself keep those (see planComputesWeights).
+  private carryLastUsedWeights(newSession: TrainingSession, sourceSession: TrainingSession, plan: TrainingPlan): void {
+    for (const newExercise of newSession.exercises) {
+      const source = sourceSession.exercises.find((candidate) => candidate.exerciseId === newExercise.exerciseId);
+      if (!source || source.sets.length === 0 || this.planComputesWeights(plan, newExercise)) {
+        continue;
+      }
+      const usedPerType = new Map<SetType, number>();
+      for (const set of newExercise.sets) {
+        const sourceSets = source.sets.filter((candidate) => candidate.type === set.type);
+        const position = usedPerType.get(set.type) ?? 0;
+        usedPerType.set(set.type, position + 1);
+        const counterpart = sourceSets[position] ?? sourceSets[sourceSets.length - 1];
+        if (counterpart) {
+          set.weight = counterpart.weight;
+        }
+      }
     }
   }
 
