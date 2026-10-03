@@ -8,6 +8,7 @@ import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { DurationPipe } from '../../core/pipes/duration.pipe';
 import { SoundService } from '../../core/services/sound.service';
 import { RestNotificationService } from '../../core/services/rest-notification.service';
+import { TIMER_RING_CIRCUMFERENCE, timerRingDashOffset } from '../../core/utils/timer-ring.util';
 
 export interface RestTimerDialogData {
   // Elapsed seconds at which the first reminder gong plays.
@@ -74,7 +75,7 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   pulsing = false;
 
   // Matches the ring's r="28" in the template - circumference = 2*pi*r.
-  readonly ringCircumference = 2 * Math.PI * 28;
+  readonly ringCircumference = TIMER_RING_CIRCUMFERENCE;
 
   // Updated every animation frame from the exact same Date.now() delta the
   // gong itself is timed against (see updateRing) - never from the
@@ -88,7 +89,7 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
   // same clock, so the ring reaches 1 at essentially the same instant the
   // gong plays, not a whole tick later. Starts fully "empty" (offset ==
   // circumference), same as fraction 0 below.
-  ringDashOffset = this.ringCircumference;
+  ringDashOffset = timerRingDashOffset(0);
 
   private static readonly PULSE_DURATION_MS = 650;
 
@@ -286,7 +287,10 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
       }
     }
     const fraction = target > start ? Math.min(1, Math.max(0, (elapsedSecondsPrecise - start) / (target - start))) : 1;
-    return this.ringCircumference * (1 - fraction);
+    // Not simply circumference * (1 - fraction): the ring's round caps make
+    // that look closed a few seconds before the threshold - see
+    // timerRingDashOffset.
+    return timerRingDashOffset(fraction);
   }
 
   private phaseBoundaries(): number[] {

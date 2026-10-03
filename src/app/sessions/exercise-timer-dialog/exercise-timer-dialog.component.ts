@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { DurationPipe } from '../../core/pipes/duration.pipe';
+import { TIMER_RING_CIRCUMFERENCE, timerRingDashOffset } from '../../core/utils/timer-ring.util';
 
 export interface ExerciseTimerDialogData {
   // The exact same live object SessionsComponent.startCountdown creates and
@@ -61,8 +62,8 @@ export class ExerciseTimerDialogComponent implements OnInit, OnDestroy {
   pulsing = false;
 
   // Matches the ring's r="28" in the template - circumference = 2*pi*r.
-  readonly ringCircumference = 2 * Math.PI * 28;
-  ringDashOffset = this.ringCircumference;
+  readonly ringCircumference = TIMER_RING_CIRCUMFERENCE;
+  ringDashOffset = timerRingDashOffset(0);
 
   private static readonly PULSE_DURATION_MS = 650;
 
@@ -98,7 +99,10 @@ export class ExerciseTimerDialogComponent implements OnInit, OnDestroy {
     this.elapsedSeconds = Math.floor(elapsedPrecise);
     const target = this.data.countdown.targetSeconds;
     const fraction = this.data.countdown.hasTarget && target > 0 ? Math.min(1, elapsedPrecise / target) : 1;
-    this.ringDashOffset = this.ringCircumference * (1 - fraction);
+    // Not simply circumference * (1 - fraction): the ring's round caps make
+    // that look closed a few seconds before the target - see
+    // timerRingDashOffset.
+    this.ringDashOffset = timerRingDashOffset(fraction);
     if (this.data.countdown.beeped && !this.wasBeeped) {
       this.wasBeeped = true;
       this.triggerPulse();
