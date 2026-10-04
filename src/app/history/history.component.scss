@@ -130,19 +130,26 @@ mat-expansion-panel-header .mat-content {
   font-weight: 500;
 }
 
-// A set is two rows: the head (set number, status check, "no statistics"
-// checkbox) and below it, on a line of its own, the value fields (reps and
-// weight, or the time fields).
-.history-set-row {
-  margin: 0.35rem 0 0.35rem 1.5rem;
-}
-
-.history-set-head,
+// One wrapping row: set number, status check and "no statistics" checkbox
+// (the head, whose children take part in this row directly), followed by the
+// value fields. A weight set's reps and weight fields are one unit
+// (.history-set-fields), so when the row runs out of room they move to a
+// new line together instead of splitting up; a Time-Based set's time field
+// sits in the head.
+.history-set-row,
 .history-set-fields {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 1rem;
+}
+
+.history-set-row {
+  margin: 0.35rem 0 0.35rem 1.5rem;
+}
+
+.history-set-head {
+  display: contents;
 }
 
 .history-set-field {
