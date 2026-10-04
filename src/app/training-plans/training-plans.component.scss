@@ -231,7 +231,7 @@ mat-card {
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  padding: 0 0.5rem;
+  padding: 0 0.25rem;
   color: rgba(var(--app-fg-rgb), 0.5);
   cursor: grab;
   touch-action: none;
@@ -366,10 +366,40 @@ mat-card {
   width: 8rem;
 }
 
+// An exercise header's set/weight summary: a direct child of the header's
+// flex row (not of mat-panel-title) taking the full row width after
+// everything else (order: 1), so with the row allowed to wrap (see below) it
+// sits on a line of its own, starting at the far left under the delete
+// button. Same as SessionsComponent's exercise headers.
 .set-count {
-  margin-left: 0.5rem;
+  order: 1;
+  flex: 0 0 100%;
+  margin-bottom: 0.5rem;
   color: var(--app-muted-text);
   font-weight: normal;
+}
+
+// Only the exercise panels' own headers (direct children - the nested
+// set-type/settings accordions inside them keep Material's fixed height):
+// they grow to fit the summary line, and the header row may wrap onto it.
+// .mat-content belongs to the header's internal template, hence ::ng-deep.
+.exercise-accordion > mat-expansion-panel > mat-expansion-panel-header {
+  height: auto;
+  min-height: 3rem;
+}
+
+.exercise-accordion > mat-expansion-panel > mat-expansion-panel-header ::ng-deep .mat-content {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+// These headers sit several panels deep, so on a phone the delete, info,
+// settings and drag buttons plus the name only just fit on the first row -
+// without Material's 16px margin after the title (and the drag handle's
+// slimmer padding below) the last button wrapped onto a row of its own
+// before the summary line.
+.exercise-accordion > mat-expansion-panel > mat-expansion-panel-header mat-panel-title {
+  margin-right: 0;
 }
 
 .set-row {
@@ -483,11 +513,6 @@ mat-card {
   }
 }
 
-.add-default-warmup-button {
-  display: block;
-  width: fit-content;
-  margin-bottom: 0.75rem;
-}
 
 // A custom session's own exercise picker - full width instead of the
 // mat-form-field default, since it carries the session's whole exercise

@@ -255,6 +255,25 @@ html.light-theme body {
   width: 100%;
 }
 
+// The "add default warm-up / cooldown" button above a set group's sets, shared
+// by SessionsComponent and TrainingPlansComponent. Material fixes a button's
+// height at 36px, so a label that doesn't fit the narrow set-group panel on one
+// line wrapped and spilled out over the button's edges - here it grows with its
+// text instead (never shorter than the usual 36px). button.* outweighs
+// Material's own single-class height/padding rules. A block-level flex
+// container (not display: block) keeps Material's own icon-beside-label
+// alignment, which a wrapped label would otherwise lose.
+button.add-default-warmup-button {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  height: auto;
+  min-height: 36px;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
 // A dropdown option's own per-option info button - lives inside mat-option's
 // projected content, right after the option's label text. A tap-triggered
 // popup rather than a hover/long-press matTooltip, since the latter turned

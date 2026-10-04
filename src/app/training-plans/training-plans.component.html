@@ -574,14 +574,12 @@
                               >
                                 <mat-icon>drag_indicator</mat-icon>
                               </div>
-                              <mat-panel-title>
-                                {{ exerciseName(sessionExercise.exerciseId) }}
-                                @if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {
-                                  <span class="set-count" [matTooltip]="'exercises.oneRepMaxTooltip' | translate"
-                                    >({{ exerciseOneRepMaxLabelKey(sessionExercise.exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }})</span
-                                  >
-                                }
-                              </mat-panel-title>
+                              <mat-panel-title>{{ exerciseName(sessionExercise.exerciseId) }}</mat-panel-title>
+                              @if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {
+                                <span class="set-count" [matTooltip]="'exercises.oneRepMaxTooltip' | translate"
+                                  >({{ exerciseOneRepMaxLabelKey(sessionExercise.exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }})</span
+                                >
+                              }
                             </mat-expansion-panel-header>
 
                             @if (isCustomSessionExerciseSettingsOpen(session.id, sessionExercise.exerciseId)) {
@@ -1071,12 +1069,10 @@
                       <mat-icon>drag_indicator</mat-icon>
                     </div>
                   }
-                  <mat-panel-title>
-                    {{ exerciseName(exerciseId) }}
-                    <span class="set-count"
-                      >({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }}@if (exerciseOneRepMax(exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
-                    >
-                  </mat-panel-title>
+                  <mat-panel-title>{{ exerciseName(exerciseId) }}</mat-panel-title>
+                  <span class="set-count"
+                    >({{ planExerciseTotalSets(plan, exerciseId) }} {{ 'sessions.setsWord' | translate }}@if (exerciseOneRepMax(exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
+                  >
                   <div class="header-exercise-info-action">
                     <a
                       mat-icon-button
@@ -1867,11 +1863,9 @@
                   @for (planExercise of planSession.exercises; track planExercise.exerciseId) {
                     <mat-expansion-panel>
                       <mat-expansion-panel-header>
-                        <mat-panel-title>
-                          {{ exerciseName(planExercise.exerciseId) }}
-                          <span class="set-count">({{ planExercise.sets }} {{ 'sessions.setsWord' | translate }})</span>
-                        </mat-panel-title>
+                        <mat-panel-title>{{ exerciseName(planExercise.exerciseId) }}</mat-panel-title>
                         <mat-panel-description>{{ tierLabelKey(planExercise.tier) | translate }}</mat-panel-description>
+                        <span class="set-count">({{ planExercise.sets }} {{ 'sessions.setsWord' | translate }})</span>
                       </mat-expansion-panel-header>
 
                       @if (isTierLineProgressionExercise(plan, planExercise)) {
@@ -1917,12 +1911,10 @@
                   @for (exerciseId of dayGroup.exerciseIds; track exerciseId) {
                     <mat-expansion-panel>
                       <mat-expansion-panel-header>
-                        <mat-panel-title>
-                          {{ exerciseName(exerciseId) }}
-                          <span class="set-count"
-                            >({{ dayGroupExerciseTotalSets(plan, dayGroup, exerciseId) }} {{ 'sessions.setsWord' | translate }}@if (exerciseOneRepMax(exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
-                          >
-                        </mat-panel-title>
+                        <mat-panel-title>{{ exerciseName(exerciseId) }}</mat-panel-title>
+                        <span class="set-count"
+                          >({{ dayGroupExerciseTotalSets(plan, dayGroup, exerciseId) }} {{ 'sessions.setsWord' | translate }}@if (exerciseOneRepMax(exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
+                        >
                       </mat-expansion-panel-header>
                     </mat-expansion-panel>
                   }
