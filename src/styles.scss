@@ -274,6 +274,22 @@ button.add-default-warmup-button {
   margin-bottom: 0.75rem;
 }
 
+// The set count beside a set group's label ("Arbeitssaetze (6)"), inside
+// mat-panel-title. It used to share SessionsComponent's .set-count class, but
+// that one is meant for the exercise header's summary and carries
+// flex: 0 0 100% to claim a row of its own. mat-panel-title is a flex
+// container too, so the count became a flex item there as well and the markup
+// whitespace before it was dropped - the label and the count ran together.
+// Its own class keeps the muted look without the full-width behaviour; the
+// margin replaces the swallowed space and cannot collapse away.
+// Lives here rather than in sessions.component.scss because that file's
+// compiled size sits just under the 8 kB anyComponentStyle error budget.
+.set-type-count {
+  margin-left: 0.35rem;
+  color: var(--app-muted-text);
+  font-weight: normal;
+}
+
 // A dropdown option's own per-option info button - lives inside mat-option's
 // projected content, right after the option's label text. A tap-triggered
 // popup rather than a hover/long-press matTooltip, since the latter turned
