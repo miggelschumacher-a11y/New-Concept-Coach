@@ -508,29 +508,25 @@
                     </div>
                   }
                   <mat-panel-title>
-                    <span class="exercise-title-block">
-                      <span class="exercise-title-row">
-                        {{ exerciseName(sessionExercise.exerciseId) }}
-                        @if (exerciseTierLabelKey(session, sessionExercise.exerciseId); as tierLabelKey) {
-                          <span class="tier-badge">{{ tierLabelKey | translate }}</span>
-                        }
-                        @if (exerciseCompletionStatus(sessionExercise); as status) {
-                          @if (status === 'success') {
-                            <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">thumb_up</mat-icon>
-                          } @else {
-                            <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
-                          }
-                        }
-                        @if (hiddenSetsWarningTooltip(sessionExercise); as hiddenSetsWarning) {
-                          <mat-icon class="exercise-status-icon exercise-hidden-sets-warning" [matTooltip]="hiddenSetsWarning">visibility_off</mat-icon>
-                        }
-                      </span>
-                      <span class="set-count"
-                        >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
-                        <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(sessionExercise.exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
-                      >
-                    </span>
+                    {{ exerciseName(sessionExercise.exerciseId) }}
+                    @if (exerciseTierLabelKey(session, sessionExercise.exerciseId); as tierLabelKey) {
+                      <span class="tier-badge">{{ tierLabelKey | translate }}</span>
+                    }
+                    @if (exerciseCompletionStatus(sessionExercise); as status) {
+                      @if (status === 'success') {
+                        <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">thumb_up</mat-icon>
+                      } @else {
+                        <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
+                      }
+                    }
+                    @if (hiddenSetsWarningTooltip(sessionExercise); as hiddenSetsWarning) {
+                      <mat-icon class="exercise-status-icon exercise-hidden-sets-warning" [matTooltip]="hiddenSetsWarning">visibility_off</mat-icon>
+                    }
                   </mat-panel-title>
+                  <span class="set-count"
+                    >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
+                    <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(sessionExercise.exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
+                  >
                   @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
                     <div class="weight-info-trigger">
                       <button

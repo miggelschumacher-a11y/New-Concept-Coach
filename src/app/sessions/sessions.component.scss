@@ -399,23 +399,20 @@ mat-expansion-panel mat-checkbox {
   margin-top: 0.5rem;
 }
 
-// The exercise header's title area: the name (with its tier badge and status
-// icons) on one line, and the set/weight summary (.set-count) on a line of
-// its own below it instead of running on after the name.
-.exercise-title-block {
-  display: flex;
-  flex-direction: column;
-}
-
-.exercise-title-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
+// The exercise header's set/weight summary: a direct child of the header's
+// flex row (not of mat-panel-title) taking the full row width after
+// everything else (order: 1), so with the row allowed to wrap (see the
+// .exercise-accordion rule below) it sits on a line of its own, starting at
+// the far left under the delete button.
 .set-count {
+  order: 1;
+  flex: 0 0 100%;
   color: var(--app-muted-text);
   font-weight: normal;
+}
+
+::ng-deep .exercise-accordion mat-expansion-panel-header .mat-content {
+  flex-wrap: wrap;
 }
 
 .tier-badge {
