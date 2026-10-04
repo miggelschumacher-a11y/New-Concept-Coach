@@ -43,6 +43,9 @@ import { DurationMaskDirective } from '../core/directives/duration-mask.directiv
 import { DurationPipe } from '../core/pipes/duration.pipe';
 import { parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
 import { PurchasesService } from '../core/services/purchases.service';
+import { Capacitor } from '@capacitor/core';
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 const BODY_WEIGHT_MAX = 300;
 
@@ -608,10 +611,25 @@ export class ConfigComponent implements OnInit, OnDestroy {
   // native save dialog. Falls back to a plain browser download (no folder
   // picker, but the browser's own "always ask where to save" setting still
   // lets the user redirect it) on browsers without that API, e.g. Firefox.
+  //
+  // Inside the Android app neither of those works: the WebView has no
+  // showSaveFilePicker and silently ignores a blob <a download> link, so the
+  // click did nothing at all (while still reporting success). There the file
+  // is written to the app's cache folder and handed to Android's share sheet
+  // (see shareBackupFile), from which it can be saved to Files/Drive or sent.
   async backupToLocalFile(): Promise<void> {
-    const data = await this.indexedDbService.exportAll();
-    const json = JSON.stringify(data, null, 2);
+    let json: string;
+    try {
+      json = JSON.stringify(await this.indexedDbService.exportAll(), null, 2);
+    } catch {
+      this.statusMessageKey = 'config.exportError';
+      return;
+    }
     const fileName = `concept-coach-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    if (Capacitor.isNativePlatform()) {
+      await this.shareBackupFile(fileName, json);
+      return;
+    }
     const showSaveFilePicker = (window as unknown as { showSaveFilePicker?: (options: unknown) => Promise<FileSystemFileHandleLike> })
       .showSaveFilePicker;
     if (showSaveFilePicker) {
@@ -638,9 +656,34 @@ export class ConfigComponent implements OnInit, OnDestroy {
     const link = document.createElement('a');
     link.href = url;
     link.download = fileName;
+    // Attached for the click (Firefox ignores a detached link) and the URL
+    // released only afterwards, once the browser has started the download.
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
     this.statusMessageKey = 'config.exportSuccess';
+  }
+
+  // The Android app's way of saving a backup: writes it to the app's cache
+  // folder and opens the system share sheet with that file - the user picks
+  // where it goes (Files, Drive, mail, ...). Cancelling the sheet isn't a
+  // failure worth reporting, same as closing the browser's save dialog.
+  private async shareBackupFile(fileName: string, json: string): Promise<void> {
+    try {
+      const { uri } = await Filesystem.writeFile({
+        path: fileName,
+        data: json,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8
+      });
+      await Share.share({ title: fileName, files: [uri] });
+      this.statusMessageKey = 'config.exportSuccess';
+    } catch (error) {
+      if (!/cancel/i.test((error as Error)?.message ?? '')) {
+        this.statusMessageKey = 'config.exportError';
+      }
+    }
   }
 
   async onRestoreFileSelected(event: Event): Promise<void> {
