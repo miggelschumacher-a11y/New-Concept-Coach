@@ -135,6 +135,25 @@
                               [class.set-complete-fail]="set.done && !setMetTarget(set)"
                               >{{ set.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon
                             >
+                            @if (isTimeBasedExercise(sessionExercise)) {
+                              <mat-form-field appearance="outline" class="history-set-field">
+                                <mat-label>
+                                  {{ 'sessions.timeField' | translate }}
+                                  @if (targetSecondsHint(set); as targetHint) {
+                                    ({{ targetHint | duration }})
+                                  }
+                                </mat-label>
+                                <input
+                                  matInput
+                                  type="text"
+                                  inputmode="numeric"
+                                  [value]="historySetSecondsDisplay(set) | duration"
+                                  [matTooltip]="'sessions.achievedSecondsTooltip' | translate"
+                                  durationMask
+                                  (change)="updateHistorySetSeconds(session, set, $any($event.target).value)"
+                                />
+                              </mat-form-field>
+                            }
                             @if (set.done) {
                               <mat-checkbox
                                 class="history-set-exclude"
@@ -147,26 +166,8 @@
                               </mat-checkbox>
                             }
                           </div>
+                          @if (!isTimeBasedExercise(sessionExercise)) {
                           <div class="history-set-fields">
-                          @if (isTimeBasedExercise(sessionExercise)) {
-                            <mat-form-field appearance="outline" class="history-set-field">
-                              <mat-label>
-                                {{ 'sessions.timeField' | translate }}
-                                @if (targetSecondsHint(set); as targetHint) {
-                                  ({{ targetHint | duration }})
-                                }
-                              </mat-label>
-                              <input
-                                matInput
-                                type="text"
-                                inputmode="numeric"
-                                [value]="historySetSecondsDisplay(set) | duration"
-                                [matTooltip]="'sessions.achievedSecondsTooltip' | translate"
-                                durationMask
-                                (change)="updateHistorySetSeconds(session, set, $any($event.target).value)"
-                              />
-                            </mat-form-field>
-                          } @else {
                             <mat-form-field appearance="outline" class="history-set-field">
                               <mat-label>
                                 {{ 'sessions.reps' | translate }}
@@ -196,8 +197,8 @@
                                 (change)="updateHistorySetWeight(session, set, $any($event.target).value)"
                               />
                             </mat-form-field>
-                          }
                           </div>
+                          }
                         </div>
                       }
                     </div>
