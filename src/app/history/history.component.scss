@@ -89,10 +89,23 @@ mat-expansion-panel-header .mat-content {
   margin-top: 1rem;
 }
 
+// An exercise header's set/weight summary: a direct child of the header's
+// flex row (not of mat-panel-title) taking the full row width after
+// everything else (order: 1), so with the row allowed to wrap (see below) it
+// sits on a line of its own at the far left. Same as the exercise headers in
+// SessionsComponent and TrainingPlansComponent.
 .set-count {
-  margin-left: 0.5rem;
+  order: 1;
+  flex: 0 0 100%;
   color: var(--app-muted-text);
   font-weight: normal;
+}
+
+// Only the exercise panels' own headers (direct children - the session
+// header above has its own wrap rule). .mat-content belongs to the header's
+// internal template, hence ::ng-deep.
+.exercise-accordion > mat-expansion-panel > mat-expansion-panel-header ::ng-deep .mat-content {
+  flex-wrap: wrap;
 }
 
 .exercise-status-icon {

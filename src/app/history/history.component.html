@@ -96,10 +96,6 @@
                 <mat-expansion-panel-header>
                   <mat-panel-title>
                     {{ exerciseName(sessionExercise.exerciseId) }}
-                    <span class="set-count"
-                      >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
-                      <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>)</span
-                    >
                     @if (exerciseCompletionStatus(sessionExercise); as status) {
                       @if (status === 'success') {
                         <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">thumb_up</mat-icon>
@@ -108,6 +104,10 @@
                       }
                     }
                   </mat-panel-title>
+                  <span class="set-count"
+                    >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
+                    <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>)</span
+                  >
                   <div class="header-exercise-info-action">
                     <a
                       mat-icon-button
