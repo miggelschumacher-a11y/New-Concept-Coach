@@ -127,7 +127,27 @@
                       <span class="history-set-type-label"><mat-icon class="label-icon">{{ setType.icon }}</mat-icon>{{ setType.labelKey | translate }}</span>
                       @for (set of setsByType(sessionExercise, setType.value); track set.id; let i = $index) {
                         <div class="history-set-row">
-                          <span class="set-index">#{{ i + 1 }}</span>
+                          <div class="history-set-head">
+                            <span class="set-index">#{{ i + 1 }}</span>
+                            <mat-icon
+                              class="history-set-status"
+                              [class.set-complete-success]="set.done && setMetTarget(set)"
+                              [class.set-complete-fail]="set.done && !setMetTarget(set)"
+                              >{{ set.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon
+                            >
+                            @if (set.done) {
+                              <mat-checkbox
+                                class="history-set-exclude"
+                                [matTooltip]="'history.excludeFromStatsTooltip' | translate"
+                                matTooltipClass="readable-tooltip"
+                                [checked]="!!set.excludeFromStats"
+                                (change)="updateExcludeFromStats(session, set, $event.checked)"
+                              >
+                                {{ 'history.excludeFromStats' | translate }}
+                              </mat-checkbox>
+                            }
+                          </div>
+                          <div class="history-set-fields">
                           @if (isTimeBasedExercise(sessionExercise)) {
                             <mat-form-field appearance="outline" class="history-set-field">
                               <mat-label>
@@ -177,23 +197,7 @@
                               />
                             </mat-form-field>
                           }
-                          <mat-icon
-                            class="history-set-status"
-                            [class.set-complete-success]="set.done && setMetTarget(set)"
-                            [class.set-complete-fail]="set.done && !setMetTarget(set)"
-                            >{{ set.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon
-                          >
-                          @if (set.done) {
-                            <mat-checkbox
-                              class="history-set-exclude"
-                              [matTooltip]="'history.excludeFromStatsTooltip' | translate"
-                              matTooltipClass="readable-tooltip"
-                              [checked]="!!set.excludeFromStats"
-                              (change)="updateExcludeFromStats(session, set, $event.checked)"
-                            >
-                              {{ 'history.excludeFromStats' | translate }}
-                            </mat-checkbox>
-                          }
+                          </div>
                         </div>
                       }
                     </div>

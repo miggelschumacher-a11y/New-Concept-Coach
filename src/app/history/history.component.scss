@@ -22,11 +22,17 @@
   min-width: 0;
 }
 
+// The session's date/weight line: a row of its own below the delete button
+// and name (order: 1, full row width - the header row wraps, see the
+// .mat-content rule below), starting at the far left under the delete
+// button, instead of squeezing in beside the name and getting cut off.
 .session-card mat-panel-description {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
+  order: 1;
+  flex: 0 0 100%;
+}
+
+.session-card > mat-expansion-panel-header ::ng-deep .mat-content {
+  flex-wrap: wrap;
 }
 
 // Without this, the header keeps Material's default fixed height and clips
@@ -111,12 +117,19 @@ mat-expansion-panel-header .mat-content {
   font-weight: 500;
 }
 
+// A set is two rows: the head (set number, status check, "no statistics"
+// checkbox) and below it, on a line of its own, the value fields (reps and
+// weight, or the time fields).
 .history-set-row {
+  margin: 0.35rem 0 0.35rem 1.5rem;
+}
+
+.history-set-head,
+.history-set-fields {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 1rem;
-  margin: 0.35rem 0 0.35rem 1.5rem;
 }
 
 .history-set-field {
@@ -133,7 +146,6 @@ mat-expansion-panel-header .mat-content {
 }
 
 .set-index {
-  min-width: 4.5rem;
   color: var(--app-muted-text);
 }
 
