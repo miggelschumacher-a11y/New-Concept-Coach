@@ -399,8 +399,21 @@ mat-expansion-panel mat-checkbox {
   margin-top: 0.5rem;
 }
 
+// The exercise header's title area: the name (with its tier badge and status
+// icons) on one line, and the set/weight summary (.set-count) on a line of
+// its own below it instead of running on after the name.
+.exercise-title-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.exercise-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .set-count {
-  margin-left: 0.5rem;
   color: var(--app-muted-text);
   font-weight: normal;
 }
@@ -584,21 +597,21 @@ mat-expansion-panel mat-checkbox {
 }
 
 .set-fields .set-field-weight {
-  // Wide enough for the label's shorter forms - just the unit ("KG"), or the
-  // unit plus exactly one suffix ("LBS  (100%)" or "LBS  (9999.99)") - at
-  // ~65px once floated, plus the same +33px notch-clearance margin as
-  // set-field-weight-wide below.
+  // Wide enough for the label's longer form - the unit plus the %1RM suffix
+  // ("LBS  (100%)") - at ~65px once floated, plus the outline notch's +33px
+  // clearance (label + 9px notch, capped at the field width - 24px); also
+  // covers the widest input ("9999.99", 49px + 32px padding). The done set's
+  // total (setVolume) no longer lives in this label but beside the exercise
+  // name above the set (.set-volume).
   width: 6.75rem;
 }
 
-.set-fields .set-field-weight.set-field-weight-wide {
-  // A done set with a recorded 1RM shows all three parts together - unit +
-  // %1RM + done-volume, e.g. "LBS  (100%)  (9999.99)" at 104px once floated.
-  // The outline's notch around a floated label is label + 9px wide and
-  // capped at the field width - 24px, so the field needs label + 33px
-  // (137px) - which also covers the widest input ("9999.99", 49px + 32px
-  // padding).
-  width: 8.75rem;
+// The check and reset buttons stay together as one unit: when the set's
+// fields wrap, they move to the next line side by side instead of splitting
+// up, one on each line.
+.set-complete-actions {
+  display: flex;
+  gap: 0.35rem;
 }
 
 .set-field input {

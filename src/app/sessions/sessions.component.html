@@ -508,24 +508,28 @@
                     </div>
                   }
                   <mat-panel-title>
-                    {{ exerciseName(sessionExercise.exerciseId) }}
-                    @if (exerciseTierLabelKey(session, sessionExercise.exerciseId); as tierLabelKey) {
-                      <span class="tier-badge">{{ tierLabelKey | translate }}</span>
-                    }
-                    <span class="set-count"
-                      >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
-                      <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(sessionExercise.exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
-                    >
-                    @if (exerciseCompletionStatus(sessionExercise); as status) {
-                      @if (status === 'success') {
-                        <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">thumb_up</mat-icon>
-                      } @else {
-                        <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
-                      }
-                    }
-                    @if (hiddenSetsWarningTooltip(sessionExercise); as hiddenSetsWarning) {
-                      <mat-icon class="exercise-status-icon exercise-hidden-sets-warning" [matTooltip]="hiddenSetsWarning">visibility_off</mat-icon>
-                    }
+                    <span class="exercise-title-block">
+                      <span class="exercise-title-row">
+                        {{ exerciseName(sessionExercise.exerciseId) }}
+                        @if (exerciseTierLabelKey(session, sessionExercise.exerciseId); as tierLabelKey) {
+                          <span class="tier-badge">{{ tierLabelKey | translate }}</span>
+                        }
+                        @if (exerciseCompletionStatus(sessionExercise); as status) {
+                          @if (status === 'success') {
+                            <mat-icon class="exercise-status-icon exercise-status-success" [matTooltip]="'sessions.exerciseStatusSuccess' | translate">thumb_up</mat-icon>
+                          } @else {
+                            <mat-icon class="exercise-status-icon exercise-status-fail" [matTooltip]="'sessions.exerciseStatusFail' | translate">thumb_down</mat-icon>
+                          }
+                        }
+                        @if (hiddenSetsWarningTooltip(sessionExercise); as hiddenSetsWarning) {
+                          <mat-icon class="exercise-status-icon exercise-hidden-sets-warning" [matTooltip]="hiddenSetsWarning">visibility_off</mat-icon>
+                        }
+                      </span>
+                      <span class="set-count"
+                        >(<span [matTooltip]="'sessions.setsCountTooltip' | translate">{{ totalSetsCount(sessionExercise) }} {{ 'sessions.setsWord' | translate }}</span>,
+                        <span [matTooltip]="'sessions.weightLiftedTooltip' | translate">{{ totalWeightLifted(sessionExercise) }} {{ weightUnitLabel }}</span>@if (exerciseOneRepMax(sessionExercise.exerciseId); as oneRepMax) {, <span [matTooltip]="'exercises.oneRepMaxTooltip' | translate">{{ exerciseOneRepMaxLabelKey(sessionExercise.exerciseId) | translate }} {{ oneRepMax.toFixed(2) }} {{ weightUnitLabel }}</span>})</span
+                      >
+                    </span>
                   </mat-panel-title>
                   @if (isTierLineProgressionExercise(session, sessionExercise.exerciseId)) {
                     <div class="weight-info-trigger">
@@ -1053,6 +1057,9 @@
                               <span class="set-index">#{{ i + 1 }}</span>
                               <mat-icon class="set-type-icon" [matTooltip]="setType.labelKey | translate">{{ setType.icon }}</mat-icon>
                               <span class="set-exercise-name">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</span>
+                              @if (set.done) {
+                                <span class="set-volume" [matTooltip]="'sessions.weightLiftedTooltip' | translate">({{ setVolume(set, sessionExercise).toFixed(2) }})</span>
+                              }
                             </div>
                             <div class="set-row">
                           <div class="set-fields">
@@ -1119,7 +1126,6 @@
                               <mat-form-field
                                 appearance="outline"
                                 class="set-field set-field-weight"
-                                [class.set-field-weight-wide]="set.done && setOneRepMaxPercentage(session, sessionExercise, set)"
                                 subscriptSizing="dynamic"
                                 [matTooltip]="'sessions.weightFieldTooltip' | translate"
                               >
@@ -1127,9 +1133,6 @@
                                   {{ weightUnitLabel }}
                                   @if (setOneRepMaxPercentage(session, sessionExercise, set); as oneRepMaxPercentage) {
                                     &nbsp;({{ oneRepMaxPercentage }}%)
-                                  }
-                                  @if (set.done) {
-                                    &nbsp;({{ setVolume(set, sessionExercise).toFixed(2) }})
                                   }
                                 </mat-label>
                                 <input
@@ -1201,27 +1204,29 @@
                                 <mat-icon>{{ isCountdownRunning(set) ? 'stop' : 'play_arrow' }}</mat-icon>
                               </button>
                             }
-                            <button
-                              mat-icon-button
-                              class="set-complete-btn"
-                              [class.set-complete-success]="set.done && setMetTarget(set)"
-                              [class.set-complete-fail]="set.done && !setMetTarget(set)"
-                              (click)="onCompleteSetClick(session, sessionExercise, set)"
-                              [matTooltip]="'sessions.completeSet' | translate"
-                              [attr.aria-label]="'sessions.completeSet' | translate"
-                            >
-                              <mat-icon>check_circle</mat-icon>
-                            </button>
-                            @if (set.done) {
+                            <div class="set-complete-actions">
                               <button
                                 mat-icon-button
-                                (click)="resetSet(session, set)"
-                                [matTooltip]="'sessions.resetSet' | translate"
-                                [attr.aria-label]="'sessions.resetSet' | translate"
+                                class="set-complete-btn"
+                                [class.set-complete-success]="set.done && setMetTarget(set)"
+                                [class.set-complete-fail]="set.done && !setMetTarget(set)"
+                                (click)="onCompleteSetClick(session, sessionExercise, set)"
+                                [matTooltip]="'sessions.completeSet' | translate"
+                                [attr.aria-label]="'sessions.completeSet' | translate"
                               >
-                                <mat-icon>restart_alt</mat-icon>
+                                <mat-icon>check_circle</mat-icon>
                               </button>
-                            }
+                              @if (set.done) {
+                                <button
+                                  mat-icon-button
+                                  (click)="resetSet(session, set)"
+                                  [matTooltip]="'sessions.resetSet' | translate"
+                                  [attr.aria-label]="'sessions.resetSet' | translate"
+                                >
+                                  <mat-icon>restart_alt</mat-icon>
+                                </button>
+                              }
+                            </div>
                           </div>
                             </div>
                           </div>
