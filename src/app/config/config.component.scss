@@ -2,6 +2,19 @@ mat-card {
   margin-bottom: 1.5rem;
 }
 
+// Page title on the left, the app's version at the far right of the same row.
+.config-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.config-version {
+  color: var(--app-muted-text);
+  font-size: 0.85rem;
+}
+
 .increment-scheme-accordion {
   display: block;
   margin-bottom: 1.5rem;

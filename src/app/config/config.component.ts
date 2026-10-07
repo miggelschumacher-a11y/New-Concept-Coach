@@ -43,6 +43,7 @@ import { DurationMaskDirective } from '../core/directives/duration-mask.directiv
 import { DurationPipe } from '../core/pipes/duration.pipe';
 import { parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
 import { PurchasesService } from '../core/services/purchases.service';
+import { APP_VERSION } from '../core/app-version';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -84,6 +85,7 @@ interface FileSystemFileHandleLike {
 })
 export class ConfigComponent implements OnInit, OnDestroy {
   readonly languages = LANGUAGES;
+  readonly appVersion = APP_VERSION;
   readonly trainingZones = TRAINING_ZONES;
   weightUnit: WeightUnit;
   dateFormat: DateFormat;
