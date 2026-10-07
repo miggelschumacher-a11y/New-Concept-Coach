@@ -7,6 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from './core/pipes/translate.pipe';
 import { ThemeService } from './core/services/theme.service';
 import { PurchasesService } from './core/services/purchases.service';
+import { APP_VERSION } from './core/app-version';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +27,7 @@ import { PurchasesService } from './core/services/purchases.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Concept Coach';
+  readonly appVersion = APP_VERSION;
 
   // Dismissed by a tap anywhere on it, or automatically once this fires -
   // whichever comes first (dismissSplash guards against running twice).

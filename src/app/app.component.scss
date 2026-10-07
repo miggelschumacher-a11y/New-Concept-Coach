@@ -65,6 +65,23 @@ mat-toolbar a.active {
   font-weight: 500;
 }
 
+// The app's version, pushed to the toolbar's far right by the auto margin.
+.app-version {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+// The logo and the five nav buttons already need ~380px; below ~410px the
+// version no longer fits beside them and would push the page wider than the
+// screen, so it gives way.
+@media (max-width: 410px) {
+  .app-version {
+    display: none;
+  }
+}
+
 main {
   max-width: 800px;
   margin: 0 auto;

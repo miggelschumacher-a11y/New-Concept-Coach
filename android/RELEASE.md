@@ -54,7 +54,10 @@ Release-Build wird mit einer Fehlermeldung abgelehnt.
    npm run android:version               # nur die aktuelle Version anzeigen
    ```
 
-   Gespeichert wird sie in `android/version.properties` (mit einchecken).
+   Gespeichert wird sie in `android/version.properties` (mit einchecken). Dasselbe
+   Skript schreibt den Versionsnamen auch nach `src/app/core/app-version.ts`, die
+   Nummer oben rechts in der Navigationsleiste der App (ebenfalls mit einchecken;
+   `npm run android:release` gleicht sie vor dem Build automatisch ab).
 2. Signiertes Bundle bauen:
 
    ```bash
