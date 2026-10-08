@@ -54,8 +54,9 @@ mat-expansion-panel-header .mat-content {
 }
 
 // An exercise header's row is laid out purely by `order` (mat-panel-title
-// always projects first regardless of source order): drag handle (-3), its
-// index (-2), the info button (-1), the title (0, takes the free width), then
+// always projects first regardless of source order): the exercise's index
+// (-3, far left, like a set's number), the drag handle (-2), the info button
+// (-1), the title (0, takes the free width), then
 // the settings button (1) and the delete button (2) at the far right, and the
 // summary line (.set-count, 3) wrapped onto a row of its own below. The
 // session header's own delete button keeps header-delete-action's order of -1.
@@ -65,12 +66,23 @@ mat-expansion-panel-header .mat-content {
 }
 
 .exercise-index {
-  order: -2;
+  order: -3;
   align-self: center;
 }
 
+// margin-left: auto keeps it at the right even if the row is ever too full
+// and it wraps onto a line of its own.
 .exercise-delete-action {
   order: 2;
+  margin-left: auto;
+}
+
+// Material's 16px margin after the title is what tipped a full row (index,
+// handle, info, a name with its status icon, settings, delete) over the edge
+// on a phone-wide screen - the neighbouring icon buttons have their own
+// padding, so the title doesn't need it.
+.exercise-accordion mat-panel-title {
+  margin-right: 0;
 }
 
 .header-exercise-settings-action {
@@ -116,7 +128,7 @@ mat-expansion-panel-header .mat-content {
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  order: -3;
+  order: -2;
   padding: 0 0.5rem;
   color: rgba(var(--app-fg-rgb), 0.5);
   cursor: grab;
