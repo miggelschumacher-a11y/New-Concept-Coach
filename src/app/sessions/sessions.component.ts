@@ -3248,8 +3248,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
     // popups (see there) - a rest timer isn't tied to a specific set, so
     // finishing while one is still showing (from a set completed earlier in
     // this same session) would otherwise leave it open and counting down
-    // with nothing left to be a reminder for.
-    this.closeOtherTimerDialogs();
+    // with nothing left to be a reminder for. The same goes for every other
+    // popup that happens to be open - see closeAllPopups. Flows that were
+    // waiting for those to go away (waitForNoPendingPopup) check
+    // session.finished before opening theirs, so closing everything here
+    // doesn't let them pop up for the session that's just ended.
+    this.closeAllPopups();
     if (session.timerRunning && session.timerStartedAt) {
       session.timerElapsedMs = (session.timerElapsedMs ?? 0) + (Date.now() - new Date(session.timerStartedAt).getTime());
     } else {
@@ -4863,6 +4867,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
       return;
     }
     await this.waitForNoPendingPopup();
+    if (session.finished) {
+      return;
+    }
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         messageKey: 'sessions.repGoalMetDespiteMissedSetMessage',
@@ -4948,6 +4955,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const movingToNextExercise = target.sessionExercise !== sessionExercise;
     if (mode === 'confirm') {
       await this.waitForNoPendingPopup();
+      if (session.finished) {
+        return;
+      }
       // Which "[[section]] sets are done" phrasing to use has to follow the
       // section that actually just finished (type, the completed set's own
       // type) - not just the destination (target.type) - since an exercise
@@ -5119,6 +5129,37 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Closes every popup of any kind this page can have open - for finishing or
+  // deleting a session, where whatever was up (a rest/exercise timer, the
+  // equipment or notes dialog, a confirmation, a toast, the info/copy
+  // popups, an inline "really delete?" prompt) refers to a state that's no
+  // longer there to act on:
+  //  - the timer popups, via closeOtherTimerDialogs, since a Time-Based
+  //    countdown's state also has to be dropped, not just its popup;
+  //  - every other MatDialog, via closeAll;
+  //  - the toast (snackBar), e.g. the last set's progression message;
+  //  - the in-page info/copy popups, which otherwise only close on an outside
+  //    click;
+  //  - the inline confirmations that don't end up answered by the action
+  //    itself (delete set/exercise/session/all sessions, create from plan).
+  // pendingFinishSessionId and pendingReplenishSession are left to their own
+  // flows: the former is cleared by confirmFinishSession itself, and the
+  // latter is the prompt that finishing in "ask" mode opens right afterwards.
+  private closeAllPopups(): void {
+    this.closeOtherTimerDialogs();
+    this.dialog.closeAll();
+    this.snackBar.dismiss();
+    this.closeWeightInfo();
+    this.closeSessionSettingsInfo();
+    this.closeSetFieldCopyPopup();
+    this.closeIncrementSchemeInfo();
+    this.pendingDeleteSetId = null;
+    this.pendingDeleteExerciseKey = null;
+    this.pendingDeleteSessionId = null;
+    this.pendingDeleteAllSessions = false;
+    this.pendingPlanId = null;
+  }
+
   // Asks whether to finish the session now that every working set across
   // every exercise is done - reuses confirmFinishSession itself so the same
   // name-required guard and replenish flow apply as the ordinary "stop"
@@ -5128,6 +5169,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // reduction toast message, folded in here instead of shown separately.
   private async promptFinishAllDone(session: TrainingSession, feedbackMessage?: string): Promise<void> {
     await this.waitForNoPendingPopup();
+    // Finished by hand while this was still waiting - nothing left to ask.
+    if (session.finished) {
+      return;
+    }
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         messageKey: 'sessions.allWorkingSetsDoneQuestion',
@@ -5670,9 +5715,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     if (session) {
       // Same reasoning as confirmFinishSession's own pair of calls - a
       // deleted session leaves nothing left for either kind of timer popup
-      // to be tracking or reminding about.
+      // to be tracking or reminding about - nor any other popup.
       this.stopAllCountdowns(session);
-      this.closeOtherTimerDialogs();
+      this.closeAllPopups();
     }
     if (session && !session.finished && session.progressionSnapshots) {
       await this.restoreProgressionSnapshots(session.progressionSnapshots);
@@ -5701,7 +5746,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     for (const session of this.sessions) {
       this.stopAllCountdowns(session);
     }
-    this.closeOtherTimerDialogs();
+    this.closeAllPopups();
     const savedIds = this.sessions.filter((session) => !this.unsavedSessionIds.has(session.id)).map((session) => session.id);
     this.unsavedSessionIds.clear();
     await Promise.all(savedIds.map((id) => this.sessionsService.delete(id)));
