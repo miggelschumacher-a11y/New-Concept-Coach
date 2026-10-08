@@ -53,20 +53,29 @@ mat-expansion-panel-header .mat-content {
   flex: 0 0 auto;
 }
 
+// An exercise header's row is laid out purely by `order` (mat-panel-title
+// always projects first regardless of source order): drag handle (-3), its
+// index (-2), the info button (-1), the title (0, takes the free width), then
+// the settings button (1) and the delete button (2) at the far right, and the
+// summary line (.set-count, 3) wrapped onto a row of its own below. The
+// session header's own delete button keeps header-delete-action's order of -1.
 .header-exercise-info-action {
   flex: 0 0 auto;
+  order: -1;
 }
 
-// Deliberately NOT order:-1, unlike header-delete-action above - mat-panel-
-// title always projects first in a mat-expansion-panel-header regardless of
-// source order, and exercise-drag-handle has no order override, so it
-// renders right after the title in plain DOM order. Staying at the default
-// order:0 groups this with the drag handle in that same "after title"
-// bucket, and its DOM position right before .exercise-drag-handle keeps it
-// immediately to that handle's left (same fix as TrainingPlansComponent's
-// own custom-session exercise header).
+.exercise-index {
+  order: -2;
+  align-self: center;
+}
+
+.exercise-delete-action {
+  order: 2;
+}
+
 .header-exercise-settings-action {
   flex: 0 0 auto;
+  order: 1;
 }
 
 // A session exercise's Settings content - toggled by the gear icon in its
@@ -107,6 +116,7 @@ mat-expansion-panel-header .mat-content {
   display: flex;
   align-items: center;
   flex: 0 0 auto;
+  order: -3;
   padding: 0 0.5rem;
   color: rgba(var(--app-fg-rgb), 0.5);
   cursor: grab;
@@ -184,20 +194,27 @@ mat-expansion-panel-header .mat-content {
   align-items: center;
 }
 
-.weight-info-popup {
+// The look the three floating popups of this page share (the specifics -
+// width, tilt, layout - follow in each popup's own rule).
+.weight-info-popup,
+.set-field-copy-popup,
+.exercise-settings-info-popup {
   position: fixed;
   z-index: 1000;
-  width: 320px;
   background: linear-gradient(145deg, var(--app-popup-gradient-start), var(--app-popup-gradient-end));
   border-radius: 10px;
   padding: 0.65rem 0.85rem;
-  transform: perspective(700px) rotateX(4deg);
-  transform-origin: top right;
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.35),
     0 8px 16px rgba(0, 0, 0, 0.45),
     0 24px 48px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(var(--app-fg-rgb), 0.08);
+}
+
+.weight-info-popup {
+  width: 320px;
+  transform: perspective(700px) rotateX(4deg);
+  transform-origin: top right;
 
   p {
     margin: 0.25rem 0;
@@ -223,21 +240,11 @@ mat-expansion-panel-header .mat-content {
 }
 
 .set-field-copy-popup {
-  position: fixed;
-  z-index: 1000;
   width: 340px;
   max-width: calc(100vw - 16px);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background: linear-gradient(145deg, var(--app-popup-gradient-start), var(--app-popup-gradient-end));
-  border-radius: 10px;
-  padding: 0.65rem 0.85rem;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.35),
-    0 8px 16px rgba(0, 0, 0, 0.45),
-    0 24px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(var(--app-fg-rgb), 0.08);
 }
 
 .set-field-copy-popup button {
@@ -291,19 +298,9 @@ mat-expansion-panel mat-checkbox {
 }
 
 .exercise-settings-info-popup {
-  position: fixed;
-  z-index: 1000;
   width: 340px;
-  background: linear-gradient(145deg, var(--app-popup-gradient-start), var(--app-popup-gradient-end));
-  border-radius: 10px;
-  padding: 0.65rem 0.85rem;
   transform: perspective(700px) rotateX(4deg);
   transform-origin: top right;
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.35),
-    0 8px 16px rgba(0, 0, 0, 0.45),
-    0 24px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(var(--app-fg-rgb), 0.08);
 }
 
 .exercise-settings-info-popup mat-checkbox {
@@ -401,11 +398,11 @@ mat-expansion-panel mat-checkbox {
 
 // The exercise header's set/weight summary: a direct child of the header's
 // flex row (not of mat-panel-title) taking the full row width after
-// everything else (order: 1), so with the row allowed to wrap (see the
-// .exercise-accordion rule below) it sits on a line of its own, starting at
-// the far left under the delete button.
+// everything else (order: 3 - see the order list at .header-exercise-info-
+// action), so with the row allowed to wrap (see the .exercise-accordion rule
+// below) it sits on a line of its own, starting at the far left.
 .set-count {
-  order: 1;
+  order: 3;
   flex: 0 0 100%;
   color: var(--app-muted-text);
   font-weight: normal;
@@ -457,12 +454,15 @@ mat-expansion-panel mat-checkbox {
   margin: 0 0 0.35rem;
 }
 
-// Drag handle, set number, delete button and set-type icon all sit on this
-// same row now, to the left of the exercise name - sized to match its own
-// small font (see the drag-handle/index/delete-button/type-icon rules
-// below), rather than the full-size touch targets they used to have as
-// their own row inside .set-row.
+// Set number (far left), drag handle and set-type icon sit on this same row
+// to the left of the exercise name, the delete button (.set-delete-action)
+// at the far right - sized to match its own small font (see the drag-handle/
+// index/delete-button/type-icon rules below), rather than the full-size
+// touch targets they used to have as their own row inside .set-row. May
+// wrap, so the (wider) delete confirmation can drop onto a line of its own,
+// still at the right.
 .set-exercise-label {
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   gap: 0.3rem;
@@ -521,6 +521,10 @@ mat-expansion-panel mat-checkbox {
   line-height: 1;
   color: var(--app-muted-text);
   flex: 0 0 auto;
+}
+
+.set-delete-action {
+  margin-left: auto;
 }
 
 .set-delete-button {

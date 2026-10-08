@@ -429,7 +429,7 @@
             [cdkDropListDisabled]="!canEditExerciseTypeInSession(session)"
             (cdkDropListDropped)="dropExercise(session, $event)"
           >
-            @for (sessionExercise of session.exercises; track sessionExercise.exerciseId) {
+            @for (sessionExercise of session.exercises; track sessionExercise.exerciseId; let exerciseIndex = $index) {
               <mat-expansion-panel
                 cdkDrag
                 [cdkDragDisabled]="!canEditExerciseTypeInSession(session)"
@@ -437,7 +437,7 @@
                 (expandedChange)="onExercisePanelExpandedChange(session, sessionExercise, $event)"
               >
                 <mat-expansion-panel-header>
-                  <div class="header-delete-action">
+                  <div class="header-delete-action exercise-delete-action">
                     @if (isPendingDeleteExercise(session, sessionExercise.exerciseId)) {
                       <div class="confirm-dialog" (click)="$event.stopPropagation()">
                         <span class="finish-confirm-label">{{ 'sessions.confirmRemoveExerciseQuestion' | translate }}</span>
@@ -473,6 +473,7 @@
                       </button>
                     }
                   </div>
+                  <span class="set-index exercise-index">#{{ exerciseIndex + 1 }}</span>
                   <div class="header-exercise-info-action">
                     <a
                       mat-icon-button
@@ -1007,6 +1008,7 @@
                               <p class="set-edit-blocked-hint">{{ 'sessions.setDoneEditHint' | translate }}</p>
                             }
                             <div class="set-exercise-label">
+                              <span class="set-index">#{{ i + 1 }}</span>
                               <div
                                 class="set-drag-handle"
                                 cdkDragHandle
@@ -1015,47 +1017,48 @@
                               >
                                 <mat-icon>drag_indicator</mat-icon>
                               </div>
-                              @if (pendingDeleteSetId === set.id) {
-                              <div class="confirm-dialog">
-                                <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
-                                <div class="confirm-dialog-actions">
-                                  <button
-                                    mat-icon-button
-                                    color="warn"
-                                    (click)="confirmRemoveSet(session, sessionExercise, set.id)"
-                                    [matTooltip]="'sessions.confirmYesDelete' | translate"
-                                    [attr.aria-label]="'sessions.confirmYesDelete' | translate"
-                                  >
-                                    <mat-icon>check</mat-icon>
-                                  </button>
-                                  <button
-                                    mat-icon-button
-                                    (click)="cancelRemoveSet()"
-                                    [matTooltip]="'sessions.confirmCancel' | translate"
-                                    [attr.aria-label]="'sessions.confirmCancel' | translate"
-                                  >
-                                    <mat-icon>close</mat-icon>
-                                  </button>
-                                </div>
-                              </div>
-                            } @else {
-                              <button
-                                mat-icon-button
-                                color="warn"
-                                class="set-delete-button"
-                                (click)="requestRemoveSet(set.id)"
-                                [matTooltip]="'sessions.removeSet' | translate"
-                                [attr.aria-label]="'sessions.removeSet' | translate"
-                              >
-                                <mat-icon>delete</mat-icon>
-                              </button>
-                            }
-                              <span class="set-index">#{{ i + 1 }}</span>
                               <mat-icon class="set-type-icon" [matTooltip]="setType.labelKey | translate">{{ setType.icon }}</mat-icon>
                               <span class="set-exercise-name">{{ exerciseName(set.referenceExerciseId ?? sessionExercise.exerciseId) }}</span>
                               @if (set.done) {
                                 <span class="set-volume" [matTooltip]="'sessions.weightLiftedTooltip' | translate">({{ setVolume(set, sessionExercise).toFixed(2) }})</span>
                               }
+                              <div class="set-delete-action">
+                                @if (pendingDeleteSetId === set.id) {
+                                  <div class="confirm-dialog">
+                                    <span class="finish-confirm-label">{{ 'sessions.confirmRemoveSetQuestion' | translate }}</span>
+                                    <div class="confirm-dialog-actions">
+                                      <button
+                                        mat-icon-button
+                                        color="warn"
+                                        (click)="confirmRemoveSet(session, sessionExercise, set.id)"
+                                        [matTooltip]="'sessions.confirmYesDelete' | translate"
+                                        [attr.aria-label]="'sessions.confirmYesDelete' | translate"
+                                      >
+                                        <mat-icon>check</mat-icon>
+                                      </button>
+                                      <button
+                                        mat-icon-button
+                                        (click)="cancelRemoveSet()"
+                                        [matTooltip]="'sessions.confirmCancel' | translate"
+                                        [attr.aria-label]="'sessions.confirmCancel' | translate"
+                                      >
+                                        <mat-icon>close</mat-icon>
+                                      </button>
+                                    </div>
+                                  </div>
+                                } @else {
+                                  <button
+                                    mat-icon-button
+                                    color="warn"
+                                    class="set-delete-button"
+                                    (click)="requestRemoveSet(set.id)"
+                                    [matTooltip]="'sessions.removeSet' | translate"
+                                    [attr.aria-label]="'sessions.removeSet' | translate"
+                                  >
+                                    <mat-icon>delete</mat-icon>
+                                  </button>
+                                }
+                              </div>
                             </div>
                             <div class="set-row">
                           <div class="set-fields">
