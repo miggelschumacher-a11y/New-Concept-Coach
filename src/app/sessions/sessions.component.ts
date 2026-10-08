@@ -1959,7 +1959,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
   // Everything else (Weight-Based, no scheme, TIME_BASED) falls through to
   // peekProgressionWeight unchanged.
   private async replenishedSetWeight(sessionExercise: SessionExercise, set: ExerciseSet): Promise<number> {
-    if (set.type === 'working' && sessionExercise.exerciseType === 'PERCENTAGE_BASED' && sessionExercise.incrementScheme) {
+    if (set.type === 'working' && sessionExercise.exerciseType === 'PERCENTAGE_BASED' && this.hasIncrementScheme(sessionExercise)) {
       const scaledPercentage = await this.scaledPercentageForNextSession(sessionExercise, set);
       if (scaledPercentage !== undefined) {
         const base = this.percentageSetWeight(sessionExercise.exerciseId, scaledPercentage);
@@ -2035,6 +2035,12 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.scalePercentageTo(sessionExercise, set, referenceValue, trackedValue);
   }
 
+  // Whether an exercise actually has a progression scheme - 'NONE' (the
+  // "plain exercise" choice) is stored as a value but means no scheme.
+  private hasIncrementScheme(sessionExercise: SessionExercise): boolean {
+    return !!sessionExercise.incrementScheme && sessionExercise.incrementScheme !== 'NONE';
+  }
+
   // The weight a freshly-added set starts at (addSet's own history lookup,
   // when there's no previous set in this session to imitate instead): for a
   // working set on an exercise that has an increment scheme with an
@@ -2055,10 +2061,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
       // that percentage, same as any other Percentage-Based set, rather than
       // read off the state directly. Without a scheme (or no state tracked
       // yet), just the previous set's own weight carries forward as before.
-      const trackedPercentage = sessionExercise.incrementScheme ? await this.trackedSchemeValue(sessionExercise) : undefined;
-      const base =
-        trackedPercentage === undefined ? fallbackWeight : this.percentageSetWeight(sessionExercise.exerciseId, trackedPercentage);
-      return this.roundToWeightIncrement(this.applyManualDeload(sessionExercise, base));
+      const trackedPercentage = this.hasIncrementScheme(sessionExercise) ? await this.trackedSchemeValue(sessionExercise) : undefined;
+      if (trackedPercentage === undefined) {
+        // No scheme (or nothing tracked yet): nothing works out a new weight,
+        // so the last used one carries over exactly as it was. It used to go
+        // through roundToWeightIncrement like a computed weight, which
+        // turned a 101.5 into 102.5 (and 66.1 into 65). Only an auto-deload
+        // that is actually in effect still lowers it - and that result, being
+        // computed, is rounded to a loadable step.
+        const deloaded = this.applyManualDeload(sessionExercise, fallbackWeight);
+        return deloaded === fallbackWeight ? fallbackWeight : this.roundToWeightIncrement(deloaded);
+      }
+      return this.roundToWeightIncrement(
+        this.applyManualDeload(sessionExercise, this.percentageSetWeight(sessionExercise.exerciseId, trackedPercentage))
+      );
     }
     if (sessionExercise.exerciseType !== 'WEIGHT_BASED' || !sessionExercise.incrementScheme) {
       return fallbackWeight;
