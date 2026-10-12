@@ -55,10 +55,11 @@ mat-expansion-panel-header .mat-content {
 
 // An exercise header's row is laid out purely by `order` (mat-panel-title
 // always projects first regardless of source order): the exercise's index
-// (-3, far left, like a set's number), the drag handle (-2), the info button
+// (-3, like a set's number), the drag handle (-2), the info button
 // (-1), the title (0, takes the free width), then
-// the settings button (1) and the delete button (2) at the far right, and the
+// the settings button (1) at the far right, and the
 // summary line (.set-count, 3) wrapped onto a row of its own below. The
+// exercise's delete button (-4) sits at the far left, before its index. The
 // session header's own delete button keeps header-delete-action's order of -1.
 .header-exercise-info-action {
   flex: 0 0 auto;
@@ -70,11 +71,8 @@ mat-expansion-panel-header .mat-content {
   align-self: center;
 }
 
-// margin-left: auto keeps it at the right even if the row is ever too full
-// and it wraps onto a line of its own.
 .exercise-delete-action {
-  order: 2;
-  margin-left: auto;
+  order: -4;
 }
 
 // Material's 16px margin after the title is what tipped a full row (index,

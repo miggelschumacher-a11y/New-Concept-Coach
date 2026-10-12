@@ -415,3 +415,10 @@ button.add-default-warmup-button {
 .exercise-timer-panel .exercise-timer-content {
   pointer-events: auto;
 }
+
+// A plain text label beside the entry form's 36px-high add button - centred
+// on that button rather than on the taller form field further along the row.
+.entry-form-label {
+  line-height: 36px;
+  font-weight: 500;
+}
