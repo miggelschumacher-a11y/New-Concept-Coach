@@ -1,4 +1,4 @@
-import { PlanExerciseConfig, TrainingPlan } from '../models/training-plan.model';
+import { PlanExerciseConfig, TrainingPlan, WorkingSetTarget } from '../models/training-plan.model';
 
 // Fixed id (not a random UUID) so the seed is idempotent to re-check and the
 // plan is unambiguously identifiable as THE default 5x5 plan across installs.
@@ -16,6 +16,13 @@ const DEFAULT_5X5_LIFTS: { name: string; workingSets: number }[] = [
   { name: 'Deadlift', workingSets: 1 }
 ];
 
+// Every set is a plain set of 5 - without this list a session's sets would
+// fall back to the last executed reps (0 on a fresh install) instead of the
+// 5 the plan is named after.
+function buildWorkingSetTargets(workingSets: number): WorkingSetTarget[] {
+  return Array.from({ length: workingSets }, () => ({ id: crypto.randomUUID(), targetReps: '5', weight: 0 }));
+}
+
 // Builds the default 5x5 plan from whichever of the 5 lifts exist by name.
 // Returns null if none of them do (e.g. all were deleted on an existing
 // install), rather than seeding an empty default plan.
@@ -23,7 +30,16 @@ export function buildDefault5x5Plan(exerciseIdByName: ReadonlyMap<string, string
   const exerciseConfigs: PlanExerciseConfig[] = DEFAULT_5X5_LIFTS.map(
     ({ name, workingSets }): PlanExerciseConfig | null => {
       const exerciseId = exerciseIdByName.get(name);
-      return exerciseId ? { exerciseId, exerciseType: 'WEIGHT_BASED', warmupSets: 0, workingSets, cooldownSets: 0 } : null;
+      return exerciseId
+        ? {
+            exerciseId,
+            exerciseType: 'WEIGHT_BASED',
+            warmupSets: 0,
+            workingSets,
+            cooldownSets: 0,
+            workingSetTargets: buildWorkingSetTargets(workingSets)
+          }
+        : null;
     }
   ).filter((config): config is PlanExerciseConfig => !!config);
 

@@ -165,7 +165,12 @@ const DB_NAME = 'trainings-app-db';
 // short-but-still-goal-clearing set read as "failed" in the UI. Strips
 // targetReps/targetRepsMax/isAmrap from every working set of a Rep Goal
 // System exercise on every stored session.
-const DB_VERSION = 64;
+// 65: the default 5x5 plan's lifts gained their own workingSetTargets (5
+// reps per set) - without one, a session created from it prefilled each
+// set's reps with the last executed value (0 on a fresh install) instead of
+// 5. A content change to an already-seeded plan, so it needs the reseed
+// below rather than the missing-plan self-healing check.
+const DB_VERSION = 65;
 
 const DEFAULT_PLAN_BUILDERS = [
   buildDefault531Plan,

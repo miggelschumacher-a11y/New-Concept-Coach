@@ -2338,7 +2338,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
         isPercentageBased,
         weight: isPercentageBased
           ? (oneRepMax ?? 0)
-          : (config.workingSetTargets?.[0]?.weight ?? this.defaultWeight(exerciseId, 'working')),
+          : // A target weight of 0 means "not configured" (every default
+            // plan seeds its targets that way), so it falls back to the
+            // last used weight just like a config with no target list.
+            (config.workingSetTargets?.[0]?.weight || this.defaultWeight(exerciseId, 'working')),
         oneRepMax,
         oneRepMaxLabelKey: this.exerciseOneRepMaxLabelKey(exerciseId)
       });
@@ -2567,8 +2570,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
             // reps/weight set - no scheme, no deload, just what the plan
             // editor shows. Used as-is for warm-up/cooldown, and as the
             // None/Linear Progression fallback below. A config saved before
-            // these target lists existed (including the hardcoded default
-            // plans, e.g. 5x5) has no list at all - undefined, not an empty
+            // these target lists existed (including a hardcoded default
+            // plan without one, e.g. Heavy Duty) has no list at all - undefined, not an empty
             // array - so it falls back to the old plain-count generation
             // instead of silently producing zero sets; once a config is
             // migrated (even to an empty list, by deleting every row) its
@@ -2670,10 +2673,16 @@ export class SessionsComponent implements OnInit, OnDestroy {
               // NONE scheme - no tracked progression state, so each working
               // set always starts from its own configured target reps and
               // weight, same as the plan editor shows - unless a starting-
-              // weight override applies uniformly to every set instead.
+              // weight override applies uniformly to every set instead. A
+              // target weight of 0 means "not configured" and falls back to
+              // the last used weight (see planStartingWeightRows).
               workingSets = workingSetTargets
                 ? buildTargetSets(workingSetTargets, 'working', (target) =>
-                    this.applyDeload(plan, exerciseId, startingWeightOverride ?? target.weight)
+                    this.applyDeload(
+                      plan,
+                      exerciseId,
+                      startingWeightOverride ?? (target.weight || this.defaultWeight(exerciseId, 'working'))
+                    )
                   )
                 : buildSets(config.workingSets, 'working').map((set) =>
                     startingWeightOverride !== undefined ? { ...set, weight: startingWeightOverride } : set
