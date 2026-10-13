@@ -31,6 +31,7 @@ import {
   SessionNotesDialogData,
   SessionNotesDialogResult
 } from './session-notes-dialog/session-notes-dialog.component';
+import { SessionNameDialogComponent, SessionNameDialogData } from './session-name-dialog/session-name-dialog.component';
 import {
   AddDefaultWarmupDialogComponent,
   AddDefaultWarmupDialogData,
@@ -1927,10 +1928,20 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return currentIds;
   }
 
-  addSession(): void {
-    const now = new Date();
+  // The plus button asks for the new session's name first (prefilled with
+  // the usual "Session <date>"); Cancel creates nothing.
+  async addSession(): Promise<void> {
     const sessionWord = this.translationService.translate('sessions.defaultName');
-    const name = `${sessionWord} ${this.datePipe.transform(now, this.dateFormat)}`;
+    const defaultName = `${sessionWord} ${this.datePipe.transform(new Date(), this.dateFormat)}`;
+    const name = await firstValueFrom(
+      this.dialog
+        .open<SessionNameDialogComponent, SessionNameDialogData, string>(SessionNameDialogComponent, { data: { name: defaultName } })
+        .afterClosed()
+    );
+    if (!name) {
+      return;
+    }
+    const now = new Date();
     const session: TrainingSession = {
       id: crypto.randomUUID(),
       name,

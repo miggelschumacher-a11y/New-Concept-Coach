@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>{{ 'sessions.customSessionLabel' | translate }}</h2>
+<form (ngSubmit)="confirm()">
+  <div mat-dialog-content>
+    <mat-form-field appearance="outline" class="session-name-dialog-field">
+      <mat-label>{{ 'common.name' | translate }}</mat-label>
+      <input matInput type="text" name="sessionNameDialogName" [(ngModel)]="name" required selectOnFocus cdkFocusInitial />
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions class="session-name-dialog-actions">
+    <button mat-stroked-button type="button" (click)="cancel()">{{ 'sessions.confirmCancel' | translate }}</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!name.trim()">{{ 'common.ok' | translate }}</button>
+  </div>
+</form>
