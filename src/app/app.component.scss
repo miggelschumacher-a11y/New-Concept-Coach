@@ -73,10 +73,17 @@ mat-toolbar a.active {
   opacity: 0.75;
 }
 
-// The logo and the five nav buttons already need ~380px; below ~410px the
-// version no longer fits beside them and would push the page wider than the
-// screen, so it gives way.
-@media (max-width: 410px) {
+// The logo and the five nav buttons already need ~365px, and a two-digit
+// patch number like "v1.0.10" is wider than "v1.0.9": on a phone it drops
+// its left padding to still fit (down to ~407px, where it would otherwise
+// push the page wider than the screen), and below that gives way entirely.
+@media (max-width: 430px) {
+  .app-version {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 407px) {
   .app-version {
     display: none;
   }
