@@ -10,6 +10,21 @@
   min-width: 340px;
 }
 
+// The "create from plan" dropdown and its prompt: a row of their own below
+// the add button's row.
+.plan-select-row {
+  display: flex;
+  flex: 0 0 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+// Pushed to the far right of the add button's row.
+.delete-all-button {
+  margin-left: auto;
+}
+
 mat-card {
   margin-bottom: 1.5rem;
 }

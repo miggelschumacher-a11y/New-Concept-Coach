@@ -16,6 +16,7 @@
 
       @if (sessions.length > 0) {
         <button
+          class="delete-all-button"
           mat-icon-button
           color="warn"
           type="button"
@@ -27,21 +28,24 @@
         </button>
       }
 
-      <mat-form-field appearance="outline" class="plan-select-field">
-        <mat-label><mat-icon class="label-icon">assignment</mat-icon>{{ 'sessions.selectPlanLabel' | translate }}</mat-label>
-        <mat-select
-          name="selectedPlanId"
-          [(ngModel)]="selectedPlanId"
-          (selectionChange)="requestCreateFromPlan()"
-        >
-          @for (plan of trainingPlans; track plan.id) {
-            <mat-option [value]="plan.id">{{ plan.name }}</mat-option>
+      <div class="plan-select-row">
+        <mat-form-field appearance="outline" class="plan-select-field" subscriptSizing="dynamic">
+          <mat-label><mat-icon class="label-icon">assignment</mat-icon>{{ 'sessions.selectPlanLabel' | translate }}</mat-label>
+          <mat-select
+            name="selectedPlanId"
+            [(ngModel)]="selectedPlanId"
+            (selectionChange)="requestCreateFromPlan()"
+          >
+            @for (plan of trainingPlans; track plan.id) {
+              <mat-option [value]="plan.id">{{ plan.name }}</mat-option>
+            }
+          </mat-select>
+          @if (trainingPlans.length === 0) {
+            <mat-hint>{{ 'sessions.noPlansHint' | translate }}</mat-hint>
           }
-        </mat-select>
-        @if (trainingPlans.length === 0) {
-          <mat-hint>{{ 'sessions.noPlansHint' | translate }}</mat-hint>
-        }
-      </mat-form-field>
+        </mat-form-field>
+        <span class="entry-form-label">{{ 'sessions.selectPlanPrompt' | translate }}</span>
+      </div>
 
       @if (pendingPlanId) {
         <div class="confirm-dialog">
