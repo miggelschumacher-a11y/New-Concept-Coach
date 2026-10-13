@@ -481,7 +481,7 @@ mat-expansion-panel mat-checkbox {
 
 // Set number (far left), drag handle and set-type icon sit on this same row
 // to the left of the exercise name, the delete button (.set-delete-action)
-// at the far right - sized to match its own small font (see the drag-handle/
+// at the far left (via order) - sized to match its own small font (see the drag-handle/
 // index/delete-button/type-icon rules below), rather than the full-size
 // touch targets they used to have as their own row inside .set-row. May
 // wrap, so the (wider) delete confirmation can drop onto a line of its own,
@@ -548,8 +548,9 @@ mat-expansion-panel mat-checkbox {
   flex: 0 0 auto;
 }
 
+// Last in the markup, first on the row.
 .set-delete-action {
-  margin-left: auto;
+  order: -1;
 }
 
 .set-delete-button {
