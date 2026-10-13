@@ -132,6 +132,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'No image available',
 
     'trainingPlans.title': 'Training Plans',
+    'trainingPlans.customPlanLabel': 'Custom training plan',
     'trainingPlans.description': 'Description',
     'trainingPlans.empty': 'No training plans yet.',
     'trainingPlans.confirmDeleteQuestion': 'Really delete this training plan irrevocably?',
@@ -613,6 +614,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Kein Bild verfügbar',
 
     'trainingPlans.title': 'Trainingspläne',
+    'trainingPlans.customPlanLabel': 'Eigener Trainingsplan',
     'trainingPlans.description': 'Beschreibung',
     'trainingPlans.empty': 'Noch keine Trainingspläne vorhanden.',
     'trainingPlans.confirmDeleteQuestion': 'Diesen Trainingsplan wirklich unwiderruflich löschen?',
@@ -1094,6 +1096,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Imagen no disponible',
 
     'trainingPlans.title': 'Planes de entrenamiento',
+    'trainingPlans.customPlanLabel': 'Plan de entrenamiento propio',
     'trainingPlans.description': 'Descripción',
     'trainingPlans.empty': 'Aún no hay planes de entrenamiento.',
     'trainingPlans.confirmDeleteQuestion': '¿Eliminar realmente este plan de entrenamiento de forma irrevocable?',
@@ -1575,6 +1578,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Imagem não disponível',
 
     'trainingPlans.title': 'Planos de treino',
+    'trainingPlans.customPlanLabel': 'Plano de treino próprio',
     'trainingPlans.description': 'Descrição',
     'trainingPlans.empty': 'Ainda não há planos de treino.',
     'trainingPlans.confirmDeleteQuestion': 'Excluir realmente este plano de treino de forma irreversível?',
@@ -2056,6 +2060,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Immagine non disponibile',
 
     'trainingPlans.title': 'Piani di allenamento',
+    'trainingPlans.customPlanLabel': 'Piano di allenamento personalizzato',
     'trainingPlans.description': 'Descrizione',
     'trainingPlans.empty': 'Nessun piano di allenamento ancora presente.',
     'trainingPlans.confirmDeleteQuestion': 'Eliminare davvero questo piano di allenamento in modo irreversibile?',
@@ -2537,6 +2542,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Geen afbeelding beschikbaar',
 
     'trainingPlans.title': 'Trainingsplannen',
+    'trainingPlans.customPlanLabel': 'Eigen trainingsplan',
     'trainingPlans.description': 'Beschrijving',
     'trainingPlans.empty': 'Nog geen trainingsplannen aanwezig.',
     'trainingPlans.confirmDeleteQuestion': 'Dit trainingsplan echt onherroepelijk verwijderen?',
@@ -3018,6 +3024,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Brak dostępnego obrazu',
 
     'trainingPlans.title': 'Plany treningowe',
+    'trainingPlans.customPlanLabel': 'Własny plan treningowy',
     'trainingPlans.description': 'Opis',
     'trainingPlans.empty': 'Brak planów treningowych.',
     'trainingPlans.confirmDeleteQuestion': 'Czy na pewno nieodwracalnie usunąć ten plan treningowy?',
@@ -3499,6 +3506,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Изображение недоступно',
 
     'trainingPlans.title': 'Планы тренировок',
+    'trainingPlans.customPlanLabel': 'Свой план тренировок',
     'trainingPlans.description': 'Описание',
     'trainingPlans.empty': 'Планов тренировок пока нет.',
     'trainingPlans.confirmDeleteQuestion': 'Действительно безвозвратно удалить этот план тренировок?',
@@ -3980,6 +3988,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Nincs elérhető kép',
 
     'trainingPlans.title': 'Edzéstervek',
+    'trainingPlans.customPlanLabel': 'Saját edzésterv',
     'trainingPlans.description': 'Leírás',
     'trainingPlans.empty': 'Még nincsenek edzéstervek.',
     'trainingPlans.confirmDeleteQuestion': 'Valóban véglegesen törlöd ezt az edzéstervet?',
@@ -4450,6 +4459,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.sourceAttributionPrefix': 'Kilde:',
     'exercises.animationUnavailable': 'Intet billede tilgængeligt',
     'trainingPlans.title': 'Træningsplaner',
+    'trainingPlans.customPlanLabel': 'Egen træningsplan',
     'trainingPlans.description': 'Beskrivelse',
     'trainingPlans.empty': 'Ingen træningsplaner endnu.',
     'trainingPlans.confirmDeleteQuestion': 'Slet virkelig denne træningsplan uigenkaldeligt?',
@@ -4891,6 +4901,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Ikke noe bilde tilgjengelig',
 
     'trainingPlans.title': 'Treningsplaner',
+    'trainingPlans.customPlanLabel': 'Egen treningsplan',
     'trainingPlans.description': 'Beskrivelse',
     'trainingPlans.empty': 'Ingen treningsplaner ennå.',
     'trainingPlans.confirmDeleteQuestion': 'Slette denne treningsplanen permanent?',
@@ -5370,6 +5381,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Ingen bild tillgänglig',
 
     'trainingPlans.title': 'Träningsprogram',
+    'trainingPlans.customPlanLabel': 'Eget träningsprogram',
     'trainingPlans.description': 'Beskrivning',
     'trainingPlans.empty': 'Inga träningsprogram än.',
     'trainingPlans.confirmDeleteQuestion': 'Ta verkligen bort detta träningsprogram permanent?',
@@ -5840,6 +5852,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.sourceAttributionPrefix': 'Lähde:',
     'exercises.animationUnavailable': 'Kuvaa ei saatavilla',
     'trainingPlans.title': 'Harjoitusohjelmat',
+    'trainingPlans.customPlanLabel': 'Oma harjoitusohjelma',
     'trainingPlans.description': 'Kuvaus',
     'trainingPlans.empty': 'Ei vielä harjoitusohjelmia.',
     'trainingPlans.confirmDeleteQuestion': 'Poistetaanko tämä harjoitusohjelma varmasti pysyvästi?',
@@ -6272,6 +6285,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.sourceAttributionPrefix': 'Zdroj:',
     'exercises.animationUnavailable': 'Obrázek není k dispozici',
     'trainingPlans.title': 'Tréninkové plány',
+    'trainingPlans.customPlanLabel': 'Vlastní tréninkový plán',
     'trainingPlans.description': 'Popis',
     'trainingPlans.empty': 'Zatím žádné tréninkové plány.',
     'trainingPlans.confirmDeleteQuestion': 'Opravdu nenávratně smazat tento tréninkový plán?',
@@ -6713,6 +6727,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Görsel mevcut değil',
 
     'trainingPlans.title': 'Antrenman Planları',
+    'trainingPlans.customPlanLabel': 'Kendi antrenman planım',
     'trainingPlans.description': 'Açıklama',
     'trainingPlans.empty': 'Henüz antrenman planı yok.',
     'trainingPlans.confirmDeleteQuestion': 'Bu antrenman planı gerçekten geri alınamaz şekilde silinsin mi?',
@@ -7186,6 +7201,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'لا تتوفر صورة',
 
     'trainingPlans.title': 'خطط التدريب',
+    'trainingPlans.customPlanLabel': 'خطة تدريب خاصة',
     'trainingPlans.description': 'الوصف',
     'trainingPlans.empty': 'لا توجد خطط تدريب بعد.',
     'trainingPlans.confirmDeleteQuestion': 'هل تريد حقاً حذف خطة التدريب هذه نهائياً؟',
@@ -7632,6 +7648,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': '暂无图片',
 
     'trainingPlans.title': '训练计划',
+    'trainingPlans.customPlanLabel': '自定义训练计划',
     'trainingPlans.description': '说明',
     'trainingPlans.empty': '暂无训练计划。',
     'trainingPlans.confirmDeleteQuestion': '确定要永久删除此训练计划吗？',
@@ -8102,6 +8119,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.sourceAttributionPrefix': '出典:',
     'exercises.animationUnavailable': '画像がありません',
     'trainingPlans.title': 'トレーニングプラン',
+    'trainingPlans.customPlanLabel': 'オリジナルのトレーニングプラン',
     'trainingPlans.description': '説明',
     'trainingPlans.empty': 'まだトレーニングプランがありません。',
     'trainingPlans.confirmDeleteQuestion': 'このトレーニングプランを本当に完全に削除しますか?',
@@ -8537,6 +8555,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'exercises.animationUnavailable': 'Δεν υπάρχει διαθέσιμη εικόνα',
 
     'trainingPlans.title': 'Προγράμματα Προπόνησης',
+    'trainingPlans.customPlanLabel': 'Δικό μου πρόγραμμα προπόνησης',
     'trainingPlans.description': 'Περιγραφή',
     'trainingPlans.empty': 'Δεν υπάρχουν προγράμματα προπόνησης ακόμα.',
     'trainingPlans.confirmDeleteQuestion': 'Θέλεις σίγουρα να διαγράψεις οριστικά αυτό το πρόγραμμα προπόνησης;',

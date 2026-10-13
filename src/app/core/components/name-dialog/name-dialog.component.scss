@@ -4,14 +4,14 @@
   min-width: 280px;
 }
 
-.session-name-dialog-field {
+.name-dialog-field {
   width: 100%;
   // Keeps the floated label from being clipped against the dialog's top edge
   // (same fix as SessionNotesDialogComponent).
   margin-top: 1.25rem;
 }
 
-.session-name-dialog-actions {
+.name-dialog-actions {
   justify-content: flex-end;
   gap: 0.5rem;
 }

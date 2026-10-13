@@ -3,6 +3,7 @@
 <mat-card>
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addSession()">
+      <span class="entry-form-label">{{ 'sessions.customSessionLabel' | translate }}</span>
       <button
         mat-raised-button
         color="primary"
@@ -12,7 +13,6 @@
       >
         <mat-icon>add</mat-icon>
       </button>
-      <span class="entry-form-label">{{ 'sessions.customSessionLabel' | translate }}</span>
 
       @if (sessions.length > 0) {
         <button
@@ -29,6 +29,7 @@
       }
 
       <div class="plan-select-row">
+        <span class="entry-form-label">{{ 'sessions.selectPlanPrompt' | translate }}</span>
         <mat-form-field appearance="outline" class="plan-select-field" subscriptSizing="dynamic">
           <mat-label><mat-icon class="label-icon">assignment</mat-icon>{{ 'sessions.selectPlanLabel' | translate }}</mat-label>
           <mat-select
@@ -44,7 +45,6 @@
             <mat-hint>{{ 'sessions.noPlansHint' | translate }}</mat-hint>
           }
         </mat-form-field>
-        <span class="entry-form-label">{{ 'sessions.selectPlanPrompt' | translate }}</span>
       </div>
 
       @if (pendingPlanId) {

@@ -3,11 +3,7 @@
 <mat-card>
   <mat-card-content>
     <form class="entry-form" (ngSubmit)="addPlan()">
-      <mat-form-field appearance="outline" class="plan-name-field">
-        <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
-        <input matInput name="name" [(ngModel)]="name" required selectOnFocus />
-      </mat-form-field>
-
+      <span class="entry-form-label">{{ 'trainingPlans.customPlanLabel' | translate }}</span>
       <span [matTooltip]="ownPlanLimitReached ? ('trainingPlans.ownPlanLimitTooltip' | translate) : ''">
         <button
           mat-raised-button

@@ -31,7 +31,7 @@ import {
   SessionNotesDialogData,
   SessionNotesDialogResult
 } from './session-notes-dialog/session-notes-dialog.component';
-import { SessionNameDialogComponent, SessionNameDialogData } from './session-name-dialog/session-name-dialog.component';
+import { NameDialogComponent, NameDialogData } from '../core/components/name-dialog/name-dialog.component';
 import {
   AddDefaultWarmupDialogComponent,
   AddDefaultWarmupDialogData,
@@ -1935,7 +1935,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
     const defaultName = `${sessionWord} ${this.datePipe.transform(new Date(), this.dateFormat)}`;
     const name = await firstValueFrom(
       this.dialog
-        .open<SessionNameDialogComponent, SessionNameDialogData, string>(SessionNameDialogComponent, { data: { name: defaultName } })
+        .open<NameDialogComponent, NameDialogData, string>(NameDialogComponent, {
+          data: { name: defaultName, titleKey: 'sessions.customSessionLabel' }
+        })
         .afterClosed()
     );
     if (!name) {

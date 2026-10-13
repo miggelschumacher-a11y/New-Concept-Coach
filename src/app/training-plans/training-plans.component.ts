@@ -18,6 +18,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
+import { NameDialogComponent, NameDialogData } from '../core/components/name-dialog/name-dialog.component';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -133,7 +134,6 @@ type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTar
 export class TrainingPlansComponent implements OnInit, OnDestroy {
   plans: TrainingPlan[] = [];
   exercises: Exercise[] = [];
-  name = '';
   readonly descriptionMaxLength = 1000;
   editingPlanId: string | null = null;
   editName = '';
@@ -540,16 +540,27 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     return isLastSet && isAmrapTier ? `${planExercise.targetReps}+` : `${planExercise.targetReps}`;
   }
 
+  // The plus button asks for the new plan's name in a modal; Cancel creates
+  // nothing.
   async addPlan(): Promise<void> {
-    if (!this.name.trim() || this.ownPlanLimitReached) {
+    if (this.ownPlanLimitReached) {
+      return;
+    }
+    const name = await firstValueFrom(
+      this.dialog
+        .open<NameDialogComponent, NameDialogData, string>(NameDialogComponent, {
+          data: { name: '', titleKey: 'trainingPlans.customPlanLabel' }
+        })
+        .afterClosed()
+    );
+    if (!name) {
       return;
     }
     await this.trainingPlansService.add({
-      name: this.name.trim(),
+      name,
       description: '',
       exerciseIds: []
     });
-    this.name = '';
     await this.load();
   }
 

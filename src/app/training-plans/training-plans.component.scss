@@ -5,14 +5,6 @@
   flex-wrap: wrap;
 }
 
-// Now the only field in the entry form (the description pre-fill field
-// beside it was removed) - grows to fill the row instead of sitting at the
-// mat-form-field default width.
-.plan-name-field {
-  flex: 1 1 20rem;
-  min-width: 12rem;
-}
-
 // Forces the description field onto its own full-width row below
 // name/save/cancel, which - being flex-basis 100% - can't share a row with
 // anything else in this wrapping flex container.
