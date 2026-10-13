@@ -427,13 +427,22 @@
           <form class="entry-form" (ngSubmit)="confirmEditPlan(plan)">
             <mat-form-field appearance="outline">
               <mat-label><mat-icon class="label-icon">text_fields</mat-icon>{{ 'common.name' | translate }}</mat-label>
-              <input matInput name="editName-{{ plan.id }}" [(ngModel)]="editName" required selectOnFocus />
+              <input
+                matInput
+                name="editName-{{ plan.id }}"
+                [(ngModel)]="editName"
+                [errorStateMatcher]="editNameTakenMatcher"
+                required
+                selectOnFocus
+              />
+              <mat-error>{{ 'trainingPlans.nameTaken' | translate }}</mat-error>
             </mat-form-field>
 
             <button
               mat-icon-button
               color="primary"
               type="submit"
+              [disabled]="isEditNameTaken()"
               [matTooltip]="'common.save' | translate"
               [attr.aria-label]="'common.save' | translate"
             >

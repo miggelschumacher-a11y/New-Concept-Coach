@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../../directives/select-on-focus.directive';
+import { isNameTaken } from '../../utils/unique-name.util';
 
 export interface NameDialogData {
   // Prefilled into the field ('' for none).
@@ -18,8 +19,6 @@ export interface NameDialogData {
   takenNames?: string[];
   takenMessageKey?: string;
 }
-
-const normalizeName = (name: string): string => name.trim().toLocaleLowerCase();
 
 // Flags only the "taken" error, so a blank field just keeps OK disabled
 // without turning red.
@@ -46,14 +45,11 @@ export class NameDialogComponent {
     public readonly dialogRef: MatDialogRef<NameDialogComponent, string | undefined>,
     @Inject(MAT_DIALOG_DATA) public readonly data: NameDialogData
   ) {
-    const taken = new Set((data.takenNames ?? []).map(normalizeName));
     this.nameControl = new FormControl(data.name, {
       nonNullable: true,
       validators: [
-        (control: AbstractControl<string>): ValidationErrors | null => {
-          const name = normalizeName(control.value);
-          return name && taken.has(name) ? { taken: true } : null;
-        }
+        (control: AbstractControl<string>): ValidationErrors | null =>
+          isNameTaken(control.value, data.takenNames ?? []) ? { taken: true } : null
       ]
     });
   }

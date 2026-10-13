@@ -19,6 +19,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 import { NameDialogComponent, NameDialogData } from '../core/components/name-dialog/name-dialog.component';
+import { isNameTaken, uniqueName } from '../core/utils/unique-name.util';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
@@ -582,9 +584,20 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     this.editingPlanId = null;
   }
 
+  // Red (and Save disabled) only while the typed name belongs to ANOTHER
+  // plan, so keeping a plan's own name while editing its description is fine.
+  readonly editNameTakenMatcher: ErrorStateMatcher = { isErrorState: () => this.isEditNameTaken() };
+
+  isEditNameTaken(): boolean {
+    return isNameTaken(
+      this.editName,
+      this.plans.filter((plan) => plan.id !== this.editingPlanId).map((plan) => plan.name)
+    );
+  }
+
   async confirmEditPlan(plan: TrainingPlan): Promise<void> {
     const name = this.editName.trim();
-    if (!name || plan.isDefault) {
+    if (!name || plan.isDefault || this.isEditNameTaken()) {
       return;
     }
     this.editingPlanId = null;
@@ -614,7 +627,11 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const { id: _id, isDefault: _isDefault, ...rest } = plan;
     await this.trainingPlansService.add({
       ...rest,
-      name: plan.name + this.translationService.translate('trainingPlans.copySuffix'),
+      // A second copy of the same plan becomes "<name> (Kopie) 2", and so on.
+      name: uniqueName(
+        plan.name + this.translationService.translate('trainingPlans.copySuffix'),
+        this.plans.map((existing) => existing.name)
+      ),
       exerciseConfigs: plan.exerciseConfigs?.map((config) => ({
         ...config,
         percentageWeeks: config.percentageWeeks?.map((week) => ({ sets: week.sets.map((set) => ({ ...set })) })),
