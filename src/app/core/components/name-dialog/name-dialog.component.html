@@ -3,11 +3,14 @@
   <div mat-dialog-content>
     <mat-form-field appearance="outline" class="name-dialog-field">
       <mat-label>{{ 'common.name' | translate }}</mat-label>
-      <input matInput type="text" name="nameDialogName" [(ngModel)]="name" required selectOnFocus cdkFocusInitial />
+      <input matInput type="text" [formControl]="nameControl" [errorStateMatcher]="takenErrorMatcher" selectOnFocus cdkFocusInitial />
+      @if (data.takenMessageKey) {
+        <mat-error>{{ data.takenMessageKey | translate }}</mat-error>
+      }
     </mat-form-field>
   </div>
   <div mat-dialog-actions class="name-dialog-actions">
     <button mat-stroked-button type="button" (click)="cancel()">{{ 'sessions.confirmCancel' | translate }}</button>
-    <button mat-raised-button color="primary" type="submit" [disabled]="!name.trim()">{{ 'common.ok' | translate }}</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!canConfirm">{{ 'common.ok' | translate }}</button>
   </div>
 </form>

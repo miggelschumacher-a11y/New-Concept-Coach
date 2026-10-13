@@ -1,7 +1,8 @@
 import { Component, Inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -12,31 +13,58 @@ export interface NameDialogData {
   name: string;
   // Translation key of the dialog's title.
   titleKey: string;
+  // Names already in use: a name matching one of them (ignoring case and
+  // surrounding blanks) is rejected, with the message under takenMessageKey.
+  takenNames?: string[];
+  takenMessageKey?: string;
 }
 
+const normalizeName = (name: string): string => name.trim().toLocaleLowerCase();
+
+// Flags only the "taken" error, so a blank field just keeps OK disabled
+// without turning red.
+const takenErrorMatcher: ErrorStateMatcher = {
+  isErrorState: (control) => !!control && control.hasError('taken')
+};
+
 // Modal asking for a name (a new custom session or training plan): resolves
-// with the trimmed, non-blank name on OK, or undefined on Cancel.
+// with the trimmed, non-blank, not-yet-taken name on OK, or undefined on
+// Cancel.
 @Component({
   selector: 'app-name-dialog',
   standalone: true,
-  imports: [FormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, TranslatePipe, SelectOnFocusDirective],
+  // FormsModule provides the <form>'s ngSubmit; ReactiveFormsModule the formControl.
+  imports: [FormsModule, ReactiveFormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, TranslatePipe, SelectOnFocusDirective],
   templateUrl: './name-dialog.component.html',
   styleUrl: './name-dialog.component.scss'
 })
 export class NameDialogComponent {
-  name: string;
+  readonly takenErrorMatcher = takenErrorMatcher;
+  readonly nameControl: FormControl<string>;
 
   constructor(
     public readonly dialogRef: MatDialogRef<NameDialogComponent, string | undefined>,
     @Inject(MAT_DIALOG_DATA) public readonly data: NameDialogData
   ) {
-    this.name = data.name;
+    const taken = new Set((data.takenNames ?? []).map(normalizeName));
+    this.nameControl = new FormControl(data.name, {
+      nonNullable: true,
+      validators: [
+        (control: AbstractControl<string>): ValidationErrors | null => {
+          const name = normalizeName(control.value);
+          return name && taken.has(name) ? { taken: true } : null;
+        }
+      ]
+    });
+  }
+
+  get canConfirm(): boolean {
+    return this.nameControl.valid && !!this.nameControl.value.trim();
   }
 
   confirm(): void {
-    const name = this.name.trim();
-    if (name) {
-      this.dialogRef.close(name);
+    if (this.canConfirm) {
+      this.dialogRef.close(this.nameControl.value.trim());
     }
   }
 

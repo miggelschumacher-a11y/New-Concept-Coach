@@ -549,7 +549,12 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     const name = await firstValueFrom(
       this.dialog
         .open<NameDialogComponent, NameDialogData, string>(NameDialogComponent, {
-          data: { name: '', titleKey: 'trainingPlans.customPlanLabel' }
+          data: {
+            name: '',
+            titleKey: 'trainingPlans.customPlanLabel',
+            takenNames: this.plans.map((plan) => plan.name),
+            takenMessageKey: 'trainingPlans.nameTaken'
+          }
         })
         .afterClosed()
     );
