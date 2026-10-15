@@ -274,8 +274,8 @@ export class ConfigComponent implements OnInit, OnDestroy {
   }
 
   // False in the browser and before the RevenueCat API keys are filled in
-  // (see PurchasesService.isAvailable) - Config shows the manual "Pro
-  // Version" checkbox in that case instead of the buy/restore buttons.
+  // (see PurchasesService.isAvailable) - the whole Pro row stays hidden in
+  // that case, so isPro can only ever be set by a real purchase or restore.
   get purchasesAvailable(): boolean {
     return this.purchasesService.isAvailable;
   }
@@ -421,12 +421,6 @@ export class ConfigComponent implements OnInit, OnDestroy {
 
   async onWorkingSetsAutoAdvanceChange(): Promise<void> {
     await this.settingsService.updateSettings({ workingSetsAutoAdvance: this.workingSetsAutoAdvance });
-  }
-
-  // Stand-in for the real purchase/restore result until the native
-  // Capacitor billing integration exists - see AppSettings.isPro.
-  async onIsProChange(): Promise<void> {
-    await this.settingsService.updateSettings({ isPro: this.isPro });
   }
 
   get isDarkTheme(): boolean {
