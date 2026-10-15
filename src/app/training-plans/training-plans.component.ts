@@ -24,6 +24,7 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { TrainingPlansService } from '../core/services/training-plans.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
+import { PurchasesService } from '../core/services/purchases.service';
 import { TranslationService } from '../core/services/translation.service';
 import {
   TrainingPlan,
@@ -162,6 +163,7 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     private readonly exercisesService: ExercisesService,
     private readonly settingsService: SettingsService,
     private readonly translationService: TranslationService,
+    private readonly purchasesService: PurchasesService,
     private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar
   ) {}
@@ -176,8 +178,10 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
   private readonly ownPlanLimit = 2;
   private readonly proOnlyIncrementSchemes: ReadonlySet<IncrementScheme> = new Set(['DOUBLE_PROGRESSION', 'REP_GOAL', 'WAVE_PROGRESSION']);
 
+  // See PurchasesService.proUnlocked - true for everyone while Pro cannot
+  // be bought yet.
   get isPro(): boolean {
-    return this.settingsService.getSettings().isPro;
+    return this.purchasesService.proUnlocked;
   }
 
   get ownPlanLimitReached(): boolean {

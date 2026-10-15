@@ -44,6 +44,7 @@ import { ExerciseTimerDialogComponent, ExerciseTimerDialogData } from './exercis
 import { SessionsService } from '../core/services/sessions.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService, WeightUnit, AutoAdvanceMode } from '../core/services/settings.service';
+import { PurchasesService } from '../core/services/purchases.service';
 import { SoundService } from '../core/services/sound.service';
 import { TranslationService } from '../core/services/translation.service';
 import { TrainingPlansService } from '../core/services/training-plans.service';
@@ -260,6 +261,7 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly bodyWeightService: BodyWeightService,
     private readonly dumbbellsService: DumbbellsService,
     private readonly platesService: PlatesService,
+    private readonly purchasesService: PurchasesService,
     private readonly datePipe: DatePipe,
     private readonly snackBar: MatSnackBar,
     private readonly dialog: MatDialog,
@@ -308,8 +310,10 @@ export class SessionsComponent implements OnInit, OnDestroy {
     'LINEAR_PROGRESSION'
   ]);
 
+  // See PurchasesService.proUnlocked - true for everyone while Pro cannot
+  // be bought yet.
   get isPro(): boolean {
-    return this.settingsService.getSettings().isPro;
+    return this.purchasesService.proUnlocked;
   }
 
   isIncrementSchemeLocked(scheme: IncrementScheme): boolean {

@@ -833,11 +833,11 @@
           </div>
         </div>
       } @else {
-        <div class="data-action-group" [matTooltip]="isPro ? '' : ('common.proRequired' | translate)">
+        <div class="data-action-group" [matTooltip]="proUnlocked ? '' : ('common.proRequired' | translate)">
           <button
             mat-stroked-button
             type="button"
-            [disabled]="!isPro"
+            [disabled]="!proUnlocked"
             (click)="startDriveBackup()"
             [attr.aria-label]="'config.driveBackupLabel' | translate"
           >
@@ -874,11 +874,11 @@
           </div>
         </div>
       } @else {
-        <div class="data-action-group" [matTooltip]="isPro ? '' : ('common.proRequired' | translate)">
+        <div class="data-action-group" [matTooltip]="proUnlocked ? '' : ('common.proRequired' | translate)">
           <button
             mat-stroked-button
             type="button"
-            [disabled]="!isPro"
+            [disabled]="!proUnlocked"
             (click)="startDriveRestore()"
             [attr.aria-label]="'config.driveRestoreLabel' | translate"
           >

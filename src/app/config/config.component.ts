@@ -280,6 +280,13 @@ export class ConfigComponent implements OnInit, OnDestroy {
     return this.purchasesService.isAvailable;
   }
 
+  // See PurchasesService.proUnlocked - true for everyone while Pro cannot
+  // be bought yet. isPro above stays the real purchase state, which is what
+  // the "Pro active" label reports.
+  get proUnlocked(): boolean {
+    return this.purchasesService.proUnlocked;
+  }
+
   async purchasePro(): Promise<void> {
     this.proActionInProgress = true;
     this.statusMessageKey = null;
@@ -535,7 +542,7 @@ export class ConfigComponent implements OnInit, OnDestroy {
   }
 
   async startDriveBackup(): Promise<void> {
-    if (!this.isPro) {
+    if (!this.proUnlocked) {
       return;
     }
     const data = await this.indexedDbService.exportAll();
@@ -568,7 +575,7 @@ export class ConfigComponent implements OnInit, OnDestroy {
   }
 
   async startDriveRestore(): Promise<void> {
-    if (!this.isPro) {
+    if (!this.proUnlocked) {
       return;
     }
     // Requested directly inside this click handler, still tied to the user

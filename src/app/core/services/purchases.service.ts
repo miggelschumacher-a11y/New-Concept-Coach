@@ -16,9 +16,8 @@ const PRO_ENTITLEMENT_ID = 'pro';
 // Drives AppSettings.isPro from a real purchase once the app runs inside
 // the native Capacitor shell with a configured RevenueCat project - see
 // isAvailable below for exactly when that is. Until then (in the browser,
-// or before the API keys above are filled in), Config's own "Pro Version"
-// checkbox remains the only way to flip isPro, unchanged from before this
-// service existed.
+// or before the API keys above are filled in), nothing can set isPro, so
+// proUnlocked below hands every paid feature out for free instead.
 @Injectable({ providedIn: 'root' })
 export class PurchasesService {
   private configured = false;
@@ -34,6 +33,15 @@ export class PurchasesService {
   // buy/restore buttons or keep the manual dev toggle.
   get isAvailable(): boolean {
     return Capacitor.isNativePlatform() && !!this.currentApiKey;
+  }
+
+  // What every paid feature actually checks. Until a RevenueCat project
+  // exists (isAvailable above), Pro cannot be bought at all - gating the
+  // features then would just make them unreachable for everyone, so they
+  // ship unlocked for the first release. Filling in the API keys above is
+  // all it takes to put the free-tier limits back in force.
+  get proUnlocked(): boolean {
+    return !this.isAvailable || this.settingsService.getSettings().isPro;
   }
 
   async initialize(): Promise<void> {
