@@ -26,7 +26,7 @@
 } @else {
   <mat-accordion multi class="exercise-master-accordion">
     @for (exercise of exercises; track exercise.id) {
-      <mat-expansion-panel>
+      <mat-expansion-panel [expanded]="autoExpandedExerciseIds.has(exercise.id)" [attr.data-exercise-id]="exercise.id">
         <mat-expansion-panel-header>
           <div class="header-delete-action">
             @if (pendingDeleteExerciseId === exercise.id) {

@@ -46,6 +46,10 @@ export class ExercisesComponent implements OnInit {
   exercises: Exercise[] = [];
   name = '';
   pendingDeleteExerciseId: string | null = null;
+  // Exercises created on this page open their panel when first rendered. Only
+  // ever grows, so adding the next one doesn't collapse the earlier ones, and
+  // collapsing one by hand isn't undone (the binding's value doesn't change).
+  readonly autoExpandedExerciseIds = new Set<string>();
   // Exercise ids whose sourceImageUrl failed to load (blocked by an ad
   // blocker, offline, the source going down, ...) - falls back to the
   // built-in animated pictogram instead of a broken image.
@@ -72,14 +76,25 @@ export class ExercisesComponent implements OnInit {
     if (!this.name.trim()) {
       return;
     }
-    await this.exercisesService.add({
+    const created = await this.exercisesService.add({
       name: this.name.trim(),
       category: '',
       customOneRepMax: 0,
       useCustomOneRepMax: true
     });
     this.name = '';
+    this.autoExpandedExerciseIds.add(created.id);
     await this.load();
+    this.scrollToExercise(created.id);
+  }
+
+  // The list is sorted by name, so a new exercise lands somewhere in the
+  // middle of it: bring it to the top of the view once its (already open) panel
+  // has rendered. The panel's own top edge doesn't move while it expands.
+  private scrollToExercise(id: string): void {
+    setTimeout(() => {
+      document.querySelector(`[data-exercise-id="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   async updateWeightCategory(exercise: Exercise): Promise<void> {
