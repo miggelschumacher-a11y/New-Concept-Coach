@@ -10,6 +10,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
+import { ConfirmDialogComponent } from '../core/components/confirm-dialog/confirm-dialog.component';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService } from '../core/services/settings.service';
 import { Exercise, ExerciseEquipmentType, MuscleGroup, WarmupRampStep } from '../core/models/exercise.model';
@@ -36,6 +39,7 @@ const CUSTOM_ONE_REP_MAX_MAX = 1000;
     MatSelectModule,
     MatCheckboxModule,
     MatExpansionModule,
+    MatDialogModule,
     TranslatePipe,
     SelectOnFocusDirective
   ],
@@ -45,7 +49,6 @@ const CUSTOM_ONE_REP_MAX_MAX = 1000;
 export class ExercisesComponent implements OnInit {
   exercises: Exercise[] = [];
   name = '';
-  pendingDeleteExerciseId: string | null = null;
   // Exercises created on this page open their panel when first rendered. Only
   // ever grows, so adding the next one doesn't collapse the earlier ones, and
   // collapsing one by hand isn't undone (the binding's value doesn't change).
@@ -57,7 +60,8 @@ export class ExercisesComponent implements OnInit {
 
   constructor(
     private readonly exercisesService: ExercisesService,
-    private readonly settingsService: SettingsService
+    private readonly settingsService: SettingsService,
+    private readonly dialog: MatDialog
   ) {}
 
   get weightUnitLabel(): string {
@@ -312,16 +316,16 @@ export class ExercisesComponent implements OnInit {
     await this.exercisesService.update(exercise);
   }
 
-  requestDeleteExercise(id: string): void {
-    this.pendingDeleteExerciseId = id;
-  }
-
-  cancelDeleteExercise(): void {
-    this.pendingDeleteExerciseId = null;
-  }
-
-  async confirmDeleteExercise(id: string): Promise<void> {
-    this.pendingDeleteExerciseId = null;
+  // A modal, like the plans page: the header it was asked from is only one
+  // row high and would clip an inline confirmation.
+  async requestDeleteExercise(id: string): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { messageKey: 'exercises.confirmDeleteQuestion' }
+    });
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+    if (!confirmed) {
+      return;
+    }
     await this.deleteExercise(id);
   }
 

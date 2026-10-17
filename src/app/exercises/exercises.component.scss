@@ -50,11 +50,6 @@ mat-card {
   color: var(--app-muted-text);
 }
 
-.confirm-label {
-  color: rgba(var(--app-fg-rgb), 0.95);
-  font-weight: 500;
-}
-
 .weight-step-field {
   // Doesn't shrink with the crowded classification row, or its label gets cut off.
   flex: 0 0 auto;
