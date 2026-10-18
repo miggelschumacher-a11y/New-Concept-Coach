@@ -422,3 +422,20 @@ button.add-default-warmup-button {
   line-height: 36px;
   font-weight: 500;
 }
+
+// Text inside every input field - typed values, the selected option of a
+// dropdown, notes textareas - in one larger size than Material's 16px
+// default. Set on the elements themselves (not on the form field) so the
+// compact fields that shrink their host's font-size (0.85rem on the exercise
+// master data) are raised too, and in global styles so it doesn't count
+// against any component's style budget. The input rule repeats a class of
+// Material's own `font: inherit` rule so it wins over it.
+.mat-mdc-form-field .mat-mdc-input-element.mat-mdc-form-field-input-control,
+.mat-mdc-form-field .mat-mdc-select {
+  font-size: 1.125rem;
+}
+
+// The options of an opened dropdown, to match its selected value.
+.mat-mdc-select-panel .mat-mdc-option .mdc-list-item__primary-text {
+  font-size: 1.125rem;
+}
