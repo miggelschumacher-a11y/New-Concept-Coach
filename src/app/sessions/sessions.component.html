@@ -228,6 +228,15 @@
                   <span>{{ 'sessions.sessionSettingsInfoButton' | translate }}</span>
                 </div>
 
+                <mat-accordion class="session-settings-hint">
+                  <mat-expansion-panel (afterExpand)="refitSessionSettingsInfo(session)" (afterCollapse)="refitSessionSettingsInfo(session)">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title><mat-icon class="label-icon">info</mat-icon>{{ 'sessions.sessionSettingsHintTitle' | translate }}</mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <p class="session-settings-hint-text">{{ 'sessions.sessionSettingsHintText' | translate }}</p>
+                  </mat-expansion-panel>
+                </mat-accordion>
+
                 <fieldset class="session-settings-group" [matTooltip]="'sessions.sessionCountWarmupTooltip' | translate">
                   <legend><mat-icon class="label-icon">whatshot</mat-icon>{{ 'sessions.sessionCountWarmupLegend' | translate }}</legend>
                   <div class="session-settings-actions">

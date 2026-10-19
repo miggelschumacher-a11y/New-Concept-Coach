@@ -435,6 +435,46 @@ button.add-default-warmup-button {
   font-size: 1.125rem;
 }
 
+// The info accordion at the top of the session-options popup, which explains
+// that the popup's buttons are actions and not status indicators: flat, no
+// card background or shadow of its own, so it reads as part of the popup.
+// (Global like the rules around it - the sessions stylesheet has no room left.)
+.session-settings-hint {
+  --mat-expansion-container-background-color: transparent;
+  --mat-expansion-header-collapsed-state-height: 2.25rem;
+  --mat-expansion-header-expanded-state-height: 2.25rem;
+}
+.session-settings-hint .mat-expansion-panel:not([class*='mat-elevation-z']) {
+  box-shadow: none;
+  border: 1px solid rgba(var(--app-fg-rgb), 0.15);
+  border-radius: 8px;
+}
+.session-settings-hint .mat-expansion-panel-header {
+  padding: 0 0.6rem;
+  font-size: 0.875rem;
+}
+.session-settings-hint .mat-expansion-panel-body {
+  padding: 0 0.6rem 0.6rem;
+}
+.session-settings-hint-text {
+  margin: 0;
+  color: rgba(var(--app-fg-rgb), 0.87);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: pre-line;
+}
+
+// The session-options / exercise-options popups are fixed-position and used
+// to grow with their content: taller than a phone's screen (e.g. with the
+// info accordion open) they ran off the bottom with no way to reach the rest.
+// The 92vh leaves room for the popup's own perspective tilt, which makes it
+// look about 7% taller than its layout box.
+.exercise-settings-info-popup {
+  box-sizing: border-box;
+  max-height: calc(92vh - 1rem);
+  overflow-y: auto;
+}
+
 // The options of an opened dropdown, to match its selected value.
 .mat-mdc-select-panel .mat-mdc-option .mdc-list-item__primary-text {
   font-size: 1.125rem;

@@ -601,6 +601,14 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.sessionSettingsInfoOpenKey === sessionId;
   }
 
+  // The popup's info accordion changes its height - pull the popup back into
+  // the viewport if opening it pushed the bottom edge off screen.
+  refitSessionSettingsInfo(session: TrainingSession): void {
+    if (this.sessionSettingsInfoOpenKey === session.id && this.sessionSettingsInfoPosition) {
+      this.fitPopupToViewport(`session-settings-${session.id}`, this.sessionSettingsInfoPosition);
+    }
+  }
+
   private closeSessionSettingsInfo(): void {
     this.sessionSettingsInfoOpenKey = null;
     this.sessionSettingsInfoPosition = null;
