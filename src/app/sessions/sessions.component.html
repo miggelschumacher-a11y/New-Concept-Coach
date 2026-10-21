@@ -1191,8 +1191,12 @@
                               >
                                 <mat-label>
                                   {{ 'sessions.timeField' | translate }}
-                                  @if (targetSecondsHint(set); as targetHint) {
-                                    &nbsp;({{ targetHint | duration }})
+                                  @if (set.done) {
+                                    &nbsp;({{ set.seconds ?? 0 | duration }})
+                                  } @else {
+                                    @if (targetSecondsHint(set); as targetHint) {
+                                      &nbsp;({{ targetHint | duration }})
+                                    }
                                   }
                                 </mat-label>
                                 <input

@@ -5527,8 +5527,9 @@ export class SessionsComponent implements OnInit, OnDestroy {
   }
 
   // Time-Based counterpart to targetRepsHint - shown next to the seconds
-  // field for as long as a target exists, same "stays visible even once
-  // done" behavior.
+  // field while the set is open. Unlike the reps hint it does not stay once
+  // the set is done: then the label carries the achieved time instead (see
+  // the seconds field's label in the template).
   targetSecondsHint(set: ExerciseSet): string | null {
     return set.targetSeconds !== undefined ? String(set.targetSeconds) : null;
   }
