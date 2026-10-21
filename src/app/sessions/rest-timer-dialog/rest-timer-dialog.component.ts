@@ -8,6 +8,7 @@ import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { DurationPipe } from '../../core/pipes/duration.pipe';
 import { SoundService } from '../../core/services/sound.service';
 import { RestNotificationService } from '../../core/services/rest-notification.service';
+import { DragBoundaryService } from '../../core/services/drag-boundary.service';
 import { TIMER_RING_CIRCUMFERENCE, timerRingDashOffset } from '../../core/utils/timer-ring.util';
 
 export interface RestTimerDialogData {
@@ -116,7 +117,8 @@ export class RestTimerDialogComponent implements OnInit, OnDestroy {
     public readonly dialogRef: MatDialogRef<RestTimerDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public readonly data: RestTimerDialogData,
     private readonly soundService: SoundService,
-    private readonly restNotificationService: RestNotificationService
+    private readonly restNotificationService: RestNotificationService,
+    public readonly dragBoundary: DragBoundaryService
   ) {}
 
   ngOnInit(): void {

@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { DurationPipe } from '../../core/pipes/duration.pipe';
+import { DragBoundaryService } from '../../core/services/drag-boundary.service';
 import { TIMER_RING_CIRCUMFERENCE, timerRingDashOffset } from '../../core/utils/timer-ring.util';
 
 export interface ExerciseTimerDialogData {
@@ -73,7 +74,10 @@ export class ExerciseTimerDialogComponent implements OnInit, OnDestroy {
   // fires exactly once per run rather than every frame it stays true.
   private wasBeeped = false;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public readonly data: ExerciseTimerDialogData) {}
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public readonly data: ExerciseTimerDialogData,
+    public readonly dragBoundary: DragBoundaryService
+  ) {}
 
   ngOnInit(): void {
     this.frameId = requestAnimationFrame(() => this.update());

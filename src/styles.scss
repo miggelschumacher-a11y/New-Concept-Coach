@@ -89,6 +89,7 @@ html.light-theme {
 // alpha each call site already chose.
 :root {
   --app-fg-rgb: 255, 255, 255;
+  --app-field-more-bg: #4a4a4a;
   --app-muted-text: lightgrey;
   --app-timer-stopped: #ff5252;
   --app-popup-gradient-start: #3d4058;
@@ -98,6 +99,7 @@ html.light-theme {
 }
 html.light-theme {
   --app-fg-rgb: 0, 0, 0;
+  --app-field-more-bg: #e9e9e9;
   --app-muted-text: #5f6368;
   --app-timer-stopped: #d32f2f;
   --app-popup-gradient-start: #ffffff;

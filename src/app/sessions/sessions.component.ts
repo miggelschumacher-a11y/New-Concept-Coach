@@ -42,6 +42,7 @@ import {
 import { RestTimerDialogComponent, RestTimerDialogData } from './rest-timer-dialog/rest-timer-dialog.component';
 import { ExerciseTimerDialogComponent, ExerciseTimerDialogData } from './exercise-timer-dialog/exercise-timer-dialog.component';
 import { SessionsService } from '../core/services/sessions.service';
+import { DragBoundaryService } from '../core/services/drag-boundary.service';
 import { ExercisesService } from '../core/services/exercises.service';
 import { SettingsService, WeightUnit, AutoAdvanceMode } from '../core/services/settings.service';
 import { PurchasesService } from '../core/services/purchases.service';
@@ -93,6 +94,7 @@ import { findBodyWeightForDate, BodyWeightLookupResult } from '../core/utils/bod
 import { calculateWarmupSets } from '../core/utils/warmup-ramp.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
+import { FieldMoreButtonComponent } from '../core/components/field-more-button/field-more-button.component';
 import { DurationMaskDirective } from '../core/directives/duration-mask.directive';
 import { DurationPipe } from '../core/pipes/duration.pipe';
 import { formatDuration, parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
@@ -183,6 +185,7 @@ export const SET_TYPES: { value: SetType; labelKey: string; icon: string }[] = [
     NgTemplateOutlet,
     TranslatePipe,
     SelectOnFocusDirective,
+    FieldMoreButtonComponent,
     DurationMaskDirective,
     DurationPipe
   ],
@@ -266,7 +269,8 @@ export class SessionsComponent implements OnInit, OnDestroy {
     private readonly snackBar: MatSnackBar,
     private readonly dialog: MatDialog,
     private readonly soundService: SoundService,
-    private readonly overlay: Overlay
+    private readonly overlay: Overlay,
+    public readonly dragBoundary: DragBoundaryService
   ) {}
 
   get dateFormat(): string {
@@ -601,6 +605,18 @@ export class SessionsComponent implements OnInit, OnDestroy {
     return this.sessionSettingsInfoOpenKey === sessionId;
   }
 
+  // Letting go of a dragged popup fires a click wherever the pointer ended up -
+  // outside the popup whenever it was dragged to the edge of the screen and
+  // stopped there while the pointer carried on - which handleDocumentClick
+  // would take for "click elsewhere" and close the popup. That one click is
+  // skipped; the flag is dropped again shortly after in case none comes (touch).
+  onPopupDragEnded(): void {
+    this.suppressNextDocumentClick = true;
+    setTimeout(() => {
+      this.suppressNextDocumentClick = false;
+    }, 100);
+  }
+
   // The popup's info accordion changes its height - pull the popup back into
   // the viewport if opening it pushed the bottom edge off screen.
   refitSessionSettingsInfo(session: TrainingSession): void {
@@ -739,6 +755,27 @@ export class SessionsComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
+  // The "..." button on a field's bottom border (FieldMoreButtonComponent):
+  // does what holding the field down does - the equipment/plate dialog for the
+  // weight field, the copy-to-sets popup for the two reps fields. The click has
+  // already passed handleDocumentClick (capture phase) by now, so unlike the
+  // long press this must not ask it to skip a following click.
+  onSetFieldMoreClick(
+    session: TrainingSession,
+    sessionExercise: SessionExercise,
+    kind: 'targetReps' | 'reps' | 'weight',
+    input: HTMLInputElement,
+    set?: ExerciseSet
+  ): void {
+    this.clearLongPressTimer();
+    if (kind === 'weight' && set) {
+      input.blur();
+      void this.openSetEquipmentDialog(session, sessionExercise, set);
+      return;
+    }
+    this.openSetFieldCopyPopup(session, sessionExercise, kind, input, set, false);
+  }
+
   // Right-click on the weight field is how the copy-to-sets popup (see
   // openSetFieldCopyPopup) stays reachable now that the field's long-press
   // opens the equipment/plate dialog instead. Always prevent the browser's
@@ -842,10 +879,11 @@ export class SessionsComponent implements OnInit, OnDestroy {
     sessionExercise: SessionExercise,
     kind: 'targetReps' | 'reps' | 'weight',
     triggerEl: HTMLInputElement,
-    set?: ExerciseSet
+    set?: ExerciseSet,
+    skipFollowingClick = true
   ): void {
     triggerEl.blur();
-    this.suppressNextDocumentClick = true;
+    this.suppressNextDocumentClick = skipFollowingClick;
     const rect = triggerEl.getBoundingClientRect();
     this.setFieldCopyPopupPosition = { top: rect.bottom + 8, left: rect.left };
     this.setFieldCopyContext = { session, sessionExercise, kind, sourceValue: triggerEl.value, set };

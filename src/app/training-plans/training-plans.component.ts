@@ -53,6 +53,7 @@ import { effectiveOneRepMax as computeEffectiveOneRepMax, oneRepMaxOverrideCheck
 import { formatRepRangeText, parseRepRangeText, sanitizeRepRangeInput } from '../core/utils/rep-range-text.util';
 import { TranslatePipe } from '../core/pipes/translate.pipe';
 import { SelectOnFocusDirective } from '../core/directives/select-on-focus.directive';
+import { FieldMoreButtonComponent } from '../core/components/field-more-button/field-more-button.component';
 import { DurationMaskDirective } from '../core/directives/duration-mask.directive';
 import { DurationPipe } from '../core/pipes/duration.pipe';
 import { parseDuration, MAX_DURATION_SECONDS } from '../core/utils/duration-mask.util';
@@ -128,6 +129,7 @@ type SetTargetField = 'warmupSetTargets' | 'workingSetTargets' | 'cooldownSetTar
     DragDropModule,
     TranslatePipe,
     SelectOnFocusDirective,
+    FieldMoreButtonComponent,
     DurationMaskDirective,
     DurationPipe
   ],
@@ -437,6 +439,22 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
+  // The "..." button on the field's bottom border (FieldMoreButtonComponent):
+  // opens the same copy popup holding the field down does. The click has
+  // already passed the document click handler by now, so no following click
+  // needs skipping (see openSetTargetCopyPopup's last parameter).
+  onSetTargetFieldMoreClick(
+    plan: TrainingPlan,
+    exerciseId: string,
+    field: SetTargetField,
+    index: number,
+    kind: 'targetReps' | 'weight',
+    input: HTMLInputElement
+  ): void {
+    this.clearLongPressTimer();
+    this.openSetTargetCopyPopup(plan, exerciseId, field, index, kind, input, false);
+  }
+
   onSetTargetFieldMouseUp(): void {
     this.clearLongPressTimer();
   }
@@ -458,10 +476,11 @@ export class TrainingPlansComponent implements OnInit, OnDestroy {
     field: SetTargetField,
     index: number,
     kind: 'targetReps' | 'weight',
-    triggerEl: HTMLElement
+    triggerEl: HTMLElement,
+    skipFollowingClick = true
   ): void {
     triggerEl.blur();
-    this.suppressNextDocumentClick = true;
+    this.suppressNextDocumentClick = skipFollowingClick;
     const rect = triggerEl.getBoundingClientRect();
     this.setTargetCopyPopupPosition = { top: rect.bottom + 8, left: rect.left };
     this.setTargetCopyContext = { plan, exerciseId, field, index, kind };

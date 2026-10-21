@@ -221,7 +221,8 @@
                 [style.left.px]="sessionSettingsInfoPosition.left"
                 (click)="$event.stopPropagation()"
                 cdkDrag
-                cdkDragBoundary="body"
+                [cdkDragBoundary]="dragBoundary.viewport"
+                (cdkDragEnded)="onPopupDragEnded()"
               >
                 <div class="settings-info-popup-header" cdkDragHandle>
                   <mat-icon>drag_indicator</mat-icon>
@@ -1101,7 +1102,9 @@
                                     (touchend)="onSetFieldMouseUp($event)"
                                     (touchcancel)="onSetFieldMouseLeave($event)"
                                     (contextmenu)="$event.preventDefault()"
+                                    #targetRepsInput
                                   />
+                                  <app-field-more-button (activated)="onSetFieldMoreClick(session, sessionExercise, 'targetReps', targetRepsInput, set)" />
                                 </mat-form-field>
                               }
                               <mat-form-field
@@ -1134,7 +1137,9 @@
                                   (touchend)="onSetFieldMouseUp($event)"
                                   (touchcancel)="onSetFieldMouseLeave($event)"
                                   (contextmenu)="$event.preventDefault()"
+                                  #repsInput
                                 />
+                                <app-field-more-button (activated)="onSetFieldMoreClick(session, sessionExercise, 'reps', repsInput, set)" />
                               </mat-form-field>
                               <mat-form-field
                                 appearance="outline"
@@ -1165,7 +1170,9 @@
                                   (touchend)="onSetFieldMouseUp($event)"
                                   (touchcancel)="onSetFieldMouseLeave($event)"
                                   (contextmenu)="onWeightFieldContextMenu($event, session, sessionExercise, set)"
+                                  #weightInput
                                 />
+                                <app-field-more-button (activated)="onSetFieldMoreClick(session, sessionExercise, 'weight', weightInput, set)" />
                               </mat-form-field>
                             } @else {
                               @if (canEditExerciseTypeInSession(session)) {

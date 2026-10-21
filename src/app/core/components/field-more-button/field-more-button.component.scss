@@ -1,0 +1,43 @@
+:host {
+  display: contents;
+}
+
+// Centred on the bottom edge of the field's outline: half inside the field,
+// half below it, with a solid background so it reads as a tab on the border
+// rather than dots floating across the line.
+.field-more-button {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1rem;
+  padding: 0;
+  border: 1px solid rgba(var(--app-fg-rgb), 0.35);
+  border-radius: 0.5rem;
+  background: var(--app-field-more-bg, #4a4a4a);
+  color: rgba(var(--app-fg-rgb), 0.85);
+  cursor: pointer;
+
+  mat-icon {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+    line-height: 1rem;
+  }
+
+  // A larger touch target than the small visible tab, reaching mostly
+  // downward so it doesn't take taps away from the input above it.
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -10px;
+    bottom: -9px;
+    left: -10px;
+  }
+}

@@ -1389,7 +1389,11 @@
                               (mousedown)="onSetTargetFieldMouseDown($event, plan, exerciseId, field, targetIndex, 'targetReps')"
                               (mouseup)="onSetTargetFieldMouseUp()"
                               (mouseleave)="onSetTargetFieldMouseLeave()"
+                              #targetRepsInput
                             />
+                            @if (!plan.isDefault) {
+                              <app-field-more-button (activated)="onSetTargetFieldMoreClick(plan, exerciseId, field, targetIndex, 'targetReps', targetRepsInput)" />
+                            }
                           </mat-form-field>
                         }
 
@@ -1408,7 +1412,11 @@
                             (mousedown)="onSetTargetFieldMouseDown($event, plan, exerciseId, field, targetIndex, 'weight')"
                             (mouseup)="onSetTargetFieldMouseUp()"
                             (mouseleave)="onSetTargetFieldMouseLeave()"
+                            #weightInput
                           />
+                          @if (!plan.isDefault) {
+                            <app-field-more-button (activated)="onSetTargetFieldMoreClick(plan, exerciseId, field, targetIndex, 'weight', weightInput)" />
+                          }
                         </mat-form-field>
                           </div>
                         </div>

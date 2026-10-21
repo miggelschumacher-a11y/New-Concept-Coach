@@ -54,6 +54,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'At least one set did not fall within its own target range, but the Rep Goal was still reached overall.',
     'sessions.repGoalTargetRepsRequiredError': 'Enter a target rep count greater than 0 for this Rep Goal set.',
     'sessions.longPressCopyHint': 'Press and hold to open a popup for copying this value to other sets.',
+    'sessions.fieldMoreOptions': 'More options',
     'sessions.weightFieldTooltip':
       'Press and hold to open a popup for weight, equipment and plate breakdown. Right-click to open a popup for copying this value to other sets.',
     'sessions.targetSecondsField': 'Target Time',
@@ -534,6 +535,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Mindestens ein Satz lag nicht im Zielbereich, aber das Rep Goal wurde insgesamt trotzdem erreicht.',
     'sessions.repGoalTargetRepsRequiredError': 'Trage für diesen Rep-Goal-Satz eine Ziel-Wiederholungszahl größer als 0 ein.',
     'sessions.longPressCopyHint': 'Längeres Drücken öffnet ein Popup, um diesen Wert auf andere Sätze zu kopieren.',
+    'sessions.fieldMoreOptions': 'Weitere Optionen',
     'sessions.weightFieldTooltip':
       'Längeres Drücken öffnet ein Popup für Gewicht, Ausrüstung und Scheiben-Aufteilung. Rechtsklick öffnet ein Popup, um diesen Wert auf andere Sätze zu kopieren.',
     'sessions.targetSecondsField': 'Ziel-Zeit',
@@ -1016,6 +1018,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Al menos una serie no estuvo dentro de su propio rango objetivo, pero el Rep Goal se alcanzó en total.',
     'sessions.repGoalTargetRepsRequiredError': 'Introduce un número de repeticiones objetivo mayor que 0 para esta serie de Rep Goal.',
     'sessions.longPressCopyHint': 'Mantén pulsado para abrir una ventana emergente que copia este valor a otras series.',
+    'sessions.fieldMoreOptions': 'Más opciones',
     'sessions.weightFieldTooltip':
       'Mantén pulsado para abrir una ventana emergente de peso, equipo y desglose de discos. Haz clic derecho para abrir una ventana emergente que copia este valor a otras series.',
     'sessions.targetSecondsField': 'Tiempo objetivo',
@@ -1498,6 +1501,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Pelo menos uma série não ficou dentro da sua própria faixa-alvo, mas o Rep Goal foi atingido no total.',
     'sessions.repGoalTargetRepsRequiredError': 'Insira um número de repetições alvo maior que 0 para esta série de Rep Goal.',
     'sessions.longPressCopyHint': 'Pressione e segure para abrir um popup que copia este valor para outras séries.',
+    'sessions.fieldMoreOptions': 'Mais opções',
     'sessions.weightFieldTooltip':
       'Pressione e segure para abrir um popup de peso, equipamento e distribuição de anilhas. Clique com o botão direito para abrir um popup que copia este valor para outras séries.',
     'sessions.targetSecondsField': 'Tempo alvo',
@@ -1980,6 +1984,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Almeno una serie non è rientrata nel proprio intervallo obiettivo, ma il Rep Goal è stato comunque raggiunto nel complesso.',
     'sessions.repGoalTargetRepsRequiredError': 'Inserisci un numero di ripetizioni target maggiore di 0 per questa serie Rep Goal.',
     'sessions.longPressCopyHint': 'Tieni premuto per aprire un popup che copia questo valore su altre serie.',
+    'sessions.fieldMoreOptions': 'Altre opzioni',
     'sessions.weightFieldTooltip':
       'Tieni premuto per aprire un popup per peso, attrezzatura e ripartizione dei dischi. Fai clic con il tasto destro per aprire un popup che copia questo valore su altre serie.',
     'sessions.targetSecondsField': 'Tempo previsto',
@@ -2462,6 +2467,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Minstens één set viel niet binnen zijn eigen doelbereik, maar het Rep Goal is in totaal toch gehaald.',
     'sessions.repGoalTargetRepsRequiredError': 'Voer voor deze Rep Goal-set een doelherhalingsaantal groter dan 0 in.',
     'sessions.longPressCopyHint': 'Lang indrukken opent een pop-up om deze waarde naar andere sets te kopiëren.',
+    'sessions.fieldMoreOptions': 'Meer opties',
     'sessions.weightFieldTooltip':
       'Lang indrukken opent een pop-up voor gewicht, uitrusting en schijfverdeling. Rechtsklikken opent een pop-up om deze waarde naar andere sets te kopiëren.',
     'sessions.targetSecondsField': 'Doeltijd',
@@ -2944,6 +2950,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Przynajmniej jedna seria nie mieściła się we własnym zakresie docelowym, ale cel Rep Goal został ogółem osiągnięty.',
     'sessions.repGoalTargetRepsRequiredError': 'Wpisz dla tej serii Rep Goal docelową liczbę powtórzeń większą niż 0.',
     'sessions.longPressCopyHint': 'Przytrzymanie otwiera wyskakujące okno do skopiowania tej wartości do innych serii.',
+    'sessions.fieldMoreOptions': 'Więcej opcji',
     'sessions.weightFieldTooltip':
       'Przytrzymanie otwiera wyskakujące okno z ciężarem, sprzętem i rozkładem talerzy. Kliknięcie prawym przyciskiem otwiera wyskakujące okno do skopiowania tej wartości do innych serii.',
     'sessions.targetSecondsField': 'Czas docelowy',
@@ -3426,6 +3433,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Как минимум один подход не уложился в свой целевой диапазон, но цель Rep Goal в сумме всё равно достигнута.',
     'sessions.repGoalTargetRepsRequiredError': 'Введите для этого подхода Rep Goal целевое число повторений больше 0.',
     'sessions.longPressCopyHint': 'Долгое нажатие открывает всплывающее окно для копирования этого значения в другие подходы.',
+    'sessions.fieldMoreOptions': 'Дополнительно',
     'sessions.weightFieldTooltip':
       'Долгое нажатие открывает всплывающее окно с весом, оборудованием и раскладкой блинов. Щелчок правой кнопкой мыши открывает всплывающее окно для копирования этого значения в другие подходы.',
     'sessions.targetSecondsField': 'Целевое время',
@@ -3908,6 +3916,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Legalább egy sorozat nem esett a saját célsávjába, de a Rep Goal összesítve mégis teljesült.',
     'sessions.repGoalTargetRepsRequiredError': 'Adj meg egy 0-nál nagyobb cél-ismétlésszámot ehhez a Rep Goal szetthez.',
     'sessions.longPressCopyHint': 'A hosszú megnyomás egy előugró ablakot nyit meg, amellyel ez az érték más szettekbe másolható.',
+    'sessions.fieldMoreOptions': 'További lehetőségek',
     'sessions.weightFieldTooltip':
       'A hosszú megnyomás egy előugró ablakot nyit meg a súlyhoz, a felszereléshez és a súlytárcsák elosztásához. A jobb kattintás egy előugró ablakot nyit meg, amellyel ez az érték más szettekbe másolható.',
     'sessions.targetSecondsField': 'Célidő',
@@ -4387,6 +4396,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Mindst ét sæt lå ikke inden for sit eget målinterval, men Rep Goal blev alligevel nået samlet set.',
     'sessions.repGoalTargetRepsRequiredError': 'Angiv et mål-repantal større end 0 for dette Rep Goal-sæt.',
     'sessions.longPressCopyHint': 'Tryk og hold for at åbne en pop-up til at kopiere denne værdi til andre sæt.',
+    'sessions.fieldMoreOptions': 'Flere muligheder',
     'sessions.weightFieldTooltip': 'Tryk og hold for at åbne en pop-up til vægt, udstyr og skivefordeling. Højreklik for at åbne en pop-up til at kopiere denne værdi til andre sæt.',
     'sessions.targetSecondsField': 'Tid (mål)',
     'sessions.achievedSecondsTooltip': 'Holdt varighed (mål i parentes)',
@@ -4824,6 +4834,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Minst ett sett var ikke innenfor sitt eget målintervall, men Rep Goal ble likevel nådd totalt sett.',
     'sessions.repGoalTargetRepsRequiredError': 'Angi et repsmål større enn 0 for dette Rep Goal-settet.',
     'sessions.longPressCopyHint': 'Trykk og hold for å åpne en popup for å kopiere denne verdien til andre sett.',
+    'sessions.fieldMoreOptions': 'Flere alternativer',
     'sessions.weightFieldTooltip':
       'Trykk og hold for å åpne en popup for vekt, utstyr og skivefordeling. Høyreklikk for å åpne en popup for å kopiere denne verdien til andre sett.',
     'sessions.targetSecondsField': 'Tid (mål)',
@@ -5304,6 +5315,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Minst ett set låg inte inom sitt eget målintervall, men Rep Goal uppnåddes ändå totalt sett.',
     'sessions.repGoalTargetRepsRequiredError': 'Ange ett målantal repetitioner större än 0 för detta Rep Goal-set.',
     'sessions.longPressCopyHint': 'Håll intryckt för att öppna en popup för att kopiera detta värde till andra set.',
+    'sessions.fieldMoreOptions': 'Fler alternativ',
     'sessions.weightFieldTooltip':
       'Håll intryckt för att öppna en popup för vikt, utrustning och viktskiveuppdelning. Högerklicka för att öppna en popup för att kopiera detta värde till andra set.',
     'sessions.targetSecondsField': 'Tid (mål)',
@@ -5781,6 +5793,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Vähintään yksi sarja jäi oman tavoitealueensa ulkopuolelle, mutta Rep Goal saavutettiin silti yhteensä.',
     'sessions.repGoalTargetRepsRequiredError': 'Anna tälle Rep Goal -sarjalle yli 0 toiston tavoite.',
     'sessions.longPressCopyHint': 'Paina pitkään avataksesi ponnahdusikkunan, jolla voit kopioida tämän arvon muihin sarjoihin.',
+    'sessions.fieldMoreOptions': 'Lisää vaihtoehtoja',
     'sessions.weightFieldTooltip': 'Paina pitkään avataksesi ponnahdusikkunan painoa, varusteita ja levyjakoa varten. Napsauta hiiren oikealla painikkeella avataksesi ponnahdusikkunan tämän arvon kopioimiseksi muihin sarjoihin.',
     'sessions.targetSecondsField': 'Tavoiteaika',
     'sessions.achievedSecondsTooltip': 'Pidetty kesto (tavoite suluissa)',
@@ -6215,6 +6228,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Alespoň jedna série nespadala do svého cílového rozsahu, ale cíl Rep Goal byl celkově přesto splněn.',
     'sessions.repGoalTargetRepsRequiredError': 'Zadej cílový počet opakování větší než 0 pro tuto sérii Rep Goal.',
     'sessions.longPressCopyHint': 'Podrž stisknuté pro otevření okna ke zkopírování této hodnoty do dalších sérií.',
+    'sessions.fieldMoreOptions': 'Další možnosti',
     'sessions.weightFieldTooltip': 'Podrž stisknuté pro otevření okna s váhou, vybavením a rozpisem kotoučů. Klikni pravým tlačítkem pro otevření okna ke zkopírování této hodnoty do dalších sérií.',
     'sessions.targetSecondsField': 'Cílový čas',
     'sessions.achievedSecondsTooltip': 'Dosažená doba výdrže (cíl v závorce)',
@@ -6652,6 +6666,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'En az bir set kendi hedef aralığına girmedi, ancak Rep Goal toplamda yine de karşılandı.',
     'sessions.repGoalTargetRepsRequiredError': 'Bu Tekrar Hedefi seti için 0’dan büyük bir hedef tekrar sayısı gir.',
     'sessions.longPressCopyHint': 'Bu değeri diğer setlere kopyalamak için açılır pencereyi açmak üzere basılı tut.',
+    'sessions.fieldMoreOptions': 'Diğer seçenekler',
     'sessions.weightFieldTooltip':
       'Ağırlık, ekipman ve disk dağılımı için açılır pencereyi açmak üzere basılı tut. Bu değeri diğer setlere kopyalamak için sağ tıkla.',
     'sessions.targetSecondsField': 'Hedef Süre',
@@ -7131,6 +7146,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'لم تقع مجموعة واحدة على الأقل ضمن نطاقها المستهدف، لكن هدف التكرارات (Rep Goal) تحقق إجمالاً رغم ذلك.',
     'sessions.repGoalTargetRepsRequiredError': 'أدخل عدد تكرارات مستهدف أكبر من 0 لمجموعة هدف التكرارات هذه.',
     'sessions.longPressCopyHint': 'اضغط مطولاً لفتح نافذة منبثقة لنسخ هذه القيمة إلى مجموعات أخرى.',
+    'sessions.fieldMoreOptions': 'خيارات إضافية',
     'sessions.weightFieldTooltip': 'اضغط مطولاً لفتح نافذة منبثقة للوزن والمعدات وتفصيل الأقراص. انقر بزر الماوس الأيمن لفتح نافذة منبثقة لنسخ هذه القيمة إلى مجموعات أخرى.',
     'sessions.targetSecondsField': 'الوقت المستهدف',
     'sessions.achievedSecondsTooltip': 'مدة الثبات (الهدف بين قوسين)',
@@ -7574,6 +7590,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': '至少有一组未落在其自身目标区间内，但总次数仍然达到了 Rep Goal 目标。',
     'sessions.repGoalTargetRepsRequiredError': '请为此次数目标组输入大于 0 的目标次数。',
     'sessions.longPressCopyHint': '长按可打开弹窗，将此数值复制到其他组。',
+    'sessions.fieldMoreOptions': '更多选项',
     'sessions.weightFieldTooltip':
       '长按可打开重量、器材和杠铃片组合的弹窗。右键点击可打开弹窗，将此数值复制到其他组。',
     'sessions.targetSecondsField': '目标时间',
@@ -8051,6 +8068,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': '少なくとも1セットは自身の目標範囲に収まりませんでしたが、Rep Goalは合計では達成されました。',
     'sessions.repGoalTargetRepsRequiredError': 'このレップゴールセットには、0より大きい目標レップ数を入力してください。',
     'sessions.longPressCopyHint': '長押しすると、この値を他のセットにコピーするためのポップアップが開きます。',
+    'sessions.fieldMoreOptions': 'その他のオプション',
     'sessions.weightFieldTooltip': '長押しすると、重量・器具・プレート内訳のポップアップが開きます。右クリックすると、この値を他のセットにコピーするためのポップアップが開きます。',
     'sessions.targetSecondsField': '目標時間',
     'sessions.achievedSecondsTooltip': '保持時間(括弧内は目標値)',
@@ -8487,6 +8505,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     'sessions.repGoalMetDespiteMissedSetMessage': 'Τουλάχιστον ένα σετ δεν έπεσε εντός του δικού του εύρους στόχου, όμως ο στόχος Rep Goal επιτεύχθηκε συνολικά.',
     'sessions.repGoalTargetRepsRequiredError': 'Εισήγαγε έναν στόχο επαναλήψεων μεγαλύτερο από 0 για αυτό το σετ Στόχου Επαναλήψεων.',
     'sessions.longPressCopyHint': 'Πάτησε παρατεταμένα για να ανοίξεις ένα αναδυόμενο παράθυρο για αντιγραφή αυτής της τιμής σε άλλα σετ.',
+    'sessions.fieldMoreOptions': 'Περισσότερες επιλογές',
     'sessions.weightFieldTooltip': 'Πάτησε παρατεταμένα για να ανοίξεις ένα αναδυόμενο παράθυρο για βάρος, εξοπλισμό και ανάλυση δίσκων. Κάνε δεξί κλικ για να ανοίξεις ένα αναδυόμενο παράθυρο για αντιγραφή αυτής της τιμής σε άλλα σετ.',
     'sessions.targetSecondsField': 'Στόχος Χρόνου',
     'sessions.achievedSecondsTooltip': 'Διάρκεια κράτησης (ο στόχος σε παρένθεση)',
