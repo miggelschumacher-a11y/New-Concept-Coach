@@ -611,7 +611,7 @@ mat-expansion-panel mat-checkbox {
 // than the plain integer the 3.5rem default was sized for - and wider still
 // once its floating label also carries the target, e.g. "Sek. (1:01:08)".
 .set-fields .set-field.set-field-seconds {
-  width: 5.75rem;
+  width: 7rem;
 }
 
 .set-fields .set-field.set-field-seconds.set-field-reps-target {
@@ -619,8 +619,8 @@ mat-expansion-panel mat-checkbox {
 }
 
 .set-fields .set-field-target-reps-input {
-  flex: 0 0 5.5rem;
-  width: 5.5rem;
+  flex: 0 0 7rem;
+  width: 7rem;
 }
 
 .set-fields .set-field-weight {
